@@ -49,6 +49,7 @@
     "sharp": "^0.33.5",
     "socket.io": "^4.8.1",
     "socket.io-adapter": "^2.5.5",
+    "socket.io-client": "^4.8.1",
     "uuid": "^11.1.0",
     "winston-daily-rotate-file": "^5.0.0",
     "zxcvbn-typescript": "^5.0.1"
