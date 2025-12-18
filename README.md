@@ -67,6 +67,24 @@ This is a rare, high-complexity enterprise monorepo featuring:
 
 ---
 
+## Setup
+
+- Have localstack account
+- Download Localstack App
+- Set up .env vars in all packages where there's a sample env
+
+1. Spin up Containers `docker compose up -d`
+1. Shell into api `make api-shell`
+1. Run `pnpn i`
+1. Leave Container `exit`
+1. Log-in to Localstack and connect local app to account
+1. Run `make db-seed` or `make db-reset` to setup the db
+1. Run `make api-watch`
+1. In a new terminal, run `make api-start`
+1. In a new terminal, run `pnpm dev:web`
+
+___
+
 ## Dev
 Run Web App
 ```Bash
