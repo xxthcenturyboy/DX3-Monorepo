@@ -443,6 +443,7 @@ Proceed with initialization? (yes/no): yes
    2. Run: docker compose up -d
    3. Run: make db-reset
    4. Review README.md and update as needed
+   5. Change logos in `/packages/web/web-app/src/assets/img`
 
 ════════════════════════════════════════════════════════════════
 ```
