@@ -16,6 +16,8 @@ __These /libs/ files do not run independently. Run an API to call these__
 
 ## Testing
 
+### Run inside container
+
 Runs all libs tests
 ```Bash
 pnpm --filter @dx3/api test:libs

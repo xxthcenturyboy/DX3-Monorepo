@@ -23,6 +23,8 @@ make api-start
 
 ## Testing
 
+### Run inside container
+
 Runs all API-App tests
 ```Bash
 pnpm --filter @dx3/api-app test
