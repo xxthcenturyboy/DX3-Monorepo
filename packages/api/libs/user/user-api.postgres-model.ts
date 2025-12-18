@@ -98,11 +98,12 @@ export class UserModel extends Model<UserModel> {
   @AllowNull(false)
   @Column({
     // KLUDGE: Sequelize complains about setting enum arrays, so we're using a workaround!
+    // NOTE: Using lowercase enum type names for PostgreSQL convention
     set(userRoles: string[] = []): void {
       const sanitizedRoles = userRoles.map((role) => role.replace(/'/g, "''"))
       this.setDataValue(
         'roles',
-        literal(`ARRAY[${sanitizedRoles.map((role) => `'${role}'`).join(',')}]::USER_ROLE[]`),
+        literal(`ARRAY[${sanitizedRoles.map((role) => `'${role}'`).join(',')}]::user_role[]`),
       )
     },
     type: DataType.ARRAY(DataType.STRING),
@@ -111,12 +112,13 @@ export class UserModel extends Model<UserModel> {
 
   @Column({
     // KLUDGE: Sequelize complains about setting enum arrays, so we're using a workaround!
+    // NOTE: Using lowercase enum type names for PostgreSQL convention
     set(restrictions: string[] = []): void {
       const sanitizedRestrictions = restrictions.map((r) => r.replace(/'/g, "''"))
       this.setDataValue(
         'restrictions',
         literal(
-          `ARRAY[${sanitizedRestrictions.map((restriction) => `'${restriction}'`).join(',')}]::ACCOUNT_RESTRICTION[]`,
+          `ARRAY[${sanitizedRestrictions.map((restriction) => `'${restriction}'`).join(',')}]::account_restriction[]`,
         ),
       )
     },

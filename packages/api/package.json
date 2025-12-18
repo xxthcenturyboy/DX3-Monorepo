@@ -10,7 +10,9 @@
     "test:libs:watch": "jest --testPathPattern=\"libs\" --watch",
     "test:libs:watch:coverage": "jest --testPathPattern=\"libs\" --watch --coverage",
     "test:libs:debug": "jest --testPathPattern=\"libs\" --debug",
-    "test:libs:debug:coverage": "jest --testPathPattern=\"libs\" --debug --coverage"
+    "test:libs:debug:coverage": "jest --testPathPattern=\"libs\" --debug --coverage",
+    "db:seed": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts",
+    "db:seed:local": "POSTGRES_URI=postgres://pguser:password@localhost:5433/dx3 node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts"
   },
   "dependencies": {
     "@aws-sdk/lib-storage": "^3.758.0",

@@ -15,7 +15,7 @@ import { PHONE_DEFAULT_REGION_CODE } from '@dx3/models-shared'
 import { getTimeFromUuid } from '@dx3/utils-shared'
 
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
-import { PhoneUtil } from '../utils'
+import { PhoneUtil } from '../utils/lib/phone/phone.util'
 import { PHONE_POSTGRES_DB_NAME } from './phone-api.consts'
 
 @Table({

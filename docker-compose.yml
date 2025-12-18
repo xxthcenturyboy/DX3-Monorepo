@@ -38,6 +38,7 @@ services:
         # This ensures the node_modules from the image is used.
         - ./packages/api:/app/packages/api
         - ./packages/shared:/app/packages/shared
+        - ./_devops/scripts:/app/_devops/scripts
         - ./jest.config.ts:/app/jest.config.ts
         - ./jest.preset.js:/app/jest.preset.js
         - ./biome.json:/app/biome.json
@@ -48,16 +49,8 @@ services:
         # - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
         - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
         # - ./packages/api/src/api-app/.env:/app/.env  # Mount .env file for development
-        # Prevent host's node_modules from overwriting container's
-        - /app/node_modules
-        # API packages
-        - /app/packages/api/src/api-app/node_modules
-        - /app/packages/api/src/api-app-e2e/node_modules
-        # Shared packages
-        - /app/packages/shared/encryption/node_modules
-        - /app/packages/shared/models/node_modules
-        - /app/packages/shared/test-data/node_modules
-        - /app/packages/shared/utils-shared/node_modules
+        # Note: node_modules are installed on container startup via docker-start.dev.sh
+        # This ensures dependencies are always in sync with mounted source code
     ports:
         - "4000:4000"
     depends_on:
