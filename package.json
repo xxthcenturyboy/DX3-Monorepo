@@ -1,0 +1,56 @@
+{
+  "name": "@dx3/source",
+  "description": "Full-Stack TypeScript Monorepo",
+  "displayName": "DX3 Monorepo",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev:web": "pnpm --filter @dx3/web-app dev",
+    "dev:mobile": "pnpm --filter @dx3/mobile start",
+    "build": "pnpm -r --filter './{packages/api/api-app,packages/shared,packages/mobile,packages/web/web-app}/**' build",
+    "build:api-app": "pnpm -r --filter './packages/shared/**' --filter './packages/api/src/api-app' build",
+    "build:web": "pnpm -r --filter './packages/shared/**' --filter './packages/web/web-app' build",
+    "build:mobile": "pnpm -r --filter './packages/shared/**' --filter './packages/mobile/**' build",
+    "test": "pnpm -r test",
+    "test:shared": "NODE_OPTIONS='--no-deprecation' pnpm --filter './packages/shared/*' -r test --detectOpenHandles",
+    "test:shared:coverage": "NODE_OPTIONS='--no-deprecation' pnpm --filter './packages/shared/*' -r test --coverage --detectOpenHandles",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "migrate": "sequelize db:migrate",
+    "unmigrate": "sequelize db:migrate:undo"
+  },
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@jest/test-sequencer": "^29.7.0",
+    "@swc-node/register": "~1.9.1",
+    "@swc/cli": "~0.3.12",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@types/jest": "^29.5.12",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "22.19.1",
+    "babel-jest": "^29.7.0",
+    "cypress": "^13.13.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "sequelize-cli": "^6.6.2",
+    "ts-jest": "^29.1.0",
+    "ts-node": "10.9.1",
+    "tslib": "^2.3.0",
+    "typescript": "~5.7.2"
+  },
+  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "cypress",
+      "esbuild",
+      "sharp"
+    ]
+  }
+}

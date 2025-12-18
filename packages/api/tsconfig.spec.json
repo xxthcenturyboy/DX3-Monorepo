@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "types": ["jest", "node"],
+    "useDefineForClassFields": false
+  },
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts",
+    "src/testing/test-setup.ts",
+    "libs/**/*.spec.ts",
+    "libs/**/*.ts",
+    "./types/express.d.ts",
+    "api-app/express.spec.ts"
+  ]
+}

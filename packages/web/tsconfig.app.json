@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "exclude": [
+    "libs/**/*.spec.ts",
+    "libs/**/*.test.ts",
+    "libs/**/*.spec.tsx",
+    "libs/**/*.test.tsx",
+    "libs/**/*.spec.js",
+    "libs/**/*.test.js",
+    "libs/**/*.spec.jsx",
+    "libs/**/*.test.jsx",
+    "jest.config.ts"
+  ],
+  "extends": "./tsconfig.json",
+  "include": ["libs/**/*.js", "libs/**/*.jsx", "libs/**/*.ts", "libs/**/*.tsx"]
+}

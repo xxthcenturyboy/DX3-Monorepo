@@ -1,0 +1,49 @@
+# Ignore node_modules - heavy and not needed for indexing
+node_modules/
+**/node_modules/
+
+# Ignore build outputs
+dist/
+**/dist/
+**/api-app-dist/
+.next/
+web-build/
+coverage/
+
+# Ignore package manager stores and lock files
+.pnpm-store/
+.yarn/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Ignore Expo cache
+.expo/
+cache/
+.cache/
+
+# Ignore IDE folders
+.idea/
+.vscode/
+
+# Ignore logs
+*.log
+npm-debug.*
+
+# Ignore test cache
+.jest/
+
+# Ignore volume/data directories (Docker mounts, local dev data)
+volume/
+
+# Ignore temporary files
+tmp/
+*.tmp
+
+# Ignore cypress/e2e artifacts
+**/cypress/videos/
+**/cypress/screenshots/
+**/cypress/downloads/
+
+# Ignore git internals
+.git/

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "outDir": ".././dist",
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "types": ["jest", "node"]
+  },
+  "extends": "../../../tsconfig.base.json",
+  "include": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
+}

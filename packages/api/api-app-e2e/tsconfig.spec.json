@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "types": ["jest", "node"]
+  },
+  "extends": "./tsconfig.json",
+  "include": ["jest.config.ts", "src/**/*.ts"]
+}

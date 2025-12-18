@@ -1,0 +1,100 @@
+import type { PaletteMode } from '@mui/material'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import autoMergeLevel1 from 'reduxjs-toolkit-persist/lib/stateReconciler/autoMergeLevel1'
+import storage from 'reduxjs-toolkit-persist/lib/storage'
+import type { PersistConfig } from 'reduxjs-toolkit-persist/lib/types'
+
+import { APP_NAME, APP_PREFIX } from '@dx3/models-shared'
+import { appTheme } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
+
+import type { AppMenuType } from '../menus/app-menu.types'
+import { UI_WEB_ENTITY_NAME } from '../ui-web.consts'
+import type { UiStateType } from '../ui-web.types'
+
+export const uiInitialState: UiStateType = {
+  apiDialogError: null,
+  apiDialogOpen: false,
+  awaitDialogMessage: '',
+  awaitDialogOpen: false,
+  bootstrapped: false,
+  dialogComponent: null,
+  dialogOpen: false,
+  isShowingUnauthorizedAlert: false,
+  logoUrl: `/assets/img/text-logo-dark-square.png`,
+  logoUrlSmall: `/assets/img/text-logo-square.png`,
+  menuOpen: false,
+  menus: null,
+  name: APP_NAME,
+  notifications: 0,
+  strings: {},
+  theme: appTheme,
+  windowHeight: window.innerHeight,
+  windowWidth: window.innerWidth,
+}
+
+export const uiPersistConfig: PersistConfig<UiStateType> = {
+  blacklist: [
+    'apiDialogError',
+    'apiDialogOpen',
+    'awaitDialogMessage',
+    'awaitDialogOpen',
+    'bootstrapped',
+    'dialogOpen',
+    'dialogComponent',
+    'isShowingUnauthorizedAlert',
+    'logoUrl',
+    'logoUrlSmall',
+  ],
+  key: `${APP_PREFIX}:${UI_WEB_ENTITY_NAME}`,
+  stateReconciler: autoMergeLevel1,
+  storage,
+}
+
+const uiSlice = createSlice({
+  initialState: uiInitialState,
+  name: UI_WEB_ENTITY_NAME,
+  reducers: {
+    apiDialogSet(state, action: PayloadAction<string>) {
+      state.apiDialogOpen = !!action.payload
+      state.apiDialogError = action.payload
+    },
+    appDialogSet(state, action: PayloadAction<React.ReactNode | null>) {
+      state.dialogOpen = !!action.payload
+      state.dialogComponent = action.payload
+    },
+    awaitDialogMessageSet(state, action: PayloadAction<string>) {
+      state.awaitDialogMessage = action.payload
+    },
+    awaitDialogOpenSet(state, action: PayloadAction<boolean>) {
+      state.awaitDialogOpen = action.payload
+    },
+    bootstrapSet(state, action: PayloadAction<boolean>) {
+      state.bootstrapped = action.payload
+    },
+    menusSet(state, action: PayloadAction<{ menus: AppMenuType[] | null }>) {
+      state.menus = action.payload.menus
+    },
+    setIsShowingUnauthorizedAlert(state, action: PayloadAction<boolean>) {
+      state.isShowingUnauthorizedAlert = action.payload
+    },
+    setStrings(state, action: PayloadAction<Record<string, string>>) {
+      state.strings = action.payload
+    },
+    themeModeSet(state, action: PayloadAction<PaletteMode>) {
+      if (state.theme.palette && action.payload) {
+        state.theme.palette.mode = action.payload
+      }
+    },
+    toggleMenuSet(state, action: PayloadAction<boolean>) {
+      state.menuOpen = action.payload
+    },
+    windowSizeSet(state, _action: PayloadAction<undefined>) {
+      state.windowWidth = window?.innerWidth
+      state.windowHeight = window?.innerHeight
+    },
+  },
+})
+
+export const uiActions = uiSlice.actions
+
+export const uiReducer = uiSlice.reducer

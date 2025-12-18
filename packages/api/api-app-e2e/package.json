@@ -1,0 +1,25 @@
+{
+  "name": "@dx3/api-app-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "test:verbose": "jest --verbose",
+    "test:runInBand": "jest --runInBand",
+    "test:verbose:runInBand": "jest --verbose --runInBand",
+    "test:ci": "jest --runInBand --coverage --watchAll=false",
+    "test:debug": "jest --verbose --runInBand --detectOpenHandles",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@dx3/models-shared": "workspace:*",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.10.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,223 @@
+import type { Request, Response } from 'express'
+
+import { AuthService } from '@dx3/api-libs/auth/auth-api.service'
+import { TokenService } from '@dx3/api-libs/auth/tokens/token.service'
+import { CookeiService } from '@dx3/api-libs/cookies/cookie.service'
+import { DevicesService } from '@dx3/api-libs/devices/devices-api.service'
+import {
+  sendBadRequest,
+  sendOK,
+  sendUnauthorized,
+} from '@dx3/api-libs/http-response/http-responses'
+import { ApiLoggingClass } from '@dx3/api-libs/logger'
+import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
+import type {
+  AccountCreationPayloadType,
+  LoginPayloadType,
+  UserLookupQueryType,
+  UserProfileStateType,
+} from '@dx3/models-shared'
+import { AUTH_TOKEN_NAMES } from '@dx3/models-shared'
+
+export const AuthController = {
+  authLookup: async (req: Request, res: Response) => {
+    try {
+      const service = new AuthService()
+      const result = await service.doesEmailPhoneExist(req.query as UserLookupQueryType)
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  checkPasswordStrength: async (req: Request, res: Response) => {
+    try {
+      const service = new AuthService()
+      const { password } = req.body as { password: string }
+      const result = await service.checkPasswordStrength(password)
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  createAccount: async (req: Request, res: Response) => {
+    try {
+      const service = new AuthService()
+      const profile = (await service.createAccount(
+        req.body as AccountCreationPayloadType,
+        // req.session
+      )) as UserProfileStateType
+
+      const tokens = TokenService.generateTokens(profile.id)
+      if (tokens.refreshToken) {
+        CookeiService.setCookies(
+          res,
+          profile.hasSecuredAccount,
+          tokens.refreshToken,
+          tokens.refreshTokenExp,
+        )
+        await UserModel.updateRefreshToken(profile.id, tokens.refreshToken, true)
+      }
+
+      sendOK(req, res, {
+        accessToken: tokens.accessToken,
+        profile,
+      })
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  login: async (req: Request, res: Response) => {
+    try {
+      const service = new AuthService()
+      const profile = (await service.login(req.body as LoginPayloadType)) as UserProfileStateType
+
+      const tokens = TokenService.generateTokens(profile.id)
+      if (tokens.refreshToken) {
+        CookeiService.setCookies(
+          res,
+          profile.hasSecuredAccount,
+          tokens.refreshToken,
+          tokens.refreshTokenExp,
+        )
+        await UserModel.updateRefreshToken(profile.id, tokens.refreshToken, true)
+      }
+
+      sendOK(req, res, {
+        accessToken: tokens.accessToken,
+        profile,
+      })
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  logout: async (req: Request, res: Response) => {
+    try {
+      const refreshToken = CookeiService.getCookie(req, AUTH_TOKEN_NAMES.REFRESH)
+      CookeiService.clearCookies(res)
+      if (!refreshToken) {
+        return sendOK(req, res, { loggedOut: true })
+      }
+      const service = new AuthService()
+      const result = await service.logout(refreshToken)
+      if (!result) {
+        return sendOK(req, res, { loggedOut: false })
+      }
+
+      // req.session.destroy((err: Error) => {
+      //   if (err) {
+      //     return sendBadRequest(req, res, err.message || 'Failed to destroy session');
+      //   }
+      //   ApiLoggingClass.instance.logInfo(`Session Destroyed: ${req.user?.id}`);
+      // });
+
+      sendOK(req, res, { loggedOut: true })
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  refreshTokens: async (req: Request, res: Response) => {
+    const refreshToken = CookeiService.getCookie(req, AUTH_TOKEN_NAMES.REFRESH)
+    if (!refreshToken) {
+      ApiLoggingClass.instance.logError('No refresh token.')
+      CookeiService.clearCookies(res)
+      // req.session.destroy((err: Error) => {
+      //   if (err) {
+      //     return sendBadRequest(req, res, err.message || 'Failed to destroy session');
+      //   }
+      //   ApiLoggingClass.instance.logInfo(`Session Destroyed: ${req.sessionId}`);
+      // });
+      return sendUnauthorized(req, res, 'No refresh token.')
+    }
+
+    const userId = await TokenService.isRefreshValid(refreshToken)
+    if (!userId) {
+      CookeiService.clearCookie(res, AUTH_TOKEN_NAMES.REFRESH)
+      return sendUnauthorized(req, res, 'Invalid token.')
+    }
+
+    const tokens = TokenService.generateTokens(userId as string)
+    if (tokens.refreshToken) {
+      CookeiService.setRefreshCookie(res, tokens.refreshToken, tokens.refreshTokenExp)
+      try {
+        await UserModel.updateRefreshToken(userId as string, tokens.refreshToken)
+        return sendOK(req, res, {
+          accessToken: tokens.accessToken,
+        })
+      } catch (err) {
+        ApiLoggingClass.instance.logError(err)
+      }
+    }
+
+    sendBadRequest(req, res, 'Could not refresh the token.')
+  },
+
+  rejectDevice: async (req: Request, res: Response) => {
+    try {
+      const service = new DevicesService()
+      const { token } = req.params as { token: string }
+      const result = await service.rejectDevice(token)
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  sendOtpById: async (req: Request, res: Response) => {
+    try {
+      const { id, type } = req.body as { id: string; type: 'PHONE' | 'EMAIL' }
+      const service = new AuthService()
+      const result = await service.sentOtpById(id, type)
+
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  sendOtpToEmail: async (req: Request, res: Response) => {
+    try {
+      const { email, strict } = req.body as { email: string; strict?: boolean }
+      const service = new AuthService()
+      const result = await service.sendOtpToEmail(email, strict)
+
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  sendOtpToPhone: async (req: Request, res: Response) => {
+    try {
+      const { phone, regionCode, strict } = req.body as {
+        phone: string
+        regionCode?: string
+        strict?: boolean
+      }
+      const service = new AuthService()
+      const result = await service.sendOtpToPhone(phone, regionCode, strict)
+
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+
+  validateEmail: async (req: Request, res: Response) => {
+    try {
+      const { token } = req.params as { token: string }
+      const service = new AuthService()
+      const result = await service.validateEmail(token)
+
+      sendOK(req, res, result)
+    } catch (err) {
+      sendBadRequest(req, res, err.message)
+    }
+  },
+}
+
+export type AuthControllerType = typeof AuthController

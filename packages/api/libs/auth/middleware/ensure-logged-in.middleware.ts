@@ -1,0 +1,56 @@
+import type { NextFunction, Request, Response } from 'express'
+
+import { AUTH_TOKEN_NAMES } from '@dx3/models-shared'
+
+import { CookeiService } from '../../cookies/cookie.service'
+import { HeaderService } from '../../headers/header.service'
+import { sendForbidden } from '../../http-response/http-responses'
+import { ApiLoggingClass } from '../../logger'
+import { UserModel } from '../../user/user-api.postgres-model'
+import { TokenService } from '../tokens/token.service'
+
+export async function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
+  try {
+    const token = HeaderService.getTokenFromRequest(req)
+    if (!token) {
+      throw new Error('No Token.')
+    }
+
+    const userId = TokenService.getUserIdFromToken(token)
+    if (!userId) {
+      throw new Error('Token invalid or expired.')
+    }
+
+    req.user = await UserModel.getUserSessionData(userId)
+
+    next()
+  } catch (err) {
+    const msg = err.message || err
+    // CookeiService.clearCookies(res);
+    ApiLoggingClass.instance.logError(`Failed to authenticate tokens: ${msg}`)
+    sendForbidden(req, res, msg)
+  }
+}
+
+export async function ensureLoggedInMedia(req: Request, res: Response, next: NextFunction) {
+  try {
+    const token = CookeiService.getCookie(req, AUTH_TOKEN_NAMES.REFRESH)
+    if (!token) {
+      throw new Error('No Token.')
+    }
+
+    const userId = TokenService.getUserIdFromToken(token)
+    if (!userId) {
+      throw new Error('Token invalid or expired.')
+    }
+
+    req.user = await UserModel.getUserSessionData(userId)
+
+    next()
+  } catch (err) {
+    const msg = err.message || err
+    // CookeiService.clearCookies(res);
+    ApiLoggingClass.instance.logError(`Failed to authenticate tokens: ${msg}`)
+    sendForbidden(req, res, msg)
+  }
+}

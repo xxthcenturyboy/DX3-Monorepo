@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "outDir": "../api-app-dist",
+    "resolveJsonModule": true,
+    "types": ["jest", "node"]
+  },
+  "extends": "./tsconfig.json",
+  "include": [
+    "jest.config.ts",
+    "**/*.ts",
+    "../libs/**/*.ts",
+    "../types/express.d.ts"
+  ]
+}

@@ -1,0 +1,9 @@
+packages:
+  - 'packages/api'
+  - 'packages/api/api-app'
+  - 'packages/api/api-app-e2e'
+  - 'packages/shared/*'
+  - 'packages/mobile'
+  - 'packages/web'
+  - 'packages/web/web-app'
+  - 'packages/web/web-app-e2e'

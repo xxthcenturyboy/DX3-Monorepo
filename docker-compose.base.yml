@@ -1,0 +1,20 @@
+name: 'dx3'
+
+services:
+  base:
+    platform: "${DOCKER_HOST_PLATFORM}"
+    restart: always
+    # network_mode: "host"
+    # restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    secrets:
+      - source: npmrc
+        target: /root/.npmrc
+      - source: gitconfig
+        target: /root/.gitconfig
+    environment:
+      - DEV_PLATFORM=DOCKER
+    volumes:
+    #   - ../../:/app

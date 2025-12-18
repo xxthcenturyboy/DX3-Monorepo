@@ -1,0 +1,92 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: Type is ok here */
+import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { useDispatch, useSelector, useStore } from 'react-redux'
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  persistReducer,
+  persistStore,
+  REGISTER,
+  REHYDRATE,
+} from 'reduxjs-toolkit-persist'
+
+import type { StatsStateType, UserProfileStateType } from '@dx3/models-shared'
+
+import { authPersistConfig, authReducer } from '../auth/auth-web.reducer'
+import type { AuthStateType } from '../auth/auth-web.types'
+import { dashboardReducer } from '../dashboard/dashboard-web.reducer'
+import { apiWeb } from '../data/rtk-query/web.api'
+import { homeReducer } from '../home/home-web.reducer'
+import { mediaPersistConfig, mediaReducer } from '../media/media-web.reducer'
+import type { MediaStateType } from '../media/media-web.types'
+import { notificationReducer } from '../notifications/notification-web.reducer'
+import { statsPersistConfig, statsReducer } from '../stats/stats-web.reducer'
+import { uiPersistConfig, uiReducer } from '../ui/store/ui-web.reducer'
+import type { UiStateType } from '../ui/ui-web.types'
+import { userAdminPersistConfig, userAdminReducer } from '../user/admin/user-admin-web.reducer'
+import type { UserAdminStateType } from '../user/admin/user-admin-web.types'
+import {
+  userProfilePersistConfig,
+  userProfileReducer,
+} from '../user/profile/user-profile-web.reducer'
+import {
+  privilegeSetPersistConfig,
+  privilegeSetReducer,
+} from '../user-privilege/user-privilege-web.reducer'
+import type { PrivilegeSetStateType } from '../user-privilege/user-privilege-web.types'
+
+const combinedPersistReducers = combineReducers({
+  [apiWeb.reducerPath]: apiWeb.reducer,
+  auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
+  dashboard: dashboardReducer,
+  home: homeReducer,
+  media: persistReducer<MediaStateType, any>(
+    mediaPersistConfig,
+    mediaReducer,
+  ) as typeof mediaReducer,
+  notification: notificationReducer,
+  privileges: persistReducer<PrivilegeSetStateType, any>(
+    privilegeSetPersistConfig,
+    privilegeSetReducer,
+  ) as typeof privilegeSetReducer,
+  stats: persistReducer<StatsStateType, any>(
+    statsPersistConfig,
+    statsReducer,
+  ) as typeof statsReducer,
+  ui: persistReducer<UiStateType, any>(uiPersistConfig, uiReducer) as typeof uiReducer,
+  userAdmin: persistReducer<UserAdminStateType, any>(
+    userAdminPersistConfig,
+    userAdminReducer,
+  ) as typeof userAdminReducer,
+  userProfile: persistReducer<UserProfileStateType, any>(
+    userProfilePersistConfig,
+    userProfileReducer,
+  ) as typeof userProfileReducer,
+})
+
+const store = configureStore({
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, 'ui/appDialogSet'],
+        ignoredPaths: ['ui.dialogComponent'],
+      },
+    }).concat(apiWeb.middleware),
+  reducer: combinedPersistReducers,
+})
+
+const persistor = persistStore(store)
+
+type AppStore = typeof store
+type RootState = ReturnType<AppStore['getState']>
+type AppDispatch = AppStore['dispatch']
+
+const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+const useAppSelector = useSelector.withTypes<RootState>()
+const useAppStore = useStore.withTypes<AppStore>()
+
+export type { AppDispatch, AppStore, RootState }
+
+export { persistor, store, useAppDispatch, useAppSelector, useAppStore }

@@ -1,0 +1,11 @@
+export const UNSUBSCRIBE_GROUPS = {
+  AFFILIATE_NOTIFICATIONS: '16960',
+  INVITES: '16958',
+  MARKETING: '16961',
+  TRANSACTIONAL: '16959',
+}
+
+export const IP_POOL_NAME = {
+  INVITES: 'invites',
+  TRANSACTIONAL: 'transactional',
+}

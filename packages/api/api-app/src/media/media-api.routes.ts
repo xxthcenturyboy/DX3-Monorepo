@@ -1,0 +1,33 @@
+import { Router } from 'express'
+
+import {
+  ensureLoggedIn,
+  ensureLoggedInMedia,
+} from '@dx3/api-libs/auth/middleware/ensure-logged-in.middleware'
+import { UploadMiddleware } from '@dx3/api-libs/media/media-api-file-upload.middleware'
+
+import { MediaApiController } from './media-api.controller'
+
+export class MediaApiV1Routes {
+  static configure() {
+    const router = Router()
+
+    router.get('/:id/:size', [ensureLoggedInMedia], MediaApiController.getMedia)
+
+    router.post(
+      '/upload-profile-image',
+      [ensureLoggedIn, UploadMiddleware.singleFile],
+      MediaApiController.uploadUserContent,
+    )
+
+    router.post(
+      '/upload-user-content',
+      [ensureLoggedIn, UploadMiddleware.multipleFiles],
+      MediaApiController.uploadUserContent,
+    )
+
+    return router
+  }
+}
+
+export type MediaApiV1RoutesType = typeof MediaApiV1Routes.prototype

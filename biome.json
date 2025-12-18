@@ -1,0 +1,137 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [":URL:", ":NODE:", ":PACKAGE:", "!@dx3/**", "!libs/**"],
+              ":BLANK_LINE:",
+              "@dx3/**",
+              "libs/**",
+              ":BLANK_LINE:",
+              "*/**"
+            ]
+          }
+        },
+        "useSortedAttributes": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
+      }
+    }
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/api-app-dist",
+      "!**/build",
+      "!**/coverage",
+      "!**/node_modules",
+      "!**/package.json",
+      "!**/.expo",
+      "!**/web-build",
+      "!**/cache",
+      "!**/*.dump",
+      "!**/*.txt",
+      "!**/volume",
+      "!**/tsconfig.json",
+      "!**/tsconfig.*.json"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "attributePosition": "multiline",
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "a11y": {
+        "noRedundantAlt": "warn",
+        "recommended": true,
+        "useAriaPropsForRole": "warn",
+        "useAriaPropsSupportedByRole": "warn",
+        "useButtonType": "warn",
+        "useSemanticElements": "warn",
+        "useValidAriaValues": "warn"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noStaticOnlyClass": "off"
+      },
+      "correctness": {
+        "noInvalidUseBeforeDeclaration": "warn",
+        "noUnusedFunctionParameters": "off",
+        "noUnusedImports": "error",
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "error"
+      },
+      "recommended": true,
+      "style": {
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "off",
+        "useImportType": "error",
+        "useNodejsImportProtocol": "warn"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noExplicitAny": "warn",
+        "noShadowRestrictedNames": "warn",
+        "useIterableCallbackReturn": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/web-e2e/**/*.ts", "apps/api-e2e/**/*.ts"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.mock.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off"
+          },
+          "suspicious": {
+            "noDocumentCookie": "off",
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ],
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
+  }
+}

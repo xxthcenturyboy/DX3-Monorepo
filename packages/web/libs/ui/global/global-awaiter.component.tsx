@@ -1,0 +1,52 @@
+import { Backdrop, Box, Typography } from '@mui/material'
+import type React from 'react'
+import { BeatLoader } from 'react-spinners'
+
+import { themeColors } from '../system/mui-overrides/styles'
+
+type GlobalAwaiterPropstype = {
+  open: boolean
+  message?: string
+}
+
+export const GlobalAwaiter: React.FC<GlobalAwaiterPropstype> = (props) => {
+  const { message, open } = props
+
+  return (
+    <Backdrop
+      open={open}
+      style={{
+        textAlign: 'center',
+        zIndex: 10000,
+      }}
+    >
+      <Box>
+        <BeatLoader
+          color={themeColors.secondary}
+          margin="2px"
+          size={30}
+        />
+        {!!message && (
+          <Box
+            style={{
+              backgroundColor: themeColors.primary,
+              borderRadius: '50px',
+              margin: '40px 20px',
+              opacity: 0.75,
+              padding: '20px',
+            }}
+          >
+            <Typography
+              align="center"
+              color="white"
+              margin="0 20px"
+              variant="h5"
+            >
+              {message}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+    </Backdrop>
+  )
+}
