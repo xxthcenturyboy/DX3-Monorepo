@@ -13,8 +13,8 @@ Dx3 is an enterprise-grade monorepo architecture powering a unified ecosystem ac
 │                         PNPM Monorepo                               │
 ├──────────────────┬──────────────────┬──────────────────────────────┤
 │   📱 Mobile      │   🌐 Web         │   ⚙️  API                     │
-│   (Expo SDK 52)  │   (React 18)     │   (Express.js)               │
-│   React Native   │   MUI v6         │   PostgreSQL + Redis         │
+│   (Expo SDK 52)  │   (React 19)     │   (Express.js)               │
+│   React Native   │   MUI v7         │   PostgreSQL + Redis         │
 │                  │   Rspack         │   Socket.IO + S3             │
 ├──────────────────┴──────────────────┴──────────────────────────────┤
 │                      📦 Shared Packages                             │
@@ -26,7 +26,7 @@ Dx3 is an enterprise-grade monorepo architecture powering a unified ecosystem ac
 
 | Layer | Technologies |
 |-------|-------------|
-| **Web Frontend** | React 18, MUI v6, Redux Toolkit, Rspack, Socket.IO Client |
+| **Web Frontend** | React 19, MUI v7, Redux Toolkit, Rspack, Socket.IO Client |
 | **Mobile Frontend** | React Native 0.76, Expo SDK 52, Redux Persist |
 | **Backend API** | Express.js, Sequelize ORM, JWT Auth + OTP, Rate Limiting |
 | **Data Layer** | PostgreSQL 16, Redis 7, AWS S3 (LocalStack for dev) |
@@ -53,7 +53,7 @@ This is a rare, high-complexity enterprise monorepo featuring:
 |--------|------------|
 | **Project Level** | Principal/Staff Engineer grade — production-ready architecture |
 | **Rarity** | High — Full TypeScript monorepo with shared packages across 3 platforms |
-| **Tech Maturity** | Cutting-edge — React 18, Expo SDK 52, MUI v6, Rspack, Node 22 |
+| **Tech Maturity** | Cutting-edge — React 19, Expo SDK 52, MUI v7, Rspack, Node 22 |
 | **Code Quality** | Professional — Biome linting, Jest coverage, E2E testing, type safety |
 
 **Architectural Highlights:**
