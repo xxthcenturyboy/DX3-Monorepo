@@ -1,4 +1,4 @@
-import { Box, Button, Grid2, Typography } from '@mui/material'
+import { Box, Button, Grid, Typography } from '@mui/material'
 import type * as React from 'react'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
@@ -15,7 +15,7 @@ export const NotFoundComponent: React.FC<NotFoundComponentPropsType> = ({
 }) => {
   return (
     <StyledContentWrapper>
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -48,7 +48,7 @@ export const NotFoundComponent: React.FC<NotFoundComponentPropsType> = ({
             {buttonText || 'Go Back'}
           </Button>
         </Box>
-      </Grid2>
+      </Grid>
     </StyledContentWrapper>
   )
 }

@@ -5,7 +5,7 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid2,
+  Grid,
   Paper,
   Skeleton,
   Typography,
@@ -219,7 +219,7 @@ export const UserAdminEdit: React.FC = () => {
     }
   }
 
-  const renderDivider = (m?: string): JSX.Element => {
+  const renderDivider = (m?: string): React.ReactElement => {
     return (
       <Divider
         sx={{
@@ -230,7 +230,7 @@ export const UserAdminEdit: React.FC = () => {
     )
   }
 
-  const renderDefaultChip = (): JSX.Element => {
+  const renderDefaultChip = (): React.ReactElement => {
     return (
       <Chip
         color="info"
@@ -243,7 +243,7 @@ export const UserAdminEdit: React.FC = () => {
     )
   }
 
-  const renderVerifiedChip = (): JSX.Element => {
+  const renderVerifiedChip = (): React.ReactElement => {
     return (
       <Chip
         color="success"
@@ -256,20 +256,20 @@ export const UserAdminEdit: React.FC = () => {
     )
   }
 
-  const renderEmailsPhones = (): JSX.Element => {
+  const renderEmailsPhones = (): React.ReactElement => {
     return (
-      <Grid2
+      <Grid
         container
         direction="column"
         padding={MD_BREAK ? '10px' : '10px 24px'}
         width={MD_BREAK ? '100%' : '50%'}
       >
         {/** NAME */}
-        <Grid2
+        <Grid
           container
           margin="0 0 20px"
         >
-          <Grid2 width={'100%'}>
+          <Grid width={'100%'}>
             {isLoadingUser && (
               <Skeleton
                 animation="wave"
@@ -282,7 +282,7 @@ export const UserAdminEdit: React.FC = () => {
             )}
             {!isLoadingUser && (
               <>
-                <Grid2
+                <Grid
                   sx={(theme) => {
                     return {
                       backgroundColor: theme.palette.primary.light,
@@ -293,22 +293,22 @@ export const UserAdminEdit: React.FC = () => {
                   }}
                 >
                   <Typography fontWeight={700}>Name</Typography>
-                </Grid2>
-                <Grid2>
+                </Grid>
+                <Grid>
                   <Typography variant="body1">{user?.fullName}</Typography>
-                </Grid2>
+                </Grid>
               </>
             )}
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
 
         {/** EMAILS */}
-        <Grid2
+        <Grid
           container
           direction={'column'}
           margin="0 0 20px"
         >
-          <Grid2
+          <Grid
             sx={(theme) => {
               return {
                 backgroundColor: theme.palette.primary.light,
@@ -319,12 +319,12 @@ export const UserAdminEdit: React.FC = () => {
             }}
           >
             <Typography fontWeight={700}>Emails</Typography>
-          </Grid2>
+          </Grid>
 
           {/* {renderDivider('0 0 10')} */}
           {isLoadingUser && listSkeleton(2, '48px')}
           {!isLoadingUser && (
-            <Grid2
+            <Grid
               container
               direction="column"
               justifyContent="space-between"
@@ -332,7 +332,7 @@ export const UserAdminEdit: React.FC = () => {
               {user?.emails.map((email, _index) => {
                 return (
                   <React.Fragment key={`email-${email.id}`}>
-                    <Grid2
+                    <Grid
                       alignItems={MD_BREAK ? 'flex-start' : 'center'}
                       borderTop="1px solid lightgray"
                       container
@@ -342,7 +342,7 @@ export const UserAdminEdit: React.FC = () => {
                       padding="10px 0px 3px"
                       width="100%"
                     >
-                      <Grid2
+                      <Grid
                         sx={{
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -350,40 +350,40 @@ export const UserAdminEdit: React.FC = () => {
                         }}
                       >
                         <Typography variant="body1">{email.email}</Typography>
-                      </Grid2>
+                      </Grid>
                       {MD_BREAK && (
                         <>
-                          <Grid2 padding={'4px 0 0'}>
+                          <Grid padding={'4px 0 0'}>
                             <Typography variant="body1">{email.label}</Typography>
-                          </Grid2>
-                          <Grid2 padding={'4px 0'}>
+                          </Grid>
+                          <Grid padding={'4px 0'}>
                             {email.isVerified && renderVerifiedChip()}
                             {email.default && renderDefaultChip()}
-                          </Grid2>
+                          </Grid>
                         </>
                       )}
                       {!MD_BREAK && (
-                        <Grid2>
+                        <Grid>
                           {email.isVerified && renderVerifiedChip()}
                           {email.default && renderDefaultChip()}
                           {email.label}
-                        </Grid2>
+                        </Grid>
                       )}
-                    </Grid2>
+                    </Grid>
                   </React.Fragment>
                 )
               })}
-            </Grid2>
+            </Grid>
           )}
-        </Grid2>
+        </Grid>
 
         {/** PHONES */}
-        <Grid2
+        <Grid
           container
           direction={'column'}
           margin="0 0 20px"
         >
-          <Grid2
+          <Grid
             sx={(theme) => {
               return {
                 backgroundColor: theme.palette.primary.light,
@@ -394,11 +394,11 @@ export const UserAdminEdit: React.FC = () => {
             }}
           >
             <Typography fontWeight={700}>Phones</Typography>
-          </Grid2>
+          </Grid>
           {/* {renderDivider('0 0 10')} */}
           {isLoadingUser && listSkeleton(2, '48px')}
           {!isLoadingUser && (
-            <Grid2
+            <Grid
               container
               direction="column"
               justifyContent="space-between"
@@ -406,7 +406,7 @@ export const UserAdminEdit: React.FC = () => {
               {user?.phones.map((phone, _index) => {
                 return (
                   <React.Fragment key={`phone-${phone.id}`}>
-                    <Grid2
+                    <Grid
                       alignItems={MD_BREAK ? 'flex-start' : 'center'}
                       borderTop="1px solid lightgray"
                       container
@@ -416,7 +416,7 @@ export const UserAdminEdit: React.FC = () => {
                       padding="10px 0px 3px"
                       width="100%"
                     >
-                      <Grid2
+                      <Grid
                         sx={{
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -426,20 +426,20 @@ export const UserAdminEdit: React.FC = () => {
                         <Typography variant="body1">
                           {phone.uiFormatted || phone.phoneFormatted}
                         </Typography>
-                      </Grid2>
+                      </Grid>
                       {MD_BREAK && (
                         <>
-                          <Grid2 padding={'4px 0 0'}>
+                          <Grid padding={'4px 0 0'}>
                             <Typography variant="body1">{phone.label}</Typography>
-                          </Grid2>
-                          <Grid2 padding={'4px 0'}>
+                          </Grid>
+                          <Grid padding={'4px 0'}>
                             {phone.isVerified && renderVerifiedChip()}
                             {phone.default && renderDefaultChip()}
-                          </Grid2>
+                          </Grid>
                         </>
                       )}
                       {!MD_BREAK && (
-                        <Grid2>
+                        <Grid>
                           {phone.isVerified && renderVerifiedChip()}
                           {phone.default && renderDefaultChip()}
                           <Typography
@@ -448,34 +448,34 @@ export const UserAdminEdit: React.FC = () => {
                           >
                             {phone.label}
                           </Typography>
-                        </Grid2>
+                        </Grid>
                       )}
-                    </Grid2>
+                    </Grid>
                   </React.Fragment>
                 )
               })}
-            </Grid2>
+            </Grid>
           )}
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     )
   }
 
-  const renderRolesRestrictions = (): JSX.Element => {
+  const renderRolesRestrictions = (): React.ReactElement => {
     return (
-      <Grid2
+      <Grid
         container
         direction="column"
         padding={MD_BREAK ? '10px' : '10px 24px'}
         width={MD_BREAK ? '100%' : '50%'}
       >
         {/** ROLES */}
-        <Grid2
+        <Grid
           container
           direction="column"
           margin="0 0 20px"
         >
-          <Grid2
+          <Grid
             sx={(theme) => {
               return {
                 backgroundColor: theme.palette.primary.light,
@@ -486,22 +486,22 @@ export const UserAdminEdit: React.FC = () => {
             }}
           >
             <Typography fontWeight={700}>Roles</Typography>
-          </Grid2>
+          </Grid>
           {renderDivider('0 0 10')}
           {isLoadingUser && listSkeleton(2, '48px')}
           {!isLoadingUser && (
-            <Grid2
+            <Grid
               container
               direction={'column'}
               justifyContent="space-between"
             >
               {roles.map((role, _index) => {
                 return (
-                  <Grid2
+                  <Grid
                     container
                     key={`role-${role.role}`}
                   >
-                    <Grid2>
+                    <Grid>
                       <FormGroup>
                         <FormControlLabel
                           control={
@@ -514,20 +514,20 @@ export const UserAdminEdit: React.FC = () => {
                           label={role.role}
                         />
                       </FormGroup>
-                    </Grid2>
-                  </Grid2>
+                    </Grid>
+                  </Grid>
                 )
               })}
-            </Grid2>
+            </Grid>
           )}
-        </Grid2>
+        </Grid>
 
         {/** RESTRICTIONS */}
-        <Grid2
+        <Grid
           container
           direction="column"
         >
-          <Grid2
+          <Grid
             sx={(theme) => {
               return {
                 backgroundColor: theme.palette.primary.light,
@@ -538,18 +538,18 @@ export const UserAdminEdit: React.FC = () => {
             }}
           >
             <Typography fontWeight={700}>Restrictions</Typography>
-          </Grid2>
+          </Grid>
           {renderDivider('0 0 10')}
           {isLoadingUser && listSkeleton(2, '48px')}
           {!isLoadingUser && (
-            <Grid2
+            <Grid
               container
               direction={'column'}
               justifyContent="space-between"
             >
               {restrictions.map((restriction, index) => {
                 return (
-                  <Grid2
+                  <Grid
                     container
                     key={`restriction-${restriction.restriction}`}
                   >
@@ -566,19 +566,19 @@ export const UserAdminEdit: React.FC = () => {
                         label={restriction.restriction}
                       />
                     </FormGroup>
-                  </Grid2>
+                  </Grid>
                 )
               })}
-            </Grid2>
+            </Grid>
           )}
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     )
   }
 
-  const renderActionArea = (): JSX.Element => {
+  const renderActionArea = (): React.ReactElement => {
     return (
-      <Grid2>
+      <Grid>
         <Button
           color={'primary'}
           onClick={() => dispatch(uiActions.appDialogSet(<NotificationSendDialog user={user} />))}
@@ -586,7 +586,7 @@ export const UserAdminEdit: React.FC = () => {
         >
           Send Notification
         </Button>
-      </Grid2>
+      </Grid>
     )
   }
 
@@ -629,7 +629,7 @@ export const UserAdminEdit: React.FC = () => {
     >
       <Paper elevation={2}>
         {/** Phones Emails Roles Restrictions */}
-        <Grid2
+        <Grid
           container
           direction={MD_BREAK ? 'column' : 'row'}
           justifyContent="flex-start"
@@ -638,10 +638,10 @@ export const UserAdminEdit: React.FC = () => {
         >
           {renderEmailsPhones()}
           {renderRolesRestrictions()}
-        </Grid2>
+        </Grid>
 
         {/** Action Area */}
-        <Grid2
+        <Grid
           container
           direction={MD_BREAK ? 'column' : 'row'}
           justifyContent="flex-start"
@@ -650,7 +650,7 @@ export const UserAdminEdit: React.FC = () => {
         >
           {renderDivider('12px 0 12px')}
           {renderActionArea()}
-        </Grid2>
+        </Grid>
       </Paper>
     </ContentWrapper>
   )

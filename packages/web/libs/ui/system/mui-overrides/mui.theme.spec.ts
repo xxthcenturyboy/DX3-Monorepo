@@ -326,7 +326,7 @@ describe('mui.theme', () => {
       if (components) {
         Object.keys(components).forEach((componentKey) => {
           const component = components[componentKey as keyof typeof components]
-          if (component && 'styleOverrides' in component) {
+          if (component && typeof component === 'object' && 'styleOverrides' in component) {
             expect(component.styleOverrides).toBeDefined()
           }
         })

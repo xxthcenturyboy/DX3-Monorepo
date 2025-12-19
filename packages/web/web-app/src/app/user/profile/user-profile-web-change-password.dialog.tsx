@@ -176,7 +176,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
     setPasswordConfirm(event.target.value)
   }
 
-  const renderFormContent = (): JSX.Element => {
+  const renderFormContent = (): React.ReactElement => {
     return (
       <CustomDialogContent
         isMobileWidth={isMobileWidth}

@@ -394,25 +394,25 @@ describe('UiLoadingComponent', () => {
       expect(container.querySelector('.MuiBox-root')).toBeInTheDocument()
     })
 
-    it('should use Grid2 for layout in all states', () => {
+    it('should use Grid for layout in all states', () => {
       const testError = new Error('Error')
       const { container, rerender } = renderWithTheme(<UiLoadingComponent error={testError} />)
 
-      expect(container.querySelector('.MuiGrid2-root')).toBeInTheDocument()
+      expect(container.querySelector('.MuiGrid-root')).toBeInTheDocument()
 
       rerender(
         <ThemeProvider theme={testTheme}>
           <UiLoadingComponent timedOut={true} />
         </ThemeProvider>,
       )
-      expect(container.querySelector('.MuiGrid2-root')).toBeInTheDocument()
+      expect(container.querySelector('.MuiGrid-root')).toBeInTheDocument()
 
       rerender(
         <ThemeProvider theme={testTheme}>
           <UiLoadingComponent pastDelay={true} />
         </ThemeProvider>,
       )
-      expect(container.querySelector('.MuiGrid2-root')).toBeInTheDocument()
+      expect(container.querySelector('.MuiGrid-root')).toBeInTheDocument()
     })
   })
 

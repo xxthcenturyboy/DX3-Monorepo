@@ -1,4 +1,4 @@
-import { Fade, Grid2, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Fade, Grid, Typography, useMediaQuery, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
@@ -61,7 +61,7 @@ export const ShortlinkComponent: React.FC = () => {
       in={true}
       timeout={FADE_TIMEOUT_DUR}
     >
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -77,7 +77,7 @@ export const ShortlinkComponent: React.FC = () => {
         >
           {APP_NAME}
         </Typography>
-      </Grid2>
+      </Grid>
     </Fade>
   )
 }

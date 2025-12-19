@@ -1,4 +1,4 @@
-import { Grid2 } from '@mui/material'
+import { Grid } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 import { useNavigate } from 'react-router'
@@ -55,7 +55,7 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
       }}
     >
       <StyledAccountActionArea>
-        <Grid2
+        <Grid
           container
           direction="row"
           display="flex"
@@ -70,28 +70,28 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
           >
             Account Menu
           </Typography>
-        </Grid2>
+        </Grid>
       </StyledAccountActionArea>
       <StyledAccountList>
         <StyledAccountMenuListItem onClick={goToProfile}>
-          <Grid2
+          <Grid
             alignItems="center"
             container
             direction="row"
             justifyContent="flex-start"
           >
-            <Grid2 mr={2}>
+            <Grid mr={2}>
               <UserProfileAvatar
                 size={{
                   height: 24,
                   width: 24,
                 }}
               />
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid>
               <Typography variant="body2">Profile</Typography>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         </StyledAccountMenuListItem>
         <LogoutButton
           context="APP_BAR"

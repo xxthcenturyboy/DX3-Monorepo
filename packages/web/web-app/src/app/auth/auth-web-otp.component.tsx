@@ -1,4 +1,4 @@
-import { Grid2, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { MuiOtpInput } from 'mui-one-time-password-input'
 import React, { type ReactElement } from 'react'
 
@@ -30,7 +30,7 @@ export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElem
   }
 
   return (
-    <Grid2>
+    <Grid>
       <Typography
         style={{
           margin: '0px auto 24px',
@@ -47,6 +47,6 @@ export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElem
         onComplete={handleOtpComplete}
         value={otp}
       />
-    </Grid2>
+    </Grid>
   )
 }

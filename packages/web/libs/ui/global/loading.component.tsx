@@ -1,4 +1,4 @@
-import { Button, Grid2, Typography } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import { BeatLoader } from 'react-spinners'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
@@ -11,7 +11,7 @@ type LoadingProps = {
   retry?: () => void
 }
 
-export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
+export const UiLoadingComponent = (props: LoadingProps): React.ReactElement | null => {
   const handleRetry = (): void => {
     if (typeof props.retry === 'function') {
       props.retry()
@@ -21,7 +21,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
   if (props.error) {
     return (
       <StyledContentWrapper>
-        <Grid2
+        <Grid
           alignItems="center"
           container
           direction="column"
@@ -31,7 +31,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
         >
           <Button onClick={handleRetry}>retry</Button>
           <Typography>{props.error.message}</Typography>
-        </Grid2>
+        </Grid>
       </StyledContentWrapper>
     )
   }
@@ -39,7 +39,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
   if (props.timedOut) {
     return (
       <StyledContentWrapper>
-        <Grid2
+        <Grid
           alignItems="center"
           container
           direction="column"
@@ -49,7 +49,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
         >
           <Button onClick={handleRetry}>retry</Button>
           <Typography>timed out</Typography>
-        </Grid2>
+        </Grid>
       </StyledContentWrapper>
     )
   }
@@ -57,7 +57,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
   if (props.pastDelay) {
     return (
       <StyledContentWrapper>
-        <Grid2
+        <Grid
           alignItems="center"
           container
           direction="column"
@@ -72,7 +72,7 @@ export const UiLoadingComponent = (props: LoadingProps): JSX.Element | null => {
             margin="2px"
             size={30}
           />
-        </Grid2>
+        </Grid>
       </StyledContentWrapper>
     )
   }

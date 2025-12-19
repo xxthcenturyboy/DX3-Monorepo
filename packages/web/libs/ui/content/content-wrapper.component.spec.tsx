@@ -451,10 +451,10 @@ describe('ContentWrapper', () => {
       expect(container.firstChild).toBeInTheDocument()
     })
 
-    it('should wrap content in Grid2 container', () => {
+    it('should wrap content in Grid container', () => {
       const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
 
-      const grid = container.querySelector('.MuiGrid2-root')
+      const grid = container.querySelector('.MuiGrid-root')
       expect(grid).toBeInTheDocument()
     })
   })

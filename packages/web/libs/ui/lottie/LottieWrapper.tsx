@@ -7,7 +7,7 @@ import type { LottieWrapperPropTypes } from './lottie.types'
 
 export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactElement | null => {
   const { animationData, autoPlay, complete, loop, speed, style } = props
-  const lottieRef = React.useRef() as LottieRef
+  const lottieRef = React.useRef(null) as LottieRef
   const [loadedAnimationData, setLoadedAnimationData] = React.useState<object | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 

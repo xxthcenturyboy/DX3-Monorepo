@@ -1,5 +1,5 @@
 import PhotoCamera from '@mui/icons-material/Photo'
-import { Avatar, Badge, Grid2, IconButton } from '@mui/material'
+import { Avatar, Badge, Grid, IconButton } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import React from 'react'
 
@@ -38,7 +38,7 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) =
   }, [])
 
   return (
-    <Grid2
+    <Grid
       container
       direction={'row'}
       display={'flex'}
@@ -93,6 +93,6 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) =
           variant="circular"
         />
       )}
-    </Grid2>
+    </Grid>
   )
 }

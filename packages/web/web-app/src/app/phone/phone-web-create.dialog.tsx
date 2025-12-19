@@ -248,7 +248,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     setLabel(event.target.value)
   }
 
-  const renderFormContent = (): JSX.Element => {
+  const renderFormContent = (): React.ReactElement => {
     return (
       <CustomDialogContent
         isMobileWidth={isMobileWidth}

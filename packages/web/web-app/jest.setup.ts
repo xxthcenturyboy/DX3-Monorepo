@@ -4,6 +4,11 @@
  * It mocks browser APIs that are not available in jsdom.
  */
 
+// Polyfill TextEncoder/TextDecoder for React Router v7 compatibility
+import { TextEncoder, TextDecoder } from 'util'
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
+
 import '@testing-library/jest-dom'
 
 // Mock lottie-react to prevent Canvas API errors in jsdom

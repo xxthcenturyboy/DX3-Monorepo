@@ -89,7 +89,7 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
     }
   }
 
-  const renderLottie = (): JSX.Element => {
+  const renderLottie = (): React.ReactElement => {
     if (showLottieInitial) {
       if (!(showLottieCancel || showLottieError || showLottieSuccess)) {
         return <QuestionMarkLottie />

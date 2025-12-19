@@ -1,5 +1,5 @@
 // import React from 'react';
-import { Grid2, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
 // import { themeColors } from '../mui-overrides/styles';
@@ -12,10 +12,10 @@ type LoadingProps = {
   retry?: () => void
 }
 
-export const UnauthorizedComponent = (_props: LoadingProps): JSX.Element | null => {
+export const UnauthorizedComponent = (_props: LoadingProps): React.ReactElement | null => {
   return (
     <StyledContentWrapper>
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -33,7 +33,7 @@ export const UnauthorizedComponent = (_props: LoadingProps): JSX.Element | null 
           You are not authorized to access this feature.
         </Typography>
         <AccessDeniedLottie loop={false} />
-      </Grid2>
+      </Grid>
     </StyledContentWrapper>
   )
 }

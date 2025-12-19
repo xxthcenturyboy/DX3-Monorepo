@@ -1,4 +1,4 @@
-import { Button, Grid2, Slider, useMediaQuery, useTheme } from '@mui/material'
+import { Button, Grid, Slider, useMediaQuery, useTheme } from '@mui/material'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import type { AxiosProgressEvent } from 'axios'
@@ -127,7 +127,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
     }
   }
 
-  const renderFormContent = (): JSX.Element => {
+  const renderFormContent = (): React.ReactElement => {
     return (
       <CustomDialogContent
         isMobileWidth={isMobileWidth}
@@ -135,14 +135,14 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
         maxWidth={SM_BREAK ? undefined : '100%'}
         windowHeight={windowHeight}
       >
-        <Grid2
+        <Grid
           alignItems={'center'}
           container
           display={'flex'}
           flexDirection={'column'}
           flexWrap={'nowrap'}
         >
-          <Grid2
+          <Grid
             display={'flex'}
             justifyContent={'center'}
             size={12}
@@ -162,9 +162,9 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
               }}
               width={SM_BREAK ? 290 : 390}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2
+          <Grid
             display={'flex'}
             justifyContent={'center'}
             mt={2}
@@ -180,9 +180,9 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
               step={0.1}
               value={scale}
             />
-          </Grid2>
+          </Grid>
 
-          <Grid2
+          <Grid
             display={'flex'}
             justifyContent={'center'}
             mb={2}
@@ -215,17 +215,17 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
                 type="file"
               />
             </Button>
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
 
-        <Grid2
+        <Grid
           alignItems={'center'}
           container
           display={'flex'}
           flexDirection={'column'}
           flexWrap={'nowrap'}
         >
-          <Grid2
+          <Grid
             minHeight={'24px'}
             size={12}
             width={'100%'}
@@ -236,8 +236,8 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
                 value={uploadProgress}
               />
             )}
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
       </CustomDialogContent>
     )
   }

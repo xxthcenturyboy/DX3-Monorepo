@@ -225,7 +225,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     setLabel(event.target.value)
   }
 
-  const renderFormContent = (): JSX.Element => {
+  const renderFormContent = (): React.ReactElement => {
     return (
       <CustomDialogContent
         isMobileWidth={isMobileWidth}

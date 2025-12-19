@@ -1,4 +1,4 @@
-import { Button, Divider, Grid2, Paper, useMediaQuery, useTheme } from '@mui/material'
+import { Button, Divider, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
 
 import type { EmailType, MediaDataType, PhoneType } from '@dx3/models-shared'
@@ -96,18 +96,18 @@ export const UserProfile: React.FC = () => {
       headerTitle={`Profile: ${profile.username}`}
     >
       <Paper elevation={2}>
-        <Grid2
+        <Grid
           container
           justifyContent="flex-start"
           padding={SM_BREAK ? '16px' : '24px'}
         >
-          <Grid2
+          <Grid
             container
             direction={MD_BREAK ? 'column' : 'row'}
             justifyContent={'center'}
             size={12}
           >
-            <Grid2
+            <Grid
               alignItems={'center'}
               justifyContent={'center'}
               paddingTop={'12px'}
@@ -129,8 +129,8 @@ export const UserProfile: React.FC = () => {
                   width: 142,
                 }}
               />
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
           <Divider
             sx={{
               margin: '24px 0 0 0',
@@ -138,13 +138,13 @@ export const UserProfile: React.FC = () => {
             }}
           />
 
-          <Grid2
+          <Grid
             container
             direction={MD_BREAK ? 'column' : 'row'}
             justifyContent={'center'}
             size={12}
           >
-            <Grid2
+            <Grid
               padding="10px"
               size={{
                 lg: 6,
@@ -158,8 +158,8 @@ export const UserProfile: React.FC = () => {
                 emails={profile.emails}
                 userId={profile.id}
               />
-            </Grid2>
-            <Grid2
+            </Grid>
+            <Grid
               padding="10px"
               size={{
                 lg: 6,
@@ -173,8 +173,8 @@ export const UserProfile: React.FC = () => {
                 phones={profile.phones}
                 userId={profile.id}
               />
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
 
           <Divider
             sx={{
@@ -182,13 +182,13 @@ export const UserProfile: React.FC = () => {
               width: '100%',
             }}
           />
-          <Grid2
+          <Grid
             container
             direction={MD_BREAK ? 'column' : 'row'}
             justifyContent={'flex-start'}
             size={12}
           >
-            <Grid2
+            <Grid
               padding="10px"
               width={MD_BREAK ? '100%' : '50%'}
             >
@@ -198,9 +198,9 @@ export const UserProfile: React.FC = () => {
               >
                 Toggle Dark Mode
               </Button>
-            </Grid2>
-          </Grid2>
-        </Grid2>
+            </Grid>
+          </Grid>
+        </Grid>
       </Paper>
     </ContentWrapper>
   )

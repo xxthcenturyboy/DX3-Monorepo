@@ -1,4 +1,4 @@
-import { Button, Fade, Grid2, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Button, Fade, Grid, Typography, useMediaQuery, useTheme } from '@mui/material'
 import * as React from 'react'
 import { useNavigate } from 'react-router'
 
@@ -30,7 +30,7 @@ export const HomeComponent: React.FC = () => {
       in={true}
       timeout={FADE_TIMEOUT_DUR}
     >
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -58,7 +58,7 @@ export const HomeComponent: React.FC = () => {
         >
           {APP_DESCRIPTION}
         </Typography>
-        <Grid2
+        <Grid
           flex={0}
           justifyContent="center"
           margin="20px"
@@ -75,8 +75,8 @@ export const HomeComponent: React.FC = () => {
           >
             Login
           </Button>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </Fade>
   )
 }

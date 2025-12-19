@@ -1,4 +1,4 @@
-import { Grid2, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import * as React from 'react'
 
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
@@ -22,7 +22,7 @@ export const Dashboard: React.FC = () => {
       }}
       headerTitle={'Dashboard'}
     >
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -42,7 +42,7 @@ export const Dashboard: React.FC = () => {
         >
           Have a look around.
         </Typography>
-      </Grid2>
+      </Grid>
     </ContentWrapper>
   )
 }

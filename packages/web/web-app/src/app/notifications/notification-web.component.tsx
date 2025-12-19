@@ -4,7 +4,7 @@ import ReportIcon from '@mui/icons-material/Report'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import WarningIcon from '@mui/icons-material/Warning'
 import WavingHandIcon from '@mui/icons-material/WavingHand'
-import { Grid2, IconButton } from '@mui/material'
+import { Grid, IconButton } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 import { toast } from 'react-toastify'
@@ -49,7 +49,7 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
     }
   }, [isLoadingDismiss, dismissError, dismissUninitialized, notification.id])
 
-  const renderIcon = (): JSX.Element => {
+  const renderIcon = (): React.ReactElement => {
     return (
       <>
         {notification.level === NOTIFICATION_LEVELS.DANGER && (
@@ -113,40 +113,40 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
 
   return (
     <StyledNotification isunread={notification.viewed ? 'false' : 'true'}>
-      <Grid2
+      <Grid
         container
         direction="row"
         height={'100%'}
         width={'100%'}
       >
         {/** Icon */}
-        <Grid2
+        <Grid
           alignItems="center"
           display="flex"
           width="15%"
         >
           {renderIcon()}
-        </Grid2>
+        </Grid>
 
         {/** Title and Message */}
-        <Grid2 width="75%">
-          <Grid2
+        <Grid width="75%">
+          <Grid
             container
             direction="column"
           >
-            <Grid2 color={getTitleColor()}>
+            <Grid color={getTitleColor()}>
               <Typography variant="h6">{notification.title}</Typography>
-            </Grid2>
-            <Grid2>
+            </Grid>
+            <Grid>
               <Typography variant="body2">{getTrimmedMessage()}</Typography>
-            </Grid2>
-          </Grid2>
-        </Grid2>
+            </Grid>
+          </Grid>
+        </Grid>
 
         {/** Dismiss Button */}
         {((notification.userId === NIL_UUID && isSuperAdmin) ||
           notification.userId !== NIL_UUID) && (
-          <Grid2
+          <Grid
             alignItems="center"
             display="flex"
             justifyContent="flex-end"
@@ -162,9 +162,9 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
             >
               <ClearIcon />
             </IconButton>
-          </Grid2>
+          </Grid>
         )}
-      </Grid2>
+      </Grid>
     </StyledNotification>
   )
 }

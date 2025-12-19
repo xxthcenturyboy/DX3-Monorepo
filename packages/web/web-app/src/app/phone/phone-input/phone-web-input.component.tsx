@@ -10,7 +10,7 @@ import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { getDefaultStyles } from './phone-web-input.config'
 import type { PhoneInputProps } from './phone-web-input.types'
 
-export const PhoneNumberInput: React.FC<PhoneInputProps> = (props): JSX.Element => {
+export const PhoneNumberInput: React.FC<PhoneInputProps> = (props): React.ReactElement => {
   const {
     defaultCountry,
     defaultValue,

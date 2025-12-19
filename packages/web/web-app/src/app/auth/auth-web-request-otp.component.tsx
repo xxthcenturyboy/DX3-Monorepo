@@ -6,7 +6,7 @@ import {
   Button,
   Fade,
   FormControl,
-  Grid2,
+  Grid,
   InputLabel,
   OutlinedInput,
   Typography,
@@ -179,7 +179,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
       setEmail(event.target.value)
     }
 
-    const renderBackButton = (startOver?: boolean): JSX.Element | null => {
+    const renderBackButton = (startOver?: boolean): React.ReactElement | null => {
       if (startOver) {
         return (
           <Button
@@ -219,13 +219,13 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
       )
     }
 
-    const renderPhoneInput = (): JSX.Element => {
+    const renderPhoneInput = (): React.ReactElement => {
       return (
         <Fade
           in={true}
           timeout={FADE_TIMEOUT_DUR}
         >
-          <Grid2>
+          <Grid>
             <Form
               name="form-enter-phone"
               onSubmit={handleSendOtpCode}
@@ -273,18 +273,18 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
               </Button>
             </Form>
             {renderBackButton()}
-          </Grid2>
+          </Grid>
         </Fade>
       )
     }
 
-    const renderEmailInput = (): JSX.Element => {
+    const renderEmailInput = (): React.ReactElement => {
       return (
         <Fade
           in={true}
           timeout={FADE_TIMEOUT_DUR}
         >
-          <Grid2>
+          <Grid>
             <Form
               name="form-enter-email"
               onSubmit={handleSendOtpCode}
@@ -332,12 +332,12 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
               </Button>
             </Form>
             {renderBackButton()}
-          </Grid2>
+          </Grid>
         </Fade>
       )
     }
 
-    const renderSelectFromLoggedIn = (): JSX.Element => {
+    const renderSelectFromLoggedIn = (): React.ReactElement => {
       return (
         <>
           <Typography
@@ -353,7 +353,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             userPhones.map((userPhone) => {
               if (userPhone.isVerified) {
                 return (
-                  <Grid2
+                  <Grid
                     key={userPhone.id}
                     width={'100%'}
                   >
@@ -380,7 +380,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                     >
                       {userPhone.uiFormatted || userPhone.phone}
                     </Button>
-                  </Grid2>
+                  </Grid>
                 )
               }
             })}
@@ -388,7 +388,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             userEmails.map((userEmail) => {
               if (userEmail.isVerified) {
                 return (
-                  <Grid2
+                  <Grid
                     key={userEmail.id}
                     width={'100%'}
                   >
@@ -410,7 +410,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                     >
                       {userEmail.email}
                     </Button>
-                  </Grid2>
+                  </Grid>
                 )
               }
             })}
@@ -418,10 +418,10 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
       )
     }
 
-    const renderSelectFromLoggedout = (): JSX.Element => {
+    const renderSelectFromLoggedout = (): React.ReactElement => {
       return (
         <>
-          <Grid2 width={'100%'}>
+          <Grid width={'100%'}>
             <Button
               endIcon={<PhoneIcon />}
               fullWidth
@@ -430,9 +430,9 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             >
               Get code via phone
             </Button>
-          </Grid2>
+          </Grid>
 
-          <Grid2 width={'100%'}>
+          <Grid width={'100%'}>
             <Button
               endIcon={<EmailIcon />}
               fullWidth
@@ -441,12 +441,12 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             >
               Get code via email
             </Button>
-          </Grid2>
+          </Grid>
         </>
       )
     }
 
-    const renderOtpEntry = (): JSX.Element => {
+    const renderOtpEntry = (): React.ReactElement => {
       return (
         <>
           {!hasFiredCallback && (
@@ -476,7 +476,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
           ref={ref}
           width={'100%'}
         >
-          <Grid2
+          <Grid
             alignItems="center"
             container
             direction="column"
@@ -509,7 +509,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                 windowHeight={windowHeight}
               />
             )}
-          </Grid2>
+          </Grid>
         </Box>
       </Fade>
     )

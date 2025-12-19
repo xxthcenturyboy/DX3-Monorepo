@@ -1,4 +1,4 @@
-import { Box, Fade, Grid2, Paper } from '@mui/material'
+import { Box, Fade, Grid, Paper } from '@mui/material'
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
@@ -96,7 +96,7 @@ export const WebLogin: React.FC = () => {
       timeout={FADE_TIMEOUT_DUR}
     >
       <Box>
-        <Grid2
+        <Grid
           alignItems="center"
           container
           direction="column"
@@ -145,7 +145,7 @@ export const WebLogin: React.FC = () => {
               />
             )}
           </Paper>
-        </Grid2>
+        </Grid>
       </Box>
     </Fade>
   )

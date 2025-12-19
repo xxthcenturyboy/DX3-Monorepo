@@ -4,7 +4,7 @@ import {
   Button,
   Chip,
   Divider,
-  Grid2,
+  Grid,
   Paper,
   styled,
   Table,
@@ -61,23 +61,23 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
           backgroundColor: 'transparent',
         }}
       >
-        <Grid2
+        <Grid
           alignItems="center"
           container
           justifyContent="space-between"
           marginBottom={'8px'}
         >
           {/* Title */}
-          <Grid2>
+          <Grid>
             <Typography
               color="primary"
               variant="h6"
             >
               Emails
             </Typography>
-          </Grid2>
+          </Grid>
           {/* New Email */}
-          <Grid2>
+          <Grid>
             <Button
               color="primary"
               onClick={() =>
@@ -95,8 +95,8 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
             >
               New Email
             </Button>
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
         <Divider />
         <TableContainer component={Box}>
           <Table

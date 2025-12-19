@@ -150,7 +150,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
       case 'icon':
         return renderIcon(cell.icon, cell.color)
       case 'checkbox':
-        return cell.data as JSX.Element
+        return cell.data as React.ReactElement
     }
   }
 

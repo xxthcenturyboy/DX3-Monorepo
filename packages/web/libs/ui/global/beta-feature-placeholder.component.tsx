@@ -1,4 +1,4 @@
-import { Grid2, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import type * as React from 'react'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
@@ -7,7 +7,7 @@ import { BetaBadgeLottie } from '../lottie/beta-badge.lottie'
 export const BetaFeatureComponent: React.FC = () => {
   return (
     <StyledContentWrapper>
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -29,7 +29,7 @@ export const BetaFeatureComponent: React.FC = () => {
         >
           This feature is not ready yet. Check back for updates.
         </Typography>
-      </Grid2>
+      </Grid>
     </StyledContentWrapper>
   )
 }

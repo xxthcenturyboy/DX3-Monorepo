@@ -5,7 +5,7 @@
     "module": "commonjs",
     "moduleResolution": "node10",
     "resolveJsonModule": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "extends": "../../tsconfig.base.json",
   "include": [

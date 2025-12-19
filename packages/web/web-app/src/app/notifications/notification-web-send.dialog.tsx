@@ -161,7 +161,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
     setLevel(event.target.value)
   }
 
-  const renderFormContent = (): JSX.Element => {
+  const renderFormContent = (): React.ReactElement => {
     return (
       <CustomDialogContent
         isMobileWidth={isMobileWidth}

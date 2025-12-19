@@ -90,10 +90,10 @@ describe('BetaFeatureComponent', () => {
       expect(subtitle).toBeInTheDocument()
     })
 
-    it('should render with Grid2 container', () => {
+    it('should render with Grid container', () => {
       const { container } = renderWithTheme(<BetaFeatureComponent />)
 
-      const grid = container.querySelector('.MuiGrid2-root')
+      const grid = container.querySelector('.MuiGrid-root')
       expect(grid).toBeInTheDocument()
     })
   })
@@ -136,7 +136,7 @@ describe('BetaFeatureComponent', () => {
     it('should have centered content', () => {
       const { container } = renderWithTheme(<BetaFeatureComponent />)
 
-      const grid = container.querySelector('.MuiGrid2-root') as HTMLElement
+      const grid = container.querySelector('.MuiGrid-root') as HTMLElement
       expect(grid).toHaveStyle({ minHeight: '80vh' })
     })
 
@@ -306,10 +306,10 @@ describe('BetaFeatureComponent', () => {
       expect(wrapper).toBeInTheDocument()
     })
 
-    it('should integrate with MUI Grid2', () => {
+    it('should integrate with MUI Grid', () => {
       const { container } = renderWithTheme(<BetaFeatureComponent />)
 
-      const grid = container.querySelector('.MuiGrid2-root')
+      const grid = container.querySelector('.MuiGrid-root')
       expect(grid).toBeInTheDocument()
     })
 

@@ -1,5 +1,5 @@
 import GradingIcon from '@mui/icons-material/Grading'
-import { Fade, Grid2, IconButton } from '@mui/material'
+import { Fade, Grid, IconButton } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import Typography from '@mui/material/Typography'
 import React from 'react'
@@ -92,7 +92,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
       }}
     >
       <StyledNotificationActionArea>
-        <Grid2
+        <Grid
           container
           direction="row"
           display="flex"
@@ -112,10 +112,10 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
               </Fade>
             }
           </Typography>
-        </Grid2>
+        </Grid>
       </StyledNotificationActionArea>
       <Collapse in={notificationCount === 0}>
-        <Grid2
+        <Grid
           alignItems="center"
           container
           direction="column"
@@ -134,7 +134,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
           >
             Notifications will appear here as you receive them.
           </Typography>
-        </Grid2>
+        </Grid>
       </Collapse>
       <StyledNotificationsList>
         <TransitionGroup>
@@ -158,7 +158,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
       </StyledNotificationsList>
       <Collapse in={notificationCount > 0}>
         <StyledNotificationActionArea>
-          <Grid2
+          <Grid
             container
             direction="row"
             display="flex"
@@ -166,7 +166,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
             margin="3px"
             width="auto"
           >
-            <Grid2>
+            <Grid>
               <IconButton
                 color="info"
                 onClick={async () => {
@@ -180,8 +180,8 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
               >
                 <GradingIcon />
               </IconButton>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
         </StyledNotificationActionArea>
       </Collapse>
     </StyledNotificationMenu>

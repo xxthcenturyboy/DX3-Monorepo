@@ -2,7 +2,7 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft'
 import {
   Divider,
   Fade,
-  Grid2,
+  Grid,
   IconButton,
   Tooltip,
   Typography,
@@ -56,7 +56,7 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
   const MD_BREAK = useMediaQuery(THEME.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(THEME.breakpoints.down('sm'))
 
-  const renderHeaderNavigation = (): JSX.Element => {
+  const renderHeaderNavigation = (): React.ReactElement => {
     if (tooltip) {
       return (
         <Tooltip title={tooltip}>
@@ -90,17 +90,17 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
     )
   }
 
-  const renderHeader = (): JSX.Element => {
+  const renderHeader = (): React.ReactElement => {
     return (
       <StyledContentFixedHeader>
-        <Grid2
+        <Grid
           alignItems={'center'}
           container
           direction={'row'}
           justifyContent="space-between"
           padding="14px 16px 14px"
         >
-          <Grid2
+          <Grid
             mb={SM_BREAK && (headerColumnsBreaks?.left?.xs || 12) === 12 ? '12px' : undefined}
             // width="100%"
             size={{
@@ -140,9 +140,9 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
                 </Typography>
               </span>
             )}
-          </Grid2>
+          </Grid>
 
-          <Grid2
+          <Grid
             display="flex"
             justifyContent={headerColumnRightJustification}
             size={{
@@ -153,8 +153,8 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
             // width="100%"
           >
             {headerContent}
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
         <Divider />
       </StyledContentFixedHeader>
     )
@@ -165,7 +165,7 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
       in={true}
       timeout={FADE_TIMEOUT_DUR}
     >
-      <Grid2
+      <Grid
         container
         direction="column"
         justifyContent="flex-start"
@@ -183,7 +183,7 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
         >
           {children}
         </StyledContentWrapper>
-      </Grid2>
+      </Grid>
     </Fade>
   )
 }

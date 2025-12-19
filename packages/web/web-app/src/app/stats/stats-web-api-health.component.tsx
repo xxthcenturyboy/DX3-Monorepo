@@ -1,7 +1,7 @@
 import { Cached } from '@mui/icons-material'
 import {
   Chip,
-  Grid2,
+  Grid,
   IconButton,
   Table,
   TableBody,
@@ -103,13 +103,13 @@ export const StatsWebApiHealthComponent: React.FC = () => {
       }
       headerTitle={'API Health'}
     >
-      <Grid2
+      <Grid
         container
         display={'block'}
         width={'100%'}
       >
         {/* HTTP */}
-        <Grid2
+        <Grid
           mb={'24px'}
           size={12}
         >
@@ -139,10 +139,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
               </TableBody>
             </Table>
           </CollapsiblePanel>
-        </Grid2>
+        </Grid>
 
         {/* MEMORY */}
-        <Grid2
+        <Grid
           mb={'24px'}
           size={12}
         >
@@ -202,10 +202,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
               </TableBody>
             </Table>
           </CollapsiblePanel>
-        </Grid2>
+        </Grid>
 
         {/* POSTGRES */}
-        <Grid2
+        <Grid
           mb={'24px'}
           size={12}
         >
@@ -242,10 +242,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
               </TableBody>
             </Table>
           </CollapsiblePanel>
-        </Grid2>
+        </Grid>
 
         {/* REDIS */}
-        <Grid2
+        <Grid
           mb={'24px'}
           size={12}
         >
@@ -311,8 +311,8 @@ export const StatsWebApiHealthComponent: React.FC = () => {
               </TableBody>
             </Table>
           </CollapsiblePanel>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </ContentWrapper>
   )
 }

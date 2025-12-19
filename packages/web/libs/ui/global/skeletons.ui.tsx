@@ -10,7 +10,7 @@ const getArrayOfLength = (len: number): number[] => {
   return array
 }
 
-const listSkeleton = (numItems: number, height: string): JSX.Element => {
+const listSkeleton = (numItems: number, height: string): React.ReactElement => {
   const listItems = getArrayOfLength(numItems)
   return (
     <>
@@ -29,7 +29,7 @@ const listSkeleton = (numItems: number, height: string): JSX.Element => {
   )
 }
 
-const boxSkeleton = (padding: string, height: string): JSX.Element => {
+const boxSkeleton = (padding: string, height: string): React.ReactElement => {
   return (
     <Box
       padding={padding}
@@ -44,7 +44,7 @@ const boxSkeleton = (padding: string, height: string): JSX.Element => {
   )
 }
 
-const waveItem = (height: string): JSX.Element => {
+const waveItem = (height: string): React.ReactElement => {
   return (
     <Skeleton
       animation="wave"

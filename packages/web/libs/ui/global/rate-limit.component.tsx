@@ -1,4 +1,4 @@
-import { Grid2, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import type * as React from 'react'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
@@ -7,7 +7,7 @@ import { StopwatchLottie } from '../lottie/stopwatch.lottie'
 export const RateLimitComponent: React.FC = () => {
   return (
     <StyledContentWrapper>
-      <Grid2
+      <Grid
         alignItems="center"
         container
         direction="column"
@@ -29,7 +29,7 @@ export const RateLimitComponent: React.FC = () => {
         >
           You have made too many requests. Please wait several minutes before trying again.
         </Typography>
-      </Grid2>
+      </Grid>
     </StyledContentWrapper>
   )
 }

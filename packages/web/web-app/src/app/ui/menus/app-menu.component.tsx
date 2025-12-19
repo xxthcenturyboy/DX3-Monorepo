@@ -27,7 +27,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
     }
   }, [menus])
 
-  const menuItemDivider = (key: string): JSX.Element => {
+  const menuItemDivider = (key: string): React.ReactElement => {
     const id = `divider-${key}`
     return (
       <Divider
@@ -45,7 +45,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
     index: number,
     isFirst: boolean,
     isSubItem?: boolean,
-  ): JSX.Element => {
+  ): React.ReactElement => {
     return (
       <React.Fragment key={`inner-frag-${index}`}>
         {items.map((item: AppMenuItemType, _idx: number) => {

@@ -114,11 +114,11 @@ describe('RateLimitComponent', () => {
       expect(wrapper).toBeInTheDocument()
     })
 
-    it('should use Grid2 for layout', () => {
+    it('should use Grid for layout', () => {
       const { container } = renderWithTheme(<RateLimitComponent />)
 
-      // Grid2 should be present for layout
-      const grid = container.querySelector('.MuiGrid2-root')
+      // Grid should be present for layout
+      const grid = container.querySelector('.MuiGrid-root')
       expect(grid).toBeInTheDocument()
     })
   })

@@ -54,6 +54,12 @@
       "cypress",
       "esbuild",
       "sharp"
-    ]
+    ],
+    "overrides": {
+      "react": "^19.1.4",
+      "react-dom": "^19.1.4",
+      "@types/react": "^19.1.4",
+      "@types/react-dom": "^19.1.4"
+    }
   }
 }
