@@ -26,7 +26,7 @@ describe('NoDataLottie', () => {
     const { getByTestId } = render(<NoDataLottie />)
     const wrapper = getByTestId('lottie-wrapper')
 
-    expect(wrapper).toHaveAttribute('data-animation-data', '/assets/animations/no-data.json')
+    expect(wrapper).toHaveAttribute('data-animation-data', '/assets/animations/not-found.json')
   })
 
   it('should use loop value of true', () => {

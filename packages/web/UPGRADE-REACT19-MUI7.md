@@ -12,14 +12,15 @@
 
 | Package | Current Version | Target Version | Action |
 |---------|----------------|----------------|--------|
-| `react` | ~18.3.1 | ^19.1.0 | Upgrade |
-| `react-dom` | ~18.3.1 | ^19.1.0 | Upgrade |
+| `react` | ~18.3.1 | ^19.1.4 | Upgrade |
+| `react-dom` | ~18.3.1 | ^19.1.4 | Upgrade |
 | `@mui/material` | ^6.4.6 | ^7.3.6 | Upgrade |
 | `@mui/icons-material` | ^6.4.6 | ^7.3.6 | Upgrade |
 | `react-router` | ^7.2.0 | ^7.2.0 | Keep |
 | `react-router-dom` | 6.11.2 | **REMOVE** | ❌ Delete |
-| `@types/react` | ~18.3.12 | ^19.1.0 | Upgrade |
-| `@types/react-dom` | 18.3.0 | ^19.1.0 | Upgrade |
+| `@types/react` | ~18.3.12 | ^19.1.4 | Upgrade |
+| `@types/react-dom` | 18.3.0 | ^19.1.4 | Upgrade |
+| `@types/react-is` | 18.3.0 | ^19.0.0 | Upgrade |
 
 ### Critical Discovery: React Router v7 Package Consolidation
 
@@ -42,8 +43,8 @@ import { BrowserRouter, useNavigate } from 'react-router';
 | Category | Files Affected | Complexity |
 |----------|---------------|------------|
 | Source Components | 19 files | Low (import change only) |
-| Test Files | 5 files | Low (import change only) |
-| **Total** | **24 files** | **Simple find-replace** |
+| Test Files | 6 files | Low (import change only) |
+| **Total** | **25 files** | **Simple find-replace** |
 
 ### Imports to Migrate
 
@@ -62,6 +63,7 @@ All imports are available in `react-router` v7:
 | `Navigate` | 1 file | ✅ Available |
 | `MemoryRouter` | 3 files (tests) | ✅ Available |
 | `BrowserRouter` | 1 file (tests) | ✅ Available |
+| `jest.mock` | 1 file (tests) | ✅ Update mock |
 
 ---
 
@@ -91,7 +93,7 @@ All imports are available in `react-router` v7:
   }
 ```
 
-#### 1.2 Update All Import Statements (24 files)
+#### 1.2 Update All Import Statements (25 files)
 
 **Simple global find-replace:**
 ```diff
@@ -125,7 +127,7 @@ All imports are available in `react-router` v7:
 | `ui/menus/app-menu-group.component.tsx` | `import { useLocation } from 'react-router-dom'` | `import { useLocation } from 'react-router'` |
 | `data/rtk-query/axios-web.api.ts` | `// import { Navigate } from 'react-router-dom'` | `// import { Navigate } from 'react-router'` |
 
-**Test Files (5 files):**
+**Test Files (6 files):**
 
 | File | Current Import | New Import |
 |------|----------------|------------|
@@ -134,6 +136,7 @@ All imports are available in `react-router` v7:
 | `routers/sudo.router.spec.tsx` | `import { MemoryRouter } from 'react-router-dom'` | `import { MemoryRouter } from 'react-router'` |
 | `root-web.component.spec.tsx` | `import { BrowserRouter } from 'react-router-dom'` | `import { BrowserRouter } from 'react-router'` |
 | `home/home-web.component.spec.tsx` | `import { MemoryRouter } from 'react-router-dom'` | `import { MemoryRouter } from 'react-router'` |
+| `shortlink/shortlink-web.component.spec.tsx` | `jest.mock('react-router-dom', ...)` | `jest.mock('react-router', ...)` |
 
 #### 1.4 Automation Script (PowerShell)
 
@@ -142,6 +145,13 @@ All imports are available in `react-router` v7:
 Get-ChildItem -Recurse -Include "*.tsx","*.ts" |
   ForEach-Object {
     (Get-Content $_.FullName) -replace "from 'react-router-dom'", "from 'react-router'" |
+    Set-Content $_.FullName
+  }
+
+# Also update jest.mock references
+Get-ChildItem -Recurse -Include "*.spec.tsx","*.spec.ts" |
+  ForEach-Object {
+    (Get-Content $_.FullName) -replace "jest\.mock\('react-router-dom'", "jest.mock('react-router'" |
     Set-Content $_.FullName
   }
 ```
@@ -209,16 +219,19 @@ The `onBackdropClick` prop was deprecated in MUI v5 and removed in MUI v7.
 ```json
 {
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-is": "^19.1.0"
+    "react": "^19.1.4",
+    "react-dom": "^19.1.4",
+    "react-is": "^19.1.4"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0"
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.4",
+    "@types/react-is": "^19.0.0"
   }
 }
 ```
+
+> **Security Note:** Version ^19.1.4 includes patches for CVE-2025-55182 and other security vulnerabilities.
 
 #### 3.2 React 19 Breaking Changes Checklist
 
@@ -289,6 +302,22 @@ export const TableComponent: React.FC<TableComponentPropsWithRef> = ({ ref, ...p
 
 Your current theme (`libs/ui/system/mui-overrides/mui.theme.ts`) is **fully compatible** with MUI v7. No changes required.
 
+#### 4.4 Update peerDependencies
+
+Update the `peerDependencies` in `packages/web/package.json`:
+
+```diff
+  "peerDependencies": {
+-   "@mui/icons-material": ">=5.0.0",
+-   "@mui/material": ">=5.0.0",
+-   "react": ">=18.0.0",
++   "@mui/icons-material": ">=7.0.0",
++   "@mui/material": ">=7.0.0",
++   "react": ">=19.0.0",
+    "react-spinners": ">=0.15.0"
+  }
+```
+
 ---
 
 ### Phase 5: Third-Party Dependency Verification
@@ -313,15 +342,33 @@ All third-party dependencies have been verified for React 19 and MUI v7 compatib
 
 #### 5.2 Required Override: react-avatar-editor
 
-The `react-avatar-editor` package has peer dependencies locked to older React versions. Add this override to **both package.json files**:
+The `react-avatar-editor` package has peer dependencies locked to older React versions.
+
+**⚠️ IMPORTANT: For pnpm workspaces, overrides must be in the ROOT `package.json`:**
+
+**Root `package.json` (recommended for pnpm):**
+```json
+{
+  "pnpm": {
+    "overrides": {
+      "react-avatar-editor>react": ">=19.1.4",
+      "react-avatar-editor>react-dom": ">=19.1.4"
+    }
+  }
+}
+```
+
+**Alternative: Individual package.json files (npm/yarn):**
+
+If not using pnpm, add to **both package.json files**:
 
 **packages/web/package.json:**
 ```json
 {
   "overrides": {
     "react-avatar-editor": {
-      "react": ">=19.1.0",
-      "react-dom": ">=19.1.0"
+      "react": ">=19.1.4",
+      "react-dom": ">=19.1.4"
     }
   }
 }
@@ -332,14 +379,14 @@ The `react-avatar-editor` package has peer dependencies locked to older React ve
 {
   "overrides": {
     "react-avatar-editor": {
-      "react": ">=19.1.0",
-      "react-dom": ">=19.1.0"
+      "react": ">=19.1.4",
+      "react-dom": ">=19.1.4"
     }
   }
 }
 ```
 
-> **Note:** For pnpm workspaces, you may also need to add this to the root `package.json` or use `pnpm.overrides` in `pnpm-workspace.yaml`.
+> **Note:** This project uses pnpm (v10.26.0). Use the root `package.json` with `pnpm.overrides` syntax.
 
 ---
 
@@ -409,10 +456,10 @@ pnpm --filter @dx3/web test:libs:coverage
     "libphonenumber-js": "^1.12.4",
     "lottie-react": "^2.4.1",
     "mui-one-time-password-input": "^5.0.0",
-    "react": "^19.1.0",
+    "react": "^19.1.4",
     "react-avatar-editor": "^13.0.2",
-    "react-dom": "^19.1.0",
-    "react-is": "^19.1.0",
+    "react-dom": "^19.1.4",
+    "react-is": "^19.1.4",
     "react-phone-input-2": "^2.15.1",
     "react-redux": "^9.2.0",
     "react-router": "^7.2.0",
@@ -434,9 +481,9 @@ pnpm --filter @dx3/web test:libs:coverage
     "@rspack/plugin-react-refresh": "^1.0.0",
     "@testing-library/dom": "10.4.0",
     "@testing-library/react": "^16.2.0",
-    "@types/react": "^19.1.0",
+    "@types/react": "^19.1.4",
     "@types/react-avatar-editor": "^13.0.3",
-    "@types/react-dom": "^19.1.0",
+    "@types/react-dom": "^19.1.4",
     "@types/react-is": "^19.0.0",
     "css-loader": "^7.1.2",
     "dotenv": "^17.2.3",
@@ -455,8 +502,8 @@ pnpm --filter @dx3/web test:libs:coverage
   },
   "overrides": {
     "react-avatar-editor": {
-      "react": ">=19.1.0",
-      "react-dom": ">=19.1.0"
+      "react": ">=19.1.4",
+      "react-dom": ">=19.1.4"
     }
   }
 }
@@ -500,7 +547,7 @@ pnpm --filter @dx3/web test:libs:coverage
 ├─────────────────────────────────────────────────────────────┤
 │  2. Phase 1: React Router consolidation                      │
 │     - Remove react-router-dom from package.json              │
-│     - Update 24 import statements                            │
+│     - Update 25 import statements (inc. jest.mock)           │
 ├─────────────────────────────────────────────────────────────┤
 │  3. Phase 2: Fix onBackdropClick in 3 dialog files          │
 ├─────────────────────────────────────────────────────────────┤
@@ -509,7 +556,8 @@ pnpm --filter @dx3/web test:libs:coverage
 ├─────────────────────────────────────────────────────────────┤
 │  5. Phase 3 & 4: Upgrade React 19 + MUI v7 together         │
 │     - Update package.json dependencies                       │
-│     - Add react-avatar-editor override                       │
+│     - Add pnpm.overrides to ROOT package.json                │
+│     - Update peerDependencies in packages/web/package.json   │
 │     - Run pnpm install                                       │
 ├─────────────────────────────────────────────────────────────┤
 │  6. Phase 5: Verify third-party dependencies                 │
