@@ -1,7 +1,22 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: any ok for testing */
-import fs from 'node:fs'
-import path from 'node:path'
-import axios from 'axios'
+/* eslint-disable @typescript-eslint/no-require-imports */
+// Register tsconfig-paths FIRST to resolve path aliases like @dx3/* in globalSetup context
+const nodePath = require('node:path')
+const { register } = require('tsconfig-paths')
+const tsconfigBase = require('../../../../../tsconfig.base.json')
+
+// Resolve the baseUrl to an absolute path (tsconfig.base.json is at monorepo root)
+const monorepoRoot = nodePath.resolve(__dirname, '../../../../..')
+register({
+  baseUrl: monorepoRoot,
+  paths: tsconfigBase.compilerOptions.paths,
+})
+
+// Now that paths are registered, we can require @dx3/* modules
+const fs = require('node:fs')
+const path = require('node:path')
+const axios = require('axios').default
+const { TEST_USER_DATA } = require('@dx3/test-data')
 
 /**
  * Global Setup for API E2E Tests
@@ -59,15 +74,14 @@ async function waitForApi(): Promise<void> {
 
 async function performGlobalLogin(): Promise<AuthCache | null> {
   // Test credentials for global auth (from libs/test-data)
-  // These are hardcoded here because globalSetup runs in a separate process
-  // without access to TypeScript path aliases
-  const TEST_EXISTING_USERNAME = 'admin'
-  const TEST_EXISTING_PASSWORD = 'advancedbasics1'
+  const TEST_EXISTING_USERNAME = TEST_USER_DATA.SUPERADMIN.username
+  const TEST_EXISTING_PASSWORD = TEST_USER_DATA.SUPERADMIN.password
 
   const maxRetries = 5
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+
       const response = await axios.post('/api/v1/auth/login', {
         password: TEST_EXISTING_PASSWORD,
         value: TEST_EXISTING_USERNAME,

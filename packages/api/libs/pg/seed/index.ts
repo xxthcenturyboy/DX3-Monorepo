@@ -13,11 +13,15 @@ import 'reflect-metadata'
 
 import { type ModelCtor, Sequelize } from 'sequelize-typescript'
 
+import { APP_PREFIX } from '@dx3/models-shared'
+
 import { DeviceModel } from '../../devices/device-api.postgres-model'
 import { EmailModel } from '../../email/email-api.postgres-model'
+import { ApiLoggingClass } from '../../logger'
 import { MediaModel } from '../../media/media-api.postgres-model'
 import { NotificationModel } from '../../notifications/notification-api.postgres-model'
 import { PhoneModel } from '../../phone/phone-api.postgres-model'
+import { RedisService } from '../../redis'
 import { ShortLinkModel } from '../../shortlink/shortlink-api.postgres-model'
 import { UserModel } from '../../user/user-api.postgres-model'
 import { UserPrivilegeSetModel } from '../../user-privilege/user-privilege-api.postgres-model'
@@ -35,6 +39,47 @@ const colors = {
   red: '\x1b[31m',
   reset: '\x1b[0m',
   yellow: '\x1b[33m',
+}
+
+/**
+ * Initialize required services (Logger and Redis) for the seeder
+ * These singletons are required by cache services used in seeders
+ */
+async function initializeServices(options: SeederOptions): Promise<void> {
+  // 1. Initialize the logger first (RedisService depends on it)
+  new ApiLoggingClass({ appName: 'dx3-seeder' })
+  if (options.verbose) {
+    console.log(`${colors.green}✓ Logger initialized${colors.reset}`)
+  }
+
+  // 2. Initialize Redis connection
+  const redisUrl = process.env.REDIS_URL
+  const redisPort = process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379
+
+  if (!redisUrl) {
+    console.log(`${colors.yellow}⚠ REDIS_URL not set - cache updates will be skipped${colors.reset}`)
+    return
+  }
+
+  try {
+    new RedisService({
+      isLocal: true, // Seeder always runs in local/development context
+      redis: {
+        port: redisPort,
+        prefix: APP_PREFIX,
+        url: redisUrl,
+      },
+    })
+
+    if (options.verbose) {
+      console.log(`${colors.green}✓ Redis connected at ${redisUrl}:${redisPort}${colors.reset}`)
+    }
+  } catch (error) {
+    console.log(
+      `${colors.yellow}⚠ Failed to connect to Redis: ${(error as Error).message}${colors.reset}`,
+    )
+    console.log(`${colors.yellow}  Cache updates will be skipped${colors.reset}`)
+  }
 }
 
 /**
@@ -292,6 +337,10 @@ async function main(): Promise<void> {
   let sequelize: Sequelize | null = null
 
   try {
+    // Initialize services (Logger and Redis) for cache operations
+    console.log(`${colors.blue}Initializing services...${colors.reset}`)
+    await initializeServices(options)
+
     console.log(`${colors.blue}Initializing database connection...${colors.reset}`)
     sequelize = await initializeDatabase(options)
     console.log(`${colors.green}✓ Database connected successfully${colors.reset}\n`)

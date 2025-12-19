@@ -28,7 +28,6 @@ export class UserPrivilegeSetCache {
     if (!privilegeSetName || !privilegeSet) {
       return false
     }
-
     const key = this.getFormattedKeyName(privilegeSetName)
     const data = JSON.stringify(privilegeSet)
     try {

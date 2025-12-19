@@ -5,6 +5,7 @@
 
 import { dxHashString } from '@dx3/encryption'
 import { USER_ROLE } from '@dx3/models-shared'
+import { TEST_USER_DATA } from '@dx3/test-data'
 
 export interface UserSeedData {
   id: string
@@ -33,46 +34,39 @@ export interface PhoneSeedData {
   verifiedAt: Date | null
 }
 
-// Predefined UUIDs for consistent seeding
-export const SEED_USER_IDS = {
-  ADMIN: '2cf4aebd-d30d-4c9e-9047-e52c10fe8d4d',
-  SUPER_ADMIN: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  TEST_USER: 'b2c3d4e5-f6a7-8901-bcde-f12345678901',
-} as const
-
 /**
  * Get admin user seed data with hashed password
  */
 export const getAdminUserSeed = async (): Promise<UserSeedData> => ({
-  firstName: 'Admin',
-  hashword: await dxHashString('advancedbasics1'),
-  id: SEED_USER_IDS.ADMIN,
-  lastName: 'User',
+  firstName: TEST_USER_DATA.ADMIN.firstName,
+  hashword: await dxHashString(TEST_USER_DATA.ADMIN.password),
+  id: TEST_USER_DATA.ADMIN.id,
+  lastName: TEST_USER_DATA.ADMIN.lastName,
   roles: [USER_ROLE.ADMIN, USER_ROLE.USER],
-  username: 'admin',
+  username: TEST_USER_DATA.ADMIN.username,
 })
 
 /**
  * Get super admin user seed data with hashed password
  */
 export const getSuperAdminUserSeed = async (): Promise<UserSeedData> => ({
-  firstName: 'Super',
-  hashword: await dxHashString('superadmin123'),
-  id: SEED_USER_IDS.SUPER_ADMIN,
-  lastName: 'Admin',
+  firstName: TEST_USER_DATA.SUPERADMIN.firstName,
+  hashword: await dxHashString(TEST_USER_DATA.SUPERADMIN.password),
+  id: TEST_USER_DATA.SUPERADMIN.id,
+  lastName: TEST_USER_DATA.SUPERADMIN.lastName,
   roles: [USER_ROLE.SUPER_ADMIN, USER_ROLE.ADMIN, USER_ROLE.USER],
-  username: 'superadmin',
+  username: TEST_USER_DATA.SUPERADMIN.username,
 })
 
 /**
  * Get test user seed data (no password - login via OTP)
  */
 export const getTestUserSeed = async (): Promise<UserSeedData> => ({
-  firstName: 'Test',
-  id: SEED_USER_IDS.TEST_USER,
-  lastName: 'User',
+  firstName: TEST_USER_DATA.USER.firstName,
+  id: TEST_USER_DATA.USER.id,
+  lastName: TEST_USER_DATA.USER.lastName,
   roles: [USER_ROLE.USER],
-  username: 'testuser',
+  username: TEST_USER_DATA.USER.username,
 })
 
 /**
@@ -88,23 +82,23 @@ export const getAllUsersSeed = async (): Promise<UserSeedData[]> => {
 export const getEmailsSeed = (): EmailSeedData[] => [
   {
     default: true,
-    email: 'admin@danex.software',
+    email: TEST_USER_DATA.ADMIN.email,
     label: 'Work',
-    userId: SEED_USER_IDS.ADMIN,
+    userId: TEST_USER_DATA.ADMIN.id,
     verifiedAt: new Date(),
   },
   {
     default: true,
-    email: 'superadmin@danex.software',
+    email: TEST_USER_DATA.SUPERADMIN.email,
     label: 'Work',
-    userId: SEED_USER_IDS.SUPER_ADMIN,
+    userId: TEST_USER_DATA.SUPERADMIN.id,
     verifiedAt: new Date(),
   },
   {
     default: true,
-    email: 'test@danex.software',
+    email: TEST_USER_DATA.USER.email,
     label: 'Personal',
-    userId: SEED_USER_IDS.TEST_USER,
+    userId: TEST_USER_DATA.USER.id,
     verifiedAt: new Date(),
   },
 ]
@@ -114,21 +108,30 @@ export const getEmailsSeed = (): EmailSeedData[] => [
  */
 export const getPhonesSeed = (): PhoneSeedData[] => [
   {
-    countryCode: '1',
+    countryCode: TEST_USER_DATA.ADMIN.phoneCountryCode,
     default: true,
     label: 'Mobile',
-    phone: '8584846800',
-    regionCode: 'US',
-    userId: SEED_USER_IDS.ADMIN,
+    phone: TEST_USER_DATA.ADMIN.phone,
+    regionCode: TEST_USER_DATA.ADMIN.phoneRegionCode,
+    userId: TEST_USER_DATA.ADMIN.id,
     verifiedAt: new Date(),
   },
   {
-    countryCode: '1',
+    countryCode: TEST_USER_DATA.SUPERADMIN.phoneCountryCode,
     default: true,
     label: 'Mobile',
-    phone: '5551234567',
-    regionCode: 'US',
-    userId: SEED_USER_IDS.TEST_USER,
+    phone: TEST_USER_DATA.SUPERADMIN.phone,
+    regionCode: TEST_USER_DATA.SUPERADMIN.phoneRegionCode,
+    userId: TEST_USER_DATA.SUPERADMIN.id,
+    verifiedAt: new Date(),
+  },
+  {
+    countryCode: TEST_USER_DATA.USER.phoneCountryCode,
+    default: true,
+    label: 'Mobile',
+    phone: TEST_USER_DATA.USER.phone,
+    regionCode: TEST_USER_DATA.USER.phoneRegionCode,
+    userId: TEST_USER_DATA.USER.id,
     verifiedAt: null,
   },
 ]

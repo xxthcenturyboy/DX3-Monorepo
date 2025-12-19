@@ -5,7 +5,7 @@ import type {
   OtpResponseType,
   UpdateEmailPayloadType,
 } from '@dx3/models-shared'
-import { TEST_EMAIL, TEST_EXISTING_EMAIL, TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
+import { TEST_EXISTING_EMAIL, TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
 
 import { getGlobalAuthHeaders, getGlobalAuthResponse } from '../../support/test-setup'
 
@@ -134,11 +134,11 @@ describe('v1 Email Routes', () => {
       }
     })
 
-    test('should return an error when email is invalid', async () => {
+    test('should return an error when email is disposable', async () => {
       const payload: CreateEmailPayloadType = {
         code: '',
         def: false,
-        email: 'test@080mail.com',
+        email: 'test@0-mail.com',
         label: 'Work',
         userId: TEST_EXISTING_USER_ID,
       }
@@ -163,11 +163,40 @@ describe('v1 Email Routes', () => {
         )
       }
     })
+    test('should return an error when email is invalid', async () => {
+      const payload: CreateEmailPayloadType = {
+        code: '',
+        def: false,
+        email: 'test@mail.invalidtld',
+        label: 'Work',
+        userId: TEST_EXISTING_USER_ID,
+      }
+
+      const request: AxiosRequestConfig = {
+        data: payload,
+        headers: getGlobalAuthHeaders(),
+        method: 'POST',
+        url: `/api/v1/email/`,
+        withCredentials: true,
+      }
+
+      try {
+        expect(await axios.request(request)).toThrow()
+      } catch (err) {
+        const typedError = err as AxiosError
+        // assert
+        expect(typedError.response.status).toBe(400)
+        // @ts-expect-error - type is bad
+        expect(typedError.response.data.message).toEqual(
+          `The email you provided is not valid: TLD.`,
+        )
+      }
+    })
 
     test('should return 200 when successfuly creates email', async () => {
       const result = await axios.request<AxiosRequestConfig, AxiosResponse<OtpResponseType>>({
         data: {
-          email: TEST_EMAIL,
+          email: 'test@email.com',
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
@@ -177,7 +206,7 @@ describe('v1 Email Routes', () => {
       const payload: CreateEmailPayloadType = {
         code: result.data.code,
         def: false,
-        email: TEST_EMAIL,
+        email: 'test@email.com',
         label: 'Work',
         userId: getGlobalAuthResponse().profile.id,
       }

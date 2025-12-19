@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
 import type { AuthSuccessResponseType, LoginPayloadType } from '@dx3/models-shared'
-import { TEST_EXISTING_PASSWORD, TEST_EXISTING_USERNAME } from '@dx3/test-data'
+import { TEST_USER_DATA } from '@dx3/test-data'
 
 export class AuthUtil {
   accessToken: string
@@ -25,8 +25,8 @@ export class AuthUtil {
   public async login(email?: string, password?: string): Promise<AuthSuccessResponseType> {
     const payload: LoginPayloadType = {
       // password: password || 'akjd0023kakdj_**_('
-      password: password || TEST_EXISTING_PASSWORD,
-      value: email || TEST_EXISTING_USERNAME,
+      password: password || TEST_USER_DATA.SUPERADMIN.password,
+      value: email || TEST_USER_DATA.SUPERADMIN.email,
     }
 
     const request: AxiosRequestConfig = {

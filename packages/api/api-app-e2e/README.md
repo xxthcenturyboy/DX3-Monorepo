@@ -1,6 +1,6 @@
 # API e2e
 
-apps/api-e2e/src/api/
+apps/api-app-e2e/src/api/
 ├── root-route.spec.ts        # Health checks, well-known endpoints
 ├── v1/
 │   ├── auth-flow-v1.spec.ts  # Authentication flows
@@ -15,32 +15,37 @@ apps/api-e2e/src/api/
 
 ## Testing
 
-Run all api-e2e tests
+Run all api-app-e2e tests
 ```Bash
-pnpm --filter @dx3/api-e2e test:runInBand
+pnpm --filter @dx3/api-app-e2e test:runInBand
 ```
 
 Run with verbose output
 ```Bash
-pnpm --filter @dx3/api-e2e test --verbose --runInBand
+pnpm --filter @dx3/api-app-e2e test --verbose --runInBand
 ```
 
 Run specific test file (by filename only - no path needed!)
 ```Bash
-pnpm --filter @dx3/api-e2e test auth-flow-v1.spec.ts
-pnpm --filter @dx3/api-e2e test root-route.spec.ts
-pnpm --filter @dx3/api-e2e test user-v1.spec.ts
-pnpm --filter @dx3/api-e2e test media-v1.spec.ts
+pnpm --filter @dx3/api-app-e2e test auth-flow-v1.spec.ts
+pnpm --filter @dx3/api-app-e2e test root-route.spec.ts
+pnpm --filter @dx3/api-app-e2e test user-v1.spec.ts
+pnpm --filter @dx3/api-app-e2e test media-v1.spec.ts
+```
+
+Run a specific test in a testfile
+```Bash
+pnpm --filter @dx3/api-app-e2e test --testPathPattern="auth-flow-v1" -t "should return an error when sent with an existing email."
 ```
 
 Run tests in CI mode (with coverage)
 ```Bash
-pnpm --filter @dx3/api-e2e test:ci
+pnpm --filter @dx3/api-app-e2e test:ci
 ```
 
 Debug mode (verbose output, detect open handles)
 ```Bash
-pnpm --filter @dx3/api-e2e test:debug
+pnpm --filter @dx3/api-app-e2e test:debug
 ```
 
 ## Global Authentication
@@ -131,5 +136,5 @@ curl http://localhost:4000/api/healthz
 
 View test logs
 ```Bash
-tail -f logs/api-e2e.log
+tail -f logs/api-app-e2e.log
 ```

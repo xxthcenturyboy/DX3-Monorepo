@@ -1,6 +1,8 @@
 # Configuration
 DB_NAME := dx-app
 DB_USER := pguser
+REDIS_CONTAINER := redis-dx3
+REDIS_PORT := 6379
 
 # Container IDs
 API_CONTAINER_ID := $(shell docker compose ps -q api-node-22-dx3)
@@ -48,7 +50,7 @@ db-reset:
 	@echo "Creating fresh database..."
 	docker exec -it ${CONTAINER_PG} createdb -T template0 ${DB_NAME} --username=${DB_USER}
 	@echo "Running TypeScript seeders..."
-	docker exec -it ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --reset --verbose
+	docker exec -it -e REDIS_URL=redis://${REDIS_CONTAINER} -e REDIS_PORT=${REDIS_PORT} ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --reset --verbose
 
 ## full database reset (no seeding)
 db-reset-empty:
@@ -62,11 +64,11 @@ db-reset-empty:
 
 ## run TypeScript seeders only (no reset)
 db-seed:
-	docker exec -it ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --verbose
+	docker exec -it -e REDIS_URL=redis://${REDIS_CONTAINER} -e REDIS_PORT=${REDIS_PORT} ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --verbose
 
 ## run TypeScript seeders with reset flag
 db-seed-reset:
-	docker exec -it ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --reset --verbose
+	docker exec -it -e REDIS_URL=redis://${REDIS_CONTAINER} -e REDIS_PORT=${REDIS_PORT} ${API_CONTAINER_ID} pnpm --filter @dx3/api db:seed --reset --verbose
 
 ## create a backup dump from current database state
 db-dump:

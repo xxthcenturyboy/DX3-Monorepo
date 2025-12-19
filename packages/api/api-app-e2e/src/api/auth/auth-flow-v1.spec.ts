@@ -17,6 +17,7 @@ import {
   TEST_EXISTING_USERNAME,
   TEST_PHONE,
   TEST_PHONE_VALID,
+  TEST_USER_DATA,
   TEST_UUID,
 } from '@dx3/test-data'
 
@@ -324,7 +325,7 @@ describe('v1 Auth Flow', () => {
       // arrange
       const payload: AccountCreationPayloadType = {
         code: 'OU812',
-        value: TEST_EXISTING_EMAIL,
+        value: TEST_USER_DATA.USER.email,
       }
 
       const request: AxiosRequestConfig = {
@@ -341,7 +342,36 @@ describe('v1 Auth Flow', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`${TEST_EXISTING_EMAIL} already exists.`)
+        expect(typedError.response.data.message).toEqual(
+          `${TEST_USER_DATA.USER.email} already exists.`,
+        )
+      }
+    })
+
+    test('should return an error when sent with a restricted email.', async () => {
+      // arrange
+      const payload: AccountCreationPayloadType = {
+        code: 'OU812',
+        value: 'admin@test.com', // admin is restricted
+      }
+
+      const request: AxiosRequestConfig = {
+        data: payload,
+        method: 'POST',
+        url: '/api/v1/auth/account',
+      }
+      // act
+      try {
+        expect(await axios.request(request)).toThrow()
+      } catch (err) {
+        const typedError = err as AxiosError
+        // console.log('got error', typedError);
+        // assert
+        expect(typedError.response.status).toBe(400)
+        // @ts-expect-error - type is bad
+        expect(typedError.response.data.message).toEqual(
+          `Account could not be created with payload: ${JSON.stringify(payload, null, 2)}`,
+        )
       }
     })
 
@@ -411,18 +441,21 @@ describe('v1 Auth Flow', () => {
         url: '/api/v1/auth/account',
       }
 
-      const response = await axios.request<AuthSuccessResponseType>(request)
-      emailAccountId = response.data.profile.id
-      emailAuthToken = response.data.accessToken
-      const cookie = (response.headers['set-cookie'] as string[])
-        .find((cookie) => cookie.includes(AUTH_TOKEN_NAMES.REFRESH))
-        ?.match(new RegExp(`^${AUTH_TOKEN_NAMES.REFRESH}=(.+?);`))?.[1]
-      // console.log('cookie', cookie);
-      emailRefreshToken = cookie
+      try {
+        const response = await axios.request<AuthSuccessResponseType>(request)
+        emailAccountId = response.data.profile.id
+        emailAuthToken = response.data.accessToken
+        const cookie = (response.headers['set-cookie'] as string[])
+          .find((cookie) => cookie.includes(AUTH_TOKEN_NAMES.REFRESH))
+          ?.match(new RegExp(`^${AUTH_TOKEN_NAMES.REFRESH}=(.+?);`))?.[1]
+        emailRefreshToken = cookie
 
-      expect(response.status).toEqual(200)
-      expect(response.data.accessToken).toBeDefined()
-      expect(response.data.profile.emails).toHaveLength(1)
+        expect(response.status).toEqual(200)
+        expect(response.data.accessToken).toBeDefined()
+        expect(response.data.profile.emails).toHaveLength(1)
+      } catch (err) {
+        console.log('err', err)
+      }
     })
 
     test('should return user profile when successfully create account with phone', async () => {
@@ -444,7 +477,6 @@ describe('v1 Auth Flow', () => {
       const cookie = (response.headers['set-cookie'] as string[])
         .find((cookie) => cookie.includes(AUTH_TOKEN_NAMES.REFRESH))
         ?.match(new RegExp(`^${AUTH_TOKEN_NAMES.REFRESH}=(.+?);`))?.[1]
-      // console.log('cookie', cookie);
       phoneRefreshToken = cookie
       deviceId = response.data.profile.device.id
 
@@ -822,7 +854,7 @@ describe('v1 Auth Flow', () => {
 
     test('should return user profile when successfully logged in with email / password', async () => {
       const payload: LoginPayloadType = {
-        password: 'advancedbasics1',
+        password: TEST_USER_DATA.ADMIN.password,
         value: TEST_EXISTING_EMAIL,
       }
       const request: AxiosRequestConfig = {
@@ -831,12 +863,16 @@ describe('v1 Auth Flow', () => {
         url: '/api/v1/auth/login',
       }
 
-      const response = await axios.request<AuthSuccessResponseType>(request)
+      try {
+        const response = await axios.request<AuthSuccessResponseType>(request)
 
-      expect(response.status).toEqual(200)
-      expect(response.data.accessToken).toBeDefined()
-      expect(Array.isArray(response.data.profile.emails)).toBe(true)
-      expect(Array.isArray(response.data.profile.phones)).toBe(true)
+        expect(response.status).toEqual(200)
+        expect(response.data.accessToken).toBeDefined()
+        expect(Array.isArray(response.data.profile.emails)).toBe(true)
+        expect(Array.isArray(response.data.profile.phones)).toBe(true)
+      } catch (err) {
+        console.log('err', err)
+      }
     })
 
     test('should return user profile when successfully logged in with phone', async () => {

@@ -25,6 +25,8 @@ DB_NAME="${DB_NAME:-dx-app}"
 DB_USER="${DB_USER:-pguser}"
 POSTGRES_CONTAINER="${POSTGRES_CONTAINER:-postgres-dx3}"
 API_CONTAINER="${API_CONTAINER:-api-dx3}"
+REDIS_CONTAINER="${REDIS_CONTAINER:-redis-dx3}"
+REDIS_PORT="${REDIS_PORT:-6379}"
 
 # Parse arguments
 NO_SEED=false
@@ -154,7 +156,11 @@ if [ "$NO_SEED" = false ]; then
     SEEDER_ARGS="$SEEDER_ARGS --verbose"
   fi
 
-  if docker exec "${API_CONTAINER}" pnpm --filter @dx3/api db:seed $SEEDER_ARGS; then
+  # Pass Redis environment variables explicitly to ensure cache updates work
+  if docker exec \
+    -e "REDIS_URL=redis://${REDIS_CONTAINER}" \
+    -e "REDIS_PORT=${REDIS_PORT}" \
+    "${API_CONTAINER}" pnpm --filter @dx3/api db:seed $SEEDER_ARGS; then
     echo -e "${GREEN}✓ Seeders completed successfully${RESET}"
   else
     echo -e "${RED}✗ Seeders failed${RESET}"

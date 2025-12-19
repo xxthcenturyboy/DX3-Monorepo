@@ -29,7 +29,12 @@ export class EmailService {
           'The email you provided is not valid. Please note that we do not allow disposable emails or emails that do not exist, so make sure to use a real email address.',
         )
       }
+
       throw new Error('The email you provided is not valid.')
+    }
+
+    if (!(await emailUtil.validateTld())) {
+      throw new Error(`The email you provided is not valid: TLD.`)
     }
 
     const isEmailAvailable = await EmailModel.isEmailAvailable(emailUtil.formattedEmail())

@@ -144,8 +144,6 @@ export class EmailUtil {
 
         return !!validRes
       } catch (_err) {
-        // this.logger.error(JSON.stringify(err, null, 2))
-
         return false
       }
     }

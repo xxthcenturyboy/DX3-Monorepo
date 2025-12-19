@@ -12,7 +12,7 @@ import type {
   UpdateUserResponseType,
   UserProfileStateType,
 } from '@dx3/models-shared'
-import { TEST_EXISTING_USER_ID, TEST_USER_CREATE, TEST_UUID } from '@dx3/test-data'
+import { TEST_EXISTING_USER_ID, TEST_USER_CREATE, TEST_USER_DATA, TEST_UUID } from '@dx3/test-data'
 
 import { getGlobalAuthHeaders } from '../../support/test-setup'
 import type { AuthUtilType } from '../auth/auth-util-v1'
@@ -147,7 +147,7 @@ describe('v1 User Routes', () => {
       >(request)
 
       expect(result.status).toBe(200)
-      expect((result.data.profile as UserProfileStateType).id).toEqual(TEST_EXISTING_USER_ID)
+      expect((result.data.profile as UserProfileStateType).id).toEqual(TEST_USER_DATA.SUPERADMIN.id)
     })
   })
 
