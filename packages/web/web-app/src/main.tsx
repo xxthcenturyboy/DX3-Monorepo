@@ -1,7 +1,7 @@
 import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { RouterProvider } from 'react-router-dom'
+import { RouterProvider } from 'react-router'
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
 
 // Import global styles

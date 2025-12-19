@@ -20,8 +20,12 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
         maxWidth: false,
         // keepMounted: false,
         // disableEnforceFocus: true,
-        onBackdropClick: () => closeDialog(),
-        onClose: () => closeDialog(),
+        onClose: (_event, reason) => {
+          // Close on backdrop click or escape key
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            closeDialog()
+          }
+        },
         open,
         props,
       }}

@@ -1,6 +1,6 @@
 import { Button, Fade, Grid2, Typography, useMediaQuery, useTheme } from '@mui/material'
 import * as React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
 import { WelcomeRobotLottie } from '@dx3/web-libs/ui/lottie/welcome-robot.lottie'

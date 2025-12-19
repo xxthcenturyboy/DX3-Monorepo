@@ -1,6 +1,6 @@
 import { Box, Fade, Grid2, Paper } from '@mui/material'
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import type { LoginPayloadType } from '@dx3/models-shared'

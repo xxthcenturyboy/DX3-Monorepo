@@ -1,7 +1,7 @@
 import { Fade, Grid2, Typography, useMediaQuery, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 
 import { APP_NAME } from '@dx3/models-shared'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'

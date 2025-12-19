@@ -2,7 +2,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import { Box, ListItemButton, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'

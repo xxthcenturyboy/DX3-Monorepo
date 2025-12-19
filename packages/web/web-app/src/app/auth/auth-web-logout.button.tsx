@@ -1,7 +1,7 @@
 import LogoutIcon from '@mui/icons-material/Logout'
 import { Button, Grid2, Typography } from '@mui/material'
 import type React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import { logger } from '@dx3/web-libs/logger'

@@ -1,7 +1,7 @@
 import { Grid2 } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'

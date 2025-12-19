@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router'
 
 import { GlobalErrorComponent } from '@dx3/web-libs/ui/global/global-error.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'

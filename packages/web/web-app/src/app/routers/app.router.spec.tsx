@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 import { WebConfigService } from '../config/config-web.service'
 import { AppRouter } from './app.router'

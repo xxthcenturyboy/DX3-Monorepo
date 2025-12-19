@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { renderWithProviders } from '../../../testing-render'
 import { WebConfigService } from '../config/config-web.service'

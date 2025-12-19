@@ -1,7 +1,7 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import React, { useState } from 'react'
-import { useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate } from 'react-router'
 
 import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'

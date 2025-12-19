@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import type { GetUsersListQueryType } from '@dx3/models-shared'

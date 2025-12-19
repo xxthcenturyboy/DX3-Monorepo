@@ -2,7 +2,7 @@ import { Fade } from '@mui/material'
 import Box from '@mui/material/Box'
 import { createTheme, type Theme, ThemeProvider } from '@mui/material/styles'
 import * as React from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router'
 import { Slide, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 

@@ -15,7 +15,7 @@ import {
   Typography,
 } from '@mui/material'
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import { APP_NAME } from '@dx3/models-shared'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'

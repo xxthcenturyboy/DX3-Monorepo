@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Outlet, type RouteObject } from 'react-router-dom'
+import { Outlet, type RouteObject } from 'react-router'
 
 import { BetaFeatureComponent } from '@dx3/web-libs/ui/global/beta-feature-placeholder.component'
 import { GlobalErrorComponent } from '@dx3/web-libs/ui/global/global-error.component'

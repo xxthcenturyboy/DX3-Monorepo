@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { grey, lightBlue } from '@mui/material/colors'
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 
 import { ACCOUNT_RESTRICTIONS, type UserRoleUi } from '@dx3/models-shared'

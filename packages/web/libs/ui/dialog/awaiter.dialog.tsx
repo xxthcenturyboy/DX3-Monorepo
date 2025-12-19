@@ -21,8 +21,10 @@ export const DialogAwaiter: React.FC<DialogAwaiterPropsType> = (props) => {
         fullScreen: isMobileWidth,
         keepMounted: true,
         maxWidth: false,
-        onBackdropClick: () => null,
-        onClose: () => null,
+        // Prevent closing on backdrop click or escape - user must wait
+        onClose: (_event, _reason) => {
+          // Do nothing - awaiter dialog cannot be dismissed
+        },
         open,
         props,
       }}

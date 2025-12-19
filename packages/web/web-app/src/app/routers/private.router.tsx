@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Navigate, Outlet, type RouteObject } from 'react-router-dom'
+import { Navigate, Outlet, type RouteObject } from 'react-router'
 
 import { GlobalErrorComponent } from '@dx3/web-libs/ui/global/global-error.component'
 import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { WebConfigService } from '../../config/config-web.service'
 import { useAppSelector } from '../../store/store-web-redux.hooks'

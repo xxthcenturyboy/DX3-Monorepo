@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Outlet, type RouteObject } from 'react-router-dom'
+import { Outlet, type RouteObject } from 'react-router'
 
 import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.component'

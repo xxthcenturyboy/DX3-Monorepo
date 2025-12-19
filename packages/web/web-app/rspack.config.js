@@ -84,7 +84,7 @@ module.exports = {
         react: {
           name: `${VENDOR_PREFIX}.react`,
           priority: 40,
-          test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
+          test: /[\\/]node_modules[\\/](react|react-dom|react-router)[\\/]/,
         },
       },
       chunks: 'all',

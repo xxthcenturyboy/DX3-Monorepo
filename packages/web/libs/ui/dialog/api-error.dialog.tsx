@@ -30,8 +30,12 @@ export const DialogApiError: React.FC<DialogApiErrorPropsType> = (props) => {
         maxWidth: false,
         // keepMounted: false,
         // disableEnforceFocus: true,
-        onBackdropClick: () => closeDialog(),
-        onClose: () => closeDialog(),
+        onClose: (_event, reason) => {
+          // Close on backdrop click or escape key
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            closeDialog()
+          }
+        },
         open,
         props,
       }}

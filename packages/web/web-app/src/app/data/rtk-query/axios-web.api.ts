@@ -2,7 +2,7 @@ import type { BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import axios, { type AxiosError, type AxiosResponse } from 'axios'
 import { toast } from 'react-toastify'
 
-// import { Navigate } from 'react-router-dom';
+// import { Navigate } from 'react-router';
 
 // import { store } from '@dx/store-web';
 import { regexMatchNumberGroups } from '@dx3/utils-shared'
