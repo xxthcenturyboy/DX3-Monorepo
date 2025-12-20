@@ -10,8 +10,8 @@ jest.mock('@dx3/api-libs/logger', () => ({
 }))
 
 import {
-  TEST_EXISTING_PHONE,
-  TEST_PHONE,
+  TEST_PHONE_1,
+  TEST_PHONE_2,
   TEST_PHONE_IT_INVALID,
   TEST_PHONE_IT_VALID,
 } from '@dx3/test-data'
@@ -23,8 +23,8 @@ describe('phone.util', () => {
 
   test('should invalidate a bogus US phone number', () => {
     // arrange
-    const nationalPhone = TEST_PHONE.replace(/ /g, '')
-    phoneUtil = new PhoneUtil(TEST_PHONE, 'US')
+    const nationalPhone = TEST_PHONE_2.replace(/ /g, '')
+    phoneUtil = new PhoneUtil(TEST_PHONE_2, 'US')
     // act
     // assert
     expect(phoneUtil.countryCode).toEqual('1')
@@ -49,8 +49,8 @@ describe('phone.util', () => {
 
   test('should validate a valid US phone number', () => {
     // arrange
-    const nationalPhone = TEST_EXISTING_PHONE.replace(/ /g, '')
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    const nationalPhone = TEST_PHONE_1.replace(/ /g, '')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     // assert
     expect(phoneUtil.countryCode).toEqual('1')
@@ -75,7 +75,7 @@ describe('phone.util', () => {
 
   test('should get international phone format', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const intlNumber = phoneUtil.internationalNumber
     // assert
@@ -85,7 +85,7 @@ describe('phone.util', () => {
 
   test('should get normalized phone number', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const normalized = phoneUtil.normalizedPhone
     // assert
@@ -96,7 +96,7 @@ describe('phone.util', () => {
 
   test('should check if phone is a possible number', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const isPossible = phoneUtil.isPossibleNumber
     // assert
@@ -114,7 +114,7 @@ describe('phone.util', () => {
 
   test('should get possible number reason for valid number', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const reason = phoneUtil.isPossibleNumberReason
     // assert
@@ -133,7 +133,7 @@ describe('phone.util', () => {
 
   test('should get phone type text for mobile', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const typeText = phoneUtil.phoneTypeText
     // assert
@@ -152,7 +152,7 @@ describe('phone.util', () => {
 
   test('should get phone type string for mobile', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const typeString = phoneUtil.phoneTypeString
     // assert
@@ -197,7 +197,7 @@ describe('phone.util', () => {
 
   test('should return true for isValidMobile on mobile phone', () => {
     // arrange
-    phoneUtil = new PhoneUtil(TEST_EXISTING_PHONE, 'US')
+    phoneUtil = new PhoneUtil(TEST_PHONE_1, 'US')
     // act
     const isValidMobile = phoneUtil.isValidMobile
     // assert

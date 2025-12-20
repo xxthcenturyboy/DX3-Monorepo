@@ -1,1 +1,1 @@
-{"last_found_secrets": [{"match": "445e55f16377b6f9bd45fbc11dd7f39320667637b7cb3edc7fb8ae91892dc5e8", "name": "Username Password - /Users/dan/Developer/DanEx/dx3-monorepo/packages/shared/test-data/src/lib/test.const.ts"}]}
+{"last_found_secrets": [{"match": "2354a20a110215a2aa8f51265c76d7a42356afbe189b5297fd3962bd270724ad", "name": "Generic High Entropy Secret - /Users/dan/Developer/DanEx/dx3-monorepo/packages/api/api-app/src/auth/auth-api.controller.spec.ts"}]}

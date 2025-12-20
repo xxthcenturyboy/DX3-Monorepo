@@ -12,10 +12,16 @@ import { AUTH_TOKEN_NAMES, PHONE_DEFAULT_REGION_CODE, USER_LOOKUPS } from '@dx3/
 import {
   TEST_DEVICE,
   TEST_EMAIL,
-  TEST_EXISTING_EMAIL,
-  TEST_EXISTING_PHONE,
+  TEST_EMAIL_ADMIN,
+  // TEST_EMAIL_NEW,
+  TEST_EMAIL_NEW_2,
   TEST_EXISTING_USERNAME,
-  TEST_PHONE,
+  TEST_PHONE_1,
+  TEST_PHONE_2,
+  TEST_PHONE_3,
+  TEST_PHONE_IT_INVALID,
+  TEST_PHONE_IT_VALID,
+  // TEST_PHONE_REGION_CODE_IT,
   TEST_PHONE_VALID,
   TEST_USER_DATA,
   TEST_UUID,
@@ -83,7 +89,7 @@ describe('v1 Auth Flow', () => {
   describe('Check Email or Phone for availability', () => {
     test('should return available when queried with a non-existent phone', async () => {
       // arrange
-      const url = `/api/v1/auth/lookup?code=1&value=${TEST_PHONE_VALID}&type=${USER_LOOKUPS.PHONE}&region=${PHONE_DEFAULT_REGION_CODE}`
+      const url = `/api/v1/auth/lookup?code=1&value=${TEST_PHONE_2}&type=${USER_LOOKUPS.PHONE}&region=${PHONE_DEFAULT_REGION_CODE}`
       // act
       const response = await axios.get<UserLookupResponseType>(url)
       // assert
@@ -93,7 +99,7 @@ describe('v1 Auth Flow', () => {
 
     test('should return unavailable when queried with an existing phone', async () => {
       // arrange
-      const url = `/api/v1/auth/lookup?code=1&value=${TEST_EXISTING_PHONE}&type=${USER_LOOKUPS.PHONE}&region=${PHONE_DEFAULT_REGION_CODE}`
+      const url = `/api/v1/auth/lookup?code=1&value=${TEST_PHONE_1}&type=${USER_LOOKUPS.PHONE}&region=${PHONE_DEFAULT_REGION_CODE}`
       // act
       // assert
       try {
@@ -113,7 +119,7 @@ describe('v1 Auth Flow', () => {
 
     test('should return an error when queried with an invalid phone.', async () => {
       // arrange
-      const url = `/api/v1/auth/lookup?code=1&value=${TEST_PHONE}&type=${USER_LOOKUPS.PHONE}`
+      const url = `/api/v1/auth/lookup?code=1&value=${TEST_PHONE_2}&type=${USER_LOOKUPS.PHONE}`
       // act
       try {
         // expect(await axios.get(url)).toThrow();
@@ -133,7 +139,7 @@ describe('v1 Auth Flow', () => {
     test('should return available when queried with a non-existent email', async () => {
       // arrange
       const expectedResult: UserLookupResponseType = { available: true }
-      const url = `/api/v1/auth/lookup?value=${TEST_EMAIL}&type=${USER_LOOKUPS.EMAIL}`
+      const url = `/api/v1/auth/lookup?value=non-existent-${TEST_EMAIL}&type=${USER_LOOKUPS.EMAIL}`
       // act
       const response = await axios.get<UserLookupResponseType>(url)
       // assert
@@ -143,7 +149,7 @@ describe('v1 Auth Flow', () => {
 
     test('should return unavailable when queried with an existing email', async () => {
       // arrange
-      const url = `/api/v1/auth/lookup?value=${TEST_EXISTING_EMAIL}&type=${USER_LOOKUPS.EMAIL}`
+      const url = `/api/v1/auth/lookup?value=${TEST_EMAIL_ADMIN}&type=${USER_LOOKUPS.EMAIL}`
       // act
       // assert
       try {
@@ -157,7 +163,7 @@ describe('v1 Auth Flow', () => {
         // assert
         // expect(typedError.response.status).toBe(400);
         // // @ts-expect-error - type is bad
-        // expect(typedError.response.data.message).toEqual(`Error in auth lookup handler: ${TEST_EXISTING_EMAIL} already exists.`);
+        // expect(typedError.response.data.message).toEqual(`Error in auth lookup handler: ${TEST_EMAIL_ADMIN} already exists.`);
       }
     })
 
@@ -206,7 +212,7 @@ describe('v1 Auth Flow', () => {
     test('should return empty string when sent with an invalid phone', async () => {
       const request: AxiosRequestConfig = {
         data: {
-          phone: TEST_PHONE,
+          phone: TEST_PHONE_IT_VALID,
         },
         method: 'POST',
         url: '/api/v1/auth/otp-code/send/phone',
@@ -221,7 +227,7 @@ describe('v1 Auth Flow', () => {
     test('should return code when sent with valid phone', async () => {
       const request: AxiosRequestConfig = {
         data: {
-          phone: TEST_PHONE_VALID,
+          phone: TEST_PHONE_3,
         },
         method: 'POST',
         url: '/api/v1/auth/otp-code/send/phone',
@@ -253,7 +259,7 @@ describe('v1 Auth Flow', () => {
     test('should return code when sent with valid email', async () => {
       const request: AxiosRequestConfig = {
         data: {
-          email: TEST_EMAIL,
+          email: TEST_EMAIL_NEW_2,
         },
         method: 'POST',
         url: '/api/v1/auth/otp-code/send/email',
@@ -379,7 +385,7 @@ describe('v1 Auth Flow', () => {
       // arrange
       const payload: AccountCreationPayloadType = {
         code: 'OU812',
-        value: TEST_PHONE,
+        value: TEST_PHONE_IT_INVALID,
         // region: PHONE_DEFAULT_REGION_CODE
       }
 
@@ -408,7 +414,7 @@ describe('v1 Auth Flow', () => {
       const payload: AccountCreationPayloadType = {
         code: 'OU812',
         region: PHONE_DEFAULT_REGION_CODE,
-        value: TEST_EXISTING_PHONE,
+        value: TEST_PHONE_1,
       }
 
       const request: AxiosRequestConfig = {
@@ -432,8 +438,8 @@ describe('v1 Auth Flow', () => {
     test('should return user profile when successfully create account with email', async () => {
       const payload: AccountCreationPayloadType = {
         code: otpEmail,
-        region: PHONE_DEFAULT_REGION_CODE,
-        value: TEST_EMAIL,
+        // region: PHONE_DEFAULT_REGION_CODE,
+        value: TEST_EMAIL_NEW_2,
       }
       const request: AxiosRequestConfig = {
         data: payload,
@@ -454,7 +460,7 @@ describe('v1 Auth Flow', () => {
         expect(response.data.accessToken).toBeDefined()
         expect(response.data.profile.emails).toHaveLength(1)
       } catch (err) {
-        console.log('err', err)
+        console.log('create by email err', err)
       }
     })
 
@@ -463,7 +469,7 @@ describe('v1 Auth Flow', () => {
         code: otpPhone,
         device: TEST_DEVICE,
         region: PHONE_DEFAULT_REGION_CODE,
-        value: TEST_PHONE_VALID,
+        value: TEST_PHONE_3,
       }
       const request: AxiosRequestConfig = {
         data: payload,
@@ -855,7 +861,7 @@ describe('v1 Auth Flow', () => {
     test('should return user profile when successfully logged in with email / password', async () => {
       const payload: LoginPayloadType = {
         password: TEST_USER_DATA.ADMIN.password,
-        value: TEST_EXISTING_EMAIL,
+        value: TEST_EMAIL_ADMIN,
       }
       const request: AxiosRequestConfig = {
         data: payload,

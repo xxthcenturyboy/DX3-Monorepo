@@ -5,7 +5,7 @@ import type {
   OtpResponseType,
   UpdateEmailPayloadType,
 } from '@dx3/models-shared'
-import { TEST_EXISTING_EMAIL, TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
+import { TEST_EMAIL_ADMIN, TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
 
 import { getGlobalAuthHeaders, getGlobalAuthResponse } from '../../support/test-setup'
 
@@ -61,7 +61,7 @@ describe('v1 Email Routes', () => {
 
     test('should return an error when email exists', async () => {
       const payload = {
-        email: TEST_EXISTING_EMAIL,
+        email: TEST_EMAIL_ADMIN,
       }
 
       const request: AxiosRequestConfig = {
@@ -79,7 +79,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`${TEST_EXISTING_EMAIL} already exists.`)
+        expect(typedError.response.data.message).toEqual(`${TEST_EMAIL_ADMIN} already exists.`)
       }
     })
   })
@@ -110,7 +110,7 @@ describe('v1 Email Routes', () => {
       const payload: CreateEmailPayloadType = {
         code: '',
         def: false,
-        email: TEST_EXISTING_EMAIL,
+        email: TEST_EMAIL_ADMIN,
         label: 'Work',
         userId: TEST_EXISTING_USER_ID,
       }
@@ -130,7 +130,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`${TEST_EXISTING_EMAIL} already exists.`)
+        expect(typedError.response.data.message).toEqual(`${TEST_EMAIL_ADMIN} already exists.`)
       }
     })
 

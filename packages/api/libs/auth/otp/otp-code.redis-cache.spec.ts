@@ -1,4 +1,4 @@
-import { TEST_COUNTRY_CODE, TEST_EMAIL, TEST_PHONE } from '@dx3/test-data'
+import { TEST_EMAIL, TEST_PHONE_2, TEST_PHONE_COUNTRY_CODE } from '@dx3/test-data'
 
 import { getRedisConfig } from '../../config/config-api'
 import { ApiLoggingClass } from '../../logger'
@@ -80,7 +80,7 @@ describe('OtpCodeCache', () => {
     test('should set to Cache and get OTP code when invoked', async () => {
       // arrange
       // act
-      otpPhone = await cache.setPhoneOtp(TEST_COUNTRY_CODE, TEST_PHONE)
+      otpPhone = await cache.setPhoneOtp(TEST_PHONE_COUNTRY_CODE, TEST_PHONE_2)
       // assert
       expect(otpPhone).toBeTruthy()
     })
@@ -116,14 +116,14 @@ describe('OtpCodeCache', () => {
     test('return false when code not passed', async () => {
       // arrange
       // act
-      const result = await cache.validatePhoneOtp('', TEST_COUNTRY_CODE, TEST_PHONE)
+      const result = await cache.validatePhoneOtp('', TEST_PHONE_COUNTRY_CODE, TEST_PHONE_2)
       // assert
       expect(result).toBe(false)
     })
     test('should return false when code is incorrect', async () => {
       // arrange
       // act
-      const result = await cache.validatePhoneOtp('OU812', TEST_COUNTRY_CODE, TEST_PHONE)
+      const result = await cache.validatePhoneOtp('OU812', TEST_PHONE_COUNTRY_CODE, TEST_PHONE_2)
       // assert
       expect(result).toBe(false)
     })
@@ -132,7 +132,11 @@ describe('OtpCodeCache', () => {
       // arrange
       const otpCache = new OtpCodeCache()
       // act
-      const result = await otpCache.validatePhoneOtp(otpPhone, TEST_COUNTRY_CODE, TEST_PHONE)
+      const result = await otpCache.validatePhoneOtp(
+        otpPhone,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
+      )
       // assert
       expect(result).toBe(true)
     })

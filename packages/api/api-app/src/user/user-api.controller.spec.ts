@@ -3,7 +3,7 @@ import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
 import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
-import { TEST_EXISTING_USER_ID, TEST_PASSWORD, TEST_UUID } from '@dx3/test-data'
+import { TEST_AUTH_PASSWORD, TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
 
 import { UserController } from './user-api.controller'
 
@@ -135,9 +135,9 @@ describe('UserController', () => {
       // arrange
       req.body = {
         id: TEST_UUID,
-        oldPassword: TEST_PASSWORD,
+        oldPassword: TEST_AUTH_PASSWORD,
         otpCode: '323432',
-        password: TEST_PASSWORD,
+        password: TEST_AUTH_PASSWORD,
       }
       // act
       await UserController.updatePassword(req, res)
