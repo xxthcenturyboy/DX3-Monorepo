@@ -63,6 +63,7 @@ export const getSuperAdminUserSeed = async (): Promise<UserSeedData> => ({
  */
 export const getTestUserSeed = async (): Promise<UserSeedData> => ({
   firstName: TEST_USER_DATA.USER.firstName,
+  hashword: await dxHashString(TEST_USER_DATA.USER.password),
   id: TEST_USER_DATA.USER.id,
   lastName: TEST_USER_DATA.USER.lastName,
   roles: [USER_ROLE.USER],

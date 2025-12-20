@@ -39,7 +39,7 @@ export const TEST_USER_DATA = {
   ADMIN: {
     email: TEST_EMAIL_ADMIN,
     firstName: TEST_NAME_FIRST_ADMIN,
-    id: TEST_EXISTING_USER_ID,
+    id: TEST_EXISTING_ADMIN_USER_ID,
     lastName: TEST_NAME_LAST_ADMIN,
     password: TEST_ADMIN_PASSWORD,
     phone: TEST_PHONE_1,
