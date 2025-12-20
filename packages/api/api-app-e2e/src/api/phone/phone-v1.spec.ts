@@ -8,11 +8,12 @@ import type {
 import { PHONE_DEFAULT_REGION_CODE } from '@dx3/models-shared'
 import {
   TEST_PHONE_1,
-  TEST_PHONE_2,
+  TEST_PHONE_3,
   TEST_PHONE_COUNTRY_CODE,
+  TEST_PHONE_COUNTRY_CODE_IT,
   TEST_PHONE_IT_INVALID,
-  TEST_PHONE_IT_VALID,
-  TEST_PHONE_VALID,
+  TEST_PHONE_IT_VALID_2,
+  TEST_PHONE_REGION_CODE_IT,
   TEST_UUID,
 } from '@dx3/test-data'
 
@@ -152,11 +153,11 @@ describe('v1 Phone Routes', () => {
     test('should return an error when phone is invalid', async () => {
       const payload: CreatePhonePayloadType = {
         code: 'code',
-        countryCode: TEST_PHONE_COUNTRY_CODE,
+        countryCode: TEST_PHONE_COUNTRY_CODE_IT,
         def: false,
         label: 'Work',
-        phone: TEST_PHONE_2,
-        regionCode: PHONE_DEFAULT_REGION_CODE,
+        phone: TEST_PHONE_IT_INVALID,
+        regionCode: TEST_PHONE_REGION_CODE_IT,
         userId: getGlobalAuthResponse().profile.id,
       }
 
@@ -182,11 +183,11 @@ describe('v1 Phone Routes', () => {
     test('should return an error when Italian phone is invalid', async () => {
       const payload: CreatePhonePayloadType = {
         code: 'code',
-        countryCode: '39',
+        countryCode: TEST_PHONE_COUNTRY_CODE_IT,
         def: false,
         label: 'Work',
         phone: TEST_PHONE_IT_INVALID,
-        regionCode: 'IT',
+        regionCode: TEST_PHONE_REGION_CODE_IT,
         userId: getGlobalAuthResponse().profile.id,
       }
 
@@ -212,7 +213,7 @@ describe('v1 Phone Routes', () => {
     test('should return 200 when successfuly creates Italian phone', async () => {
       const result = await axios.request<AxiosRequestConfig, AxiosResponse<OtpResponseType>>({
         data: {
-          phone: TEST_PHONE_IT_VALID,
+          phone: TEST_PHONE_IT_VALID_2,
           regionCode: 'IT',
         },
         headers: getGlobalAuthHeaders(),
@@ -225,7 +226,7 @@ describe('v1 Phone Routes', () => {
         countryCode: '39',
         def: false,
         label: 'Work',
-        phone: TEST_PHONE_IT_VALID,
+        phone: TEST_PHONE_IT_VALID_2,
         regionCode: 'IT',
         userId: getGlobalAuthResponse().profile.id,
       }
@@ -250,8 +251,8 @@ describe('v1 Phone Routes', () => {
     test('should return 200 when successfuly creates phone', async () => {
       const result = await axios.request<AxiosRequestConfig, AxiosResponse<OtpResponseType>>({
         data: {
-          phone: TEST_PHONE_VALID,
-          regionCode: 'US',
+          phone: TEST_PHONE_3,
+          regionCode: PHONE_DEFAULT_REGION_CODE,
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
@@ -263,8 +264,8 @@ describe('v1 Phone Routes', () => {
         countryCode: TEST_PHONE_COUNTRY_CODE,
         def: false,
         label: 'Work',
-        phone: TEST_PHONE_VALID,
-        regionCode: 'US',
+        phone: TEST_PHONE_3,
+        regionCode: PHONE_DEFAULT_REGION_CODE,
         userId: getGlobalAuthResponse().profile.id,
       }
 

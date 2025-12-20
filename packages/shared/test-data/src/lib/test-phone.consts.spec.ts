@@ -13,6 +13,7 @@ import {
   TEST_PHONE_COUNTRY_CODE_IT,
   TEST_PHONE_IT_INVALID,
   TEST_PHONE_IT_VALID,
+  TEST_PHONE_IT_VALID_2,
   TEST_PHONE_NAME,
   TEST_PHONE_REGION_CODE_IT,
   TEST_PHONE_UNIQUE_DEVICE_ID,
@@ -82,6 +83,12 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
       expect(TEST_PHONE_IT_VALID).toBeDefined()
       expect(typeof TEST_PHONE_IT_VALID).toBe('string')
       expect(TEST_PHONE_IT_VALID).toBe('06 555 5555')
+    })
+
+    it('should export TEST_PHONE_IT_VALID_2', () => {
+      expect(TEST_PHONE_IT_VALID_2).toBeDefined()
+      expect(typeof TEST_PHONE_IT_VALID_2).toBe('string')
+      expect(TEST_PHONE_IT_VALID_2).toBe('06 555 5556')
     })
 
     it('should have TEST_PHONE_IT_INVALID with spaces', () => {
