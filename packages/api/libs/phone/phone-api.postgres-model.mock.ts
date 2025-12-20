@@ -1,4 +1,4 @@
-import { TEST_COUNTRY_CODE, TEST_EXISTING_PHONE } from '@dx3/test-data'
+import { TEST_PHONE_1, TEST_PHONE_COUNTRY_CODE } from '@dx3/test-data'
 
 /**
  * Mock for PhoneModel
@@ -12,13 +12,13 @@ jest.mock('./phone-api.postgres-model', () => ({
     createOrFindOneByUserId: jest.fn(),
     findAllByUserId: jest.fn().mockResolvedValue([]),
     findByPhoneAndCode: jest.fn().mockImplementation((phone: string, countryCode: string) => {
-      if (phone === TEST_EXISTING_PHONE && countryCode === TEST_COUNTRY_CODE) {
+      if (phone === TEST_PHONE_1 && countryCode === TEST_PHONE_COUNTRY_CODE) {
         return Promise.resolve({
-          countryCode: TEST_COUNTRY_CODE,
+          countryCode: TEST_PHONE_COUNTRY_CODE,
           createdAt: new Date(),
           default: true,
           id: 'existing-phone-id',
-          phone: TEST_EXISTING_PHONE,
+          phone: TEST_PHONE_1,
           regionCode: 'US',
           updatedAt: new Date(),
           userId: 'existing-user-id',
@@ -29,7 +29,7 @@ jest.mock('./phone-api.postgres-model', () => ({
     }),
     isPhoneAvailable: jest.fn().mockImplementation((phone: string, countryCode: string) => {
       // Mock logic: existing phone is not available, others are available
-      return Promise.resolve(!(phone === TEST_EXISTING_PHONE && countryCode === TEST_COUNTRY_CODE))
+      return Promise.resolve(!(phone === TEST_PHONE_1 && countryCode === TEST_PHONE_COUNTRY_CODE))
     }),
   },
 }))

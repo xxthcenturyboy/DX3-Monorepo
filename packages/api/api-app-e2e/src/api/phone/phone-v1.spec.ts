@@ -7,9 +7,9 @@ import type {
 } from '@dx3/models-shared'
 import { PHONE_DEFAULT_REGION_CODE } from '@dx3/models-shared'
 import {
-  TEST_COUNTRY_CODE,
-  TEST_EXISTING_PHONE,
-  TEST_PHONE,
+  TEST_PHONE_1,
+  TEST_PHONE_2,
+  TEST_PHONE_COUNTRY_CODE,
   TEST_PHONE_IT_INVALID,
   TEST_PHONE_IT_VALID,
   TEST_PHONE_VALID,
@@ -48,7 +48,7 @@ describe('v1 Phone Routes', () => {
 
     test('should return an error when missing data in request', async () => {
       const payload = {
-        phone: TEST_EXISTING_PHONE,
+        phone: TEST_PHONE_1,
         regionCode: undefined,
       }
 
@@ -73,7 +73,7 @@ describe('v1 Phone Routes', () => {
 
     test('should return an error when phone exists', async () => {
       const payload = {
-        phone: TEST_EXISTING_PHONE,
+        phone: TEST_PHONE_1,
         regionCode: PHONE_DEFAULT_REGION_CODE,
       }
 
@@ -122,10 +122,10 @@ describe('v1 Phone Routes', () => {
     test('should return an error when phone exists', async () => {
       const payload: CreatePhonePayloadType = {
         code: 'code',
-        countryCode: TEST_COUNTRY_CODE,
+        countryCode: TEST_PHONE_COUNTRY_CODE,
         def: false,
         label: 'Work',
-        phone: TEST_EXISTING_PHONE,
+        phone: TEST_PHONE_1,
         regionCode: PHONE_DEFAULT_REGION_CODE,
         userId: getGlobalAuthResponse().profile.id,
       }
@@ -152,10 +152,10 @@ describe('v1 Phone Routes', () => {
     test('should return an error when phone is invalid', async () => {
       const payload: CreatePhonePayloadType = {
         code: 'code',
-        countryCode: TEST_COUNTRY_CODE,
+        countryCode: TEST_PHONE_COUNTRY_CODE,
         def: false,
         label: 'Work',
-        phone: TEST_PHONE,
+        phone: TEST_PHONE_2,
         regionCode: PHONE_DEFAULT_REGION_CODE,
         userId: getGlobalAuthResponse().profile.id,
       }
@@ -260,7 +260,7 @@ describe('v1 Phone Routes', () => {
       })
       const payload: CreatePhonePayloadType = {
         code: result.data.code,
-        countryCode: TEST_COUNTRY_CODE,
+        countryCode: TEST_PHONE_COUNTRY_CODE,
         def: false,
         label: 'Work',
         phone: TEST_PHONE_VALID,

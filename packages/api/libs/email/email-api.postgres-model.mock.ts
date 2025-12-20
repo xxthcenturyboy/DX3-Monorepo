@@ -1,4 +1,4 @@
-import { TEST_EXISTING_EMAIL } from '@dx3/test-data'
+import { TEST_EMAIL_ADMIN } from '@dx3/test-data'
 
 /**
  * Mock for EmailModel
@@ -12,11 +12,11 @@ jest.mock('./email-api.postgres-model', () => ({
     createOrFindOneByUserId: jest.fn(),
     findAllByUserId: jest.fn().mockResolvedValue([]),
     findByEmail: jest.fn().mockImplementation((email: string) => {
-      if (email === TEST_EXISTING_EMAIL) {
+      if (email === TEST_EMAIL_ADMIN) {
         return Promise.resolve({
           createdAt: new Date(),
           default: true,
-          email: TEST_EXISTING_EMAIL,
+          email: TEST_EMAIL_ADMIN,
           id: 'existing-email-id',
           updatedAt: new Date(),
           userId: 'existing-user-id',
@@ -27,7 +27,7 @@ jest.mock('./email-api.postgres-model', () => ({
     }),
     isEmailAvailable: jest.fn().mockImplementation((email: string) => {
       // Mock logic: existing email is not available, others are available
-      return Promise.resolve(email !== TEST_EXISTING_EMAIL)
+      return Promise.resolve(email !== TEST_EMAIL_ADMIN)
     }),
     updateMessageInfo: jest.fn().mockResolvedValue(undefined),
     updateMessageInfoValidate: jest.fn().mockResolvedValue(undefined),

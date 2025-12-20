@@ -6,7 +6,7 @@ import { cookieServiceMock, mockCookieService } from '@dx3/api-libs/cookies/cook
 import { httpResponseMock, mockHttpResponses } from '@dx3/api-libs/http-response/http-response.mock'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import type { LoginPayloadType } from '@dx3/models-shared'
-import { TEST_EMAIL, TEST_PASSWORD } from '@dx3/test-data'
+import { TEST_AUTH_PASSWORD, TEST_EMAIL } from '@dx3/test-data'
 
 import { AuthController } from './auth-api.controller'
 
@@ -61,7 +61,7 @@ describe('AuthController', () => {
     test('should httpResponseMock.sendBadRequest when invoked', async () => {
       // arrange
       const body: LoginPayloadType = {
-        password: TEST_PASSWORD,
+        password: TEST_AUTH_PASSWORD,
         value: TEST_EMAIL,
       }
       req.body = body

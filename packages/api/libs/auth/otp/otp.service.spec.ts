@@ -4,7 +4,7 @@ jest.mock('../../redis', () => require('../../testing/mocks/internal/redis.mock'
 // Unmock OtpService to test real implementation
 jest.unmock('./otp.service')
 
-import { TEST_COUNTRY_CODE, TEST_EMAIL, TEST_PHONE, TEST_UUID } from '@dx3/test-data'
+import { TEST_EMAIL, TEST_PHONE_2, TEST_PHONE_COUNTRY_CODE, TEST_UUID } from '@dx3/test-data'
 
 import { ApiLoggingClass } from '../../logger'
 import { RedisService } from '../../redis'
@@ -108,8 +108,8 @@ describe('OtpService', () => {
           email: TEST_EMAIL,
         }),
         getDefaultPhoneModel: jest.fn().mockResolvedValue({
-          countryCode: TEST_COUNTRY_CODE,
-          phone: TEST_PHONE,
+          countryCode: TEST_PHONE_COUNTRY_CODE,
+          phone: TEST_PHONE_2,
           regionCode: 'US',
         }),
       })
@@ -119,8 +119,8 @@ describe('OtpService', () => {
       expect(result).toBe(true)
       expect(mockCacheInstance.validatePhoneOtp).toHaveBeenCalledWith(
         '123456',
-        TEST_COUNTRY_CODE,
-        TEST_PHONE,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
       )
     })
 
@@ -138,8 +138,8 @@ describe('OtpService', () => {
           email: TEST_EMAIL,
         }),
         getDefaultPhoneModel: jest.fn().mockResolvedValue({
-          countryCode: TEST_COUNTRY_CODE,
-          phone: TEST_PHONE,
+          countryCode: TEST_PHONE_COUNTRY_CODE,
+          phone: TEST_PHONE_2,
           regionCode: 'US',
         }),
       })
@@ -236,14 +236,14 @@ describe('OtpService', () => {
     test('should throw error when nationalNumber is not provided', async () => {
       // arrange & act & assert
       await expect(
-        OtpService.validateOptCodeByPhone(TEST_UUID, TEST_COUNTRY_CODE, '', '123456'),
+        OtpService.validateOptCodeByPhone(TEST_UUID, TEST_PHONE_COUNTRY_CODE, '', '123456'),
       ).rejects.toThrow('Insufficient data.')
     })
 
     test('should throw error when code is not provided', async () => {
       // arrange & act & assert
       await expect(
-        OtpService.validateOptCodeByPhone(TEST_UUID, TEST_COUNTRY_CODE, TEST_PHONE, ''),
+        OtpService.validateOptCodeByPhone(TEST_UUID, TEST_PHONE_COUNTRY_CODE, TEST_PHONE_2, ''),
       ).rejects.toThrow('Insufficient data.')
     })
 
@@ -253,8 +253,8 @@ describe('OtpService', () => {
       // act
       const result = await OtpService.validateOptCodeByPhone(
         TEST_UUID,
-        TEST_COUNTRY_CODE,
-        TEST_PHONE,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
         '123456',
       )
       // assert
@@ -269,8 +269,8 @@ describe('OtpService', () => {
       // act
       const result = await OtpService.validateOptCodeByPhone(
         TEST_UUID,
-        TEST_COUNTRY_CODE,
-        TEST_PHONE,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
         '123456',
       )
       // assert
@@ -290,16 +290,16 @@ describe('OtpService', () => {
       // act
       const result = await OtpService.validateOptCodeByPhone(
         TEST_UUID,
-        TEST_COUNTRY_CODE,
-        TEST_PHONE,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
         '123456',
       )
       // assert
       expect(result).toBe(true)
       expect(mockCacheInstance.validatePhoneOtp).toHaveBeenCalledWith(
         '123456',
-        TEST_COUNTRY_CODE,
-        TEST_PHONE,
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
       )
     })
   })
@@ -316,15 +316,18 @@ describe('OtpService', () => {
       UserModel.findByPk = jest.fn().mockResolvedValue({
         accountLocked: false,
         getDefaultPhoneModel: jest.fn().mockResolvedValue({
-          countryCode: TEST_COUNTRY_CODE,
-          phone: TEST_PHONE,
+          countryCode: TEST_PHONE_COUNTRY_CODE,
+          phone: TEST_PHONE_2,
         }),
       })
       // act
       const result = await OtpService.generateOptCode(TEST_UUID)
       // assert
       expect(result).toBe(mockOtpCode)
-      expect(mockCacheInstance.setPhoneOtp).toHaveBeenCalledWith(TEST_COUNTRY_CODE, TEST_PHONE)
+      expect(mockCacheInstance.setPhoneOtp).toHaveBeenCalledWith(
+        TEST_PHONE_COUNTRY_CODE,
+        TEST_PHONE_2,
+      )
     })
 
     test('should return OTP code for email when phone does not exist', async () => {

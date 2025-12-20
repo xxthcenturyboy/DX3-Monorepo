@@ -3,9 +3,9 @@ import {
   TEST_BIOMETRIC_PUBLIC_KEY,
   TEST_DEVICE,
   TEST_EMAIL,
-  TEST_EXISTING_EMAIL,
-  TEST_EXISTING_PHONE,
+  TEST_EMAIL_ADMIN,
   TEST_EXISTING_USER_ID,
+  TEST_PHONE_1,
   TEST_PHONE_IT_VALID,
   TEST_PHONE_VALID,
 } from '@dx3/test-data'
@@ -93,7 +93,7 @@ describe('AuthService', () => {
       const payload = {
         code: '123456',
         region: 'US',
-        value: TEST_EXISTING_PHONE,
+        value: TEST_PHONE_1,
       }
       await expect(authService.createAccount(payload)).rejects.toThrow(
         '(858) 484-6800 is already in use.',
@@ -103,7 +103,7 @@ describe('AuthService', () => {
     test('should throw when email is already in use', async () => {
       const payload = {
         code: '123456',
-        value: TEST_EXISTING_EMAIL,
+        value: TEST_EMAIL_ADMIN,
       }
       await expect(authService.createAccount(payload)).rejects.toThrow('already exists.')
     })
@@ -139,7 +139,7 @@ describe('AuthService', () => {
     test('should return available false for existing email', async () => {
       const query = {
         type: USER_LOOKUPS.EMAIL,
-        value: TEST_EXISTING_EMAIL,
+        value: TEST_EMAIL_ADMIN,
       }
 
       const result = await authService.doesEmailPhoneExist(query)
@@ -151,7 +151,7 @@ describe('AuthService', () => {
       const query = {
         region: 'US',
         type: USER_LOOKUPS.PHONE,
-        value: TEST_EXISTING_PHONE,
+        value: TEST_PHONE_1,
       }
 
       const result = await authService.doesEmailPhoneExist(query)
@@ -251,7 +251,7 @@ describe('AuthService', () => {
     test('should throw when password is incorrect for email login', async () => {
       const payload = {
         password: 'wrongpassword',
-        value: TEST_EXISTING_EMAIL,
+        value: TEST_EMAIL_ADMIN,
       }
       await expect(authService.login(payload)).rejects.toThrow('100 Could not log you in.')
     })
