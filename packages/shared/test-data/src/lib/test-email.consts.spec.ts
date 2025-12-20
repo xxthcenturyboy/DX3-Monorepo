@@ -52,7 +52,7 @@ describe('Test Email Constants (test-email.consts.ts)', () => {
     })
 
     it('should use APP_DOMAIN', () => {
-      expect(TEST_EMAIL_NEW).toBe(`admin@${APP_DOMAIN}`)
+      expect(TEST_EMAIL_NEW).toBe(`test2@${APP_DOMAIN}`)
     })
   })
 
@@ -67,7 +67,7 @@ describe('Test Email Constants (test-email.consts.ts)', () => {
     })
 
     it('should use APP_DOMAIN', () => {
-      expect(TEST_EMAIL_NEW_2).toBe(`admin@${APP_DOMAIN}`)
+      expect(TEST_EMAIL_NEW_2).toBe(`test3@${APP_DOMAIN}`)
     })
   })
 

@@ -19,14 +19,14 @@ pnpm test:shared:coverage
 
 Run by specific module
 ```Bash
-pnpm @dx3/encryption test
+pnpm --filter @dx3/encryption test
 ```
 ```Bash
-pnpm @dx3/models-shared test
+pnpm --filter @dx3/models-shared test
 ```
 ```Bash
-pnpm @dx3/test-data test
+pnpm --filter @dx3/test-data test
 ```
 ```Bash
-pnpm @dx3/utils-shared test
+pnpm --filter @dx3/utils-shared test
 ```

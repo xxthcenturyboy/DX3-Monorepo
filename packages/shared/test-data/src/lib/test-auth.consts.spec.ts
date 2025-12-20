@@ -2,7 +2,7 @@ import { PHONE_DEFAULT_REGION_CODE, USER_ROLE } from '@dx3/models-shared'
 
 import { TEST_AUTH_PASSWORD, TEST_AUTH_USERNAME, TEST_USER_CREATE } from './test-auth.consts'
 import { TEST_EMAIL_NEW } from './test-email.consts'
-import { TEST_PHONE_COUNTRY_CODE, TEST_PHONE_VALID } from './test-phone.consts'
+import { TEST_PHONE_2, TEST_PHONE_COUNTRY_CODE } from './test-phone.consts'
 import { TEST_NAME_FIRST_USER, TEST_NAME_LAST_USER } from './test-user.consts'
 
 describe('Test Auth Constants (test-auth.consts.ts)', () => {
@@ -62,7 +62,7 @@ describe('Test Auth Constants (test-auth.consts.ts)', () => {
     it('should have phone property', () => {
       expect(TEST_USER_CREATE).toHaveProperty('phone')
       expect(typeof TEST_USER_CREATE.phone).toBe('string')
-      expect(TEST_USER_CREATE.phone).toBe(TEST_PHONE_VALID)
+      expect(TEST_USER_CREATE.phone).toBe(TEST_PHONE_2)
     })
 
     it('should have regionCode property', () => {
