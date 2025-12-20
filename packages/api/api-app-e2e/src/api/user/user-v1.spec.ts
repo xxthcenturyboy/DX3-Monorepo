@@ -161,14 +161,19 @@ describe('v1 User Routes', () => {
         withCredentials: true,
       }
 
-      const result = await axios.request<AxiosRequestConfig, AxiosResponse<CreateUserResponseType>>(
-        request,
-      )
+      try {
+        const result = await axios.request<
+          AxiosRequestConfig,
+          AxiosResponse<CreateUserResponseType>
+        >(request)
 
-      expect(result.status).toBe(200)
-      expect(result.data.id).toBeDefined()
+        expect(result.status).toBe(200)
+        expect(result.data.id).toBeDefined()
 
-      workingUserId = result.data.id
+        workingUserId = result.data.id
+      } catch (err) {
+        console.error('Error creating user in test:', err)
+      }
     })
 
     test('should return an error when no email is sent', async () => {

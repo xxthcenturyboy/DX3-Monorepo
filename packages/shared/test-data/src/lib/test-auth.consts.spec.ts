@@ -1,7 +1,7 @@
 import { PHONE_DEFAULT_REGION_CODE, USER_ROLE } from '@dx3/models-shared'
 
 import { TEST_AUTH_PASSWORD, TEST_AUTH_USERNAME, TEST_USER_CREATE } from './test-auth.consts'
-import { TEST_EMAIL } from './test-email.consts'
+import { TEST_EMAIL_NEW } from './test-email.consts'
 import { TEST_PHONE_COUNTRY_CODE, TEST_PHONE_VALID } from './test-phone.consts'
 import { TEST_NAME_FIRST_USER, TEST_NAME_LAST_USER } from './test-user.consts'
 
@@ -40,7 +40,7 @@ describe('Test Auth Constants (test-auth.consts.ts)', () => {
     it('should have email property', () => {
       expect(TEST_USER_CREATE).toHaveProperty('email')
       expect(typeof TEST_USER_CREATE.email).toBe('string')
-      expect(TEST_USER_CREATE.email).toBe(TEST_EMAIL)
+      expect(TEST_USER_CREATE.email).toBe(TEST_EMAIL_NEW)
     })
 
     it('should have email in valid format', () => {

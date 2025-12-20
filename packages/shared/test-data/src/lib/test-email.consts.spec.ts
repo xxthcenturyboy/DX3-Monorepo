@@ -1,6 +1,12 @@
 import { APP_DOMAIN } from '@dx3/models-shared'
 
-import { TEST_EMAIL, TEST_EMAIL_ADMIN, TEST_EMAIL_SUPERADMIN } from './test-email.consts'
+import {
+  TEST_EMAIL,
+  TEST_EMAIL_ADMIN,
+  TEST_EMAIL_NEW,
+  TEST_EMAIL_NEW_2,
+  TEST_EMAIL_SUPERADMIN,
+} from './test-email.consts'
 
 describe('Test Email Constants (test-email.consts.ts)', () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -32,6 +38,36 @@ describe('Test Email Constants (test-email.consts.ts)', () => {
 
     it('should use APP_DOMAIN', () => {
       expect(TEST_EMAIL_ADMIN).toBe(`admin@${APP_DOMAIN}`)
+    })
+  })
+
+  describe('TEST_EMAIL_NEW', () => {
+    it('should be defined', () => {
+      expect(TEST_EMAIL_NEW).toBeDefined()
+      expect(typeof TEST_EMAIL_NEW).toBe('string')
+    })
+
+    it('should be in valid email format', () => {
+      expect(TEST_EMAIL_NEW).toMatch(emailRegex)
+    })
+
+    it('should use APP_DOMAIN', () => {
+      expect(TEST_EMAIL_NEW).toBe(`admin@${APP_DOMAIN}`)
+    })
+  })
+
+  describe('TEST_EMAIL_NEW_2', () => {
+    it('should be defined', () => {
+      expect(TEST_EMAIL_NEW_2).toBeDefined()
+      expect(typeof TEST_EMAIL_NEW_2).toBe('string')
+    })
+
+    it('should be in valid email format', () => {
+      expect(TEST_EMAIL_NEW_2).toMatch(emailRegex)
+    })
+
+    it('should use APP_DOMAIN', () => {
+      expect(TEST_EMAIL_NEW_2).toBe(`admin@${APP_DOMAIN}`)
     })
   })
 

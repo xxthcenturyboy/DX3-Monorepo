@@ -7,6 +7,7 @@ import {
   TEST_DEVICE,
   TEST_PHONE_1,
   TEST_PHONE_2,
+  TEST_PHONE_3,
   TEST_PHONE_CARRIER,
   TEST_PHONE_COUNTRY_CODE,
   TEST_PHONE_COUNTRY_CODE_IT,
@@ -31,7 +32,13 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
     it('should export TEST_PHONE_2', () => {
       expect(TEST_PHONE_2).toBeDefined()
       expect(typeof TEST_PHONE_2).toBe('string')
-      expect(TEST_PHONE_2).toBe('0123456789')
+      expect(TEST_PHONE_2).toBe('8584846802')
+    })
+
+    it('should export TEST_PHONE_3', () => {
+      expect(TEST_PHONE_3).toBeDefined()
+      expect(typeof TEST_PHONE_3).toBe('string')
+      expect(TEST_PHONE_3).toBe('8584846803')
     })
 
     it('should export TEST_PHONE_VALID', () => {
@@ -57,7 +64,9 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
 
     it('should have different phone numbers for each constant', () => {
       expect(TEST_PHONE_1).not.toBe(TEST_PHONE_2)
+      expect(TEST_PHONE_1).not.toBe(TEST_PHONE_3)
       expect(TEST_PHONE_1).not.toBe(TEST_PHONE_VALID)
+      expect(TEST_PHONE_2).not.toBe(TEST_PHONE_3)
       expect(TEST_PHONE_2).not.toBe(TEST_PHONE_VALID)
     })
   })
