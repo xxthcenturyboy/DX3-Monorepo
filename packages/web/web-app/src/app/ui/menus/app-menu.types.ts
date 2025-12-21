@@ -22,3 +22,9 @@ export type AppMenuType = {
   stringsKeyTitle?: string
   title: string
 }
+
+export type SubMenuConfigType = {
+  route: string
+  segment: string
+  title: string
+}
