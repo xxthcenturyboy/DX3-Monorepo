@@ -42,7 +42,7 @@ describe('v1 User Routes', () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'GET',
-        url: `/api/v1/user/check/availabilty?username=admin`,
+        url: `/api/v1/user/check/availabilty?username=${TEST_USER_DATA.USER.username}`,
         withCredentials: true,
       }
 

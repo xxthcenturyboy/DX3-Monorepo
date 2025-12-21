@@ -439,6 +439,12 @@ importers:
       axios:
         specifier: ^1.6.0
         version: 1.13.1
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
+      dotenv-expand:
+        specifier: ^12.0.1
+        version: 12.0.3
     devDependencies:
       '@types/jest':
         specifier: ^29.5.12
@@ -593,6 +599,9 @@ importers:
 
   packages/shared/test-data:
     dependencies:
+      '@dx3/encryption':
+        specifier: workspace:*
+        version: link:../encryption
       '@dx3/models-shared':
         specifier: workspace:*
         version: link:../models
@@ -4898,6 +4907,10 @@ packages:
 
   dotenv-expand@11.0.7:
     resolution: {integrity: sha512-zIHwmZPRshsCdpMDyVsqGmgyP0yT8GAgXUnkdAoJisxvf33k7yO6OuoKmcTGuXPWSsm8Oh88nZicRLA9Y0rUeA==}
+    engines: {node: '>=12'}
+
+  dotenv-expand@12.0.3:
+    resolution: {integrity: sha512-uc47g4b+4k/M/SeaW1y4OApx+mtLWl92l5LMPP0GNXctZqELk+YGgOPIIC5elYmUH4OuoK3JLhuRUYegeySiFA==}
     engines: {node: '>=12'}
 
   dotenv-webpack@8.1.1:
@@ -14001,6 +14014,10 @@ snapshots:
       dotenv: 8.6.0
 
   dotenv-expand@11.0.7:
+    dependencies:
+      dotenv: 16.4.7
+
+  dotenv-expand@12.0.3:
     dependencies:
       dotenv: 16.4.7
 

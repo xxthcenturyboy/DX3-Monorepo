@@ -12,6 +12,23 @@ register({
   paths: tsconfigBase.compilerOptions.paths,
 })
 
+// Load environment variables from multiple .env files with variable expansion
+// Root .env is loaded first (base config), then api-app/.env (overrides/extends)
+const dotenv = require('dotenv')
+const dotenvExpand = require('dotenv-expand')
+
+// Load root .env first (shared config: APP_DOMAIN, etc.)
+const rootEnvPath = nodePath.resolve(__dirname, '../../.env')
+const rootEnv = dotenv.config({ path: rootEnvPath })
+dotenvExpand.expand(rootEnv)
+console.log(`📁 Loading root .env from: ${rootEnvPath}`)
+
+// Load api-app/.env second (API-specific config, can reference root vars)
+const apiAppEnvPath = nodePath.resolve(__dirname, '../../../.env')
+const apiEnv = dotenv.config({ path: apiAppEnvPath })
+dotenvExpand.expand(apiEnv)
+console.log(`📁 Loading api-app .env from: ${apiAppEnvPath}`)
+
 // Now that paths are registered, we can require @dx3/* modules
 const fs = require('node:fs')
 const path = require('node:path')
@@ -28,9 +45,9 @@ const { TEST_USER_DATA } = require('@dx3/test-data')
  */
 
 // Configure axios for setup
-const host = process.env.HOST ?? 'localhost'
-const port = process.env.PORT ?? '4000'
-const schema = process.env.SCHEMA ?? 'http'
+const host = process.env.E2E_API_DOMAIN ?? 'localhost'
+const port = process.env.E2E_API_PORT ?? '4000'
+const schema = process.env.E2E_API_SCHEMA ?? 'http'
 const baseURL = `${schema}://${host}:${port}`
 axios.defaults.baseURL = baseURL
 axios.defaults.timeout = 10000
@@ -81,7 +98,6 @@ async function performGlobalLogin(): Promise<AuthCache | null> {
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-
       const response = await axios.post('/api/v1/auth/login', {
         password: TEST_EXISTING_PASSWORD,
         value: TEST_EXISTING_USERNAME,

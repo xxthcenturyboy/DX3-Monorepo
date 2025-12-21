@@ -1,9 +1,22 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: ok for any in test */
+
 import fs from 'node:fs'
 import path from 'node:path'
 import axios from 'axios'
+import dotenv from 'dotenv'
+import dotenvExpand from 'dotenv-expand'
 
 import type { AuthSuccessResponseType } from '@dx3/models-shared'
+
+// Load environment variables from multiple .env files with variable expansion
+// Root .env is loaded first (base config), then api-app/.env (overrides/extends)
+const rootEnvPath = path.resolve(__dirname, '../../../../../.env')
+const rootEnv = dotenv.config({ path: rootEnvPath })
+dotenvExpand.expand(rootEnv)
+
+const apiAppEnvPath = path.resolve(__dirname, '../../../api-app/.env')
+const apiEnv = dotenv.config({ path: apiAppEnvPath })
+dotenvExpand.expand(apiEnv)
 
 /**
  * Global type declarations for test authentication state
@@ -60,9 +73,6 @@ axios.interceptors.response.use(
     return Promise.reject(error)
   },
 )
-
-// Export configured axios instance for tests
-global.axios = axios
 
 /**
  * Determines if the current test file is an auth test that should

@@ -15,7 +15,9 @@
     "@dx3/encryption": "workspace:*",
     "@dx3/models-shared": "workspace:*",
     "@dx3/test-data": "workspace:*",
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.7",
+    "dotenv-expand": "^12.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
