@@ -1,16 +1,6 @@
-import Cached from '@mui/icons-material/Cached'
-import {
-  Button,
-  FilledInput,
-  FormControl,
-  Grid,
-  IconButton,
-  Tooltip,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Button, Grid, useMediaQuery, useTheme } from '@mui/material'
 import type React from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
@@ -20,10 +10,8 @@ import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-p
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
-import { useFocus } from '@dx3/web-libs/ui/system/hooks/use-focus.hook'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
-import { debounce } from '@dx3/web-libs/utils/debounce'
 
 import { WebConfigService } from '../../config/config-web.service'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
@@ -31,12 +19,12 @@ import { NotificationSendDialog } from '../../notifications/notification-web-sen
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { selectWindowHeight } from '../../ui/store/ui-web.selector'
-import { DEBOUNCE } from '../../ui/ui-web.consts'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { useLazyGetUserAdminListQuery } from './user-admin-web.api'
 import { userAdminActions } from './user-admin-web.reducer'
 import { selectUsersFormatted, selectUsersListData } from './user-admin-web.selectors'
 import { UserAdminWebListService } from './user-admin-web-list.service'
+import { UserAdminListHeaderComponent } from './user-admin-web-list-header.component'
 
 export const UserAdminList: React.FC = () => {
   const filterValue = useAppSelector((state) => state.userAdmin.filterValue)
@@ -52,12 +40,10 @@ export const UserAdminList: React.FC = () => {
   const usersListHeaders = UserAdminWebListService.getListHeaders()
   const [isInitialized, setIsInitialized] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
-  const [searchInputRef, _setSearchInputRef] = useFocus()
   const ROUTES = WebConfigService.getWebRoutes()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const theme = useTheme()
-  const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const location = useLocation()
   const [
@@ -117,12 +103,6 @@ export const UserAdminList: React.FC = () => {
     }
   }, [isLoadingUserList, userListError, userListResponse?.count, userListResponse?.rows])
 
-  const debounceFetch = useRef(
-    debounce((value: string) => {
-      void fetchUsers(value)
-    }, DEBOUNCE),
-  ).current
-
   const fetchUsers = async (searchValue?: string): Promise<void> => {
     setIsFetching(true)
     const params: GetUsersListQueryType = {
@@ -133,10 +113,6 @@ export const UserAdminList: React.FC = () => {
       sortDir,
     }
     await fetchUserList(params)
-  }
-
-  const refreshTableData = async (): Promise<void> => {
-    await fetchUsers()
   }
 
   const clickRow = (data: TableRowType): void => {
@@ -174,15 +150,6 @@ export const UserAdminList: React.FC = () => {
 
     dispatch(userAdminActions.orderBySet(fieldName))
     dispatch(userAdminActions.sortDirSet('ASC'))
-  }
-
-  const handleFilterValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value
-    if (value !== filterValue) {
-      debounceFetch(value)
-    }
-    dispatch(userAdminActions.filterValueSet(value))
-    // setSearchInputRef(); // may not be necessary
   }
 
   const handleSendAppUpdateClick = async (): Promise<void> => {
@@ -225,103 +192,16 @@ export const UserAdminList: React.FC = () => {
 
   return (
     <ContentWrapper
-      contentMarginTop={SM_BREAK ? '124px' : '74px'}
-      headerColumnRightJustification={SM_BREAK ? 'center' : 'flex-end'}
-      headerColumnsBreaks={{
-        left: {
-          sm: 6,
-          xs: 12,
-        },
-        right: {
-          sm: 6,
-          xs: 12,
-        },
-      }}
-      headerContent={
-        <Grid
-          alignItems="center"
-          container
-          direction={SM_BREAK ? 'column-reverse' : 'row'}
-          justifyContent={SM_BREAK ? 'center' : 'flex-end'}
-          style={{
-            marginRight: MD_BREAK ? '0px' : '24px',
-          }}
-        >
-          {/* Filter */}
-          <Grid
-            alignItems={'center'}
-            display={'flex'}
-            justifyContent={'center'}
-            sx={{
-              minWidth: SM_BREAK ? '' : '360px',
-              width: SM_BREAK ? '100%' : '360px',
-            }}
-          >
-            <FormControl
-              margin="none"
-              style={{
-                marginRight: SM_BREAK ? '24px' : '24px',
-                marginTop: 0,
-                width: SM_BREAK ? '300px' : '100%',
-              }}
-            >
-              <FilledInput
-                autoCorrect="off"
-                fullWidth
-                hiddenLabel
-                id="input-filter"
-                name="input-filter"
-                onChange={handleFilterValueChange}
-                placeholder={'Filter'}
-                ref={searchInputRef}
-                size="small"
-                type="search"
-                value={filterValue}
-              />
-            </FormControl>
-            <span>
-              <IconButton
-                color="primary"
-                onClick={(event: React.SyntheticEvent) => {
-                  event.stopPropagation()
-                  void refreshTableData()
-                }}
-                sx={{
-                  boxShadow: 1,
-                }}
-              >
-                <Tooltip title="Refresh List">
-                  <Cached />
-                </Tooltip>
-              </IconButton>
-            </span>
-          </Grid>
-          {/* New User */}
-          {/* <Grid
-            style={{
-              width: SM_BREAK ? '100%' : '',
-              marginBottom: SM_BREAK ? '20px' : ''
-            }}
-          >
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => navigate(`${ROUTES.ADMIN.USER.DETAIL}`)}
-              disabled={userGetXhr}
-              fullWidth={SM_BREAK}
-            >
-              Create User
-            </Button>
-          </Grid> */}
-        </Grid>
-      }
-      headerTitle={'User List'}
+      contentHeight={'calc(100vh - 80px)'}
+      contentTopOffset={SM_BREAK ? '124px' : '74px'}
     >
+      <UserAdminListHeaderComponent fetchUsers={fetchUsers} />
       <Grid
         alignItems={'center'}
         container
         direction={'row'}
         justifyContent={'center'}
+        padding="12px 24px 6px"
         spacing={0}
       >
         {/* Actions */}
@@ -375,6 +255,7 @@ export const UserAdminList: React.FC = () => {
         container
         direction="column"
         justifyContent="flex-start"
+        padding="6px 24px 12px"
         spacing={0}
       >
         <TableComponent

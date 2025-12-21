@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Checkbox,
   Chip,
@@ -12,9 +13,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { grey, lightBlue } from '@mui/material/colors'
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useLocation, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 
 import { ACCOUNT_RESTRICTIONS, type UserRoleUi } from '@dx3/models-shared'
@@ -22,7 +22,6 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
 
-import { WebConfigService } from '../../config/config-web.service'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -37,6 +36,7 @@ import {
 } from './user-admin-web.api'
 import { userAdminActions } from './user-admin-web.reducer'
 import { selectUserFormatted } from './user-admin-web.selectors'
+import { UserAdminEditHeaderComponent } from './user-admin-web-edit-header.component'
 
 type UserRestriction = {
   restriction: keyof typeof ACCOUNT_RESTRICTIONS
@@ -51,9 +51,7 @@ export const UserAdminEdit: React.FC = () => {
   const [title, setTitle] = useState('User')
   const [restrictions, setRestrictions] = useState<UserRestriction[]>([])
   const [roles, setRoles] = useState<UserRoleUi[]>([])
-  const ROUTES = WebConfigService.getWebRoutes()
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
   const theme = useTheme()
@@ -592,66 +590,41 @@ export const UserAdminEdit: React.FC = () => {
 
   return (
     <ContentWrapper
-      contentMarginTop={SM_BREAK ? '108px' : '64px'}
-      headerColumnRightJustification={SM_BREAK ? 'flex-start' : 'flex-end'}
-      headerColumnsBreaks={{
-        left: {
-          sm: 6,
-          xs: 12,
-        },
-        right: {
-          sm: 6,
-          xs: 12,
-        },
-      }}
-      headerContent={
-        <>
-          {user?.optInBeta && (
-            <Chip
-              label="Opt-in Beta"
-              sx={{
-                backgroundColor: lightBlue[700],
-                color: grey[50],
-                margin: SM_BREAK ? '0 0 0 12px' : '0 12px 0 0',
-              }}
-            />
-          )}
-          {user?.restrictions && user.restrictions.length > 0 && (
-            <Chip
-              color="error"
-              label="RESTRICTED"
-            />
-          )}
-        </>
-      }
-      headerTitle={title}
-      navigation={() => navigate(ROUTES.ADMIN.USER.LIST)}
+      contentHeight={'calc(100vh - 80px)'}
+      contentTopOffset={SM_BREAK ? '61px' : '61px'}
+      spacerDiv={true}
     >
-      <Paper elevation={2}>
-        {/** Phones Emails Roles Restrictions */}
-        <Grid
-          container
-          direction={MD_BREAK ? 'column' : 'row'}
-          justifyContent="flex-start"
-          padding="20px"
-          size={12}
-        >
-          {renderEmailsPhones()}
-          {renderRolesRestrictions()}
-        </Grid>
+      <UserAdminEditHeaderComponent />
+      <Box
+        padding="24px"
+        width={'100%'}
+      >
+        <Paper elevation={2}>
+          {/** Phones Emails Roles Restrictions */}
+          <Grid
+            container
+            direction={MD_BREAK ? 'column' : 'row'}
+            justifyContent="flex-start"
+            padding="20px"
+            size={12}
+          >
+            {renderEmailsPhones()}
+            {renderRolesRestrictions()}
+          </Grid>
 
-        {/** Action Area */}
-        <Grid
-          container
-          direction={MD_BREAK ? 'column' : 'row'}
-          justifyContent="flex-start"
-          padding="20px"
-          size={12}
-        >
-          {renderDivider('12px 0 12px')}
-          {renderActionArea()}
-        </Grid>
-      </Paper>
+          {/** Action Area */}
+          <Grid
+            container
+            direction={MD_BREAK ? 'column' : 'row'}
+            justifyContent="flex-start"
+            padding="20px"
+            size={12}
+          >
+            {renderDivider('12px 0 12px')}
+            {renderActionArea()}
+          </Grid>
+        </Paper>
+      </Box>
     </ContentWrapper>
   )
 }
