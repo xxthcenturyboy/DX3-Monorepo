@@ -1,13 +1,10 @@
-import { Cached } from '@mui/icons-material'
 import {
   Chip,
   Grid,
-  IconButton,
   Table,
   TableBody,
   TableCell,
   TableRow,
-  Tooltip,
   tableCellClasses,
   useMediaQuery,
   useTheme,
@@ -24,6 +21,7 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectCurrentThemeMode } from '../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
+import { StatsHeaderComponent } from './stats-header.component'
 import { useLazyGetApiHealthzQuery } from './stats-web.api'
 import { statsActions } from './stats-web.reducer'
 
@@ -32,7 +30,7 @@ export const StatsWebApiHealthComponent: React.FC = () => {
   const themeMode = useAppSelector((state) => selectCurrentThemeMode(state))
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
-  const _SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const dispatch = useAppDispatch()
   const [
     fetchApiStats,
@@ -75,37 +73,15 @@ export const StatsWebApiHealthComponent: React.FC = () => {
 
   return (
     <ContentWrapper
-      contentMarginTop={'56px'}
-      headerColumnRightJustification={'flex-end'}
-      headerColumnsBreaks={{
-        left: {
-          xs: 6,
-        },
-        right: {
-          xs: 6,
-        },
-      }}
-      headerContent={
-        <Tooltip title="Refresh Data">
-          <IconButton
-            color="primary"
-            onClick={(event: React.SyntheticEvent) => {
-              event.stopPropagation()
-              void fetchApiStats()
-            }}
-            sx={{
-              boxShadow: 1,
-            }}
-          >
-            <Cached />
-          </IconButton>
-        </Tooltip>
-      }
-      headerTitle={'API Health'}
+      contentHeight={'calc(100vh - 80px)'}
+      contentTopOffset={SM_BREAK ? '61px' : '61px'}
+      spacerDiv={true}
     >
+      <StatsHeaderComponent fetchApiStats={fetchApiStats} />
       <Grid
         container
         display={'block'}
+        padding="24px"
         width={'100%'}
       >
         {/* HTTP */}
