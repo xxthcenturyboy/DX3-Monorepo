@@ -117,13 +117,13 @@ export const UserAdminList: React.FC = () => {
 
   const clickRow = (data: TableRowType): void => {
     const user = users.find((user) => user.id === data.id)
-    if (user?.username === 'admin' && currentUser?.id !== user.id) {
+    if (user?.username === 'superadmin' && currentUser?.id !== user.id) {
       dispatch(
         uiActions.appDialogSet(
           <DialogAlert
             buttonText="Got it."
             closeDialog={() => dispatch(uiActions.appDialogSet(null))}
-            message="You cannot edit the admin account."
+            message="You cannot edit the superadmin account."
             windowHeight={windowHeight}
           />,
         ),
