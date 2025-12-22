@@ -1,74 +1,107 @@
+# DX3 Development Docker Compose Configuration
+# Optimized for development with healthchecks, proper networking, and resource management
+
 services:
   redis:
-      image: redis:7-alpine
-      ports:
-          - "6379:6379"
-      container_name: "redis-dx3"
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    container_name: "redis-dx3"
+    networks:
+      - dx3-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   postgres:
-      image: postgres:16-alpine
-      volumes:
-        - "db-data:/var/lib/postgresql/data/pgdata"
-      environment:
-          PGDATA: "/var/lib/postgresql/data/pgdata"
-          POSTGRES_USER: "pguser"
-          POSTGRES_PASSWORD: "password"
-          POSTGRES_DB: "app"
-      ports:
-          - "5433:5432"
-      container_name: "postgres-dx3"
+    image: postgres:16-alpine
+    volumes:
+      - "db-data:/var/lib/postgresql/data/pgdata"
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_USER: "pguser"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "app"
+    ports:
+      - "5433:5432"
+    container_name: "postgres-dx3"
+    networks:
+      - dx3-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pguser -d app"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   sendgrid:
     image: ghashange/sendgrid-mock:1.7.2
-    container_name: 'sendgrid-dx3'
+    container_name: "sendgrid-dx3"
     ports:
-      - '7070:3000'
+      - "7070:3000"
     environment:
       - API_KEY=${SENDGRID_MOCK_API_KEY}
+    networks:
+      - dx3-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
   api-node-22-dx3:
     extends:
-        file: ./docker-compose.base.yml
-        service: base
-    container_name: 'api-dx3'
+      file: ./docker-compose.base.yml
+      service: base
+    container_name: "api-dx3"
     tty: true
     stdin_open: true
     build:
       context: .
       dockerfile: ./_devops/docker/Dockerfile.local
     volumes:
-        # Mount only the source code, not the entire project directory.
-        # This ensures the node_modules from the image is used.
-        - ./packages/api:/app/packages/api
-        - ./packages/shared:/app/packages/shared
-        - ./_devops/scripts:/app/_devops/scripts
-        - ./jest.config.ts:/app/jest.config.ts
-        - ./jest.preset.js:/app/jest.preset.js
-        - ./biome.json:/app/biome.json
-        - ./tsconfig.base.json:/app/tsconfig.base.json
-        - ./package.json:/app/package.json
-        # NOTE: pnpm-lock.yaml is NOT mounted to avoid EBUSY errors
-        # The lockfile is copied during Docker build instead
-        # - ./pnpm-lock.yaml:/app/pnpm-lock.yaml
-        - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
-        # - ./packages/api/src/api-app/.env:/app/.env  # Mount .env file for development
-        # Note: node_modules are installed on container startup via docker-start.dev.sh
-        # This ensures dependencies are always in sync with mounted source code
+      # Named volume for node_modules (persists between runs, faster restarts)
+      - api-node-modules:/app/node_modules
+      # Mount only the source code, not the entire project directory.
+      # This ensures the node_modules from the named volume is used.
+      - ./packages/api:/app/packages/api
+      - ./packages/shared:/app/packages/shared
+      - ./_devops/scripts:/app/_devops/scripts
+      - ./jest.config.ts:/app/jest.config.ts
+      - ./jest.preset.js:/app/jest.preset.js
+      - ./biome.json:/app/biome.json
+      - ./tsconfig.base.json:/app/tsconfig.base.json
+      - ./package.json:/app/package.json
+      # NOTE: pnpm-lock.yaml is NOT mounted to avoid EBUSY errors
+      # The lockfile is copied during Docker build instead
+      - ./pnpm-workspace.yaml:/app/pnpm-workspace.yaml
     ports:
-        - "4000:4000"
+      - "4000:4000"
     depends_on:
-        - redis
-        - postgres
-        - sendgrid
-    links:
-        - redis
-        - postgres
-        - sendgrid
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      sendgrid:
+        condition: service_healthy
     environment:
-        - ROOT_DIR=/app
+      - ROOT_DIR=/app
+    networks:
+      - dx3-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
   localstack:
     container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
     image: localstack/localstack
     ports:
       - "4566:4566"            # LocalStack Gateway
-      # - "127.0.0.1:4510-4559:4510-4559"  # external services port range
     environment:
       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       - DEBUG=${DEBUG:-1}
@@ -78,10 +111,27 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - dx3-network
+    healthcheck:
+      test: ["CMD-SHELL", "awslocal s3 ls || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 secrets:
   npmrc:
     file: $HOME/.npmrc
   gitconfig:
     file: $HOME/.gitconfig
+
+networks:
+  dx3-network:
+    driver: bridge
+    name: dx3-network
+
 volumes:
   db-data:
+  api-node-modules:
+    name: dx3-api-node-modules

@@ -27,10 +27,25 @@ fi
 
 echo -e "${BLUE}[→] Location: $(pwd)${RESET}"
 
-# Install dependencies on startup (required because volumes override node_modules)
-echo -e "${YELLOW}[→] Installing dependencies...${RESET}"
-pnpm install --frozen-lockfile 2>/dev/null || pnpm install
-echo -e "${GREEN}[✓] Dependencies installed.${RESET}"
+# Check if node_modules needs installation/update
+# Using named volume, so node_modules persists between container restarts
+if [ -d "node_modules" ] && [ -f "node_modules/.pnpm/lock.yaml" ]; then
+    echo -e "${GREEN}[✓] node_modules exists (using cached volume).${RESET}"
+    echo -e "${YELLOW}[→] Verifying dependencies are in sync...${RESET}"
+
+    # Quick check - only install if lockfile changed
+    if pnpm install --frozen-lockfile 2>/dev/null; then
+        echo -e "${GREEN}[✓] Dependencies verified.${RESET}"
+    else
+        echo -e "${YELLOW}[→] Lockfile changed, updating dependencies...${RESET}"
+        pnpm install
+        echo -e "${GREEN}[✓] Dependencies updated.${RESET}"
+    fi
+else
+    echo -e "${YELLOW}[→] First run - installing dependencies...${RESET}"
+    pnpm install
+    echo -e "${GREEN}[✓] Dependencies installed.${RESET}"
+fi
 
 echo -e "${GREEN}[✓] Container is ready for development.${RESET}"
 echo -e "${BLUE}    Use 'make api-start' or 'make api-watch' to run the API.${RESET}"

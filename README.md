@@ -104,6 +104,28 @@ pnpm dev:mobile
 
 ---
 
+## Docker
+
+### Rebuild Containers
+After changes to Docker configuration or Dockerfile:
+```Bash
+docker compose down ; docker compose build --no-cache ; docker compose up -d
+```
+
+### Clear node_modules Volume
+If you experience dependency issues or need a fresh install:
+```Bash
+docker volume rm dx3-api-node-modules
+```
+Then restart the containers — dependencies will be reinstalled automatically.
+
+### View Container Logs
+```Bash
+docker compose logs -f api-node-22-dx3
+```
+
+---
+
 ## Testing
 
 Flags

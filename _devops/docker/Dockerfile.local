@@ -24,14 +24,11 @@ COPY _devops/ ./_devops/
 
 # Install dependencies (this layer is cached unless dependencies change)
 RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
---mount=type=secret,id=gitconfig,target=/root/.gitconfig \
-corepack prepare && pnpm install
+    --mount=type=secret,id=gitconfig,target=/root/.gitconfig \
+    corepack prepare && pnpm install
 
-EXPOSE \
-  # API
-  4000 \
-  # Sendgrid
-  7070
+# Expose only the API port (other services have their own containers)
+EXPOSE 4000
 
 # Direct execution (script has shebang)
 CMD ["/app/_devops/scripts/docker-start.dev.sh"]

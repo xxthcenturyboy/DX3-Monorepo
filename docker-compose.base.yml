@@ -1,11 +1,14 @@
-name: 'dx3'
+# DX3 Base Docker Compose Configuration
+# Shared configuration for all development services
+
+name: "dx3"
 
 services:
   base:
     platform: "${DOCKER_HOST_PLATFORM}"
-    restart: always
-    # network_mode: "host"
-    # restart: on-failure
+    # Use "no" for development to avoid auto-restarts during debugging
+    # Change to "unless-stopped" or "always" for production/staging
+    restart: "no"
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,5 +19,3 @@ services:
         target: /root/.gitconfig
     environment:
       - DEV_PLATFORM=DOCKER
-    volumes:
-    #   - ../../:/app
