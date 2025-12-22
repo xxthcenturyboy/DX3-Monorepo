@@ -39,7 +39,7 @@ export async function ensureLoggedInMedia(req: Request, res: Response, next: Nex
       throw new Error('No Token.')
     }
 
-    const userId = TokenService.getUserIdFromToken(token)
+    const userId = TokenService.getUserIdFromRefreshToken(token)
     if (!userId) {
       throw new Error('Token invalid or expired.')
     }

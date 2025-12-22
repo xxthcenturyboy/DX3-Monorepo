@@ -9,12 +9,7 @@ jest.mock('@dx3/api-libs/logger', () => ({
   },
 }))
 
-import {
-  TEST_PHONE_1,
-  TEST_PHONE_2,
-  TEST_PHONE_IT_INVALID,
-  TEST_PHONE_IT_VALID,
-} from '@dx3/test-data'
+import { TEST_PHONE_1, TEST_PHONE_IT_INVALID, TEST_PHONE_IT_VALID } from '@dx3/test-data'
 
 import { PhoneUtil, type PhoneUtilType } from './phone.util'
 
@@ -23,8 +18,9 @@ describe('phone.util', () => {
 
   test('should invalidate a bogus US phone number', () => {
     // arrange
-    const nationalPhone = TEST_PHONE_2.replace(/ /g, '')
-    phoneUtil = new PhoneUtil(TEST_PHONE_2, 'US')
+    const bogusUsNumber = '1234567890'
+    const nationalPhone = bogusUsNumber.replace(/ /g, '')
+    phoneUtil = new PhoneUtil(bogusUsNumber, 'US')
     // act
     // assert
     expect(phoneUtil.countryCode).toEqual('1')

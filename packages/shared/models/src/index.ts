@@ -4,6 +4,7 @@ export {
   ACCOUNT_RESTRICTIONS,
   AUTH_TOKEN_NAMES,
   OTP_LENGTH,
+  TOKEN_TYPE,
   USER_LOOKUPS,
 } from './auth/auth-shared.consts'
 export type {
@@ -16,6 +17,7 @@ export type {
   LogoutResponse,
   OtpLockoutResponseType,
   OtpResponseType,
+  TokenTypeType,
   UserLookupQueryType,
   UserLookupResponseType,
 } from './auth/auth-shared.types'

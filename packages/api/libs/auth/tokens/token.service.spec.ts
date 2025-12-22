@@ -120,7 +120,7 @@ describe('TokenService', () => {
     })
   })
 
-  describe('getUserIdFromToken', () => {
+  describe('getUserIdFromToken (access tokens)', () => {
     it('should exist', () => {
       // arrange
       // act
@@ -138,14 +138,14 @@ describe('TokenService', () => {
       expect(userId).toEqual(TEST_UUID)
     })
 
-    it('should get a userID from a refreshToken when called', () => {
+    it('should return empty string when validating a refresh token as access token', () => {
       // arrange
       // act
       const tokens = TokenService.generateTokens(TEST_UUID)
       const userId = TokenService.getUserIdFromToken(tokens.refreshToken)
       // assert
-      expect(userId).toBeDefined()
-      expect(userId).toEqual(TEST_UUID)
+      // Refresh tokens should NOT be valid as access tokens (different secrets)
+      expect(userId).toBe('')
     })
 
     it('should return empty string for invalid token', () => {
@@ -162,6 +162,53 @@ describe('TokenService', () => {
       const emptyToken = ''
       // act
       const userId = TokenService.getUserIdFromToken(emptyToken)
+      // assert
+      expect(userId).toBe('')
+    })
+  })
+
+  describe('getUserIdFromRefreshToken (refresh tokens)', () => {
+    it('should exist', () => {
+      // arrange
+      // act
+      // assert
+      expect(TokenService.getUserIdFromRefreshToken).toBeDefined()
+    })
+
+    it('should get a userID from a refreshToken when called', () => {
+      // arrange
+      // act
+      const tokens = TokenService.generateTokens(TEST_UUID)
+      const userId = TokenService.getUserIdFromRefreshToken(tokens.refreshToken)
+      // assert
+      expect(userId).toBeDefined()
+      expect(userId).toEqual(TEST_UUID)
+    })
+
+    it('should return empty string when validating an access token as refresh token', () => {
+      // arrange
+      // act
+      const tokens = TokenService.generateTokens(TEST_UUID)
+      const userId = TokenService.getUserIdFromRefreshToken(tokens.accessToken)
+      // assert
+      // Access tokens should NOT be valid as refresh tokens (different secrets)
+      expect(userId).toBe('')
+    })
+
+    it('should return empty string for invalid token', () => {
+      // arrange
+      const invalidToken = 'invalid-token-string'
+      // act
+      const userId = TokenService.getUserIdFromRefreshToken(invalidToken)
+      // assert
+      expect(userId).toBe('')
+    })
+
+    it('should return empty string for empty token', () => {
+      // arrange
+      const emptyToken = ''
+      // act
+      const userId = TokenService.getUserIdFromRefreshToken(emptyToken)
       // assert
       expect(userId).toBe('')
     })

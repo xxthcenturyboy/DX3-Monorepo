@@ -19,3 +19,8 @@ export const USER_LOOKUPS = {
   EMAIL: 'email',
   PHONE: 'phone',
 }
+
+export const TOKEN_TYPE = {
+  ACCESS: 'access',
+  REFRESH: 'refresh',
+} as const

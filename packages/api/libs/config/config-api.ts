@@ -31,9 +31,6 @@ export function getApiConfig(
 
   return {
     appName: API_APP_NAME,
-    auth: {
-      jwtSecret: env.JWT_SECRET || '',
-    },
     debug: isDebug(),
     host: host || '',
     isLocal: nodeEnv === LOCAL_ENV_NAME,

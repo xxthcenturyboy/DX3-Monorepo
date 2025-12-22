@@ -5,7 +5,8 @@ import {
   // APP_PREFIX,
   CRYPT_KEY,
   ERROR_MSG_API,
-  JWT_SECRET,
+  JWT_ACCESS_SECRET,
+  JWT_REFRESH_SECRET,
   OTP_SALT,
   POSTGRES_URI,
   S3_ACCESS_KEY_ID,
@@ -23,7 +24,8 @@ describe('Config API Constants', () => {
     expect(API_ROOT).toBeDefined()
     expect(CRYPT_KEY).toBeDefined()
     expect(ERROR_MSG_API).toBeDefined()
-    expect(JWT_SECRET).toBeDefined()
+    expect(JWT_ACCESS_SECRET).toBeDefined()
+    expect(JWT_REFRESH_SECRET).toBeDefined()
     expect(OTP_SALT).toBeDefined()
     expect(POSTGRES_URI).toBeDefined()
     expect(S3_ACCESS_KEY_ID).toBeDefined()

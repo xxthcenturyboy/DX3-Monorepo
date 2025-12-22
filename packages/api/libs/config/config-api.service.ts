@@ -25,6 +25,11 @@ export function isLocal() {
   return env.NODE_ENV === LOCAL_ENV_NAME
 }
 
+export function isTest() {
+  const env = getEnvironment()
+  return env.NODE_ENV === 'test'
+}
+
 export function isProd() {
   const env = getEnvironment()
   return env.NODE_ENV === PROD_ENV_NAME
@@ -33,6 +38,14 @@ export function isProd() {
 export function isStaging() {
   const env = getEnvironment()
   return env.NODE_ENV === STAGING_ENV_NAME
+}
+
+/**
+ * Returns true if the environment allows development fallbacks.
+ * This includes local development and test environments.
+ */
+export function allowsDevFallbacks() {
+  return isLocal() || isTest()
 }
 
 export function webDomain() {

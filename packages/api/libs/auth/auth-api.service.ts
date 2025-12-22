@@ -355,7 +355,7 @@ export class AuthService {
       }
 
       const refreshTokens = user.refreshTokens?.filter((token) => token !== refreshToken)
-      const userId = TokenService.getUserIdFromToken(refreshToken)
+      const userId = TokenService.getUserIdFromRefreshToken(refreshToken)
       if (refreshTokens) {
         const updated = await UserModel.updateRefreshToken(userId, refreshTokens)
         return updated

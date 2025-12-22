@@ -75,7 +75,7 @@ export class UserModel extends Model<UserModel> {
   username: string
 
   @Unique
-  @Column(DataType.STRING)
+  @Column(DataType.STRING(512))
   token: string | null
 
   @AllowNull(true)
@@ -133,7 +133,7 @@ export class UserModel extends Model<UserModel> {
   @BelongsTo(() => UserModel, 'referrer_user_id')
   referrer: UserModel
 
-  @Column({ field: 'refresh_tokens', type: DataType.ARRAY(DataType.STRING) })
+  @Column({ field: 'refresh_tokens', type: DataType.ARRAY(DataType.STRING(512)) })
   refreshTokens: string[] | null
 
   @Default(fn('now'))

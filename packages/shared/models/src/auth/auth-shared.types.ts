@@ -2,6 +2,7 @@ import type { ManipulateType } from 'dayjs'
 
 import type { DeviceAuthType } from '../devices/device-shared.types'
 import type { UserProfileStateType } from '../user/user-shared.types'
+import type { TOKEN_TYPE } from './auth-shared.consts'
 
 export type AccountCreationPayloadType = {
   code: string
@@ -44,6 +45,7 @@ export type JwtPayloadType = {
   _id: string
   exp: number
   issuer: string
+  type: TokenTypeType
 }
 
 export type LoginPayloadType = {
@@ -84,3 +86,5 @@ export type UserLookupQueryType = {
   code?: string
   region?: string
 }
+
+export type TokenTypeType = (typeof TOKEN_TYPE)[keyof typeof TOKEN_TYPE]
