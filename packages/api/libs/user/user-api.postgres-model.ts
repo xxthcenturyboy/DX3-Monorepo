@@ -16,7 +16,13 @@ import {
 } from 'sequelize-typescript'
 
 import { dxGenerateRandomValue, dxHashString, dxVerifyHash } from '@dx3/encryption'
-import { type EmailType, type PhoneType, USER_ROLE } from '@dx3/models-shared'
+import {
+  ACCOUNT_RESTRICTIONS,
+  type EmailType,
+  type PhoneType,
+  USER_ROLE,
+  USER_ROLE_ARRAY,
+} from '@dx3/models-shared'
 import { DxDateUtilClass } from '@dx3/utils-shared'
 
 import { DeviceModel } from '../devices/device-api.postgres-model'
@@ -100,6 +106,16 @@ export class UserModel extends Model<UserModel> {
     // KLUDGE: Sequelize complains about setting enum arrays, so we're using a workaround!
     // NOTE: Using lowercase enum type names for PostgreSQL convention
     set(userRoles: string[] = []): void {
+      // Validate all roles are in the allowed list
+      const invalidRoles = userRoles.filter((role) => !USER_ROLE_ARRAY.includes(role))
+      if (invalidRoles.length > 0) {
+        throw new Error(
+          `Invalid role(s) specified: ${invalidRoles.join(', ')}. ` +
+            `Allowed roles are: ${USER_ROLE_ARRAY.join(', ')}`,
+        )
+      }
+
+      // Now safe to use literal since we've validated the input
       const sanitizedRoles = userRoles.map((role) => role.replace(/'/g, "''"))
       this.setDataValue(
         'roles',
@@ -114,6 +130,19 @@ export class UserModel extends Model<UserModel> {
     // KLUDGE: Sequelize complains about setting enum arrays, so we're using a workaround!
     // NOTE: Using lowercase enum type names for PostgreSQL convention
     set(restrictions: string[] = []): void {
+      // Validate all restrictions are in the allowed list
+      const ACCOUNT_RESTRICTIONS_ARRAY = Object.values(ACCOUNT_RESTRICTIONS)
+      const invalidRestrictions = restrictions.filter(
+        (r) => !ACCOUNT_RESTRICTIONS_ARRAY.includes(r),
+      )
+      if (invalidRestrictions.length > 0) {
+        throw new Error(
+          `Invalid restriction(s) specified: ${invalidRestrictions.join(', ')}. ` +
+            `Allowed restrictions are: ${ACCOUNT_RESTRICTIONS_ARRAY.join(', ')}`,
+        )
+      }
+
+      // Now safe to use literal since we've validated the input
       const sanitizedRestrictions = restrictions.map((r) => r.replace(/'/g, "''"))
       this.setDataValue(
         'restrictions',

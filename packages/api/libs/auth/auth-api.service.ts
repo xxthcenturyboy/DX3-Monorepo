@@ -18,7 +18,7 @@ import { DeviceModel } from '../devices/device-api.postgres-model'
 import { DevicesService } from '../devices/devices-api.service'
 import { EmailModel } from '../email/email-api.postgres-model'
 import { EmailService } from '../email/email-api.service'
-import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
+import { ApiLoggingClass, type ApiLoggingClassType, safeStringify } from '../logger'
 import { MailSendgrid } from '../mail/mail-api-sendgrid'
 import { PhoneModel } from '../phone/phone-api.postgres-model'
 import { PhoneService } from '../phone/phone-api.service'
@@ -132,7 +132,7 @@ export class AuthService {
       }
 
       if (!user && !didAttemptAccountCreation) {
-        const message = `Account could not be created with payload: ${JSON.stringify(payload, null, 2)}`
+        const message = `Account could not be created with payload: ${safeStringify(payload, 2)}`
         throw new Error(message)
       }
 
@@ -324,7 +324,7 @@ export class AuthService {
 
       if (user.deletedAt || user.accountLocked) {
         this.logger.logError(
-          `Attempted login by a locked account: ${JSON.stringify(user, null, 2)}`,
+          `Attempted login by a locked account: ${safeStringify({ accountLocked: user.accountLocked, deletedAt: user.deletedAt, id: user.id })}`,
         )
         throw new Error('100 Could not log you in.')
       }
@@ -338,7 +338,7 @@ export class AuthService {
 
       return userProfile
     } catch (err) {
-      const message = `Could not log in with payload: ${JSON.stringify(payload, null, 2)}`
+      const message = `Could not log in with payload: ${safeStringify(payload, 2)}`
       this.logger.logError(message)
       if ((err as Error).message === 'User not found!') {
         throw new Error('100 Could not log you in.')

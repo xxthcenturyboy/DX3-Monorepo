@@ -11,13 +11,19 @@ import { isLocal } from '../config/config-api.service'
 import { RATE_LIMIT_MESSAGE, RATE_LIMITS } from './rate-limter.const'
 
 export class DxRateLimiters {
+  /**
+   * Handler for rate limit exceeded.
+   * Only bypasses rate limiting in local dev when explicitly configured.
+   */
   static handleLimitCommon(
     req: Request,
     res: Response,
     next: NextFunction,
     options: { message: string },
   ) {
-    if (isLocal()) {
+    // Only bypass rate limiting if EXPLICITLY disabled in local development
+    // This prevents accidental bypass in production if NODE_ENV is misconfigured
+    if (isLocal() && process.env.DISABLE_RATE_LIMIT === 'true') {
       return next()
     }
 
@@ -30,25 +36,42 @@ export class DxRateLimiters {
     sendTooManyRequests(req, res, RATE_LIMIT_MESSAGE)
   }
 
-  static keyGenStandard(req: Request) {
+  /**
+   * Generates a rate limiting key from the request.
+   * Uses user ID if authenticated, otherwise uses IP.
+   * req.ip is correctly resolved when trust proxy is configured.
+   */
+  static keyGenStandard(req: Request): string {
     if (req.user?.id) {
       return req.user.id
     }
 
-    return req.ip
+    // req.ip is already resolved correctly when trust proxy is set
+    return req.ip || 'unknown-ip'
   }
 
-  static keyGenLogin(req: Request) {
+  /**
+   * Generates a rate limiting key for login attempts.
+   * Combines multiple identifiers for better protection against bypass.
+   * Uses normalized values to prevent case-sensitivity bypass.
+   */
+  static keyGenLogin(req: Request): string {
+    const ip = req.ip || 'unknown-ip'
+
+    // Normalize the login value (email/phone) to prevent case bypass
     if (req.body?.value) {
-      return req.body.value
+      const normalizedValue = String(req.body.value).toLowerCase().trim()
+      return `login:${normalizedValue}`
     }
 
+    // Fall back to device ID if available
     if (req.body?.device?.uniqueDeviceId) {
       const { uniqueDeviceId } = req.body.device
-      return uniqueDeviceId
+      return `login:device:${uniqueDeviceId}`
     }
 
-    return req.ip
+    // Last resort: use IP address
+    return `login:ip:${ip}`
   }
 
   public static accountCreation() {

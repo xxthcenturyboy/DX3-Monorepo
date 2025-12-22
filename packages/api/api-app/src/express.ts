@@ -13,10 +13,11 @@ import express from 'express'
 // import session from 'express-session';
 // import RedisStore from 'connect-redis';
 import { logger as expressWinston } from 'express-winston'
+import helmet from 'helmet'
 
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 
-import { webUrl } from './config/config-api.service'
+import { isProd, isStaging, webUrl } from './config/config-api.service'
 
 // import { StatusCodes } from 'http-status-codes';
 
@@ -36,6 +37,41 @@ type DxApiSettingsType = {
 
 export async function configureExpress(app: Express, _settings: DxApiSettingsType) {
   const allowedOrigin = webUrl()
+
+  // Trust the first proxy only when in production/staging
+  // This ensures req.ip reflects the real client IP when behind a load balancer
+  // and prevents X-Forwarded-For header spoofing from bypassing rate limits
+  if (isProd() || isStaging()) {
+    app.set('trust proxy', 1)
+  }
+
+  // Security headers via Helmet
+  app.use(
+    helmet({
+      // Content Security Policy - API typically doesn't serve HTML
+      contentSecurityPolicy: false,
+      // Cross-Origin settings for API
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      // Prevent clickjacking (API doesn't serve pages, but good practice)
+      frameguard: { action: 'deny' },
+      // Hide X-Powered-By header
+      hidePoweredBy: true,
+      // Strict-Transport-Security for HTTPS
+      hsts:
+        isProd() || isStaging()
+          ? {
+              includeSubDomains: true,
+              maxAge: 31536000, // 1 year
+              preload: true,
+            }
+          : false,
+      // Prevent MIME type sniffing
+      noSniff: true,
+      // XSS filter (legacy browsers)
+      xssFilter: true,
+    }),
+  )
 
   app.use(
     cors({
