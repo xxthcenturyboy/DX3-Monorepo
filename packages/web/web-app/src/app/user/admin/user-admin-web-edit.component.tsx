@@ -18,6 +18,7 @@ import { useLocation, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 
 import { ACCOUNT_RESTRICTIONS, type UserRoleUi } from '@dx3/models-shared'
+import { logger } from '@dx3/web-libs/logger'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
@@ -73,8 +74,8 @@ export const UserAdminEdit: React.FC = () => {
       data: userResponse,
       error: userError,
       isFetching: isLoadingUser,
-      isSuccess: _fetchUserSuccess,
-      isUninitialized: _fetchUserUninitialized,
+      isSuccess: fetchUserSuccess,
+      isUninitialized: fetchUserUninitialized,
     },
   ] = useLazyGetUserAdminQuery()
   const [
@@ -89,17 +90,21 @@ export const UserAdminEdit: React.FC = () => {
   ] = useUpdateUserRolesRestrictionsMutation()
 
   useEffect(() => {
-    void getUserData()
     setDocumentTitle(title)
+
+    void getUserData()
+
+    return function cleanup() {
+      dispatch(userAdminActions.userSet(undefined))
+    }
+  }, [])
+
+  useEffect(() => {
     if (location?.pathname) {
       dispatch(userAdminActions.lastRouteSet(`${location.pathname}${location.search}`))
     }
     if (!sets || !sets.length) {
       void fetchPrivilegeSets()
-    }
-
-    return function cleanup() {
-      dispatch(userAdminActions.userSet(undefined))
     }
   }, [location, sets, title])
 
@@ -129,15 +134,16 @@ export const UserAdminEdit: React.FC = () => {
   }, [isLoadingPrivilegeSet, privilegeError, privilegeResponse])
 
   useEffect(() => {
-    if (!isLoadingUser) {
-      if (!userError) {
+    if (!fetchUserUninitialized) {
+      if (fetchUserSuccess && !userError && userResponse) {
         dispatch(userAdminActions.userSet(userResponse))
       }
+
       if (userError) {
         'error' in userError && dispatch(uiActions.apiDialogSet(userError.error))
       }
     }
-  }, [isLoadingUser, userError, userResponse])
+  }, [fetchUserSuccess, userError])
 
   useEffect(() => {
     if (!isLoadingUpdateUser && !updateUserUninitialized) {
@@ -557,7 +563,7 @@ export const UserAdminEdit: React.FC = () => {
                           <Checkbox
                             checked={restriction.isRestricted}
                             className="Mui-checked-error"
-                            onClick={() => console.log('clicked', restriction.restriction)}
+                            onClick={() => logger.log('clicked', restriction.restriction)}
                             size="large"
                           />
                         }
