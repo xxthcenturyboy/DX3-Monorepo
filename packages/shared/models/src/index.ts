@@ -66,6 +66,8 @@ export type {
   HealthzStatusType,
   RedisHealthzResponse,
 } from './healthz/heathz-shared.types'
+// Logging Types
+export { REDACTED_VALUE } from './logging/logging.consts'
 // MEDIA Types
 export {
   FILE_EXTENSIONS,

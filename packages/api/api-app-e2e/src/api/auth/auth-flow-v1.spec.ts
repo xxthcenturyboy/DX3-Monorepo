@@ -8,7 +8,12 @@ import type {
   LoginPayloadType,
   UserLookupResponseType,
 } from '@dx3/models-shared'
-import { AUTH_TOKEN_NAMES, PHONE_DEFAULT_REGION_CODE, USER_LOOKUPS } from '@dx3/models-shared'
+import {
+  AUTH_TOKEN_NAMES,
+  PHONE_DEFAULT_REGION_CODE,
+  REDACTED_VALUE,
+  USER_LOOKUPS,
+} from '@dx3/models-shared'
 import {
   TEST_DEVICE,
   TEST_EMAIL,
@@ -322,7 +327,7 @@ describe('v1 Auth Flow', () => {
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
-          `Account could not be created with payload: ${JSON.stringify(payload, null, 2)}`,
+          `Account could not be created with payload: ${JSON.stringify({ ...payload, code: REDACTED_VALUE }, null, 2)}`,
         )
       }
     })
@@ -376,7 +381,7 @@ describe('v1 Auth Flow', () => {
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
-          `Account could not be created with payload: ${JSON.stringify(payload, null, 2)}`,
+          `Account could not be created with payload: ${JSON.stringify({ ...payload, code: REDACTED_VALUE }, null, 2)}`,
         )
       }
     })
@@ -404,7 +409,7 @@ describe('v1 Auth Flow', () => {
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
-          `Account could not be created with payload: ${JSON.stringify(payload, null, 2)}`,
+          `Account could not be created with payload: ${JSON.stringify({ ...payload, code: REDACTED_VALUE }, null, 2)}`,
         )
       }
     })

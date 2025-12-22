@@ -1,3 +1,5 @@
+import { REDACTED_VALUE } from '@dx3/models-shared'
+
 /**
  * Utility for sanitizing sensitive data from log output.
  * Prevents accidental exposure of secrets, passwords, tokens, etc.
@@ -60,7 +62,7 @@ export function sanitizeForLogging<T extends Record<string, unknown>>(obj: T): T
     const lowerKey = key.toLowerCase()
 
     if (SENSITIVE_FIELDS.includes(lowerKey as (typeof SENSITIVE_FIELDS)[number])) {
-      ;(sanitized as Record<string, unknown>)[key] = '[REDACTED]'
+      ;(sanitized as Record<string, unknown>)[key] = REDACTED_VALUE
     } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
       ;(sanitized as Record<string, unknown>)[key] = sanitizeForLogging(
         sanitized[key] as Record<string, unknown>,
@@ -93,4 +95,3 @@ export function safeStringify(obj: unknown, space?: number): string {
     return '[Unable to stringify object]'
   }
 }
-
