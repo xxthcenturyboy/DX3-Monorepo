@@ -11,68 +11,8 @@ global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 import '@testing-library/jest-dom'
 
-// Mock lottie-react to prevent Canvas API errors in jsdom
-// lottie-web requires Canvas context which jsdom doesn't support natively
-jest.mock('lottie-react', () => {
-  const React = require('react')
-
-  // Mock LottieRef type
-  interface MockLottieRef {
-    current: {
-      play: jest.Mock
-      pause: jest.Mock
-      stop: jest.Mock
-      setSpeed: jest.Mock
-      goToAndPlay: jest.Mock
-      goToAndStop: jest.Mock
-      setDirection: jest.Mock
-      destroy: jest.Mock
-    } | null
-  }
-
-  // Create mock Lottie component
-  const Lottie = React.forwardRef((props: Record<string, unknown>, ref: MockLottieRef) => {
-    // Attach mock methods to ref if provided
-    React.useImperativeHandle(ref, () => ({
-      destroy: jest.fn(),
-      goToAndPlay: jest.fn(),
-      goToAndStop: jest.fn(),
-      pause: jest.fn(),
-      play: jest.fn(),
-      setDirection: jest.fn(),
-      setSpeed: jest.fn(),
-      stop: jest.fn(),
-    }))
-
-    return React.createElement('div', {
-      'data-animation-data': props.animationData ? 'loaded' : 'none',
-      'data-autoplay': String(props.autoPlay),
-      'data-loop': String(props.loop),
-      'data-testid': 'lottie-animation',
-    })
-  })
-
-  Lottie.displayName = 'MockLottie'
-
-  return {
-    __esModule: true,
-    default: Lottie,
-    useLottie: jest.fn(() => ({
-      destroy: jest.fn(),
-      goToAndPlay: jest.fn(),
-      goToAndStop: jest.fn(),
-      pause: jest.fn(),
-      play: jest.fn(),
-      setDirection: jest.fn(),
-      setSpeed: jest.fn(),
-      stop: jest.fn(),
-      View: React.createElement('div', { 'data-testid': 'lottie-view' }),
-    })),
-    useLottieInteractivity: jest.fn(() =>
-      React.createElement('div', { 'data-testid': 'lottie-interactive' }),
-    ),
-  }
-})
+// Note: lottie-react mock is centralized in packages/web/__mocks__/lottie-react.tsx
+// and mapped via moduleNameMapper in jest.config.ts
 
 // Mock HTMLCanvasElement.getContext to prevent other canvas-related errors
 const mockGetContext = jest.fn(() => ({

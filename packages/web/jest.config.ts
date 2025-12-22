@@ -16,6 +16,8 @@ export default {
   moduleNameMapper: {
     // Mock CSS imports to prevent Jest from failing on CSS files
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    // Mock lottie-react to avoid canvas/animation issues in jsdom
+    '^lottie-react$': '<rootDir>/__mocks__/lottie-react.tsx',
     // Preserve path mappings from tsconfig
     ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/../../' }),
   },

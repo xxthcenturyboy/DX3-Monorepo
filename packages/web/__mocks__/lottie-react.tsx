@@ -2,6 +2,8 @@
  * Mock implementation for lottie-react
  * This mock provides a lightweight replacement for Lottie animations in Jest tests
  * to avoid canvas/animation rendering issues and improve test performance.
+ *
+ * Centralized mock for all web packages (libs and web-app)
  */
 import React, { forwardRef } from 'react'
 

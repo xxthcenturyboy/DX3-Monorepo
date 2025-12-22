@@ -1,16 +1,8 @@
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import type React from 'react'
 
 import { ContentWrapper, type ContentWrapperPropsType } from './content-wrapper.component'
-
-// Mock useMediaQuery
-const mockUseMediaQuery = jest.fn()
-
-jest.mock('@mui/material', () => ({
-  ...jest.requireActual('@mui/material'),
-  useMediaQuery: () => mockUseMediaQuery(),
-}))
 
 // Create a test theme
 const testTheme = createTheme()
@@ -22,440 +14,328 @@ const renderWithTheme = (ui: React.ReactElement) => {
 
 describe('ContentWrapper', () => {
   const defaultProps: ContentWrapperPropsType = {
-    children: <div>Test Content</div>,
-    headerTitle: 'Test Header',
+    children: <div data-testid="test-content">Test Content</div>,
   }
 
-  beforeEach(() => {
-    // Default to desktop view (not small/medium breakpoint)
-    mockUseMediaQuery.mockReturnValue(false)
-  })
-
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
   describe('Rendering', () => {
-    it('should render with required props', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-      expect(screen.getByText('Test Content')).toBeInTheDocument()
-    })
-
-    it('should render header title', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerTitle="My Page Title"
-        />,
-      )
-
-      expect(screen.getByText('My Page Title')).toBeInTheDocument()
-    })
-
     it('should render children content', () => {
+      renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      expect(screen.getByTestId('test-content')).toBeInTheDocument()
+      expect(screen.getByText('Test Content')).toBeInTheDocument()
+    })
+
+    it('should render multiple children', () => {
       renderWithTheme(
         <ContentWrapper {...defaultProps}>
-          <div data-testid="child-element">Child Content</div>
+          <div data-testid="child-1">Child 1</div>
+          <div data-testid="child-2">Child 2</div>
+          <div data-testid="child-3">Child 3</div>
         </ContentWrapper>,
       )
 
-      expect(screen.getByTestId('child-element')).toBeInTheDocument()
-      expect(screen.getByText('Child Content')).toBeInTheDocument()
-    })
-  })
-
-  describe('Header Subtitle', () => {
-    it('should render header subtitle when provided', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerSubTitle="Subtitle Text"
-        />,
-      )
-
-      expect(screen.getByText('Subtitle Text')).toBeInTheDocument()
+      expect(screen.getByTestId('child-1')).toBeInTheDocument()
+      expect(screen.getByTestId('child-2')).toBeInTheDocument()
+      expect(screen.getByTestId('child-3')).toBeInTheDocument()
     })
 
-    it('should not render subtitle when not provided', () => {
-      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      const subtitleElement = container.querySelector('.MuiTypography-caption')
-      expect(subtitleElement).not.toBeInTheDocument()
-    })
-
-    it('should render both title and subtitle', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerSubTitle="Sub Title"
-          headerTitle="Main Title"
-        />,
-      )
-
-      expect(screen.getByText('Main Title')).toBeInTheDocument()
-      expect(screen.getByText('Sub Title')).toBeInTheDocument()
-    })
-  })
-
-  describe('Navigation', () => {
-    it('should render navigation button when navigation prop is provided', () => {
-      const navigationMock = jest.fn()
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-        />,
-      )
-
-      const navButton = screen.getByRole('button')
-      expect(navButton).toBeInTheDocument()
-    })
-
-    it('should call navigation function when navigation button is clicked', () => {
-      const navigationMock = jest.fn()
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-        />,
-      )
-
-      const navButton = screen.getByRole('button')
-      fireEvent.click(navButton)
-
-      expect(navigationMock).toHaveBeenCalledTimes(1)
-    })
-
-    it('should not render navigation button when navigation prop is not provided', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      const buttons = screen.queryAllByRole('button')
-      expect(buttons).toHaveLength(0)
-    })
-
-    it('should render ChevronLeft icon in navigation button', () => {
-      const navigationMock = jest.fn()
+    it('should render with null children without crashing', () => {
       const { container } = renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-        />,
+        <ContentWrapper {...defaultProps}>{null}</ContentWrapper>,
       )
-
-      const chevronIcon = container.querySelector('.MuiSvgIcon-root')
-      expect(chevronIcon).toBeInTheDocument()
-    })
-  })
-
-  describe('Navigation with Tooltip', () => {
-    it('should render tooltip when tooltip prop is provided', () => {
-      const navigationMock = jest.fn()
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-          tooltip="Go Back"
-        />,
-      )
-
-      const button = screen.getByRole('button')
-      expect(button).toBeInTheDocument()
-    })
-
-    it('should render navigation without tooltip when tooltip is not provided', () => {
-      const navigationMock = jest.fn()
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-        />,
-      )
-
-      const button = screen.getByRole('button')
-      expect(button).toBeInTheDocument()
-    })
-
-    it('should call navigation even with tooltip', () => {
-      const navigationMock = jest.fn()
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={navigationMock}
-          tooltip="Back to Home"
-        />,
-      )
-
-      const navButton = screen.getByRole('button')
-      fireEvent.click(navButton)
-
-      expect(navigationMock).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('Header Content', () => {
-    it('should render header content when provided', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerContent={<div data-testid="header-content">Header Actions</div>}
-        />,
-      )
-
-      expect(screen.getByTestId('header-content')).toBeInTheDocument()
-      expect(screen.getByText('Header Actions')).toBeInTheDocument()
-    })
-
-    it('should not render header content when not provided', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.queryByTestId('header-content')).not.toBeInTheDocument()
-    })
-
-    it('should render complex header content', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerContent={
-            <div>
-              <button type="button">Action 1</button>
-              <button type="button">Action 2</button>
-            </div>
-          }
-        />,
-      )
-
-      expect(screen.getByText('Action 1')).toBeInTheDocument()
-      expect(screen.getByText('Action 2')).toBeInTheDocument()
-    })
-  })
-
-  describe('Content Margin Top', () => {
-    it('should render successfully with custom contentMarginTop', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          contentMarginTop="100px"
-        />,
-      )
-
-      // Verify the component renders without errors and content is present
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-      expect(screen.getByText('Test Content')).toBeInTheDocument()
-    })
-
-    it('should work without contentMarginTop', () => {
-      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
 
       expect(container.firstChild).toBeInTheDocument()
     })
-  })
 
-  describe('Header Column Right Justification', () => {
-    it('should render successfully with right column justification', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerColumnRightJustification="flex-end"
-          headerContent={<div>Right Content</div>}
-        />,
-      )
-
-      // Verify the component renders without errors and content is present
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-      expect(screen.getByText('Right Content')).toBeInTheDocument()
-    })
-
-    it('should render without justification when not provided', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerContent={<div>Content</div>}
-        />,
-      )
-
-      expect(screen.getByText('Content')).toBeInTheDocument()
-    })
-  })
-
-  describe('Header Column Breaks', () => {
-    it('should accept custom header column breakpoints', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerColumnsBreaks={{
-            left: { md: 9, sm: 8, xs: 12 },
-            right: { md: 3, sm: 4, xs: 12 },
-          }}
-        />,
-      )
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-
-    it('should use default breakpoints when not provided', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-
-    it('should handle partial breakpoint configuration', () => {
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerColumnsBreaks={{
-            left: { xs: 12 },
-          }}
-        />,
-      )
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-  })
-
-  describe('Responsive Behavior', () => {
-    it('should render correctly on small screens', () => {
-      mockUseMediaQuery.mockReturnValue(true) // Small screen
-
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-      expect(screen.getByText('Test Content')).toBeInTheDocument()
-    })
-
-    it('should render correctly on desktop', () => {
-      mockUseMediaQuery.mockReturnValue(false) // Desktop
-
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-
-    it('should adjust layout based on breakpoints', () => {
-      mockUseMediaQuery.mockReturnValueOnce(false).mockReturnValueOnce(true) // MD: false, SM: true
-
-      renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-  })
-
-  describe('Complex Scenarios', () => {
-    it('should render all features together', () => {
-      const navigationMock = jest.fn()
-
-      renderWithTheme(
-        <ContentWrapper
-          contentMarginTop="80px"
-          headerColumnRightJustification="flex-end"
-          headerContent={<button type="button">Header Action</button>}
-          headerSubTitle="With Subtitle"
-          headerTitle="Complex Page"
-          navigation={navigationMock}
-          tooltip="Navigate Back"
-        >
-          <div>Main Page Content</div>
-        </ContentWrapper>,
-      )
-
-      expect(screen.getByText('Complex Page')).toBeInTheDocument()
-      expect(screen.getByText('With Subtitle')).toBeInTheDocument()
-      expect(screen.getByText('Header Action')).toBeInTheDocument()
-      expect(screen.getByText('Main Page Content')).toBeInTheDocument()
-
-      const navButtons = screen.getAllByRole('button')
-      expect(navButtons.length).toBeGreaterThan(0)
-    })
-
-    it('should handle multiple children', () => {
-      renderWithTheme(
-        <ContentWrapper {...defaultProps}>
-          <div>Content 1</div>
-          <div>Content 2</div>
-          <div>Content 3</div>
-        </ContentWrapper>,
-      )
-
-      expect(screen.getByText('Content 1')).toBeInTheDocument()
-      expect(screen.getByText('Content 2')).toBeInTheDocument()
-      expect(screen.getByText('Content 3')).toBeInTheDocument()
-    })
-  })
-
-  describe('Edge Cases', () => {
-    it('should handle empty children', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps}></ContentWrapper>)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-
-    it('should handle null children', () => {
-      renderWithTheme(<ContentWrapper {...defaultProps}>{null}</ContentWrapper>)
-
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-    })
-
-    it('should handle navigation callback being undefined in click handler', () => {
-      // This tests the internal safety check: if (typeof navigation === 'function')
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          navigation={() => {}}
-        />,
-      )
-
-      const button = screen.getByRole('button')
-      expect(() => fireEvent.click(button)).not.toThrow()
-    })
-
-    it('should render with very long title', () => {
-      const longTitle = 'A'.repeat(100)
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerTitle={longTitle}
-        />,
-      )
-
-      expect(screen.getByText(longTitle)).toBeInTheDocument()
-    })
-
-    it('should render with special characters in title', () => {
-      const specialTitle = 'Test <>&"\' Title'
-      renderWithTheme(
-        <ContentWrapper
-          {...defaultProps}
-          headerTitle={specialTitle}
-        />,
-      )
-
-      expect(screen.getByText(specialTitle)).toBeInTheDocument()
-    })
-  })
-
-  describe('Layout Structure', () => {
-    it('should render header with divider', () => {
-      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      const divider = container.querySelector('.MuiDivider-root')
-      expect(divider).toBeInTheDocument()
-    })
-
-    it('should render with proper component structure', () => {
-      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
-
-      // Verify the component renders without errors
-      expect(screen.getByText('Test Header')).toBeInTheDocument()
-      expect(screen.getByText('Test Content')).toBeInTheDocument()
-      expect(container.firstChild).toBeInTheDocument()
-    })
-
-    it('should wrap content in Grid container', () => {
+    it('should wrap content in MuiGrid container', () => {
       const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
 
       const grid = container.querySelector('.MuiGrid-root')
       expect(grid).toBeInTheDocument()
+    })
+
+    it('should wrap content in MuiBox', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toBeInTheDocument()
+    })
+  })
+
+  describe('Content Height', () => {
+    it('should use default height when contentHeight is not provided', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const grid = container.querySelector('.MuiGrid-root')
+      expect(grid).toHaveStyle({ height: 'calc(100vh - 80px)' })
+    })
+
+    it('should apply custom contentHeight when provided', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentHeight="500px"
+        />,
+      )
+
+      const grid = container.querySelector('.MuiGrid-root')
+      expect(grid).toHaveStyle({ height: '500px' })
+    })
+
+    it('should accept percentage-based contentHeight', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentHeight="100%"
+        />,
+      )
+
+      const grid = container.querySelector('.MuiGrid-root')
+      expect(grid).toHaveStyle({ height: '100%' })
+    })
+  })
+
+  describe('Content Padding', () => {
+    it('should use zero padding when contentPaddding is not provided', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ padding: '0' })
+    })
+
+    it('should apply custom contentPaddding when provided', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentPaddding="24px"
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ padding: '24px' })
+    })
+
+    it('should handle complex padding values', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentPaddding="16px 24px 32px 8px"
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ padding: '16px 24px 32px 8px' })
+    })
+  })
+
+  describe('Content Top Offset', () => {
+    it('should not have marginTop when contentTopOffset is not provided', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      // When undefined, marginTop should not be explicitly set or be empty
+      expect(box).toBeInTheDocument()
+    })
+
+    it('should apply marginTop when contentTopOffset is provided', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentTopOffset="20px"
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ marginTop: '20px' })
+    })
+  })
+
+  describe('Overflow', () => {
+    it('should use auto overflow by default', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ overflow: 'auto' })
+    })
+
+    it('should apply custom overflow when provided', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          overflow="hidden"
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ overflow: 'hidden' })
+    })
+
+    it('should apply scroll overflow when specified', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          overflow="scroll"
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ overflow: 'scroll' })
+    })
+  })
+
+  describe('Spacer Div', () => {
+    it('should not render spacer div by default', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      // Children count: only the test-content div
+      expect(box?.children.length).toBe(1)
+    })
+
+    it('should render spacer div when spacerDiv is true', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          spacerDiv={true}
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      // Children count: test-content div + spacer div
+      expect(box?.children.length).toBe(2)
+    })
+
+    it('should not render spacer div when spacerDiv is false', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          spacerDiv={false}
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box?.children.length).toBe(1)
+    })
+
+    it('should apply correct padding to spacer div', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          spacerDiv={true}
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      const spacerDiv = box?.children[1] as HTMLElement
+
+      expect(spacerDiv).toHaveStyle({ paddingBottom: '24px' })
+    })
+  })
+
+  describe('Layout Structure', () => {
+    it('should render Grid with column direction', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const grid = container.querySelector('.MuiGrid-direction-xs-column')
+      expect(grid).toBeInTheDocument()
+    })
+
+    it('should render Grid with nowrap', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const grid = container.querySelector('.MuiGrid-wrap-xs-nowrap')
+      expect(grid).toBeInTheDocument()
+    })
+
+    it('should have hidden overflow on outer Grid', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const grid = container.querySelector('.MuiGrid-root')
+      expect(grid).toHaveStyle({ overflow: 'hidden' })
+    })
+
+    it('should have full height Box container', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({ height: '100%' })
+    })
+
+    it('should have flex column display on Box', () => {
+      const { container } = renderWithTheme(<ContentWrapper {...defaultProps} />)
+
+      const box = container.querySelector('.MuiBox-root')
+      expect(box).toHaveStyle({
+        display: 'flex',
+        flexDirection: 'column',
+      })
+    })
+  })
+
+  describe('Combined Props', () => {
+    it('should apply all props together correctly', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          contentHeight="80vh"
+          contentPaddding="16px"
+          contentTopOffset="10px"
+          overflow="scroll"
+          spacerDiv={true}
+        >
+          <div data-testid="combined-content">Combined Test</div>
+        </ContentWrapper>,
+      )
+
+      const grid = container.querySelector('.MuiGrid-root')
+      const box = container.querySelector('.MuiBox-root')
+
+      expect(grid).toHaveStyle({ height: '80vh' })
+      expect(box).toHaveStyle({
+        marginTop: '10px',
+        overflow: 'scroll',
+        padding: '16px',
+      })
+      expect(box?.children.length).toBe(2) // content + spacer
+      expect(screen.getByTestId('combined-content')).toBeInTheDocument()
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should handle empty string padding', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper
+          {...defaultProps}
+          contentPaddding=""
+        />,
+      )
+
+      const box = container.querySelector('.MuiBox-root')
+      // Empty string is falsy, so defaults to '0'
+      expect(box).toHaveStyle({ padding: '0' })
+    })
+
+    it('should render with complex nested children', () => {
+      renderWithTheme(
+        <ContentWrapper {...defaultProps}>
+          <div>
+            <span>Nested</span>
+            <div>
+              <p>Deeply Nested</p>
+            </div>
+          </div>
+        </ContentWrapper>,
+      )
+
+      expect(screen.getByText('Nested')).toBeInTheDocument()
+      expect(screen.getByText('Deeply Nested')).toBeInTheDocument()
+    })
+
+    it('should handle undefined children gracefully', () => {
+      const { container } = renderWithTheme(
+        <ContentWrapper {...defaultProps}>{undefined}</ContentWrapper>,
+      )
+
+      expect(container.firstChild).toBeInTheDocument()
     })
   })
 })
