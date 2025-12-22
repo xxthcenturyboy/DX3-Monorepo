@@ -6,6 +6,7 @@ import { Express } from 'jest-express/lib/express'
 // import session from 'express-session';
 
 import { logger as expressWinston } from 'express-winston'
+import helmet from 'helmet'
 
 import { handleError } from '@dx3/api-libs/error-handler/error-handler'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
@@ -17,6 +18,7 @@ let app: IExpress
 
 jest.mock('connect-redis')
 jest.mock('express-winston')
+jest.mock('helmet', () => () => (req: unknown, res: unknown, next: () => void) => next())
 jest.mock('@dx3/api-libs/logger', () => require('@dx3/api-libs/testing/mocks/internal/logger.mock'))
 jest.mock('./data/redis/dx-redis.cache')
 jest.mock('@dx3/api-libs/error-handler/error-handler')
@@ -67,9 +69,10 @@ describe('configureExpress', () => {
         //   secret: 'test-secret'
         // })],
         [() => handleError],
+        [helmet({ contentSecurityPolicy: false })],
       ]),
     )
     // assert
-    expect(app.use).toHaveBeenCalledTimes(6)
+    expect(app.use).toHaveBeenCalledTimes(7)
   })
 })
