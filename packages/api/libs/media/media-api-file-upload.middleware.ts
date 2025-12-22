@@ -3,7 +3,7 @@ import { PassThrough } from 'node:stream'
 import { Upload } from '@aws-sdk/lib-storage'
 import dayjs from 'dayjs'
 import type { NextFunction, Request, Response } from 'express'
-import type { Fields, File } from 'formidable'
+import type { Fields, File, Part } from 'formidable'
 import formidable from 'formidable'
 import type IncomingForm from 'formidable/Formidable'
 import type VolatileFile from 'formidable/VolatileFile'
@@ -16,6 +16,7 @@ import { S3_APP_BUCKET_NAME, UPLOAD_MAX_FILE_SIZE } from '../config/config-api.c
 import { getEnvironment, isDebug } from '../config/config-api.service'
 import { ApiLoggingClass } from '../logger'
 import { S3Service } from '../s3'
+import { getAllowedFileTypesMessage, isAllowedMimeType } from './media-api.allowed-types'
 
 type UploadResultType = {
   fields: Fields<string>
@@ -143,6 +144,17 @@ export const UploadMiddleware = {
 
     try {
       const formData: IncomingForm = formidable({
+        // Validate file types before processing
+        filter: ({ mimetype, originalFilename }: Part): boolean => {
+          if (!isAllowedMimeType(mimetype)) {
+            ApiLoggingClass.instance.logWarn(
+              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
+                `Allowed types: ${getAllowedFileTypesMessage()}`,
+            )
+            return false
+          }
+          return true
+        },
         fileWriteStreamHandler: (file?: VolatileFile): internal.Writable => {
           const passThrough = new PassThrough({ allowHalfOpen: false })
           const bucketName = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.UPLOAD_TMP}`
@@ -211,6 +223,17 @@ export const UploadMiddleware = {
 
     try {
       const formData: IncomingForm = formidable({
+        // Validate file types before processing
+        filter: ({ mimetype, originalFilename }: Part): boolean => {
+          if (!isAllowedMimeType(mimetype)) {
+            ApiLoggingClass.instance.logWarn(
+              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
+                `Allowed types: ${getAllowedFileTypesMessage()}`,
+            )
+            return false
+          }
+          return true
+        },
         fileWriteStreamHandler: (file?: VolatileFile): internal.Writable => {
           const passThrough = new PassThrough({ allowHalfOpen: false })
           const bucketName = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.UPLOAD_TMP}`

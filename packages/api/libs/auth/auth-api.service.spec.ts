@@ -19,6 +19,7 @@ import { mockEmailModel } from '../email/email-api.postgres-model.mock'
 import { mockPhoneModel } from '../phone/phone-api.postgres-model.mock'
 import { mockUserProfileApi } from '../user/user-profile-api.mock'
 import { mockOtpCodeCache } from './otp/otp-code.redis-cache.mock'
+import { mockTokenService } from './tokens/token.service.mock'
 
 describe('AuthService', () => {
   let authService: AuthServiceType
@@ -30,6 +31,7 @@ describe('AuthService', () => {
     mockUserProfileApi()
     mockEmailModel()
     mockPhoneModel()
+    mockTokenService()
 
     // Create service instance for unit tests
     authService = new AuthService()

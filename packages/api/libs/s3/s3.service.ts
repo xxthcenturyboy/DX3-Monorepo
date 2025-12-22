@@ -110,16 +110,27 @@ export class S3Service {
     }
   }
 
+  /**
+   * Uploads an object to S3.
+   * @param bucket - The S3 bucket name
+   * @param key - The object key (path)
+   * @param file - The file buffer to upload
+   * @param mimeType - The MIME type of the file
+   * @param metadata - Optional metadata to attach to the object
+   * @param acl - Access control list setting. Defaults to 'private' for security.
+   *              Use 'public-read' only when files must be publicly accessible.
+   */
   public async uploadObject(
     bucket: string,
     key: string,
     file: Buffer,
     mimeType: string,
     metadata?: Record<string, string>,
+    acl: 'private' | 'public-read' = 'private',
   ) {
     try {
       const params: PutObjectCommandInput = {
-        ACL: 'public-read',
+        ACL: acl,
         Body: file,
         Bucket: bucket,
         ContentType: mimeType,

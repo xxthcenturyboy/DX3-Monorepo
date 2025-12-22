@@ -18,6 +18,7 @@ export class RedisService {
     RedisService.#instance = this
 
     if (params.isLocal) {
+      // Local development - no TLS required
       const url = `${params.redis.url}:${params.redis.port}/0`
       this.cacheHandle = new Redis(url, {
         keyPrefix: `${params.redis.prefix}${REDIS_DELIMITER}`,
@@ -25,13 +26,16 @@ export class RedisService {
       return
     }
 
+    // Production/Staging - TLS with proper certificate validation
     const hosts = params.redis.url.split('|')
     console.log(`trying to connect to: Redis Cluster ${JSON.stringify(hosts)}`)
     this.cacheHandle = new Redis.Cluster(hosts, {
       keyPrefix: `${params.redis.prefix}${REDIS_DELIMITER}`,
       redisOptions: {
         tls: {
-          checkServerIdentity: () => undefined,
+          // Use Node.js default TLS validation (validates server certificates)
+          // Note: rejectUnauthorized defaults to true in Node.js
+          rejectUnauthorized: true,
         },
       },
       scaleReads: 'slave',

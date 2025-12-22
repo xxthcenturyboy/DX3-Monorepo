@@ -1,8 +1,26 @@
 import { type ModelCtor, Sequelize } from 'sequelize-typescript'
 
+import { isLocal } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { parsePostgresConnectionUrl } from './parse-postgres-connection-url'
 import type { PostgresConnectionParamsType, PostgresUrlObject } from './postgres.types'
+
+/**
+ * Returns SSL configuration for PostgreSQL connection.
+ * - Local development: SSL disabled for convenience
+ * - Production/Staging: SSL enabled with certificate validation
+ */
+function getPostgresSSLConfig(): false | { require: boolean; rejectUnauthorized: boolean } {
+  if (isLocal()) {
+    return false
+  }
+
+  // Production and staging require SSL
+  return {
+    rejectUnauthorized: true,
+    require: true,
+  }
+}
 
 export class PostgresDbConnection {
   config: PostgresUrlObject
@@ -26,7 +44,7 @@ export class PostgresDbConnection {
       },
       dialect: 'postgres',
       dialectOptions: {
-        ssl: false,
+        ssl: getPostgresSSLConfig(),
       },
       host: this.config.hostname,
       // eslint-disable-next-line @typescript-eslint/no-empty-function

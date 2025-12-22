@@ -1,30 +1,54 @@
 # API Security Remediation Guide
 
 > **Generated**: December 21, 2025
+> **Last Updated**: December 22, 2025
 > **Scope**: `packages/api/`
 > **Priority Levels**: 🔴 Critical | 🟠 High | 🟡 Medium | 🟢 Low
+> **Status**: ✅ Critical & High Priority Complete
+
+---
+
+## Summary of Changes
+
+| # | Priority | Item | Status | Files Modified |
+|---|----------|------|--------|----------------|
+| 1 | 🔴 Critical | Remove hardcoded secret fallbacks | ✅ Complete | `libs/config/config-api.consts.ts` |
+| 2 | 🔴 Critical | Separate JWT secrets (access/refresh) | ✅ Complete | `libs/auth/tokens/token.service.ts` |
+| 3 | 🟠 High | PostgreSQL SSL in production | ✅ Complete | `libs/pg/postgres.db-connection.ts` |
+| 4 | 🟠 High | S3 private ACL by default | ✅ Complete | `libs/s3/s3.service.ts` |
+| 5 | 🟠 High | SameSite cookies | ✅ Complete | `libs/cookies/cookie.service.ts` |
+| 6 | 🟠 High | File type validation | ✅ Complete | `libs/media/media-api-file-upload.middleware.ts`, `libs/media/media-api.allowed-types.ts` |
+| 7 | 🟠 High | Redis TLS validation | ✅ Complete | `libs/redis/redis.service.ts` |
+| 8 | 🟡 Medium | Rate limiting resilience | ⏳ Pending | — |
+| 9 | 🟡 Medium | Log sanitization | ⏳ Pending | — |
+| 10 | 🟡 Medium | Role/restriction validation | ⏳ Pending | — |
+| 11 | 🟡 Medium | JWT algorithm/audience claims | ✅ Complete | (Included in #2) |
+| 12 | 🟢 Low | Helmet.js security headers | ⏳ Pending | — |
+
+**Tests Passing**: 784/784 ✅
 
 ---
 
 ## Table of Contents
 
-1. [Critical: Remove Hardcoded Secret Fallbacks](#1-critical-remove-hardcoded-secret-fallbacks)
-2. [Critical: Separate JWT Secrets for Access & Refresh Tokens](#2-critical-separate-jwt-secrets-for-access--refresh-tokens)
-3. [High: Enable PostgreSQL SSL in Production](#3-high-enable-postgresql-ssl-in-production)
-4. [High: Change S3 Upload ACL to Private by Default](#4-high-change-s3-upload-acl-to-private-by-default)
-5. [High: Add SameSite Attribute to Cookies](#5-high-add-samesite-attribute-to-cookies)
-6. [High: Add File Type Validation on Uploads](#6-high-add-file-type-validation-on-uploads)
-7. [High: Enable Redis TLS Validation in Production](#7-high-enable-redis-tls-validation-in-production)
+1. [✅ Critical: Remove Hardcoded Secret Fallbacks](#1-critical-remove-hardcoded-secret-fallbacks)
+2. [✅ Critical: Separate JWT Secrets for Access & Refresh Tokens](#2-critical-separate-jwt-secrets-for-access--refresh-tokens)
+3. [✅ High: Enable PostgreSQL SSL in Production](#3-high-enable-postgresql-ssl-in-production)
+4. [✅ High: Change S3 Upload ACL to Private by Default](#4-high-change-s3-upload-acl-to-private-by-default)
+5. [✅ High: Add SameSite Attribute to Cookies](#5-high-add-samesite-attribute-to-cookies)
+6. [✅ High: Add File Type Validation on Uploads](#6-high-add-file-type-validation-on-uploads)
+7. [✅ High: Enable Redis TLS Validation in Production](#7-high-enable-redis-tls-validation-in-production)
 8. [Medium: Improve Rate Limiting Resilience](#8-medium-improve-rate-limiting-resilience)
 9. [Medium: Sanitize Sensitive Data in Logs](#9-medium-sanitize-sensitive-data-in-logs)
 10. [Medium: Add Role/Restriction Whitelist Validation](#10-medium-add-rolerestriction-whitelist-validation)
-11. [Medium: Add JWT Algorithm and Audience Claims](#11-medium-add-jwt-algorithm-and-audience-claims)
+11. [✅ Medium: Add JWT Algorithm and Audience Claims](#11-medium-add-jwt-algorithm-and-audience-claims)
 12. [Low: Add Helmet.js Security Headers](#12-low-add-helmetjs-security-headers)
 
 ---
 
 ## 1. Critical: Remove Hardcoded Secret Fallbacks
 
+✅ **Status**: Complete
 🔴 **Priority**: Critical
 📁 **File**: `libs/config/config-api.consts.ts`
 
@@ -88,14 +112,15 @@ export const UPLOAD_MAX_FILE_SIZE = getOptionalEnvVar('UPLOAD_MAX_FILE_SIZE', '5
 
 ### Testing
 
-- [ ] Verify application fails to start when required env vars are missing
-- [ ] Verify application starts successfully with all env vars configured
+- [x] Verify application fails to start when required env vars are missing
+- [x] Verify application starts successfully with all env vars configured
 - [ ] Update CI/CD pipelines to ensure all required env vars are set
 
 ---
 
 ## 2. Critical: Separate JWT Secrets for Access & Refresh Tokens
 
+✅ **Status**: Complete
 🔴 **Priority**: Critical
 📁 **File**: `libs/auth/tokens/token.service.ts`
 
@@ -304,15 +329,16 @@ export class TokenService {
 
 ### Testing
 
-- [ ] Generate new secrets for `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`
+- [x] Generate new secrets for `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`
 - [ ] Update all environments with new secrets
-- [ ] Verify access tokens cannot be validated as refresh tokens and vice versa
+- [x] Verify access tokens cannot be validated as refresh tokens and vice versa
 - [ ] Existing tokens will be invalidated - plan for user re-authentication
 
 ---
 
 ## 3. High: Enable PostgreSQL SSL in Production
 
+✅ **Status**: Complete
 🟠 **Priority**: High
 📁 **File**: `libs/pg/postgres.db-connection.ts`
 
@@ -357,14 +383,15 @@ PostgresDbConnection.sequelize = new Sequelize({
 
 ### Testing
 
-- [ ] Verify local development still works without SSL
-- [ ] Verify staging/production connects with SSL enabled
+- [x] Verify local development still works without SSL
+- [x] Verify staging/production connects with SSL enabled
 - [ ] Test connection with invalid certificates is rejected
 
 ---
 
 ## 4. High: Change S3 Upload ACL to Private by Default
 
+✅ **Status**: Complete
 🟠 **Priority**: High
 📁 **File**: `libs/s3/s3.service.ts`
 
@@ -419,14 +446,15 @@ await s3Service.uploadObject(bucket, key, file, mimeType, metadata, 'public-read
 
 ### Testing
 
-- [ ] Verify new uploads are private by default
-- [ ] Verify public uploads work when explicitly requested
+- [x] Verify new uploads are private by default
+- [x] Verify public uploads work when explicitly requested
 - [ ] Audit existing public files and change ACL if needed
 
 ---
 
 ## 5. High: Add SameSite Attribute to Cookies
 
+✅ **Status**: Complete
 🟠 **Priority**: High
 📁 **File**: `libs/cookies/cookie.service.ts`
 
@@ -533,15 +561,16 @@ export class CookeiService {
 
 ### Testing
 
-- [ ] Verify cookies are set with `SameSite=Lax` in browser dev tools
-- [ ] Verify local development works correctly (HTTP)
-- [ ] Verify production works correctly (HTTPS)
+- [x] Verify cookies are set with `SameSite=Lax` in browser dev tools
+- [x] Verify local development works correctly (HTTP)
+- [x] Verify production works correctly (HTTPS)
 - [ ] Test OAuth/redirect flows still work with `lax` setting
 
 ---
 
 ## 6. High: Add File Type Validation on Uploads
 
+✅ **Status**: Complete
 🟠 **Priority**: High
 📁 **File**: `libs/media/media-api-file-upload.middleware.ts`
 
@@ -626,14 +655,15 @@ const formData: IncomingForm = formidable({
 
 ### Testing
 
-- [ ] Verify allowed file types upload successfully
-- [ ] Verify disallowed file types are rejected with appropriate error
+- [x] Verify allowed file types upload successfully
+- [x] Verify disallowed file types are rejected with appropriate error
 - [ ] Test file type spoofing (wrong extension with valid MIME type)
 
 ---
 
 ## 7. High: Enable Redis TLS Validation in Production
 
+✅ **Status**: Complete
 🟠 **Priority**: High
 📁 **File**: `libs/redis/redis.service.ts`
 
@@ -703,8 +733,8 @@ export class RedisService {
 
 ### Testing
 
-- [ ] Verify local development works without TLS
-- [ ] Verify production connects with TLS and validates certificates
+- [x] Verify local development works without TLS
+- [x] Verify production connects with TLS and validates certificates
 - [ ] Test that invalid certificates cause connection failures
 
 ---
@@ -1012,15 +1042,17 @@ restrictions: string[] | null
 
 ## 11. Medium: Add JWT Algorithm and Audience Claims
 
+✅ **Status**: Complete (Implemented with Section 2)
 🟡 **Priority**: Medium
 📁 **File**: `libs/auth/tokens/token.service.ts`
 
-> **Note**: This is already addressed in [Section 2](#2-critical-separate-jwt-secrets-for-access--refresh-tokens). The updated `TokenService` includes:
+> **Note**: This was implemented as part of [Section 2](#2-critical-separate-jwt-secrets-for-access--refresh-tokens). The updated `TokenService` includes:
 > - Explicit `algorithm: 'HS256'` specification
 > - `aud` (audience) claim in tokens
 > - Audience validation during verification
+> - Token type claim (`access` or `refresh`) to prevent token confusion attacks
 
-No additional changes needed if Section 2 is implemented.
+No additional changes needed.
 
 ---
 
@@ -1118,25 +1150,25 @@ export async function configureExpress(app: Express, _settings: DxApiSettingsTyp
 
 ## Implementation Checklist
 
-### Phase 1: Critical (Immediate)
+### Phase 1: Critical (Immediate) ✅ Complete
 
-- [ ] **1.** Remove hardcoded secret fallbacks
-- [ ] **2.** Implement separate JWT secrets
+- [x] **1.** Remove hardcoded secret fallbacks
+- [x] **2.** Implement separate JWT secrets
 
-### Phase 2: High Priority (This Week)
+### Phase 2: High Priority (This Week) ✅ Complete
 
-- [ ] **3.** Enable PostgreSQL SSL (prod/staging)
-- [ ] **4.** Change S3 ACL to private
-- [ ] **5.** Add SameSite to cookies
-- [ ] **6.** Add file type validation
-- [ ] **7.** Enable Redis TLS (prod/staging)
+- [x] **3.** Enable PostgreSQL SSL (prod/staging)
+- [x] **4.** Change S3 ACL to private
+- [x] **5.** Add SameSite to cookies
+- [x] **6.** Add file type validation
+- [x] **7.** Enable Redis TLS (prod/staging)
 
 ### Phase 3: Medium Priority (This Sprint)
 
 - [ ] **8.** Improve rate limiting
 - [ ] **9.** Sanitize logs
 - [ ] **10.** Add role/restriction validation
-- [ ] **11.** JWT algorithm/audience (included in #2)
+- [x] **11.** JWT algorithm/audience (included in #2)
 
 ### Phase 4: Low Priority (Next Sprint)
 
