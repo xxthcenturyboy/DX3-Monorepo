@@ -2,6 +2,8 @@ import Lottie, { type LottieRef } from 'lottie-react'
 import React, { type ReactElement } from 'react'
 import { ScaleLoader } from 'react-spinners'
 
+import { logger } from '@dx3/web-libs/logger'
+
 import { themeColors } from '../system/mui-overrides/styles'
 import type { LottieWrapperPropTypes } from './lottie.types'
 
@@ -14,7 +16,7 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
   React.useEffect(() => {
     loadSettings()
     loadAnimationData()
-  }, [animationData])
+  }, [])
 
   const loadSettings = (): void => {
     if (lottieRef) {
@@ -32,7 +34,7 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
         const data = await response.json()
         setLoadedAnimationData(data)
       } catch (error) {
-        console.error('Failed to load Lottie animation:', error)
+        logger.error('Failed to load Lottie animation:', error)
         setLoadedAnimationData(null)
       } finally {
         setIsLoading(false)

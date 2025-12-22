@@ -30,10 +30,7 @@ root.render(
           persistor={persistor}
         >
           <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-            <RouterProvider
-              fallbackElement={<UiLoadingComponent pastDelay={true} />}
-              router={router}
-            />
+            <RouterProvider router={router} />
           </Suspense>
         </PersistGate>
       </Provider>
