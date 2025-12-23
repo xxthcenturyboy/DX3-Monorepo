@@ -2,7 +2,7 @@ import type { CookieOptions, Request, Response } from 'express'
 
 import { AUTH_TOKEN_NAMES } from '@dx3/models-shared'
 
-import { isLocal } from '../config/config-api.service'
+import { isDev } from '../config/config-api.service'
 
 export class CookeiService {
   /**
@@ -16,7 +16,7 @@ export class CookeiService {
     return {
       httpOnly: true,
       sameSite: 'lax',
-      secure: !isLocal(),
+      secure: !isDev(),
     }
   }
 

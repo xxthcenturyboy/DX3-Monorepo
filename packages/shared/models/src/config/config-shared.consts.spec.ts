@@ -7,8 +7,8 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   DEFAULT_SORT,
+  DEV_ENV_NAME,
   ERROR_MSG,
-  LOCAL_ENV_NAME,
   LOREM,
   PHONE_DEFAULT_REGION_CODE,
   PROD_ENV_NAME,
@@ -163,19 +163,19 @@ describe('ERROR_MSG', () => {
   })
 })
 
-describe('LOCAL_ENV_NAME', () => {
+describe('DEV_ENV_NAME', () => {
   it('should exist when imported', () => {
     // arrange
     // act
     // assert
-    expect(LOCAL_ENV_NAME).toBeDefined()
+    expect(DEV_ENV_NAME).toBeDefined()
   })
 
   it('should have the correct value', () => {
     // arrange
     // act
     // assert
-    expect(LOCAL_ENV_NAME).toEqual('development')
+    expect(DEV_ENV_NAME).toEqual('development')
   })
 })
 

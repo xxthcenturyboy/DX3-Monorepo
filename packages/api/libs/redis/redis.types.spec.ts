@@ -145,7 +145,7 @@ describe('redis.types', () => {
   describe('RedisConstructorType', () => {
     it('should define RedisConstructorType type', () => {
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: {
           port: 6379,
           prefix: 'dx',
@@ -155,21 +155,21 @@ describe('redis.types', () => {
       expect(params).toBeDefined()
     })
 
-    it('should have isLocal property as boolean', () => {
+    it('should have isDev property as boolean', () => {
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: {
           port: 6379,
           prefix: 'test',
           url: 'redis://localhost',
         },
       }
-      expect(typeof params.isLocal).toBe('boolean')
+      expect(typeof params.isDev).toBe('boolean')
     })
 
     it('should have redis property as RedisConfigType', () => {
       const params: RedisConstructorType = {
-        isLocal: false,
+        isDev: false,
         redis: {
           port: 6379,
           prefix: 'app',
@@ -182,28 +182,28 @@ describe('redis.types', () => {
       expect(params.redis.url).toBeDefined()
     })
 
-    it('should work with isLocal true', () => {
+    it('should work with isDev true', () => {
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: {
           port: 6379,
           prefix: 'local',
           url: 'redis://localhost',
         },
       }
-      expect(params.isLocal).toBe(true)
+      expect(params.isDev).toBe(true)
     })
 
-    it('should work with isLocal false for cluster', () => {
+    it('should work with isDev false for cluster', () => {
       const params: RedisConstructorType = {
-        isLocal: false,
+        isDev: false,
         redis: {
           port: 6379,
           prefix: 'cluster',
           url: 'redis://node1|redis://node2',
         },
       }
-      expect(params.isLocal).toBe(false)
+      expect(params.isDev).toBe(false)
     })
   })
 
@@ -216,7 +216,7 @@ describe('redis.types', () => {
       }
 
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: config,
       }
 
@@ -225,7 +225,7 @@ describe('redis.types', () => {
 
     it('should support complete configuration', () => {
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: {
           port: 6379,
           prefix: 'production',
@@ -233,7 +233,7 @@ describe('redis.types', () => {
         },
       }
 
-      expect(params.isLocal).toBe(true)
+      expect(params.isDev).toBe(true)
       expect(params.redis.port).toBe(6379)
       expect(params.redis.prefix).toBe('production')
       expect(params.redis.url).toBe('redis://prod-redis:6379')

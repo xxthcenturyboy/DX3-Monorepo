@@ -20,7 +20,7 @@ describe('NotificationSocketApiService', () => {
     new ApiLoggingClass({ appName: 'TEST' })
     const redisConfig = getRedisConfig()
     redisService = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: redisConfig,
     })
     httpServer = createServer()

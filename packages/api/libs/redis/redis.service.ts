@@ -17,7 +17,7 @@ export class RedisService {
     this.logger = ApiLoggingClass.instance
     RedisService.#instance = this
 
-    if (params.isLocal) {
+    if (params.isDev) {
       // Local development - no TLS required
       const url = `${params.redis.url}:${params.redis.port}/0`
       this.cacheHandle = new Redis(url, {

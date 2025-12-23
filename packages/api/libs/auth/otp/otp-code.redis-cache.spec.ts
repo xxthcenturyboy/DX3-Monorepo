@@ -21,7 +21,7 @@ describe('OtpCodeCache', () => {
     new ApiLoggingClass({ appName: 'Unit-Test' })
     const redisConfig = getRedisConfig()
     redisService = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: redisConfig,
     })
   })

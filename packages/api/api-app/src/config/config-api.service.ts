@@ -1,4 +1,4 @@
-import { LOCAL_ENV_NAME, PROD_ENV_NAME, STAGING_ENV_NAME } from '@dx3/models-shared'
+import { DEV_ENV_NAME, PROD_ENV_NAME, STAGING_ENV_NAME } from '@dx3/models-shared'
 
 export function getEnvironment() {
   return {
@@ -20,9 +20,9 @@ export function isDebug() {
   return true
 }
 
-export function isLocal() {
+export function isDev() {
   const env = getEnvironment()
-  return env.NODE_ENV === LOCAL_ENV_NAME
+  return env.NODE_ENV === DEV_ENV_NAME
 }
 
 export function isTest() {
@@ -45,7 +45,7 @@ export function isStaging() {
  * This includes local development and test environments.
  */
 export function allowsDevFallbacks() {
-  return isLocal() || isTest()
+  return isDev() || isTest()
 }
 
 export function webDomain() {

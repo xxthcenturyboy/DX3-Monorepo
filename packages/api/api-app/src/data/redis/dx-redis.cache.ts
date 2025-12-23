@@ -2,7 +2,7 @@ import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { RedisHealthzService, RedisService, type RedisServiceType } from '@dx3/api-libs/redis'
 
 import { getRedisConfig } from '../../config/config-api'
-import { isLocal } from '../../config/config-api.service'
+import { isDev } from '../../config/config-api.service'
 
 export class DxRedisCache {
   public static async getRedisConnection(): Promise<RedisServiceType | null> {
@@ -11,7 +11,7 @@ export class DxRedisCache {
 
     try {
       new RedisService({
-        isLocal: isLocal(),
+        isDev: isDev(),
         redis: redisConfig,
       })
 

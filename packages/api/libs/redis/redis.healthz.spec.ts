@@ -19,7 +19,7 @@ describe('RedisHealthzService', () => {
   beforeAll(() => {
     new ApiLoggingClass({ appName: 'Test' })
     new RedisService({
-      isLocal: false,
+      isDev: false,
       redis: {
         port: 6379,
         prefix: 'test',

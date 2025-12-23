@@ -23,7 +23,7 @@ import {
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isLocal, isProd } from '../config/config-api.service'
+import { isDev, isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
 import { EmailModel } from '../email/email-api.postgres-model'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
@@ -37,7 +37,7 @@ import { UserModel } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
 
 export class UserService {
-  private LOCAL = isLocal()
+  private LOCAL = isDev()
   private logger: ApiLoggingClassType
 
   constructor() {

@@ -57,13 +57,15 @@ async function initializeServices(options: SeederOptions): Promise<void> {
   const redisPort = process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379
 
   if (!redisUrl) {
-    console.log(`${colors.yellow}⚠ REDIS_URL not set - cache updates will be skipped${colors.reset}`)
+    console.log(
+      `${colors.yellow}⚠ REDIS_URL not set - cache updates will be skipped${colors.reset}`,
+    )
     return
   }
 
   try {
     new RedisService({
-      isLocal: true, // Seeder always runs in local/development context
+      isDev: true, // Seeder always runs in local/development context
       redis: {
         port: redisPort,
         prefix: APP_PREFIX,

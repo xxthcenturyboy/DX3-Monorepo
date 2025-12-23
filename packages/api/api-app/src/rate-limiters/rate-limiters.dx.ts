@@ -7,7 +7,7 @@ import { REDIS_DELIMITER, RedisService } from '@dx3/api-libs/redis'
 import { APP_PREFIX } from '@dx3/models-shared'
 
 import { AUTH_ROUTES_V1_RATE_LIMIT } from '../auth/auth-api.consts'
-import { isLocal } from '../config/config-api.service'
+import { isDev } from '../config/config-api.service'
 import { RATE_LIMIT_MESSAGE, RATE_LIMITS } from './rate-limter.const'
 
 export class DxRateLimiters {
@@ -23,7 +23,7 @@ export class DxRateLimiters {
   ) {
     // Only bypass rate limiting if EXPLICITLY disabled in local development
     // This prevents accidental bypass in production if NODE_ENV is misconfigured
-    if (isLocal() && process.env.DISABLE_RATE_LIMIT === 'true') {
+    if (isDev() && process.env.DISABLE_RATE_LIMIT === 'true') {
       return next()
     }
 

@@ -1,16 +1,16 @@
 import type { Sequelize } from 'sequelize-typescript'
 
-import { APP_PREFIX, LOCAL_ENV_NAME } from '@dx3/models-shared'
+import { APP_PREFIX, DEV_ENV_NAME } from '@dx3/models-shared'
 
 import type { ApiLoggingClassType } from '../logger'
 import type { RedisConfigType, RedisServiceType } from '../redis'
 import { API_APP_NAME, SENDGRID_API_KEY, SENDGRID_URL } from './config-api.consts'
-import { getEnvironment, isDebug, isLocal } from './config-api.service'
+import { getEnvironment, isDebug, isDev } from './config-api.service'
 import type { ApiConfigType } from './config-api.type'
 
 export function getRedisConfig(): RedisConfigType {
   const env = getEnvironment()
-  const _nodeEnv = env.NODE_ENV || LOCAL_ENV_NAME
+  const _nodeEnv = env.NODE_ENV || DEV_ENV_NAME
 
   return {
     port: Number(env.REDIS_PORT) || 6379,
@@ -26,14 +26,14 @@ export function getApiConfig(
 ): ApiConfigType {
   const env = getEnvironment()
 
-  const nodeEnv = env.NODE_ENV || LOCAL_ENV_NAME
-  const host = isLocal() ? '0.0.0.0' : env.API_URL
+  const nodeEnv = env.NODE_ENV || DEV_ENV_NAME
+  const host = isDev() ? '0.0.0.0' : env.API_URL
 
   return {
     appName: API_APP_NAME,
     debug: isDebug(),
     host: host || '',
-    isLocal: nodeEnv === LOCAL_ENV_NAME,
+    isDev: nodeEnv === DEV_ENV_NAME,
     logger: logger,
     nodeEnv: nodeEnv,
     port: Number(env.API_PORT),

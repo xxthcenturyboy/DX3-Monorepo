@@ -26,7 +26,7 @@ describe('getApiConfig', () => {
     await connection.initialize()
     db = PostgresDbConnection.dbHandle
     redis = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: {
         port: 6379,
         prefix: 'dx',

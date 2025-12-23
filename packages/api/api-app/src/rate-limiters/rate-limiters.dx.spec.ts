@@ -19,7 +19,7 @@ describe('DxRateLimiters', () => {
 
   beforeAll(async () => {
     redisService = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: {
         port: 6379,
         prefix: 'dx',

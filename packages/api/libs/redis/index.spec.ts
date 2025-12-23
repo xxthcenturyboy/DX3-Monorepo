@@ -64,7 +64,7 @@ describe('index', () => {
 
     it('should export RedisConstructorType type', () => {
       const params: RedisConstructorType = {
-        isLocal: true,
+        isDev: true,
         redis: {
           port: 6379,
           prefix: 'test',

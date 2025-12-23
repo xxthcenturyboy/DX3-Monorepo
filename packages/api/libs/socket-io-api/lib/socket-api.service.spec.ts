@@ -29,7 +29,7 @@ describe('SocketApiService', () => {
       url: 'redis://localhost:6379',
     }
     new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: redisConfig,
     })
   })

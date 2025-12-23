@@ -20,7 +20,7 @@ describe('RedisService', () => {
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
 
     redisService = new RedisService({
-      isLocal: false,
+      isDev: false,
       redis: {
         port: 6379,
         prefix: 'test:',
@@ -29,7 +29,7 @@ describe('RedisService', () => {
     })
 
     localRedisService = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: {
         port: 6379,
         prefix: 'local:',
@@ -103,7 +103,7 @@ describe('RedisService', () => {
 
     it('should log cluster connection attempt for non-local', async () => {
       const clusterService = new RedisService({
-        isLocal: false,
+        isDev: false,
         redis: {
           port: 6379,
           prefix: 'cluster:',
@@ -309,7 +309,7 @@ describe('RedisService', () => {
 
     it('should handle cluster URLs', async () => {
       const clusterService = new RedisService({
-        isLocal: false,
+        isDev: false,
         redis: {
           port: 6379,
           prefix: 'cluster',

@@ -2,14 +2,14 @@ import { dxRsaValidateBiometricKey } from '@dx3/encryption/src'
 import type { CreateEmailPayloadType, UpdateEmailPayloadType } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isLocal } from '../config/config-api.service'
+import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel } from '../user/user-api.postgres-model'
 import { EmailUtil } from '../utils'
 import { EmailModel } from './email-api.postgres-model'
 
 export class EmailService {
-  private LOCAL = isLocal()
+  private LOCAL = isDev()
   private logger: ApiLoggingClassType
 
   constructor() {

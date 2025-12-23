@@ -1,7 +1,7 @@
 import {
   getEnvironment,
   isDebug,
-  isLocal,
+  isDev,
   isProd,
   isStaging,
   webDomain,
@@ -33,12 +33,12 @@ describe('isDebug', () => {
   })
 })
 
-describe('isLocal', () => {
+describe('isDev', () => {
   it('should exist when imported', () => {
     // arrange
     // act
     // assert
-    expect(isLocal).toBeDefined()
+    expect(isDev).toBeDefined()
   })
 })
 

@@ -23,7 +23,7 @@ describe('OtpService', () => {
   beforeAll(() => {
     new ApiLoggingClass({ appName: 'Unit-Test' })
     redisService = new RedisService({
-      isLocal: true,
+      isDev: true,
       redis: {
         port: 6379,
         prefix: 'dx',

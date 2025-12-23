@@ -10,7 +10,7 @@ export type RedisConfigType = {
 }
 
 export type RedisConstructorType = {
-  isLocal: boolean
+  isDev: boolean
   redis: RedisConfigType
 }
 

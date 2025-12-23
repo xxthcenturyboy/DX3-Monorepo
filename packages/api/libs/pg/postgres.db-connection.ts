@@ -1,6 +1,6 @@
 import { type ModelCtor, Sequelize } from 'sequelize-typescript'
 
-import { isLocal } from '../config/config-api.service'
+import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { parsePostgresConnectionUrl } from './parse-postgres-connection-url'
 import type { PostgresConnectionParamsType, PostgresUrlObject } from './postgres.types'
@@ -11,7 +11,7 @@ import type { PostgresConnectionParamsType, PostgresUrlObject } from './postgres
  * - Production/Staging: SSL enabled with certificate validation
  */
 function getPostgresSSLConfig(): false | { require: boolean; rejectUnauthorized: boolean } {
-  if (isLocal()) {
+  if (isDev()) {
     return false
   }
 

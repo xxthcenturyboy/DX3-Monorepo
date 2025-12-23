@@ -12,7 +12,7 @@ export type ApiConfigType = {
   appName: string
   debug: boolean
   host: string
-  isLocal: boolean
+  isDev: boolean
   logger: ApiLoggingClassType
   nodeEnv: string
   port: number

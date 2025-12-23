@@ -3,14 +3,14 @@ import { randomUUID } from 'node:crypto'
 import type { DeviceAuthType, DeviceType } from '@dx3/models-shared'
 
 import { SecurityAlertSerivice } from '../auth/alerts/security-alert.service'
-import { isLocal } from '../config/config-api.service'
+import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
 import { DeviceModel } from './device-api.postgres-model'
 import { FACIAL_AUTH_STATE } from './devices-api.consts'
 
 export class DevicesService {
-  private LOCAL = isLocal()
+  private LOCAL = isDev()
   logger: ApiLoggingClassType
 
   constructor() {
