@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+- All JSON object properties, types, and imports must be sorted alphabetically
+- We do not need to add categorical separations inside objects, etc. Only the alphabetization is required.

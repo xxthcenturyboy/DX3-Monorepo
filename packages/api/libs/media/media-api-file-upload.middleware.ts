@@ -144,17 +144,6 @@ export const UploadMiddleware = {
 
     try {
       const formData: IncomingForm = formidable({
-        // Validate file types before processing
-        filter: ({ mimetype, originalFilename }: Part): boolean => {
-          if (!isAllowedMimeType(mimetype)) {
-            ApiLoggingClass.instance.logWarn(
-              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
-                `Allowed types: ${getAllowedFileTypesMessage()}`,
-            )
-            return false
-          }
-          return true
-        },
         fileWriteStreamHandler: (file?: VolatileFile): internal.Writable => {
           const passThrough = new PassThrough({ allowHalfOpen: false })
           const bucketName = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.UPLOAD_TMP}`
@@ -170,6 +159,17 @@ export const UploadMiddleware = {
           }
 
           return passThrough
+        },
+        // Validate file types before processing
+        filter: ({ mimetype, originalFilename }: Part): boolean => {
+          if (!isAllowedMimeType(mimetype)) {
+            ApiLoggingClass.instance.logWarn(
+              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
+                `Allowed types: ${getAllowedFileTypesMessage()}`,
+            )
+            return false
+          }
+          return true
         },
         maxFileSize: Number(UPLOAD_MAX_FILE_SIZE) * MB,
         maxFiles: 10,
@@ -223,17 +223,6 @@ export const UploadMiddleware = {
 
     try {
       const formData: IncomingForm = formidable({
-        // Validate file types before processing
-        filter: ({ mimetype, originalFilename }: Part): boolean => {
-          if (!isAllowedMimeType(mimetype)) {
-            ApiLoggingClass.instance.logWarn(
-              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
-                `Allowed types: ${getAllowedFileTypesMessage()}`,
-            )
-            return false
-          }
-          return true
-        },
         fileWriteStreamHandler: (file?: VolatileFile): internal.Writable => {
           const passThrough = new PassThrough({ allowHalfOpen: false })
           const bucketName = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.UPLOAD_TMP}`
@@ -249,6 +238,17 @@ export const UploadMiddleware = {
           }
 
           return passThrough
+        },
+        // Validate file types before processing
+        filter: ({ mimetype, originalFilename }: Part): boolean => {
+          if (!isAllowedMimeType(mimetype)) {
+            ApiLoggingClass.instance.logWarn(
+              `Rejected file upload: "${originalFilename}" with type "${mimetype}". ` +
+                `Allowed types: ${getAllowedFileTypesMessage()}`,
+            )
+            return false
+          }
+          return true
         },
         maxFileSize: Number(UPLOAD_MAX_FILE_SIZE) * MB,
         maxFiles: 1,
