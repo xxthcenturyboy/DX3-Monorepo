@@ -9,6 +9,7 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
   DEFAULT_SORT,
+  ERROR_CODES,
   type GetUserListResponseType,
   type GetUserProfileReturnType,
   type GetUserResponseType,
@@ -32,6 +33,7 @@ import { PHONE_MODEL_OPTIONS } from '../phone/phone-api.consts'
 import { PhoneModel } from '../phone/phone-api.postgres-model'
 import { ShortLinkModel } from '../shortlink/shortlink-api.postgres-model'
 import { EmailUtil, PhoneUtil, ProfanityFilter } from '../utils'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { USER_FIND_ATTRIBUTES, USER_SORT_FIELDS } from './user-api.consts'
 import { UserModel } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
@@ -97,7 +99,12 @@ export class UserService {
     } = payload
 
     if (!username || !email) {
-      throw new Error('Not enough information to create a user.')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.USER_CREATE_FAILED,
+          'Not enough information to create a user.',
+        ),
+      )
     }
 
     const profanityFilter = new ProfanityFilter()
@@ -135,7 +142,9 @@ export class UserService {
       )
 
       if (!user) {
-        throw new Error('No user created.')
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.USER_CREATE_FAILED, 'User could not be created.'),
+        )
       }
 
       const mail = new MailSendgrid()
@@ -166,14 +175,18 @@ export class UserService {
 
   public async deleteUser(id: string) {
     if (!id) {
-      throw new Error('No id for delete user.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'No id provided for delete.'),
+      )
     }
 
     try {
       const user = await UserModel.findByPk(id)
 
       if (!user) {
-        throw new Error(`User could not be found with the id: ${id}`)
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
+        )
       }
 
       user.setDataValue('deletedAt', new Date())
@@ -225,7 +238,9 @@ export class UserService {
 
   public async getUser(id: string): Promise<GetUserResponseType> {
     if (!id) {
-      throw new Error('No id provided searching users.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'No id provided for search.'),
+      )
     }
 
     try {
@@ -240,7 +255,9 @@ export class UserService {
       })
 
       if (!user) {
-        throw new Error('Search for user failed.')
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
+        )
       }
 
       return user.toJSON()
@@ -465,14 +482,18 @@ export class UserService {
     const { restrictions, roles } = payload
 
     if (!id) {
-      throw new Error('No id for update user.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
+      )
     }
 
     try {
       const user = await UserModel.findByPk(id)
 
       if (!user) {
-        throw new Error(`User could not be found with the id: ${id}`)
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
+        )
       }
 
       if (restrictions !== undefined && Array.isArray(restrictions)) {
@@ -501,14 +522,18 @@ export class UserService {
     const { firstName, lastName } = payload
 
     if (!id) {
-      throw new Error('No id for update user.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
+      )
     }
 
     try {
       const user = await UserModel.findByPk(id)
 
       if (!user) {
-        throw new Error(`User could not be found with the id: ${id}`)
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
+        )
       }
 
       const profanityFilter = new ProfanityFilter()
@@ -545,7 +570,9 @@ export class UserService {
     const { otpCode, signature, username } = payload
 
     if (!id) {
-      throw new Error('No id for update username.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
+      )
     }
 
     if (otpCode) {

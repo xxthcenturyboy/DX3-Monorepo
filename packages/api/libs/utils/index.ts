@@ -2,6 +2,12 @@
 // export { INVALID_EMAIL_NAMES } from './lib/email/email-validation.const';
 export { EmailUtil } from './lib/email/email.util'
 export {
+  createApiError,
+  createApiErrorMessage,
+  ERROR_CODES,
+  type ErrorCodeType,
+} from './lib/error/api-error.utils'
+export {
   PhoneUtil,
   PhoneUtilType,
 } from './lib/phone/phone.util'

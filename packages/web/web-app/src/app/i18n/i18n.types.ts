@@ -65,6 +65,13 @@ export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
   ARRAY_BUFFERS: string
+  AUTH_FAILED: string
+  AUTH_INVALID_CREDENTIALS: string
+  AUTH_OTP_EXPIRED: string
+  AUTH_OTP_INVALID: string
+  AUTH_SESSION_EXPIRED: string
+  AUTH_TOKEN_INVALID: string
+  AUTH_UNAUTHORIZED: string
   BACK: string
   CANCEL: string
   CHANGE_PASSWORD: string
@@ -80,13 +87,21 @@ export type StringKeys = {
   DELETE: string
   EDIT: string
   EMAIL: string
+  EMAIL_ALREADY_EXISTS: string
+  EMAIL_DELETE_FAILED: string
+  EMAIL_INVALID: string
+  EMAIL_NOT_FOUND: string
+  EMAIL_SEND_FAILED: string
+  EMAIL_VERIFICATION_FAILED: string
   EMAILS: string
-  ERROR_GENERIC: string
-  ERROR_NETWORK: string
-  ERROR_NOT_FOUND: string
-  ERROR_UNAUTHORIZED: string
   EXTERNAL: string
   FILTER: string
+  GENERIC: string
+  GENERIC_BAD_REQUEST: string
+  GENERIC_FORBIDDEN: string
+  GENERIC_NOT_FOUND: string
+  GENERIC_SERVER_ERROR: string
+  GENERIC_VALIDATION_FAILED: string
   GET_CODE_VIA_EMAIL: string
   GET_CODE_VIA_PHONE: string
   GREETING: string
@@ -97,11 +112,21 @@ export type StringKeys = {
   LOG_OUT: string
   LOGIN: string
   LOGOUT: string
+  MEDIA_FILE_COUNT_EXCEEDED: string
+  MEDIA_FILE_SIZE_EXCEEDED: string
+  MEDIA_INVALID_TYPE: string
+  MEDIA_UPLOAD_FAILED: string
   MESSAGE: string
   NAME: string
+  NETWORK: string
   NEW_EMAIL: string
   NEW_PHONE: string
   NO_DATA: string
+  NOT_FOUND: string
+  NOTIFICATION_CREATE_FAILED: string
+  NOTIFICATION_MISSING_PARAMS: string
+  NOTIFICATION_MISSING_USER_ID: string
+  NOTIFICATION_SERVER_ERROR: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
   PAGE_TITLE_API_HEALTH: string
@@ -111,6 +136,11 @@ export type StringKeys = {
   PAGE_TITLE_USER_PROFILE: string
   PASSWORD: string
   PHONE: string
+  PHONE_ALREADY_EXISTS: string
+  PHONE_DELETE_FAILED: string
+  PHONE_INVALID: string
+  PHONE_NOT_FOUND: string
+  PHONE_VERIFICATION_FAILED: string
   PHONES: string
   PING: string
   PROFILE: string
@@ -138,7 +168,12 @@ export type StringKeys = {
   TOOLTIP_REFRESH_LIST: string
   TRY_ANOTHER_WAY: string
   TYPE: string
+  UNAUTHORIZED: string
   UPDATE: string
+  USER_ALREADY_EXISTS: string
+  USER_CREATE_FAILED: string
+  USER_NOT_FOUND: string
+  USER_UPDATE_FAILED: string
   USERNAME: string
   VERIFIED: string
   VERIFY: string

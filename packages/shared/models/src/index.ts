@@ -50,6 +50,18 @@ export type {
   DeviceAuthType,
   DeviceType,
 } from './devices/device-shared.types'
+// ERROR Types
+export { ERROR_CODE_TO_I18N_KEY, ERROR_CODES } from './errors/error-shared.consts'
+export type {
+  ApiErrorResponseType,
+  ErrorCodeType,
+  ParsedApiErrorType,
+} from './errors/error-shared.types'
+export {
+  buildApiError,
+  isValidErrorCode,
+  parseApiError,
+} from './errors/error-shared.utils'
 export { EMAIL_LABEL } from './email/email-shared.consts'
 // EMAIL Types
 export type {

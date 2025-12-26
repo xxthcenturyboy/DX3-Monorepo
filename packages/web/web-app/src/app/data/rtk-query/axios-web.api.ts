@@ -4,13 +4,15 @@ import { toast } from 'react-toastify'
 
 // import { Navigate } from 'react-router';
 
+// import { Navigate } from 'react-router';
+
 // import { store } from '@dx/store-web';
-import { regexMatchNumberGroups } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 
 import { authActions } from '../../auth/auth-web.reducer'
 import { WebConfigService } from '../../config/config-web.service'
 import { uiActions } from '../../ui/store/ui-web.reducer'
+import { ErrorWebService } from '../errors/error-web.service'
 import type {
   AxiosBaseQueryParamsType,
   AxiosInstanceHeadersParamType,
@@ -144,24 +146,6 @@ async function _handleNotification(message?: string): Promise<void> {
   // }
 }
 
-function parseErrorCodeFromResponse(message: string): {
-  errorCode?: string
-  messageReduced?: string
-} {
-  const numberGroups = message.match(regexMatchNumberGroups)
-  let errorCode: string | undefined
-  let messageReduced: string | undefined
-  if (numberGroups?.length && numberGroups[0].charAt(0) === message.charAt(0)) {
-    errorCode = numberGroups[0]
-    messageReduced = message.substring(errorCode.length + 1)
-  }
-
-  return {
-    errorCode: errorCode,
-    messageReduced: messageReduced,
-  }
-}
-
 export const axiosBaseQuery =
   (
     { baseUrl } = { baseUrl: '' },
@@ -219,13 +203,16 @@ export const axiosBaseQuery =
         )
       }
 
-      const { errorCode, messageReduced } = parseErrorCodeFromResponse(message)
+      const { code, localizedMessage, originalMessage } = ErrorWebService.resolveApiError(message)
+      const i18nKey = ErrorWebService.getI18nKey(code)
 
       return {
         error: {
-          code: errorCode,
+          code: code ?? undefined,
           data: err.stack,
-          error: messageReduced || message,
+          error: originalMessage || message,
+          i18nKey,
+          localizedMessage,
           status: err?.response?.status || 500,
         },
       }

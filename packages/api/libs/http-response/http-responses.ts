@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from 'express'
 import { getReasonPhrase, StatusCodes } from 'http-status-codes'
 
+import type { ErrorCodeType } from '@dx3/models-shared'
+
 import { ApiLoggingClass } from '../logger'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 // import { CookeiService } from '@dx/utils-cookies';
 
 // export function destroySession(req: Request, res: Response) {
@@ -73,6 +76,29 @@ export function sendBadRequest(req: Request, res: Response, err: Error | string)
   })
 }
 
+/**
+ * Send a bad request response with a standardized error code.
+ * The frontend will parse this to display a localized message.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param code - Error code from ERROR_CODES
+ * @param message - Human-readable error message
+ */
+export function sendBadRequestWithCode(
+  req: Request,
+  res: Response,
+  code: ErrorCodeType,
+  message: string,
+): void {
+  send400(res, {
+    description: getReasonPhrase(StatusCodes.BAD_REQUEST),
+    message: createApiErrorMessage(code, message),
+    status: StatusCodes.BAD_REQUEST,
+    url: req.url,
+  })
+}
+
 export function sendUnauthorized(req: Request, res: Response, message: string) {
   ApiLoggingClass.instance.logWarn(
     `Unauthorized: ${req.url}, userId: ${req.user?.id || 'unavailable'}`,
@@ -82,6 +108,31 @@ export function sendUnauthorized(req: Request, res: Response, message: string) {
   send400(res, {
     description: getReasonPhrase(StatusCodes.UNAUTHORIZED),
     message,
+    status: StatusCodes.UNAUTHORIZED,
+    url: req.url,
+  })
+}
+
+/**
+ * Send an unauthorized response with a standardized error code.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param code - Error code from ERROR_CODES
+ * @param message - Human-readable error message
+ */
+export function sendUnauthorizedWithCode(
+  req: Request,
+  res: Response,
+  code: ErrorCodeType,
+  message: string,
+) {
+  ApiLoggingClass.instance.logWarn(
+    `Unauthorized: ${req.url}, userId: ${req.user?.id || 'unavailable'}`,
+  )
+  send400(res, {
+    description: getReasonPhrase(StatusCodes.UNAUTHORIZED),
+    message: createApiErrorMessage(code, message),
     status: StatusCodes.UNAUTHORIZED,
     url: req.url,
   })
@@ -101,11 +152,59 @@ export function sendForbidden(req: Request, res: Response, message: string): voi
   })
 }
 
+/**
+ * Send a forbidden response with a standardized error code.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param code - Error code from ERROR_CODES
+ * @param message - Human-readable error message
+ */
+export function sendForbiddenWithCode(
+  req: Request,
+  res: Response,
+  code: ErrorCodeType,
+  message: string,
+): void {
+  ApiLoggingClass.instance.logWarn(
+    `Forbidden: ${req.url}, userId: ${req.user?.id || 'unavailable'}`,
+  )
+  send400(res, {
+    description: getReasonPhrase(StatusCodes.FORBIDDEN),
+    message: createApiErrorMessage(code, message),
+    status: StatusCodes.FORBIDDEN,
+    url: req.url,
+  })
+}
+
 export function sendNotFound(req: Request, res: Response, message: string): void {
   ApiLoggingClass.instance.logWarn(`Not Found: ${req.url}`)
   send400(res, {
     description: getReasonPhrase(StatusCodes.NOT_FOUND),
     message,
+    status: StatusCodes.NOT_FOUND,
+    url: req.url,
+  })
+}
+
+/**
+ * Send a not found response with a standardized error code.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param code - Error code from ERROR_CODES
+ * @param message - Human-readable error message
+ */
+export function sendNotFoundWithCode(
+  req: Request,
+  res: Response,
+  code: ErrorCodeType,
+  message: string,
+): void {
+  ApiLoggingClass.instance.logWarn(`Not Found: ${req.url}`)
+  send400(res, {
+    description: getReasonPhrase(StatusCodes.NOT_FOUND),
+    message: createApiErrorMessage(code, message),
     status: StatusCodes.NOT_FOUND,
     url: req.url,
   })

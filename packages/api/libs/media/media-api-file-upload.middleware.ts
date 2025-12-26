@@ -10,12 +10,13 @@ import type VolatileFile from 'formidable/VolatileFile'
 import { StatusCodes } from 'http-status-codes'
 import { v4 as uuidV4 } from 'uuid'
 
-import { MB, S3_BUCKETS } from '@dx3/models-shared'
+import { ERROR_CODES, MB, S3_BUCKETS } from '@dx3/models-shared'
 
 import { S3_APP_BUCKET_NAME, UPLOAD_MAX_FILE_SIZE } from '../config/config-api.consts'
 import { getEnvironment, isDebug } from '../config/config-api.service'
 import { ApiLoggingClass } from '../logger'
 import { S3Service } from '../s3'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { getAllowedFileTypesMessage, isAllowedMimeType } from './media-api.allowed-types'
 
 type UploadResultType = {
@@ -190,11 +191,17 @@ export const UploadMiddleware = {
       let message = typeof err === 'string' ? err : (err as Error).message || ''
 
       if (message.includes('maxFiles')) {
-        message = '100 File upload count exceeded.'
+        message = createApiErrorMessage(
+          ERROR_CODES.MEDIA_FILE_COUNT_EXCEEDED,
+          'File upload count exceeded.',
+        )
       }
 
       if (message.includes('maxTotalFileSize')) {
-        message = '101 File size limit exceeded.'
+        message = createApiErrorMessage(
+          ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
+          'File size limit exceeded.',
+        )
       }
 
       req.uploads = {
@@ -269,11 +276,17 @@ export const UploadMiddleware = {
       let message = typeof err === 'string' ? err : (err as Error).message || ''
 
       if (message.includes('maxFiles')) {
-        message = '100 File upload count exceeded.'
+        message = createApiErrorMessage(
+          ERROR_CODES.MEDIA_FILE_COUNT_EXCEEDED,
+          'File upload count exceeded.',
+        )
       }
 
       if (message.includes('maxTotalFileSize')) {
-        message = '101 File size limit exceeded.'
+        message = createApiErrorMessage(
+          ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
+          'File size limit exceeded.',
+        )
       }
 
       req.uploads = {

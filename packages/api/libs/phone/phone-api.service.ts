@@ -3,6 +3,7 @@ import parsePhoneNumber from 'libphonenumber-js'
 import { dxRsaValidateBiometricKey } from '@dx3/encryption/src'
 import {
   type CreatePhonePayloadType,
+  ERROR_CODES,
   PHONE_DEFAULT_REGION_CODE,
   type UpdatePhonePayloadType,
 } from '@dx3/models-shared'
@@ -12,6 +13,7 @@ import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel } from '../user/user-api.postgres-model'
 import { PhoneUtil } from '../utils'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { PhoneModel } from './phone-api.postgres-model'
 
 export class PhoneService {
@@ -25,14 +27,18 @@ export class PhoneService {
 
   public async isPhoneAvailableAndValid(phone: string, regionCode: string) {
     if (!phone || !regionCode) {
-      throw new Error('Missing phone or region code.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_INVALID, 'Missing phone or region code.'),
+      )
     }
 
     const phoneUtil = new PhoneUtil(phone, regionCode || PHONE_DEFAULT_REGION_CODE)
 
     if (!phoneUtil.isValid) {
       this.logger.logError(`invalid phone: ${phone}, ${regionCode || PHONE_DEFAULT_REGION_CODE}`)
-      throw new Error('This phone cannot be used (invalid).')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_INVALID, 'This phone cannot be used.'),
+      )
     }
 
     const phoneAvailable = await PhoneModel.isPhoneAvailable(
@@ -41,7 +47,12 @@ export class PhoneService {
     )
     if (!phoneAvailable) {
       const formatted = parsePhoneNumber(phoneUtil.normalizedPhone)
-      throw new Error(`${formatted?.formatNational()} is already in use.`)
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.PHONE_ALREADY_EXISTS,
+          `${formatted?.formatNational()} is already in use.`,
+        ),
+      )
     }
   }
 
@@ -123,18 +134,24 @@ export class PhoneService {
 
   public async deletePhone(id: string, userId?: string) {
     if (!id) {
-      throw new Error('No id for delete phone.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_DELETE_FAILED, 'No id provided for delete.'),
+      )
     }
 
     const phone = await PhoneModel.findByPk(id)
 
     if (!phone) {
-      throw new Error(`Phone could not be found with the id: ${id}`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_NOT_FOUND, 'Phone could not be found.'),
+      )
     }
 
     if (userId) {
       if (userId !== phone.userId) {
-        throw new Error('You cannot delete this phone.')
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.PHONE_DELETE_FAILED, 'You cannot delete this phone.'),
+        )
       }
     }
 
@@ -145,7 +162,9 @@ export class PhoneService {
       return { id: phone.id }
     } catch (err) {
       this.logger.logError((err as Error).message || 'Phone could not be deleted.')
-      return { id: '' }
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_DELETE_FAILED, 'Phone could not be deleted.'),
+      )
     }
   }
 
@@ -164,13 +183,17 @@ export class PhoneService {
     const { def, label } = payload
 
     if (!id) {
-      throw new Error('No id for update phone.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_NOT_FOUND, 'No id provided for update.'),
+      )
     }
 
     const phone = await PhoneModel.findByPk(id)
 
     if (!phone) {
-      throw new Error(`Phone could not be found with the id: ${id}`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.PHONE_NOT_FOUND, 'Phone could not be found.'),
+      )
     }
 
     try {

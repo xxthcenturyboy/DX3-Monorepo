@@ -1,11 +1,16 @@
 import { dxRsaValidateBiometricKey } from '@dx3/encryption/src'
-import type { CreateEmailPayloadType, UpdateEmailPayloadType } from '@dx3/models-shared'
+import {
+  type CreateEmailPayloadType,
+  ERROR_CODES,
+  type UpdateEmailPayloadType,
+} from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
 import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel } from '../user/user-api.postgres-model'
 import { EmailUtil } from '../utils'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { EmailModel } from './email-api.postgres-model'
 
 export class EmailService {
@@ -26,20 +31,29 @@ export class EmailService {
     if (!emailUtil.validate()) {
       if (emailUtil.isDisposableDomain()) {
         throw new Error(
-          'The email you provided is not valid. Please note that we do not allow disposable emails or emails that do not exist, so make sure to use a real email address.',
+          createApiErrorMessage(
+            ERROR_CODES.EMAIL_INVALID,
+            'The email you provided is not valid. Disposable emails are not allowed.',
+          ),
         )
       }
 
-      throw new Error('The email you provided is not valid.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_INVALID, 'The email you provided is not valid.'),
+      )
     }
 
     if (!(await emailUtil.validateTld())) {
-      throw new Error(`The email you provided is not valid: TLD.`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_INVALID, 'The email you provided is not valid.'),
+      )
     }
 
     const isEmailAvailable = await EmailModel.isEmailAvailable(emailUtil.formattedEmail())
     if (!isEmailAvailable) {
-      throw new Error(`${email} already exists.`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_ALREADY_EXISTS, `${email} already exists.`),
+      )
     }
   }
 
@@ -104,18 +118,24 @@ export class EmailService {
 
   public async deleteEmail(id: string, userId?: string) {
     if (!id) {
-      throw new Error('No id for delete email.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_DELETE_FAILED, 'No id provided for delete.'),
+      )
     }
 
     const email = await EmailModel.findByPk(id)
 
     if (!email) {
-      throw new Error(`Email could not be found with the id: ${id}`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_NOT_FOUND, 'Email could not be found.'),
+      )
     }
 
     if (userId) {
       if (userId !== email.userId) {
-        throw new Error('You cannot delete this email.')
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.EMAIL_DELETE_FAILED, 'You cannot delete this email.'),
+        )
       }
     }
 
@@ -126,7 +146,9 @@ export class EmailService {
       return { id: email.id }
     } catch (err) {
       this.logger.logError((err as Error).message || 'Email could not be deleted.')
-      return { id: '' }
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_DELETE_FAILED, 'Email could not be deleted.'),
+      )
     }
   }
 
@@ -134,13 +156,17 @@ export class EmailService {
     const { def, label } = payload
 
     if (!id) {
-      throw new Error('No id for update email.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_NOT_FOUND, 'No id provided for update.'),
+      )
     }
 
     const email = await EmailModel.findByPk(id)
 
     if (!email) {
-      throw new Error(`Email could not be found with the id: ${id}`)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.EMAIL_NOT_FOUND, 'Email could not be found.'),
+      )
     }
 
     try {

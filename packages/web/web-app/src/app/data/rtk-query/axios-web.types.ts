@@ -27,10 +27,12 @@ export type AxiosBaseQueryParamsType = {
 export type BaseQueryFnType = BaseQueryFn<unknown, unknown, CustomResponseErrorType, object>
 
 export type CustomResponseErrorType = {
-  status: number
   code?: string
   data?: string
   error: string
+  i18nKey?: string | null
+  localizedMessage?: string
+  status: number
 }
 
 type BaseQueryResponseType<T> = {
