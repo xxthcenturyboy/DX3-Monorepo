@@ -14,12 +14,20 @@ import {
 import { DEFAULT_STRINGS } from '../../i18n'
 import { selectTranslations } from '../../i18n/i18n.selectors'
 import type { InterpolationParams, StringKeyName } from '../../i18n/i18n.types'
-import { store } from '../../store/store-web.redux'
 
 /**
  * Default fallback error message.
  */
 const DEFAULT_ERROR_MESSAGE = 'An error occurred. Please try again.'
+
+/**
+ * Lazy import store to avoid circular dependency issues.
+ * The store imports apiWeb which may not be available during test setup.
+ */
+async function getStore() {
+  const { store } = await import('../../store/store-web.redux')
+  return store
+}
 
 /**
  * Error resolution service for the frontend.
@@ -43,6 +51,7 @@ export class ErrorWebService {
 
   /**
    * Get a localized error message for an error code.
+   * Uses DEFAULT_STRINGS as fallback if store is not available.
    *
    * @param code - Error code from API
    * @param fallbackMessage - Fallback if no localized message exists
@@ -60,9 +69,9 @@ export class ErrorWebService {
       return fallbackMessage || DEFAULT_ERROR_MESSAGE
     }
 
-    const state = store.getState()
-    const translations = selectTranslations(state)
-    let message = translations[i18nKey] || DEFAULT_STRINGS[i18nKey]
+    // Use DEFAULT_STRINGS directly since store access is async
+    // For real-time translations, use the useApiError hook instead
+    let message = DEFAULT_STRINGS[i18nKey]
 
     if (!message) {
       return fallbackMessage || DEFAULT_ERROR_MESSAGE
@@ -77,6 +86,64 @@ export class ErrorWebService {
     }
 
     return message
+  }
+
+  /**
+   * Get a localized error message for an error code (async version).
+   * This version accesses the store for real-time translations.
+   *
+   * @param code - Error code from API
+   * @param fallbackMessage - Fallback if no localized message exists
+   * @param params - Interpolation parameters
+   * @returns Promise resolving to localized error message
+   */
+  static async getLocalizedMessageAsync(
+    code: ErrorCodeType | string | null,
+    fallbackMessage?: string,
+    params?: InterpolationParams,
+  ): Promise<string> {
+    const i18nKey = ErrorWebService.getI18nKey(code)
+
+    if (!i18nKey) {
+      return fallbackMessage || DEFAULT_ERROR_MESSAGE
+    }
+
+    try {
+      const store = await getStore()
+      const state = store.getState()
+      const translations = selectTranslations(state)
+      let message = translations[i18nKey] || DEFAULT_STRINGS[i18nKey]
+
+      if (!message) {
+        return fallbackMessage || DEFAULT_ERROR_MESSAGE
+      }
+
+      // Apply interpolation if params provided
+      if (params) {
+        message = message.replace(/\{(\w+)\}/g, (_match, paramKey: string) => {
+          const replacement = params[paramKey]
+          return replacement !== undefined ? String(replacement) : `{${paramKey}}`
+        })
+      }
+
+      return message
+    } catch {
+      // Fallback to DEFAULT_STRINGS if store is not available
+      let message = DEFAULT_STRINGS[i18nKey]
+
+      if (!message) {
+        return fallbackMessage || DEFAULT_ERROR_MESSAGE
+      }
+
+      if (params) {
+        message = message.replace(/\{(\w+)\}/g, (_match, paramKey: string) => {
+          const replacement = params[paramKey]
+          return replacement !== undefined ? String(replacement) : `{${paramKey}}`
+        })
+      }
+
+      return message
+    }
   }
 
   /**

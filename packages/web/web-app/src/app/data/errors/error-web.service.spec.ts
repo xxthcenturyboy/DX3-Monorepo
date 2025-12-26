@@ -9,29 +9,6 @@ import { ERROR_CODES } from '@dx3/models-shared'
 import { DEFAULT_STRINGS } from '../../i18n'
 import { ErrorWebService } from './error-web.service'
 
-// Mock the store
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: jest.fn(() => ({
-      i18n: {
-        currentLocale: 'en',
-        defaultLocale: 'en',
-        defaultTranslations: {},
-        error: null,
-        isInitialized: true,
-        isLoading: false,
-        translations: {
-          AUTH_FAILED: 'Authentication failed. Please try again.',
-          AUTH_INVALID_CREDENTIALS: 'Invalid username or password.',
-          GENERIC: 'An error occurred. Please try again.',
-          MEDIA_FILE_SIZE_EXCEEDED: 'File too large. Maximum size is {max} MB.',
-          USER_NOT_FOUND: 'User not found.',
-        },
-      },
-    })),
-  },
-}))
-
 describe('ErrorWebService', () => {
   describe('getI18nKey', () => {
     it('should return i18n key for valid error code', () => {
@@ -92,20 +69,20 @@ describe('ErrorWebService', () => {
   })
 
   describe('getLocalizedMessage', () => {
-    it('should return localized message for valid code', () => {
+    it('should return localized message for valid code from DEFAULT_STRINGS', () => {
       // act
       const result = ErrorWebService.getLocalizedMessage(ERROR_CODES.AUTH_FAILED)
 
       // assert
-      expect(result).toBe('Authentication failed. Please try again.')
+      expect(result).toBe(DEFAULT_STRINGS.AUTH_FAILED)
     })
 
-    it('should return localized message for user error', () => {
+    it('should return localized message for user error from DEFAULT_STRINGS', () => {
       // act
       const result = ErrorWebService.getLocalizedMessage(ERROR_CODES.USER_NOT_FOUND)
 
       // assert
-      expect(result).toBe('User not found.')
+      expect(result).toBe(DEFAULT_STRINGS.USER_NOT_FOUND)
     })
 
     it('should return fallback message for null code', () => {
@@ -137,7 +114,7 @@ describe('ErrorWebService', () => {
       const result = ErrorWebService.getLocalizedMessage(
         ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
         undefined,
-        { max: 50 }
+        { max: 50 },
       )
 
       // assert
@@ -149,7 +126,7 @@ describe('ErrorWebService', () => {
       const result = ErrorWebService.getLocalizedMessage(
         ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
         undefined,
-        {}
+        {},
       )
 
       // assert
@@ -161,7 +138,7 @@ describe('ErrorWebService', () => {
       const result = ErrorWebService.getLocalizedMessage(
         ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
         undefined,
-        { max: '100' }
+        { max: '100' },
       )
 
       // assert
@@ -180,7 +157,7 @@ describe('ErrorWebService', () => {
       // assert
       expect(result.code).toBe('100')
       expect(result.originalMessage).toBe('Auth failed')
-      expect(result.localizedMessage).toBe('Authentication failed. Please try again.')
+      expect(result.localizedMessage).toBe(DEFAULT_STRINGS.AUTH_FAILED)
     })
 
     it('should handle error without code prefix', () => {
@@ -244,7 +221,7 @@ describe('ErrorWebService', () => {
 
       // assert
       expect(result.code).toBe('302')
-      expect(result.localizedMessage).toBe('User not found.')
+      expect(result.localizedMessage).toBe(DEFAULT_STRINGS.USER_NOT_FOUND)
     })
 
     it('should parse authentication error codes', () => {
@@ -256,7 +233,7 @@ describe('ErrorWebService', () => {
 
       // assert
       expect(result.code).toBe('101')
-      expect(result.localizedMessage).toBe('Invalid username or password.')
+      expect(result.localizedMessage).toBe(DEFAULT_STRINGS.AUTH_INVALID_CREDENTIALS)
     })
   })
 

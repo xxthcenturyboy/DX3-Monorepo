@@ -30,7 +30,7 @@ const createMockStore = (initialState: Partial<I18nStateType> = {}) => {
 // Wrapper component for hooks
 const createWrapper = (store: ReturnType<typeof createMockStore>) => {
   return function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(Provider, { store }, children)
+    return React.createElement(Provider, { children, store })
   }
 }
 
@@ -109,22 +109,21 @@ describe('i18n Hooks', () => {
       expect(result.current.t('LOGIN')).toBe('Login')
     })
 
-    it('should return key when translation missing', () => {
+    it('should fallback to DEFAULT_STRINGS when translation missing from store', () => {
       // arrange
+      // Even with empty translations in store, makeSelectTranslation falls back to DEFAULT_STRINGS
       const store = createMockStore({
         defaultTranslations: {} as typeof DEFAULT_STRINGS,
         translations: {} as typeof DEFAULT_STRINGS,
       })
       const wrapper = createWrapper(store)
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
 
       // act
       const { result } = renderHook(() => useI18n(), { wrapper })
 
       // assert
-      expect(result.current.t('LOGIN')).toBe('LOGIN')
-
-      consoleSpy.mockRestore()
+      // Falls back to DEFAULT_STRINGS which contains 'Login' for the 'LOGIN' key
+      expect(result.current.t('LOGIN')).toBe('Login')
     })
   })
 

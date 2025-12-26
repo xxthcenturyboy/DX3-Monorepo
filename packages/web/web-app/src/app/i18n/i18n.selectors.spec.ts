@@ -12,7 +12,7 @@ import {
   selectIsLoading,
   selectTranslations,
 } from './i18n.selectors'
-import type { I18nStateType } from './i18n.types'
+import type { I18nStateType, StringKeys } from './i18n.types'
 
 // Mock RootState type for testing
 type MockRootState = {
@@ -142,10 +142,9 @@ describe('i18n Selectors', () => {
 
     it('should fallback to default when translation missing', () => {
       // arrange
-      const partialTranslations = { ...DEFAULT_STRINGS }
-      // @ts-expect-error - Testing fallback behavior
+      const partialTranslations = { ...DEFAULT_STRINGS } as Record<string, string>
       delete partialTranslations.LOGIN
-      const state = createMockState({ translations: partialTranslations })
+      const state = createMockState({ translations: partialTranslations as unknown as StringKeys })
       const selector = makeSelectTranslation('LOGIN')
 
       // act
@@ -155,22 +154,21 @@ describe('i18n Selectors', () => {
       expect(result).toBe('Login')
     })
 
-    it('should return key when no translation found', () => {
+    it('should fallback to DEFAULT_STRINGS when translation missing from state', () => {
       // arrange
+      // Even with empty translations in state, makeSelectTranslation falls back to DEFAULT_STRINGS
       const state = createMockState({
         defaultTranslations: {} as typeof DEFAULT_STRINGS,
         translations: {} as typeof DEFAULT_STRINGS,
       })
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation()
       const selector = makeSelectTranslation('LOGIN')
 
       // act
       const result = selector(state as never)
 
       // assert
-      expect(result).toBe('LOGIN')
-
-      consoleSpy.mockRestore()
+      // Falls back to DEFAULT_STRINGS which contains 'Login' for the 'LOGIN' key
+      expect(result).toBe('Login')
     })
 
     it('should preserve placeholder when param missing', () => {

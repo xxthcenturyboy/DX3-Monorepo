@@ -4,6 +4,7 @@ import { authReducer } from '../../auth/auth-web.reducer'
 import { dashboardReducer } from '../../dashboard/dashboard-web.reducer'
 import { apiWeb } from '../../data/rtk-query/web.api'
 import { homeReducer } from '../../home/home-web.reducer'
+import { i18nReducer } from '../../i18n/i18n.reducer'
 import { mediaReducer } from '../../media/media-web.reducer'
 import { notificationReducer } from '../../notifications/notification-web.reducer'
 import { statsReducer } from '../../stats/stats-web.reducer'
@@ -17,6 +18,7 @@ export const rootReducer = combineReducers({
   auth: authReducer,
   dashboard: dashboardReducer,
   home: homeReducer,
+  i18n: i18nReducer,
   media: mediaReducer,
   notification: notificationReducer,
   privileges: privilegeSetReducer,
