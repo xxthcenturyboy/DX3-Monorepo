@@ -72,7 +72,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
       data: _sendToAllResponse,
       error: sendToAllError,
       isLoading: isLoadingSendToAll,
-      isSuccess: _sendToAllSuccess,
+      isSuccess: sendToAllSuccess,
       isUninitialized: sendToAllUninitialized,
     },
   ] = useSendNotificationToAllMutation()
@@ -82,7 +82,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
       data: _sendToUserResponse,
       error: sendToUserError,
       isLoading: isLoadingSendToUser,
-      isSuccess: _sendToUserSuccess,
+      isSuccess: sendToUserSuccess,
       isUninitialized: sendToUserUninitialized,
     },
   ] = useSendNotificationToUserMutation()
@@ -91,7 +91,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
 
   React.useEffect(() => {
     if (!isLoadingSendToUser && !sendToUserUninitialized) {
-      if (!sendToUserError) {
+      if (sendToUserSuccess && !sendToUserError) {
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
@@ -101,11 +101,11 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         setShowLottieError(true)
       }
     }
-  }, [isLoadingSendToUser, sendToUserError, sendToUserUninitialized])
+  }, [isLoadingSendToUser, sendToUserError, sendToUserUninitialized, sendToUserSuccess])
 
   React.useEffect(() => {
     if (!isLoadingSendToAll && !sendToAllUninitialized) {
-      if (!sendToAllError) {
+      if (sendToAllSuccess && !sendToAllError) {
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
@@ -118,6 +118,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
   }, [isLoadingSendToAll, sendToAllError, sendToAllUninitialized])
 
   const handleClose = (): void => {
+    console.log('tryna close')
     dispatch(uiActions.appDialogSet(null))
   }
 
