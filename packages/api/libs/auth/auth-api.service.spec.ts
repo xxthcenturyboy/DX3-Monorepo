@@ -308,7 +308,7 @@ describe('AuthService', () => {
         password: 'password123',
         value: 'some-user',
       }
-      await expect(authService.login(payload)).rejects.toThrow('100 Could not log you in.')
+      await expect(authService.login(payload)).rejects.toThrow('101 Could not log you in.')
     })
   })
 

@@ -17,11 +17,13 @@ describe('NOTIFICATION_ERRORS ', () => {
     // arrange
     // act
     // assert
-    expect(NOTIFICATION_ERRORS.MISSING_PARAMS).toEqual('100 Missing Required Params.')
-    expect(NOTIFICATION_ERRORS.MISSING_USER_ID).toEqual(
-      '101 User ID required to fetch Notifications by User ID.',
+    expect(NOTIFICATION_ERRORS.MISSING_PARAMS).toEqual(
+      '601 Missing required notification parameters.',
     )
-    expect(NOTIFICATION_ERRORS.SERVER_ERROR).toEqual('102 Server error in Notifications')
+    expect(NOTIFICATION_ERRORS.MISSING_USER_ID).toEqual(
+      '602 User ID required for this notification.',
+    )
+    expect(NOTIFICATION_ERRORS.SERVER_ERROR).toEqual('603 Notification service error.')
   })
 })
 

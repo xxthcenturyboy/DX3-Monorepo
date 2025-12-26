@@ -81,7 +81,7 @@ describe('UploadMiddleware.multipleFiles', () => {
     await UploadMiddleware.multipleFiles(request, res, nxt)
 
     // Assert
-    expect(request.uploads?.err?.message).toEqual('100 File upload count exceeded.')
+    expect(request.uploads?.err?.message).toEqual('200 File upload count exceeded.')
   })
 
   it('should handle maxTotalFileSize error', async () => {
@@ -100,7 +100,7 @@ describe('UploadMiddleware.multipleFiles', () => {
     await UploadMiddleware.multipleFiles(request, res, nxt)
 
     // Assert
-    expect(request.uploads?.err?.message).toEqual('101 File size limit exceeded.')
+    expect(request.uploads?.err?.message).toEqual('201 File size limit exceeded.')
   })
 })
 
@@ -175,7 +175,7 @@ describe('UploadMiddleware.singleFile', () => {
 
     // Assert
     expect(nxt).toHaveBeenCalled()
-    expect(request.uploads?.err?.message).toEqual('100 File upload count exceeded.')
+    expect(request.uploads?.err?.message).toEqual('200 File upload count exceeded.')
   })
 
   it('should handle maxTotalFileSize error', async () => {
@@ -195,6 +195,6 @@ describe('UploadMiddleware.singleFile', () => {
 
     // Assert
     expect(nxt).toHaveBeenCalled()
-    expect(request.uploads?.err?.message).toEqual('101 File size limit exceeded.')
+    expect(request.uploads?.err?.message).toEqual('201 File size limit exceeded.')
   })
 })

@@ -6,7 +6,7 @@ import { Response } from 'jest-express/lib/response'
 import { TEST_EXISTING_USER_ID, TEST_UUID } from '@dx3/test-data'
 
 import { CookeiService } from '../../cookies/cookie.service'
-import { sendForbidden } from '../../http-response/http-responses'
+import { sendForbiddenWithCode } from '../../http-response/http-responses'
 import { ApiLoggingClass } from '../../logger'
 import { TokenService } from '../tokens/token.service'
 import { ensureLoggedIn } from './ensure-logged-in.middleware'
@@ -56,7 +56,7 @@ describe('ensureLoggedIn', () => {
     await ensureLoggedIn(req, res, next)
     // assert
     expect(logErrorSpy).toHaveBeenCalled()
-    expect(sendForbidden).toHaveBeenCalled()
+    expect(sendForbiddenWithCode).toHaveBeenCalled()
   })
 
   test('should sendUnauthorized when token is invalid', async () => {
@@ -68,6 +68,6 @@ describe('ensureLoggedIn', () => {
     await ensureLoggedIn(req, res, next)
     // assert
     expect(logErrorSpy).toHaveBeenCalled()
-    expect(sendForbidden).toHaveBeenCalled()
+    expect(sendForbiddenWithCode).toHaveBeenCalled()
   })
 })
