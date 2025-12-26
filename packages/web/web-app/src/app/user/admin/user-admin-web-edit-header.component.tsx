@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 
 import { WebConfigService } from '../../config/config-web.service'
-import type { RootState } from '../../store/store-web.redux'
+import { useString } from '../../i18n'
 import { useAppSelector } from '../../store/store-web.redux'
 import { selectUserFormatted } from './user-admin-web.selectors'
 
@@ -15,9 +15,8 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
   const username = useAppSelector((state) => state.userAdmin.user?.fullName)
-  const TITLE_STRING =
-    useAppSelector((state: RootState) => state.ui.strings.UserEditAdmin) || 'Edit User'
-  const TITLE = username ? `${TITLE_STRING} - ${username}` : TITLE_STRING
+  const titleString = useString('PAGE_TITLE_EDIT_USER')
+  const title = username ? `${titleString} - ${username}` : titleString
   const user = useAppSelector((state) => selectUserFormatted(state))
   const ROUTES = WebConfigService.getWebRoutes()
 
@@ -54,9 +53,8 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
           )}
         </>
       }
-      headerTitle={TITLE}
+      headerTitle={title}
       navigation={() => navigate(ROUTES.ADMIN.USER.LIST)}
-      tooltip={useAppSelector((state) => state.ui.strings.UserEditAdminTooltip)}
     />
   )
 }

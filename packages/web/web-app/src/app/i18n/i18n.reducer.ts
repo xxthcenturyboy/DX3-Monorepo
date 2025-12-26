@@ -35,11 +35,11 @@ export const i18nInitialState: I18nStateType = {
  */
 export const i18nPersistConfig: PersistConfig<I18nStateType> = {
   blacklist: [
-    'translations',
     'defaultTranslations',
-    'isLoading',
-    'isInitialized',
     'error',
+    'isInitialized',
+    'isLoading',
+    'translations',
   ],
   key: `${APP_PREFIX}:${I18N_ENTITY_NAME}`,
   stateReconciler: autoMergeLevel1,
@@ -53,60 +53,36 @@ const i18nSlice = createSlice({
   initialState: i18nInitialState,
   name: I18N_ENTITY_NAME,
   reducers: {
-    /**
-     * Set loading state while fetching translations.
-     */
+    reset(state) {
+      state.currentLocale = DEFAULT_LOCALE
+      state.error = null
+      state.isInitialized = false
+      state.isLoading = false
+      state.translations = null
+    },
+    setCurrentLocale(state, action: PayloadAction<LocaleCode>) {
+      state.currentLocale = action.payload
+    },
+    setError(state, action: PayloadAction<string>) {
+      state.error = action.payload
+      state.isInitialized = true
+      state.isLoading = false
+      state.translations = state.defaultTranslations
+    },
+    setInitialized(state, action: PayloadAction<boolean>) {
+      state.isInitialized = action.payload
+    },
     setLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload
       if (action.payload) {
         state.error = null
       }
     },
-
-    /**
-     * Set translations after successful load.
-     */
     setTranslations(state, action: PayloadAction<StringKeys>) {
+      state.error = null
+      state.isInitialized = true
+      state.isLoading = false
       state.translations = action.payload
-      state.isLoading = false
-      state.isInitialized = true
-      state.error = null
-    },
-
-    /**
-     * Set current locale code.
-     */
-    setCurrentLocale(state, action: PayloadAction<LocaleCode>) {
-      state.currentLocale = action.payload
-    },
-
-    /**
-     * Set error state when translation loading fails.
-     */
-    setError(state, action: PayloadAction<string>) {
-      state.error = action.payload
-      state.isLoading = false
-      // Fall back to default translations on error
-      state.translations = state.defaultTranslations
-      state.isInitialized = true
-    },
-
-    /**
-     * Reset i18n state to initial values.
-     */
-    reset(state) {
-      state.currentLocale = DEFAULT_LOCALE
-      state.translations = null
-      state.isLoading = false
-      state.isInitialized = false
-      state.error = null
-    },
-
-    /**
-     * Mark i18n system as initialized.
-     */
-    setInitialized(state, action: PayloadAction<boolean>) {
-      state.isInitialized = action.payload
     },
   },
 })

@@ -22,49 +22,6 @@ import type {
 const selectI18nState = (state: RootState): I18nStateType => state.i18n
 
 /**
- * Select current locale code.
- */
-export const selectCurrentLocale = createSelector(
-  [selectI18nState],
-  (i18n): LocaleCode => i18n.currentLocale
-)
-
-/**
- * Select whether translations are loading.
- */
-export const selectIsLoading = createSelector(
-  [selectI18nState],
-  (i18n): boolean => i18n.isLoading
-)
-
-/**
- * Select whether i18n system is initialized.
- */
-export const selectIsInitialized = createSelector(
-  [selectI18nState],
-  (i18n): boolean => i18n.isInitialized
-)
-
-/**
- * Select any loading error.
- */
-export const selectError = createSelector(
-  [selectI18nState],
-  (i18n): string | null => i18n.error
-)
-
-/**
- * Select active translations with fallback chain.
- * Priority: loaded translations → default translations → bundled defaults
- */
-export const selectTranslations = createSelector(
-  [selectI18nState],
-  (i18n): StringKeys => {
-    return i18n.translations ?? i18n.defaultTranslations ?? DEFAULT_STRINGS
-  }
-)
-
-/**
  * Create a selector for a specific translation key with interpolation support.
  * This is a factory function that returns a selector.
  *
@@ -79,18 +36,15 @@ export const makeSelectTranslation = (
   createSelector([selectTranslations], (translations): string => {
     let value = translations[key]
 
-    // Fallback chain: translation → default → key itself
     if (value === undefined || value === null) {
       value = DEFAULT_STRINGS[key]
     }
 
     if (value === undefined || value === null) {
-      // Ultimate fallback: return the key itself (useful for debugging)
       console.warn(`[i18n] Missing translation for key: ${key}`)
       return key
     }
 
-    // Apply interpolation if params provided
     if (params) {
       value = value.replace(INTERPOLATION_REGEX, (_match, paramKey: string) => {
         const replacement = params[paramKey]
@@ -104,3 +58,46 @@ export const makeSelectTranslation = (
 
     return value
   })
+
+/**
+ * Select current locale code.
+ */
+export const selectCurrentLocale = createSelector(
+  [selectI18nState],
+  (i18n): LocaleCode => i18n.currentLocale
+)
+
+/**
+ * Select any loading error.
+ */
+export const selectError = createSelector(
+  [selectI18nState],
+  (i18n): string | null => i18n.error
+)
+
+/**
+ * Select whether i18n system is initialized.
+ */
+export const selectIsInitialized = createSelector(
+  [selectI18nState],
+  (i18n): boolean => i18n.isInitialized
+)
+
+/**
+ * Select whether translations are loading.
+ */
+export const selectIsLoading = createSelector(
+  [selectI18nState],
+  (i18n): boolean => i18n.isLoading
+)
+
+/**
+ * Select active translations with fallback chain.
+ * Priority: loaded translations → default translations → bundled defaults
+ */
+export const selectTranslations = createSelector(
+  [selectI18nState],
+  (i18n): StringKeys => {
+    return i18n.translations ?? i18n.defaultTranslations ?? DEFAULT_STRINGS
+  }
+)

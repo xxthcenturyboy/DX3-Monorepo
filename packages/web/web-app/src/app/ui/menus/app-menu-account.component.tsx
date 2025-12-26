@@ -8,6 +8,7 @@ import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { LogoutButton } from '../../auth/auth-web-logout.button'
 import { WebConfigService } from '../../config/config-web.service'
+import { useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { UserProfileAvatar } from '../../user/profile/user-profile-web-avatar.component'
 import {
@@ -27,6 +28,7 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const ROUTES = WebConfigService.getWebRoutes()
   const navigate = useNavigate()
+  const strings = useStrings(['ACCOUNT_MENU', 'PROFILE'])
 
   React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
@@ -68,7 +70,7 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
             fontWeight={700}
             variant="body1"
           >
-            Account Menu
+            {strings.ACCOUNT_MENU}
           </Typography>
         </Grid>
       </StyledAccountActionArea>
@@ -89,7 +91,7 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
               />
             </Grid>
             <Grid>
-              <Typography variant="body2">Profile</Typography>
+              <Typography variant="body2">{strings.PROFILE}</Typography>
             </Grid>
           </Grid>
         </StyledAccountMenuListItem>

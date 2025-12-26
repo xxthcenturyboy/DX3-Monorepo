@@ -2,11 +2,10 @@ import type * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 
-import type { RootState } from '../store/store-web.redux'
-import { useAppSelector } from '../store/store-web.redux'
+import { useString } from '../i18n'
 
 export const DashboardHeaderComponent: React.FC = () => {
-  const TITLE = useAppSelector((state: RootState) => state.ui.strings.Dashboard) || 'Dashboard'
+  const title = useString('PAGE_TITLE_DASHBOARD')
 
   return (
     <ContentHeader
@@ -20,8 +19,7 @@ export const DashboardHeaderComponent: React.FC = () => {
         },
       }}
       headerContent={<></>}
-      headerTitle={TITLE}
-      tooltip={useAppSelector((state) => state.ui.strings.Dashboard)}
+      headerTitle={title}
     />
   )
 }

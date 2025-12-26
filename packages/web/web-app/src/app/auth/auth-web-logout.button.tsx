@@ -8,6 +8,7 @@ import { logger } from '@dx3/web-libs/logger'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 
 import { WebConfigService } from '../config/config-web.service'
+import { useStrings } from '../i18n'
 import { useAppDispatch } from '../store/store-web-redux.hooks'
 import { StyledAccountMenuListItem } from '../ui/menus/app-menu-account.ui'
 import { uiActions } from '../ui/store/ui-web.reducer'
@@ -24,6 +25,7 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
   const navigate = useNavigate()
   const [requestLogout] = useLogoutMutation()
   const ROUTES = WebConfigService.getWebRoutes()
+  const strings = useStrings(['CANCEL', 'LOG_OUT', 'LOGOUT', 'COULD_NOT_LOGOUT'])
 
   const logout = async (): Promise<void> => {
     if (onLocalClick && typeof onLocalClick === 'function') {
@@ -34,10 +36,10 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
       dispatch(
         uiActions.appDialogSet(
           <ConfirmationDialog
-            cancelText="Cancel"
+            cancelText={strings.CANCEL}
             noAwait={true}
             // bodyMessage="Is it really time to go?"
-            okText="Log Out"
+            okText={strings.LOG_OUT}
             onComplete={async (isConfirmed: boolean) => {
               if (isConfirmed) {
                 try {
@@ -53,7 +55,7 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
                   setTimeout(() => dispatch(uiActions.appDialogSet(null)), 1500)
                 } catch (err) {
                   logger.error(err)
-                  toast.warn('Could not complete the logout request.')
+                  toast.warn(strings.COULD_NOT_LOGOUT)
                 }
               }
 
@@ -82,7 +84,7 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
             <LogoutIcon />
           </Grid>
           <Grid>
-            <Typography variant="body2">Logout</Typography>
+            <Typography variant="body2">{strings.LOGOUT}</Typography>
           </Grid>
         </Grid>
       </StyledAccountMenuListItem>
@@ -95,10 +97,10 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
         endIcon={<LogoutIcon />}
         onClick={logout}
       >
-        Logout
+        {strings.LOGOUT}
       </Button>
     )
   }
 
-  return <Button onClick={logout}>Logout</Button>
+  return <Button onClick={logout}>{strings.LOGOUT}</Button>
 }

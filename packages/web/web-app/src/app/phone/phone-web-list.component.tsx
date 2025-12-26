@@ -19,6 +19,7 @@ import type React from 'react'
 
 import type { PhoneType } from '@dx3/models-shared'
 
+import { useStrings } from '../i18n'
 import { useAppDispatch } from '../store/store-web-redux.hooks'
 import { uiActions } from '../ui/store/ui-web.reducer'
 import { AddPhoneDialog } from './phone-web-create.dialog'
@@ -35,6 +36,14 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
   const { phones, userId, phoneDataCallback, phoneDeleteCallback } = props
   const dispatch = useAppDispatch()
   const rowHeight = '32px'
+  const strings = useStrings([
+    'DEFAULT',
+    'NEW_PHONE',
+    'NO_DATA',
+    'PHONES',
+    'TOOLTIP_DELETE_PHONE',
+    'VERIFIED',
+  ])
 
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
     // hide last border
@@ -73,7 +82,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
               color="primary"
               variant="h6"
             >
-              Phones
+              {strings.PHONES}
             </Typography>
           </Grid>
           {/* New Phone */}
@@ -93,7 +102,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
               size={'small'}
               variant="contained"
             >
-              New Phone
+              {strings.NEW_PHONE}
             </Button>
           </Grid>
         </Grid>
@@ -118,7 +127,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                         textAlign: 'center',
                       }}
                     >
-                      No Data
+                      {strings.NO_DATA}
                     </TableCell>
                   </StyledTableRow>
                 ))}
@@ -165,7 +174,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                         {phone.isVerified && (
                           <Chip
                             color="success"
-                            label="Verified"
+                            label={strings.VERIFIED}
                             sx={{
                               height: '20px',
                               marginRight: '10px',
@@ -175,7 +184,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                         {phone.default && (
                           <Chip
                             color="info"
-                            label="Default"
+                            label={strings.DEFAULT}
                             sx={{
                               height: '20px',
                               marginRight: '10px',
@@ -183,7 +192,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                           />
                         )}
                         {!phone.default && (
-                          <Tooltip title="Delete Phone">
+                          <Tooltip title={strings.TOOLTIP_DELETE_PHONE}>
                             <Delete
                               color="primary"
                               onClick={(event: React.SyntheticEvent) => {

@@ -15,7 +15,7 @@ import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component
 import { useFocus } from '@dx3/web-libs/ui/system/hooks/use-focus.hook'
 import { debounce } from '@dx3/web-libs/utils/debounce'
 
-import type { RootState } from '../../store/store-web.redux'
+import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
 import { DEBOUNCE } from '../../ui/ui-web.consts'
 import { userAdminActions } from './user-admin-web.reducer'
@@ -33,7 +33,7 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
   const dispatch = useAppDispatch()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const TITLE = useAppSelector((state: RootState) => state.ui.strings.UserListAdmin) || 'Users'
+  const strings = useStrings(['PAGE_TITLE_ADMIN_USERS', 'FILTER', 'TOOLTIP_REFRESH_LIST'])
 
   const debounceFetch = useRef(
     debounce((value: string) => {
@@ -97,7 +97,7 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
                 id="input-filter"
                 name="input-filter"
                 onChange={handleFilterValueChange}
-                placeholder={'Filter'}
+                placeholder={strings.FILTER}
                 ref={searchInputRef}
                 size="small"
                 type="search"
@@ -115,32 +115,15 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
                   boxShadow: 1,
                 }}
               >
-                <Tooltip title="Refresh List">
+                <Tooltip title={strings.TOOLTIP_REFRESH_LIST}>
                   <Cached />
                 </Tooltip>
               </IconButton>
             </span>
           </Grid>
-          {/* New User */}
-          {/* <Grid
-            style={{
-              width: SM_BREAK ? '100%' : '',
-              marginBottom: SM_BREAK ? '20px' : ''
-            }}
-          >
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => navigate(`${ROUTES.ADMIN.USER.DETAIL}`)}
-              disabled={userGetXhr}
-              fullWidth={SM_BREAK}
-            >
-              Create User
-            </Button>
-          </Grid> */}
         </Grid>
       }
-      headerTitle={TITLE}
+      headerTitle={strings.PAGE_TITLE_ADMIN_USERS}
     />
   )
 }

@@ -30,20 +30,13 @@ import type {
  * Return type for useI18n hook.
  */
 export type UseI18nResult = {
-  /** Translation function with interpolation support */
-  t: TranslateFn
-  /** Current locale code */
-  locale: LocaleCode
-  /** Whether translations are loading */
-  isLoading: boolean
-  /** Whether i18n is initialized */
-  isInitialized: boolean
-  /** Any loading error */
-  error: string | null
-  /** All loaded translations */
-  translations: StringKeys
-  /** Function to change locale */
   changeLocale: (locale: LocaleCode) => Promise<void>
+  error: string | null
+  isInitialized: boolean
+  isLoading: boolean
+  locale: LocaleCode
+  t: TranslateFn
+  translations: StringKeys
 }
 
 /**

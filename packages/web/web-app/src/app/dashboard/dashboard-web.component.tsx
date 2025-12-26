@@ -4,13 +4,16 @@ import * as React from 'react'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { WelcomeRobotLottie } from '@dx3/web-libs/ui/lottie/welcome-robot.lottie'
 
+import { useStrings } from '../i18n'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { DashboardHeaderComponent } from './dashboard-header.component'
 
 export const Dashboard: React.FC = () => {
+  const strings = useStrings(['PAGE_TITLE_DASHBOARD', 'DASHBOARD_WELCOME'])
+
   React.useEffect(() => {
-    setDocumentTitle('Dashboard')
-  }, [])
+    setDocumentTitle(strings.PAGE_TITLE_DASHBOARD)
+  }, [strings.PAGE_TITLE_DASHBOARD])
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -38,7 +41,7 @@ export const Dashboard: React.FC = () => {
           margin="15px"
           variant="h5"
         >
-          Have a look around.
+          {strings.DASHBOARD_WELCOME}
         </Typography>
       </Grid>
     </ContentWrapper>

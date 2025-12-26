@@ -8,6 +8,7 @@ import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts
 
 import { loginBootstrap } from '../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../config/config-web.service'
+import { useString } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
@@ -26,7 +27,7 @@ export const WebLogin: React.FC = () => {
   const logo = useAppSelector((state) => state.ui.logoUrl)
   // const windowHeight = useAppSelector(state => state.ui.windowHeight) || 0;
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
-  const stringLogin = useAppSelector((state) => state.ui.strings.LOGIN)
+  const stringLogin = useString('LOGIN')
   const location = useLocation()
   const navigate = useNavigate()
   const lastPath = location.pathname

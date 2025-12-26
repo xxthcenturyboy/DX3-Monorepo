@@ -4,8 +4,7 @@ import type * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 
-import type { RootState } from '../store/store-web.redux'
-import { useAppSelector } from '../store/store-web.redux'
+import { useStrings } from '../i18n'
 import type { useLazyGetApiHealthzQuery } from './stats-web.api'
 
 /**
@@ -17,7 +16,7 @@ type StatsHeaderComponentProps = {
 }
 
 export const StatsHeaderComponent: React.FC<StatsHeaderComponentProps> = (props) => {
-  const TITLE = useAppSelector((state: RootState) => state.ui.strings.ApiHealth) || 'API Health'
+  const strings = useStrings(['PAGE_TITLE_API_HEALTH', 'TOOLTIP_REFRESH_DATA'])
 
   return (
     <ContentHeader
@@ -31,7 +30,7 @@ export const StatsHeaderComponent: React.FC<StatsHeaderComponentProps> = (props)
         },
       }}
       headerContent={
-        <Tooltip title="Refresh Data">
+        <Tooltip title={strings.TOOLTIP_REFRESH_DATA}>
           <IconButton
             color="primary"
             onClick={(event: React.SyntheticEvent) => {
@@ -46,8 +45,7 @@ export const StatsHeaderComponent: React.FC<StatsHeaderComponentProps> = (props)
           </IconButton>
         </Tooltip>
       }
-      headerTitle={TITLE}
-      tooltip={useAppSelector((state) => state.ui.strings.ApiHealthTooltip)}
+      headerTitle={strings.PAGE_TITLE_API_HEALTH}
     />
   )
 }

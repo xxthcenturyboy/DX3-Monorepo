@@ -19,6 +19,7 @@ import type React from 'react'
 
 import type { EmailType } from '@dx3/models-shared'
 
+import { useStrings } from '../i18n'
 import { useAppDispatch } from '../store/store-web-redux.hooks'
 import { uiActions } from '../ui/store/ui-web.reducer'
 import { AddEmailDialog } from './email-web-create.dialog'
@@ -35,6 +36,14 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
   const { emails, userId, emailDataCallback, emailDeleteCallback } = props
   const dispatch = useAppDispatch()
   const rowHeight = '32px'
+  const strings = useStrings([
+    'DEFAULT',
+    'EMAILS',
+    'NEW_EMAIL',
+    'NO_DATA',
+    'TOOLTIP_DELETE_EMAIL',
+    'VERIFIED',
+  ])
 
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
     // hide last border
@@ -73,7 +82,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
               color="primary"
               variant="h6"
             >
-              Emails
+              {strings.EMAILS}
             </Typography>
           </Grid>
           {/* New Email */}
@@ -93,7 +102,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
               size={'small'}
               variant="contained"
             >
-              New Email
+              {strings.NEW_EMAIL}
             </Button>
           </Grid>
         </Grid>
@@ -118,7 +127,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                         textAlign: 'center',
                       }}
                     >
-                      No Data
+                      {strings.NO_DATA}
                     </TableCell>
                   </StyledTableRow>
                 ))}
@@ -165,7 +174,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                         {email.isVerified && (
                           <Chip
                             color="success"
-                            label="Verified"
+                            label={strings.VERIFIED}
                             sx={{
                               height: '20px',
                               marginRight: '10px',
@@ -175,7 +184,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                         {email.default && (
                           <Chip
                             color="info"
-                            label="Default"
+                            label={strings.DEFAULT}
                             sx={{
                               height: '20px',
                               marginRight: '10px',
@@ -183,7 +192,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                           />
                         )}
                         {!email.default && (
-                          <Tooltip title="Delete Email">
+                          <Tooltip title={strings.TOOLTIP_DELETE_EMAIL}>
                             <Delete
                               color="primary"
                               onClick={(event: React.SyntheticEvent) => {

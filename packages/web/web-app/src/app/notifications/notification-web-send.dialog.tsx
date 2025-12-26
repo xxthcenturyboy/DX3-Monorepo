@@ -26,6 +26,7 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
+import { useI18n, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { uiActions } from '../ui/store/ui-web.reducer'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
@@ -54,6 +55,17 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windwoHeight = useAppSelector((state) => selectWindowHeight(state))
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
+  const strings = useStrings([
+    'CANCEL',
+    'CLOSE',
+    'MESSAGE',
+    'SEND',
+    'SEND_PUSH_TO_PHONE',
+    'SEND_TO_ALL_USERS',
+    'TITLE',
+    'TYPE',
+  ])
   const [
     requestSendNotificationToAll,
     {
@@ -180,17 +192,17 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
               minWidth: 300,
             }}
           >
-            <InputLabel htmlFor="input-title">Title</InputLabel>
+            <InputLabel htmlFor="input-title">{strings.TITLE}</InputLabel>
             <OutlinedInput
               autoCapitalize="on"
               autoCorrect="on"
               fullWidth
               id="input-title"
               inputProps={{ maxLength: 30 }}
-              label={'Title'}
+              label={strings.TITLE}
               name="input-title"
               onChange={handleSetTitle}
-              placeholder={'Title'}
+              placeholder={strings.TITLE}
               type="text"
               value={title || ''}
             />
@@ -201,7 +213,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
                 margin: '6px 6px 0',
               }}
             >
-              {title.length ? `${30 - title.length} characters remaining.` : ''}
+              {title.length ? t('CHARACTERS_REMAINING', { count: 30 - title.length }) : ''}
             </span>
           </FormControl>
 
@@ -217,7 +229,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
               htmlFor="input-title"
               required
             >
-              Message
+              {strings.MESSAGE}
             </InputLabel>
             <OutlinedInput
               autoCapitalize="on"
@@ -225,11 +237,11 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
               fullWidth
               id="input-message"
               inputProps={{ maxLength: 255 }}
-              label={'Message'}
+              label={strings.MESSAGE}
               multiline
               name="input-message"
               onChange={handleSetMessage}
-              placeholder={'Message'}
+              placeholder={strings.MESSAGE}
               rows={4}
               // maxRows={4}
               type="text"
@@ -241,7 +253,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
                 margin: '6px',
               }}
             >
-              {`${255 - message.length} characters remaining.`}
+              {t('CHARACTERS_REMAINING', { count: 255 - message.length })}
             </span>
           </FormControl>
 
@@ -251,10 +263,10 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
             margin="normal"
             variant="outlined"
           >
-            <InputLabel htmlFor="level-select">Type</InputLabel>
+            <InputLabel htmlFor="level-select">{strings.TYPE}</InputLabel>
             <Select
               id="level-select"
-              label="Type"
+              label={strings.TYPE}
               name="level-select"
               notched
               onChange={handleChangeLevel}
@@ -282,7 +294,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
                 size="large"
               />
             }
-            label="Send Push Notification To Phone"
+            label={strings.SEND_PUSH_TO_PHONE}
           />
         </SendNotificationForm>
       </CustomDialogContent>
@@ -296,7 +308,9 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
           textAlign: 'center',
         }}
       >
-        {props.user ? `Send to: ${props.user.username}` : 'Send to all users'}
+        {props.user
+          ? t('SEND_TO_USER', { username: props.user.username })
+          : strings.SEND_TO_ALL_USERS}
       </DialogTitle>
       {!allSucceeded && !showLottieError && renderFormContent()}
       {showLottieError && (
@@ -329,7 +343,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
             onClick={handleClose}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && (
             <Button
@@ -344,7 +358,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
                   size={16}
                 />
               ) : (
-                'Send'
+                strings.SEND
               )}
             </Button>
           )}

@@ -5,6 +5,7 @@ import type { EmailType, MediaDataType, PhoneType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 
 import { EmailList } from '../../email/email-web-list.component'
+import { useStrings } from '../../i18n'
 import { Phonelist } from '../../phone/phone-web-list.component'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -22,10 +23,11 @@ export const UserProfile: React.FC = () => {
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const strings = useStrings(['PAGE_TITLE_PROFILE', 'TOGGLE_DARK_MODE'])
 
   React.useEffect(() => {
-    setDocumentTitle('Profile')
-  }, [])
+    setDocumentTitle(strings.PAGE_TITLE_PROFILE)
+  }, [strings.PAGE_TITLE_PROFILE])
 
   const toggleDarkMode = () => {
     if (appMode) {
@@ -165,7 +167,7 @@ export const UserProfile: React.FC = () => {
                   onClick={toggleDarkMode}
                   variant="outlined"
                 >
-                  Toggle Dark Mode
+                  {strings.TOGGLE_DARK_MODE}
                 </Button>
               </Grid>
             </Grid>

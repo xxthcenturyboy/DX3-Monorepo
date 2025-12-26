@@ -6,54 +6,46 @@
  */
 
 /**
+ * i18n State stored in Redux.
+ */
+export type I18nStateType = {
+  currentLocale: LocaleCode
+  defaultLocale: LocaleCode
+  defaultTranslations: StringKeys
+  error: string | null
+  isInitialized: boolean
+  isLoading: boolean
+  translations: StringKeys | null
+}
+
+/**
+ * Interpolation parameters type.
+ * Maps placeholder names to their replacement values.
+ */
+export type InterpolationParams = Record<string, string | number>
+
+/**
  * Available locale codes supported by the application.
  * Extend this union type as new locales are added.
  */
 export type LocaleCode = 'en'
 
 /**
- * String keys type - defines all available translation keys.
- * Each key maps to a string value that may contain interpolation placeholders.
- *
- * Interpolation syntax: {variableName}
- * Example: "Hello, {name}!" where name is passed as { name: 'Dan' }
+ * Locale metadata for manifest file.
  */
-export type StringKeys = {
-  // Authentication
-  COULD_NOT_LOG_YOU_IN: string
-  LOGIN: string
-  LOGOUT: string
-  PASSWORD: string
-  TRY_ANOTHER_WAY: string
-  USERNAME: string
+export type LocaleMetadata = {
+  code: LocaleCode
+  isRTL: boolean
+  name: string
+  nativeName: string
+}
 
-  // Common Actions
-  CANCEL: string
-  CONFIRM: string
-  DELETE: string
-  EDIT: string
-  SAVE: string
-  SUBMIT: string
-
-  // Common Labels
-  EMAIL: string
-  LOADING: string
-  NAME: string
-  PHONE: string
-
-  // Error Messages
-  ERROR_GENERIC: string
-  ERROR_NETWORK: string
-  ERROR_NOT_FOUND: string
-  ERROR_UNAUTHORIZED: string
-
-  // Success Messages
-  SUCCESS_SAVED: string
-  SUCCESS_DELETED: string
-
-  // Greetings (examples with interpolation)
-  GREETING: string
-  WELCOME_BACK: string
+/**
+ * Locales manifest structure.
+ */
+export type LocalesManifest = {
+  availableLocales: LocaleMetadata[]
+  defaultLocale: LocaleCode
 }
 
 /**
@@ -63,53 +55,96 @@ export type StringKeys = {
 export type StringKeyName = keyof StringKeys
 
 /**
- * Interpolation parameters type.
- * Maps placeholder names to their replacement values.
+ * String keys type - defines all available translation keys.
+ * Each key maps to a string value that may contain interpolation placeholders.
+ *
+ * Interpolation syntax: {variableName}
+ * Example: "Hello, {name}!" where name is passed as { name: 'Dan' }
  */
-export type InterpolationParams = Record<string, string | number>
-
-/**
- * i18n State stored in Redux.
- */
-export type I18nStateType = {
-  /** Current active locale code */
-  currentLocale: LocaleCode
-
-  /** Default/fallback locale code */
-  defaultLocale: LocaleCode
-
-  /** Loaded translations for current locale */
-  translations: StringKeys | null
-
-  /** Default translations (English) - always available as fallback */
-  defaultTranslations: StringKeys
-
-  /** Whether translations are currently loading */
-  isLoading: boolean
-
-  /** Whether the i18n system has been initialized */
-  isInitialized: boolean
-
-  /** Error message if loading failed */
-  error: string | null
-}
-
-/**
- * Locale metadata for manifest file.
- */
-export type LocaleMetadata = {
-  code: LocaleCode
-  name: string
-  nativeName: string
-  isRTL: boolean
-}
-
-/**
- * Locales manifest structure.
- */
-export type LocalesManifest = {
-  defaultLocale: LocaleCode
-  availableLocales: LocaleMetadata[]
+export type StringKeys = {
+  ACCOUNT_MENU: string
+  ADD: string
+  ARRAY_BUFFERS: string
+  BACK: string
+  CANCEL: string
+  CHANGE_PASSWORD: string
+  CHARACTERS_REMAINING: string
+  CLOSE: string
+  CONFIRM: string
+  CONFIRM_PASSWORD: string
+  COULD_NOT_LOG_YOU_IN: string
+  COULD_NOT_LOGOUT: string
+  CREATE: string
+  DASHBOARD_WELCOME: string
+  DEFAULT: string
+  DELETE: string
+  EDIT: string
+  EMAIL: string
+  EMAILS: string
+  ERROR_GENERIC: string
+  ERROR_NETWORK: string
+  ERROR_NOT_FOUND: string
+  ERROR_UNAUTHORIZED: string
+  EXTERNAL: string
+  FILTER: string
+  GET_CODE_VIA_EMAIL: string
+  GET_CODE_VIA_PHONE: string
+  GREETING: string
+  HEAP_TOTAL: string
+  HEAP_USED: string
+  LABEL: string
+  LOADING: string
+  LOG_OUT: string
+  LOGIN: string
+  LOGOUT: string
+  MESSAGE: string
+  NAME: string
+  NEW_EMAIL: string
+  NEW_PHONE: string
+  NO_DATA: string
+  OTP_CHOOSE_METHOD: string
+  PAGE_TITLE_ADMIN_USERS: string
+  PAGE_TITLE_API_HEALTH: string
+  PAGE_TITLE_DASHBOARD: string
+  PAGE_TITLE_EDIT_USER: string
+  PAGE_TITLE_PROFILE: string
+  PAGE_TITLE_USER_PROFILE: string
+  PASSWORD: string
+  PHONE: string
+  PHONES: string
+  PING: string
+  PROFILE: string
+  READ: string
+  REFRESH: string
+  RESTRICTIONS: string
+  ROLES: string
+  RSS: string
+  SAVE: string
+  SEND: string
+  SEND_CODE: string
+  SEND_PUSH_TO_PHONE: string
+  SEND_TO_ALL_USERS: string
+  SEND_TO_USER: string
+  START_OVER: string
+  STATUS: string
+  SUBMIT: string
+  SUCCESS_DELETED: string
+  SUCCESS_SAVED: string
+  TITLE: string
+  TOGGLE_DARK_MODE: string
+  TOOLTIP_DELETE_EMAIL: string
+  TOOLTIP_DELETE_PHONE: string
+  TOOLTIP_REFRESH_DATA: string
+  TOOLTIP_REFRESH_LIST: string
+  TRY_ANOTHER_WAY: string
+  TYPE: string
+  UPDATE: string
+  USERNAME: string
+  VERIFIED: string
+  VERIFY: string
+  VERSION: string
+  WELCOME_BACK: string
+  WRITE: string
 }
 
 /**

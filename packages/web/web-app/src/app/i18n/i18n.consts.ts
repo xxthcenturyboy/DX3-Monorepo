@@ -7,19 +7,104 @@
 import type { LocaleCode, StringKeys } from './i18n.types'
 
 /**
- * Entity name for Redux slice identification.
- */
-export const I18N_ENTITY_NAME = 'i18n' as const
-
-/**
  * Default locale code used as fallback.
  */
 export const DEFAULT_LOCALE: LocaleCode = 'en'
 
 /**
- * Base path for locale JSON files.
+ * Default English strings - bundled inline as ultimate fallback.
+ * These are always available even if network requests fail.
  */
-export const LOCALES_BASE_PATH = '/assets/locales'
+export const DEFAULT_STRINGS: StringKeys = {
+  ACCOUNT_MENU: 'Account Menu',
+  ADD: 'Add',
+  ARRAY_BUFFERS: 'Array Buffers',
+  BACK: 'Back',
+  CANCEL: 'Cancel',
+  CHANGE_PASSWORD: 'Change Password',
+  CHARACTERS_REMAINING: '{count} characters remaining.',
+  CLOSE: 'Close',
+  CONFIRM: 'Confirm',
+  CONFIRM_PASSWORD: 'Confirm Password',
+  COULD_NOT_LOG_YOU_IN: 'Could not log you in. Please try again.',
+  COULD_NOT_LOGOUT: 'Could not complete the logout request.',
+  CREATE: 'Create',
+  DASHBOARD_WELCOME: 'Have a look around.',
+  DEFAULT: 'Default',
+  DELETE: 'Delete',
+  EDIT: 'Edit',
+  EMAIL: 'Email',
+  EMAILS: 'Emails',
+  ERROR_GENERIC: 'An error occurred. Please try again.',
+  ERROR_NETWORK: 'Network error. Please check your connection.',
+  ERROR_NOT_FOUND: 'The requested resource was not found.',
+  ERROR_UNAUTHORIZED: 'You are not authorized to perform this action.',
+  EXTERNAL: 'External',
+  FILTER: 'Filter',
+  GET_CODE_VIA_EMAIL: 'Get code via email',
+  GET_CODE_VIA_PHONE: 'Get code via phone',
+  GREETING: 'Hello, {name}!',
+  HEAP_TOTAL: 'Heap Total',
+  HEAP_USED: 'Heap Used',
+  LABEL: 'Label',
+  LOADING: 'Loading...',
+  LOG_OUT: 'Log Out',
+  LOGIN: 'Login',
+  LOGOUT: 'Logout',
+  MESSAGE: 'Message',
+  NAME: 'Name',
+  NEW_EMAIL: 'New Email',
+  NEW_PHONE: 'New Phone',
+  NO_DATA: 'No Data',
+  OTP_CHOOSE_METHOD: 'Choose where to send a one-time code.',
+  PAGE_TITLE_ADMIN_USERS: 'Users',
+  PAGE_TITLE_API_HEALTH: 'API Health',
+  PAGE_TITLE_DASHBOARD: 'Dashboard',
+  PAGE_TITLE_EDIT_USER: 'Edit User',
+  PAGE_TITLE_PROFILE: 'Profile',
+  PAGE_TITLE_USER_PROFILE: 'User Profile',
+  PASSWORD: 'Password',
+  PHONE: 'Phone',
+  PHONES: 'Phones',
+  PING: 'Ping',
+  PROFILE: 'Profile',
+  READ: 'Read',
+  REFRESH: 'Refresh',
+  RESTRICTIONS: 'Restrictions',
+  ROLES: 'Roles',
+  RSS: 'RSS',
+  SAVE: 'Save',
+  SEND: 'Send',
+  SEND_CODE: 'Send Code',
+  SEND_PUSH_TO_PHONE: 'Send Push Notification To Phone',
+  SEND_TO_ALL_USERS: 'Send to all users',
+  SEND_TO_USER: 'Send to: {username}',
+  START_OVER: 'Start Over',
+  STATUS: 'Status',
+  SUBMIT: 'Submit',
+  SUCCESS_DELETED: 'Successfully deleted.',
+  SUCCESS_SAVED: 'Successfully saved.',
+  TITLE: 'Title',
+  TOGGLE_DARK_MODE: 'Toggle Dark Mode',
+  TOOLTIP_DELETE_EMAIL: 'Delete Email',
+  TOOLTIP_DELETE_PHONE: 'Delete Phone',
+  TOOLTIP_REFRESH_DATA: 'Refresh Data',
+  TOOLTIP_REFRESH_LIST: 'Refresh List',
+  TRY_ANOTHER_WAY: 'Try another way?',
+  TYPE: 'Type',
+  UPDATE: 'Update',
+  USERNAME: 'Username',
+  VERIFIED: 'Verified',
+  VERIFY: 'Verify',
+  VERSION: 'Version',
+  WELCOME_BACK: 'Welcome back, {name}!',
+  WRITE: 'Write',
+}
+
+/**
+ * Entity name for Redux slice identification.
+ */
+export const I18N_ENTITY_NAME = 'i18n' as const
 
 /**
  * Interpolation placeholder regex pattern.
@@ -28,42 +113,6 @@ export const LOCALES_BASE_PATH = '/assets/locales'
 export const INTERPOLATION_REGEX = /\{(\w+)\}/g
 
 /**
- * Default English strings - bundled inline as ultimate fallback.
- * These are always available even if network requests fail.
+ * Base path for locale JSON files.
  */
-export const DEFAULT_STRINGS: StringKeys = {
-  // Common Actions
-  CANCEL: 'Cancel',
-  CONFIRM: 'Confirm',
-  // Authentication
-  COULD_NOT_LOG_YOU_IN: 'Could not log you in. Please try again.',
-  DELETE: 'Delete',
-  EDIT: 'Edit',
-
-  // Common Labels
-  EMAIL: 'Email',
-
-  // Error Messages
-  ERROR_GENERIC: 'An error occurred. Please try again.',
-  ERROR_NETWORK: 'Network error. Please check your connection.',
-  ERROR_NOT_FOUND: 'The requested resource was not found.',
-  ERROR_UNAUTHORIZED: 'You are not authorized to perform this action.',
-
-  // Greetings (with interpolation placeholders)
-  GREETING: 'Hello, {name}!',
-  LOADING: 'Loading...',
-  LOGIN: 'Login',
-  LOGOUT: 'Logout',
-  NAME: 'Name',
-  PASSWORD: 'Password',
-  PHONE: 'Phone',
-  SAVE: 'Save',
-  SUBMIT: 'Submit',
-  SUCCESS_DELETED: 'Successfully deleted.',
-
-  // Success Messages
-  SUCCESS_SAVED: 'Successfully saved.',
-  TRY_ANOTHER_WAY: 'Try another way?',
-  USERNAME: 'Username',
-  WELCOME_BACK: 'Welcome back, {name}!',
-}
+export const LOCALES_BASE_PATH = '/assets/locales'

@@ -23,6 +23,7 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { useStrings } from '../i18n'
 import { PhoneNumberInput } from '../phone/phone-input/phone-web-input.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectWindowHeight } from '../ui/store/ui-web.selector'
@@ -58,6 +59,16 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     const userEmails = useAppSelector((state) => selectUserEmails(state))
     const userPhones = useAppSelector((state) => selectUserPhones(state))
     const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+    const strings = useStrings([
+      'BACK',
+      'EMAIL',
+      'GET_CODE_VIA_EMAIL',
+      'GET_CODE_VIA_PHONE',
+      'OTP_CHOOSE_METHOD',
+      'PHONE',
+      'SEND_CODE',
+      'START_OVER',
+    ])
     const [
       requestOtpCodeEmail,
       {
@@ -196,7 +207,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             }}
             variant="text"
           >
-            Start Over
+            {strings.START_OVER}
           </Button>
         )
       }
@@ -214,7 +225,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
           }}
           variant="text"
         >
-          Back
+          {strings.BACK}
         </Button>
       )
     }
@@ -241,7 +252,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                   defaultValue=""
                   disabled={false}
                   inputId="input-user-phone"
-                  label="Phone"
+                  label={strings.PHONE}
                   onChange={(value: string, data: CountryData) => {
                     setPhone(value)
                     setCountryData(data)
@@ -268,7 +279,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                     size={16}
                   />
                 ) : (
-                  'Send Code'
+                  strings.SEND_CODE
                 )}
               </Button>
             </Form>
@@ -295,17 +306,17 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                 style={{ minWidth: 300 }}
                 variant="outlined"
               >
-                <InputLabel htmlFor="input-email">Email</InputLabel>
+                <InputLabel htmlFor="input-email">{strings.EMAIL}</InputLabel>
                 <OutlinedInput
                   autoCapitalize="off"
                   autoComplete="off"
                   autoCorrect="off"
                   fullWidth
                   id="input-email"
-                  label={'Email'}
+                  label={strings.EMAIL}
                   name="input-email"
                   onChange={handleChangeEmail}
-                  placeholder={'Email'}
+                  placeholder={strings.EMAIL}
                   type="email"
                   value={email || ''}
                 />
@@ -327,7 +338,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                     size={16}
                   />
                 ) : (
-                  'Send Code'
+                  strings.SEND_CODE
                 )}
               </Button>
             </Form>
@@ -347,7 +358,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             textAlign="center"
             variant="h6"
           >
-            Choose where to send a one-time code.
+            {strings.OTP_CHOOSE_METHOD}
           </Typography>
           {userPhones.length &&
             userPhones.map((userPhone) => {
@@ -428,7 +439,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
               onClick={() => setSelectedMethod('PHONE')}
               variant="contained"
             >
-              Get code via phone
+              {strings.GET_CODE_VIA_PHONE}
             </Button>
           </Grid>
 
@@ -439,7 +450,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
               onClick={() => setSelectedMethod('EMAIL')}
               variant="contained"
             >
-              Get code via email
+              {strings.GET_CODE_VIA_EMAIL}
             </Button>
           </Grid>
         </>

@@ -18,6 +18,7 @@ import { toast } from 'react-toastify'
 import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 
+import { useString } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectCurrentThemeMode } from '../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
@@ -32,6 +33,7 @@ export const StatsWebApiHealthComponent: React.FC = () => {
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const dispatch = useAppDispatch()
+  const pageTitle = useString('PAGE_TITLE_API_HEALTH')
   const [
     fetchApiStats,
     {
@@ -44,9 +46,9 @@ export const StatsWebApiHealthComponent: React.FC = () => {
   ] = useLazyGetApiHealthzQuery()
 
   useEffect(() => {
-    setDocumentTitle('Api Health')
+    setDocumentTitle(pageTitle)
     void fetchApiStats()
-  }, [])
+  }, [pageTitle])
 
   useEffect(() => {
     if (!isLoadingApiStats) {

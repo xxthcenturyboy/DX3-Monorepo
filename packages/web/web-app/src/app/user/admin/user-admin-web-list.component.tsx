@@ -14,6 +14,7 @@ import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 
 import { WebConfigService } from '../../config/config-web.service'
+import { useString } from '../../i18n'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
@@ -37,6 +38,7 @@ export const UserAdminList: React.FC = () => {
   const usersCount = useAppSelector((state) => state.userAdmin.usersCount)
   const currentUser = useAppSelector((state) => state.userProfile)
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const pageTitle = useString('PAGE_TITLE_ADMIN_USERS')
   const usersListHeaders = UserAdminWebListService.getListHeaders()
   const [isInitialized, setIsInitialized] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
@@ -68,7 +70,7 @@ export const UserAdminList: React.FC = () => {
   ] = useSendNotificationAppUpdateMutation()
 
   useEffect(() => {
-    setDocumentTitle('Admin Users')
+    setDocumentTitle(pageTitle)
     if (!users || users.length === 0) {
       void fetchUsers()
     }
