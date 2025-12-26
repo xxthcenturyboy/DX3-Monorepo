@@ -19,6 +19,7 @@ import type { AuthStateType } from '../auth/auth-web.types'
 import { dashboardReducer } from '../dashboard/dashboard-web.reducer'
 import { apiWeb } from '../data/rtk-query/web.api'
 import { homeReducer } from '../home/home-web.reducer'
+import { i18nPersistConfig, i18nReducer, type I18nStateType } from '../i18n'
 import { mediaPersistConfig, mediaReducer } from '../media/media-web.reducer'
 import type { MediaStateType } from '../media/media-web.types'
 import { notificationReducer } from '../notifications/notification-web.reducer'
@@ -42,6 +43,10 @@ const combinedPersistReducers = combineReducers({
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
   dashboard: dashboardReducer,
   home: homeReducer,
+  i18n: persistReducer<I18nStateType, any>(
+    i18nPersistConfig,
+    i18nReducer,
+  ) as typeof i18nReducer,
   media: persistReducer<MediaStateType, any>(
     mediaPersistConfig,
     mediaReducer,

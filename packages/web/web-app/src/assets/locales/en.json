@@ -1,0 +1,30 @@
+{
+  "CANCEL": "Cancel",
+  "CONFIRM": "Confirm",
+  "COULD_NOT_LOG_YOU_IN": "Could not log you in. Please try again",
+  "DELETE": "Delete",
+  "EDIT": "Edit",
+
+  "EMAIL": "Email",
+
+  "ERROR_GENERIC": "An error occurred. Please try again.",
+  "ERROR_NETWORK": "Network error. Please check your connection.",
+  "ERROR_NOT_FOUND": "The requested resource was not found.",
+  "ERROR_UNAUTHORIZED": "You are not authorized to perform this action.",
+
+  "GREETING": "Hello, {name}!",
+  "LOADING": "Loading...",
+  "LOGIN": "Login",
+  "LOGOUT": "Logout",
+  "NAME": "Name",
+  "PASSWORD": "Password",
+  "PHONE": "Phone",
+  "SAVE": "Save",
+  "SUBMIT": "Submit",
+  "SUCCESS_DELETED": "Successfully deleted.",
+
+  "SUCCESS_SAVED": "Successfully saved.",
+  "TRY_ANOTHER_WAY": "Try another way?",
+  "USERNAME": "Username",
+  "WELCOME_BACK": "Welcome back, {name}!"
+}

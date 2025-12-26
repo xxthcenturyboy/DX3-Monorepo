@@ -26,7 +26,6 @@ export const uiInitialState: UiStateType = {
   menus: null,
   name: APP_NAME,
   notifications: 0,
-  strings: {},
   theme: appTheme,
   windowHeight: window.innerHeight,
   windowWidth: window.innerWidth,
@@ -76,9 +75,6 @@ const uiSlice = createSlice({
     },
     setIsShowingUnauthorizedAlert(state, action: PayloadAction<boolean>) {
       state.isShowingUnauthorizedAlert = action.payload
-    },
-    setStrings(state, action: PayloadAction<Record<string, string>>) {
-      state.strings = action.payload
     },
     themeModeSet(state, action: PayloadAction<PaletteMode>) {
       if (state.theme.palette && action.payload) {

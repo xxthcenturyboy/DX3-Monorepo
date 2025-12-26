@@ -17,6 +17,7 @@ import type { LoginPayloadType } from '@dx3/models-shared'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { authActions } from './auth-web.reducer'
 import * as UI from './auth-web-login.ui'
@@ -34,10 +35,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
     const [loginAttempts, setLoginAttempts] = React.useState(0)
     const username = useAppSelector((state) => state.auth.username)
     const password = useAppSelector((state) => state.auth.password)
-    const S_LOGIN = useAppSelector((state) => state.ui.strings.LOGIN)
-    const S_PASSWORD = useAppSelector((state) => state.ui.strings.PASSWORD)
-    const S_USERNAME = useAppSelector((state) => state.ui.strings.USERNAME)
-    const S_TRY_ANOTHER_METHOD = useAppSelector((state) => state.ui.strings.TRY_ANOTHER_WAY)
+    const strings = useStrings(['LOGIN', 'PASSWORD', 'USERNAME', 'TRY_ANOTHER_WAY'])
     const dispatch = useAppDispatch()
 
     const clearInputs = (): void => {
@@ -112,13 +110,13 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               margin="normal"
               variant="outlined"
             >
-              <InputLabel htmlFor="input-username">{S_USERNAME}</InputLabel>
+              <InputLabel htmlFor="input-username">{strings.USERNAME}</InputLabel>
               <OutlinedInput
                 autoCapitalize="none"
                 autoCorrect="off"
                 fullWidth
                 id="input-username"
-                label={S_USERNAME}
+                label={strings.USERNAME}
                 name="input-username"
                 onChange={handleChangeUsername}
                 // autoComplete="email"
@@ -132,7 +130,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               margin="normal"
               variant="outlined"
             >
-              <InputLabel htmlFor="input-password">{S_PASSWORD}</InputLabel>
+              <InputLabel htmlFor="input-password">{strings.PASSWORD}</InputLabel>
               <OutlinedInput
                 autoCapitalize="none"
                 autoComplete="current-password"
@@ -158,7 +156,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
                 }
                 fullWidth
                 id="input-password"
-                label={S_PASSWORD}
+                label={strings.PASSWORD}
                 name="input-password"
                 onChange={handleChangePassword}
                 spellCheck={false}
@@ -183,7 +181,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
                   size={16}
                 />
               ) : (
-                S_LOGIN
+                strings.LOGIN
               )}
             </Button>
           </UI.Form>
@@ -199,7 +197,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
                 style={{ cursor: 'pointer' }}
                 variant="subtitle2"
               >
-                {S_TRY_ANOTHER_METHOD}
+                {strings.TRY_ANOTHER_WAY}
               </Typography>
             </Zoom>
           )}

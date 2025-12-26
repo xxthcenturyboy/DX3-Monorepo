@@ -17,7 +17,6 @@ export type UiStateType = {
   menus: AppMenuType[] | null
   name: string
   notifications: number
-  strings: Record<string, string>
   theme: ThemeOptions
   windowWidth: number
   windowHeight: number

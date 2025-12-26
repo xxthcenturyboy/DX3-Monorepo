@@ -15,15 +15,27 @@ module.exports = {
     historyApiFallback: true,
     hot: true,
     port: 3000,
-    // Configure specific paths with cache headers for development
+    // Configure cache headers for development assets
     setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {
         throw new Error('webpack-dev-server is not defined')
       }
 
-      // Cache Lottie animations and static assets for 1 hour
-      // This improves performance while still allowing changes to be picked up
-      devServer.app.use('/assets', (_req, res, next) => {
+      // Locale files: no-cache forces revalidation on each request
+      // Browser checks if file changed, server returns 304 if unchanged
+      devServer.app.use('/assets/locales', (_req, res, next) => {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate')
+        next()
+      })
+
+      // Large static assets (animations, images): cache for 1 hour in dev
+      // These rarely change during development
+      devServer.app.use('/assets/animations', (_req, res, next) => {
+        res.setHeader('Cache-Control', 'public, max-age=3600')
+        next()
+      })
+
+      devServer.app.use('/assets/img', (_req, res, next) => {
         res.setHeader('Cache-Control', 'public, max-age=3600')
         next()
       })

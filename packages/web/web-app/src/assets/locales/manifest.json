@@ -1,0 +1,11 @@
+{
+  "availableLocales": [
+    {
+      "code": "en",
+      "isRTL": false,
+      "name": "English",
+      "nativeName": "English"
+    }
+  ],
+  "defaultLocale": "en"
+}
