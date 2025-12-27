@@ -29,6 +29,7 @@ jest.mock('winston', () => {
   })
 
   return {
+    addColors: jest.fn(),
     createLogger: jest.fn(() => mockLogger),
     format: formatFunction,
     transports: {
@@ -283,7 +284,7 @@ describe('ApiLoggingClass', () => {
       }
       const resultWithContext = formatterFn(infoWithContext)
       expect(resultWithContext).toContain('[2024-01-01T00:00:00.000Z]')
-      expect(resultWithContext).toContain('[INFO]')
+      expect(resultWithContext).toContain('[info]')
       expect(resultWithContext).toContain('Test message')
       expect(resultWithContext).toContain('[CONTEXT]')
       expect(resultWithContext).toContain('"userId": "123"')
@@ -296,7 +297,7 @@ describe('ApiLoggingClass', () => {
       }
       const resultWithoutContext = formatterFn(infoWithoutContext)
       expect(resultWithoutContext).toContain('[2024-01-01T00:00:00.000Z]')
-      expect(resultWithoutContext).toContain('[WARN]')
+      expect(resultWithoutContext).toContain('[warn]')
       expect(resultWithoutContext).toContain('Warning message')
       expect(resultWithoutContext).not.toContain('[CONTEXT]')
     })
