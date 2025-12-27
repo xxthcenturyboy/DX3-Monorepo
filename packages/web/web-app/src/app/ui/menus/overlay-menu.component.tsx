@@ -22,7 +22,7 @@ export const OverlayMenu: React.FC = () => {
   const [mobileBreak, setMobileBreak] = React.useState(false)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const dispatch = useAppDispatch()
-  // const topPixel = mobileBreak ? 60 : 64;
+  const topPixel = mobileBreak ? 36 : 64
 
   React.useEffect(() => {
     setMobileBreak(windowWidth <= MEDIA_BREAK.MOBILE)
@@ -42,15 +42,16 @@ export const OverlayMenu: React.FC = () => {
           borderBottom: 'none',
           borderRadius: 0,
           borderTop: 'none',
-          height: '100%',
+          // height: '100%',
+          height: `calc(100% - ${topPixel}px)`,
           position: 'fixed',
+          top: `${topPixel}px`,
           width: mobileBreak ? '100%' : `${DRAWER_WIDTH}px`,
-          // top: `${topPixel}px`,
-          // height: `calc(100% - ${topPixel}px)`
         },
         flexShrink: 0,
         width: `${DRAWER_WIDTH}px`,
       }}
+      transitionDuration={500}
       variant="temporary"
     >
       <DrawerContent>

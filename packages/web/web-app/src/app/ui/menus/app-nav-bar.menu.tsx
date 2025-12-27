@@ -1,4 +1,5 @@
 import AccountCircle from '@mui/icons-material/AccountCircle'
+import Apps from '@mui/icons-material/Apps'
 import Menu from '@mui/icons-material/Menu'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Notifications from '@mui/icons-material/Notifications'
@@ -80,6 +81,10 @@ export const AppNavBar: React.FC = () => {
   }
 
   const handleClickAccountMenu = (event: React.MouseEvent<HTMLElement>) => {
+    if (mobileBreak) {
+      return toggleMenuState()
+    }
+
     setAnchorElementAccountMenu(event.currentTarget)
   }
 
@@ -107,11 +112,6 @@ export const AppNavBar: React.FC = () => {
         elevation={2}
         enableColorOnDark
         position="static"
-        // style={
-        //   {
-        //     zIndex: 1200
-        //   }
-        // }
         sx={{
           '& .MuiAppBar': {
             root: {},
@@ -122,7 +122,7 @@ export const AppNavBar: React.FC = () => {
         }}
       >
         <Toolbar>
-          {
+          {!mobileBreak && (
             <Slide
               direction="right"
               in={isAuthenticated}
@@ -146,7 +146,7 @@ export const AppNavBar: React.FC = () => {
                 )}
               </IconButton>
             </Slide>
-          }
+          )}
           <Icon
             aria-label="menu"
             color="inherit"
@@ -215,7 +215,7 @@ export const AppNavBar: React.FC = () => {
                 onClick={handleClickAccountMenu}
                 size="large"
               >
-                <AccountCircle />
+                {mobileBreak ? <Apps /> : <AccountCircle />}
               </IconButton>
             </span>
           </Slide>
