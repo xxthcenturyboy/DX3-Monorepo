@@ -8,9 +8,9 @@ import { useCallback, useMemo } from 'react'
 
 import {
   ERROR_CODE_TO_I18N_KEY,
+  type ErrorCodeType,
   isValidErrorCode,
   parseApiError,
-  type ErrorCodeType,
 } from '@dx3/models-shared'
 
 import { useTranslation } from '../../i18n'
@@ -48,7 +48,7 @@ export function useApiError() {
     (
       code: ErrorCodeType | string | null,
       fallbackMessage?: string,
-      params?: InterpolationParams
+      params?: InterpolationParams,
     ): string => {
       if (!code || !isValidErrorCode(code)) {
         return fallbackMessage || DEFAULT_ERROR_MESSAGE
@@ -62,7 +62,7 @@ export function useApiError() {
 
       return t(i18nKey, params)
     },
-    [t]
+    [t],
   )
 
   /**
@@ -78,7 +78,7 @@ export function useApiError() {
         originalMessage: message,
       }
     },
-    [getErrorMessage]
+    [getErrorMessage],
   )
 
   /**
@@ -97,6 +97,6 @@ export function useApiError() {
       getI18nKey,
       resolveApiError,
     }),
-    [getErrorMessage, getI18nKey, resolveApiError]
+    [getErrorMessage, getI18nKey, resolveApiError],
   )
 }

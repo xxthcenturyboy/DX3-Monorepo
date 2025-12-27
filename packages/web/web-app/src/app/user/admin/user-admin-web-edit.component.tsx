@@ -23,6 +23,8 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
 
+import { useApiError } from '../../data/errors'
+import type { CustomResponseErrorType } from '../../data/rtk-query'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -54,6 +56,7 @@ export const UserAdminEdit: React.FC = () => {
   const [roles, setRoles] = useState<UserRoleUi[]>([])
   const dispatch = useAppDispatch()
   const { id } = useParams<{ id: string }>()
+  const { getErrorMessage } = useApiError()
   const location = useLocation()
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
@@ -140,15 +143,23 @@ export const UserAdminEdit: React.FC = () => {
       }
 
       if (userError) {
-        'error' in userError && dispatch(uiActions.apiDialogSet(userError.error))
+        const msg = getErrorMessage(
+          userError?.code || null,
+          (userError as CustomResponseErrorType)?.localizedMessage,
+        )
+        'error' in userError && dispatch(uiActions.apiDialogSet(msg))
       }
     }
   }, [fetchUserSuccess, userError])
 
   useEffect(() => {
     if (!isLoadingUpdateUser && !updateUserUninitialized) {
-      if (updateUserError && 'error' in updateUserError) {
-        dispatch(uiActions.apiDialogSet(updateUserError.error))
+      if (updateUserError) {
+        const msg = getErrorMessage(
+          updateUserError?.code || null,
+          (updateUserError as CustomResponseErrorType)?.localizedMessage,
+        )
+        dispatch(uiActions.apiDialogSet(msg))
       }
 
       if (!updateUserError) {

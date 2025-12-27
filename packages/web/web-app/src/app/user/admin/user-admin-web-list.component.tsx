@@ -14,6 +14,8 @@ import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 
 import { WebConfigService } from '../../config/config-web.service'
+import { useApiError } from '../../data/errors'
+import type { CustomResponseErrorType } from '../../data/rtk-query'
 import { useString } from '../../i18n'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
@@ -42,6 +44,7 @@ export const UserAdminList: React.FC = () => {
   const usersListHeaders = UserAdminWebListService.getListHeaders()
   const [isInitialized, setIsInitialized] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
+  const { getErrorMessage } = useApiError()
   const ROUTES = WebConfigService.getWebRoutes()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -99,7 +102,11 @@ export const UserAdminList: React.FC = () => {
         setIsFetching(false)
       }
       if (userListError) {
-        'error' in userListError && dispatch(uiActions.apiDialogSet(userListError.error))
+        const msg = getErrorMessage(
+          userListError?.code || null,
+          (userListError as CustomResponseErrorType)?.localizedMessage,
+        )
+        'error' in userListError && dispatch(uiActions.apiDialogSet(msg))
         setIsFetching(false)
       }
     }
