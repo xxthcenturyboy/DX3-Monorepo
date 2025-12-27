@@ -1,8 +1,33 @@
+import fs from 'node:fs'
+
 import { DEV_ENV_NAME, PROD_ENV_NAME, STAGING_ENV_NAME } from '@dx3/models-shared'
 
 export function getEnvironment() {
   return {
     ...process.env,
+  }
+}
+
+/**
+ * Detect if the current process is running inside a Docker container.
+ * Uses two detection methods:
+ * 1. Checks for ROOT_DIR env var set to '/app' (configured in docker-compose.yml)
+ * 2. Checks for /.dockerenv file (created by Docker runtime)
+ *
+ * @returns true if running inside a Docker container, false otherwise
+ */
+export function isRunningInContainer(): boolean {
+  // Check for ROOT_DIR which is set in docker-compose.yml
+  if (process.env.ROOT_DIR === '/app') {
+    return true
+  }
+
+  // Check for Docker environment file
+  try {
+    fs.accessSync('/.dockerenv')
+    return true
+  } catch {
+    return false
   }
 }
 

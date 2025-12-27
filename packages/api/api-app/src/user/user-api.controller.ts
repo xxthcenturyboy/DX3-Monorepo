@@ -54,17 +54,6 @@ export const UserController = {
     }
   },
 
-  deleteUserTest: async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params as { id: string }
-      const service = new UserService()
-      const result = await service.deleteTestUser(id)
-      return sendOK(req, res, result)
-    } catch (err) {
-      sendBadRequest(req, res, err.message)
-    }
-  },
-
   getUser: async (req: Request, res: Response) => {
     try {
       const { id } = req.params as GetUserQueryType

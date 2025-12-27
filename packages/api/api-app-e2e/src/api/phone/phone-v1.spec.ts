@@ -8,7 +8,7 @@ import type {
 import { PHONE_DEFAULT_REGION_CODE } from '@dx3/models-shared'
 import {
   TEST_PHONE_1,
-  TEST_PHONE_3,
+  TEST_PHONE_4,
   TEST_PHONE_COUNTRY_CODE,
   TEST_PHONE_COUNTRY_CODE_IT,
   TEST_PHONE_IT_INVALID,
@@ -43,7 +43,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('This phone cannot be used (invalid).')
+        expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
     })
 
@@ -68,7 +68,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('Missing phone or region code.')
+        expect(typedError.response.data.message).toEqual('502 Missing phone or region code.')
       }
     })
 
@@ -93,7 +93,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('(858) 484-6800 is already in use.')
+        expect(typedError.response.data.message).toEqual('500 (858) 484-6800 is already in use.')
       }
     })
   })
@@ -146,7 +146,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('(858) 484-6800 is already in use.')
+        expect(typedError.response.data.message).toEqual('500 (858) 484-6800 is already in use.')
       }
     })
 
@@ -176,7 +176,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`This phone cannot be used (invalid).`)
+        expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
     })
 
@@ -206,7 +206,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`This phone cannot be used (invalid).`)
+        expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
     })
 
@@ -251,7 +251,7 @@ describe('v1 Phone Routes', () => {
     test('should return 200 when successfuly creates phone', async () => {
       const result = await axios.request<AxiosRequestConfig, AxiosResponse<OtpResponseType>>({
         data: {
-          phone: TEST_PHONE_3,
+          phone: TEST_PHONE_4,
           regionCode: PHONE_DEFAULT_REGION_CODE,
         },
         headers: getGlobalAuthHeaders(),
@@ -264,7 +264,7 @@ describe('v1 Phone Routes', () => {
         countryCode: TEST_PHONE_COUNTRY_CODE,
         def: false,
         label: 'Work',
-        phone: TEST_PHONE_3,
+        phone: TEST_PHONE_4,
         regionCode: PHONE_DEFAULT_REGION_CODE,
         userId: getGlobalAuthResponse().profile.id,
       }
@@ -303,9 +303,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          `Phone could not be found with the id: ${TEST_UUID}`,
-        )
+        expect(typedError.response.data.message).toEqual('503 Phone could not be found.')
       }
     })
 
@@ -348,9 +346,7 @@ describe('v1 Phone Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          `Phone could not be found with the id: ${TEST_UUID}`,
-        )
+        expect(typedError.response.data.message).toEqual('503 Phone could not be found.')
       }
     })
 
@@ -369,25 +365,7 @@ describe('v1 Phone Routes', () => {
       expect(response.data.id).toBeDefined()
     })
 
-    test('should permanently delete our test phones when called', async () => {
-      const request1: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
-        method: 'DELETE',
-        url: `/api/v1/phone/test/${idToUpdate}`,
-        withCredentials: true,
-      }
-      const request2: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
-        method: 'DELETE',
-        url: `/api/v1/phone/test/${idToUpdateItaly}`,
-        withCredentials: true,
-      }
-
-      const result1 = await axios.request<AxiosRequestConfig, AxiosResponse<void>>(request1)
-      const result2 = await axios.request<AxiosRequestConfig, AxiosResponse<void>>(request2)
-
-      expect(result1.status).toBe(200)
-      expect(result2.status).toBe(200)
-    })
+    // Test data cleanup is handled by global-teardown.ts which resets the database
+    // No need for individual record deletion - database will be reset after all E2E tests
   })
 })

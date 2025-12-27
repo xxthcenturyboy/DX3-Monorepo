@@ -1,12 +1,16 @@
 #!/usr/bin/env ts-node
 /**
  * Database Seeder Orchestrator
- * Handles database seeding with optional reset functionality
+ * Handles database seeding with migrations as the source of truth for schema.
+ *
+ * Flow:
+ *   --reset:  Drop all tables → Run ALL migrations → Run seeders
+ *   default:  Run pending migrations → Run seeders
  *
  * Usage:
- *   ts-node -r dotenv/config ./seed/index.ts           # Run seeders only
- *   ts-node -r dotenv/config ./seed/index.ts --reset   # Drop tables and reseed
- *   ts-node -r dotenv/config ./seed/index.ts --verbose # Enable verbose logging
+ *   pnpm --filter @dx3/api db:seed           # Run pending migrations + seeders
+ *   pnpm --filter @dx3/api db:seed --reset   # Drop all, run all migrations, then seed
+ *   pnpm --filter @dx3/api db:seed --verbose # Enable verbose logging
  */
 
 import 'reflect-metadata'
@@ -25,6 +29,7 @@ import { RedisService } from '../../redis'
 import { ShortLinkModel } from '../../shortlink/shortlink-api.postgres-model'
 import { UserModel } from '../../user/user-api.postgres-model'
 import { UserPrivilegeSetModel } from '../../user-privilege/user-privilege-api.postgres-model'
+import { MIGRATIONS_PATH, MigrationRunner } from '../migrations'
 import { parsePostgresConnectionUrl } from '../parse-postgres-connection-url'
 import type { SeederContext, SeederOptions, SeederResult, SeedSummary } from './seed.types'
 import { seeders } from './seeders'
@@ -113,9 +118,9 @@ function parseArgs(): SeederOptions {
 }
 
 /**
- * Initialize database connection
+ * Create a basic Sequelize connection (without models synced)
  */
-async function initializeDatabase(options: SeederOptions): Promise<Sequelize> {
+async function createSequelizeConnection(options: SeederOptions): Promise<Sequelize> {
   const postgresUri = process.env.POSTGRES_URI
 
   if (!postgresUri) {
@@ -149,31 +154,60 @@ async function initializeDatabase(options: SeederOptions): Promise<Sequelize> {
   await sequelize.query('CREATE EXTENSION IF NOT EXISTS "fuzzystrmatch";')
   await sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
 
-  // Create custom enum types if they don't exist
-  await createEnumTypes(sequelize, options)
-
-  // Add models to sequelize instance
+  // Add models to sequelize instance (needed for seeders to work)
   sequelize.addModels(getModels())
-
-  // Sync models with database
-  if (options.reset || options.forceSync) {
-    console.log(
-      `${colors.yellow}⚠ Force syncing database (dropping and recreating tables)...${colors.reset}`,
-    )
-    await sequelize.sync({ force: true })
-  } else {
-    await sequelize.sync({ alter: false })
-  }
 
   return sequelize
 }
 
 /**
- * Create PostgreSQL enum types
+ * Drop all tables in the database (for reset functionality).
+ * This includes the SequelizeMeta table so migrations can be re-run.
+ */
+async function dropAllTables(sequelize: Sequelize, options: SeederOptions): Promise<void> {
+  console.log(`${colors.yellow}⚠ Dropping all tables...${colors.reset}`)
+
+  // Drop all tables using CASCADE to handle foreign key constraints
+  // We use raw SQL to ensure we drop everything including SequelizeMeta
+  await sequelize.query(`
+    DO $$ DECLARE
+      r RECORD;
+    BEGIN
+      -- Disable triggers to avoid FK constraint issues during drop
+      FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+      END LOOP;
+    END $$;
+  `)
+
+  // Also drop custom enum types so they can be recreated by migrations
+  const enumTypes = [
+    'user_role',
+    'account_restriction',
+    'enum_devices_facial_auth_state',
+    'enum_notifications_level',
+  ]
+
+  for (const enumType of enumTypes) {
+    try {
+      await sequelize.query(`DROP TYPE IF EXISTS ${enumType} CASCADE;`)
+    } catch (error) {
+      if (options.verbose) {
+        console.log(
+          `${colors.yellow}  Could not drop type ${enumType}: ${(error as Error).message}${colors.reset}`,
+        )
+      }
+    }
+  }
+
+  console.log(`${colors.green}✓ All tables dropped${colors.reset}`)
+}
+
+/**
+ * Create PostgreSQL enum types (needed before migrations can run)
  */
 async function createEnumTypes(sequelize: Sequelize, options: SeederOptions): Promise<void> {
   const enumQueries = [
-    // NOTE: Using lowercase for PostgreSQL convention (unquoted identifiers are lowercased)
     `DO $$ BEGIN
       CREATE TYPE user_role AS ENUM ('USER', 'ADMIN', 'SUPER_ADMIN');
     EXCEPTION
@@ -208,6 +242,50 @@ async function createEnumTypes(sequelize: Sequelize, options: SeederOptions): Pr
 }
 
 /**
+ * Run database migrations.
+ * @param sequelize - Sequelize instance
+ * @param options - Seeder options
+ * @param isReset - If true, we expect all migrations to run (fresh database)
+ */
+async function runMigrations(
+  sequelize: Sequelize,
+  options: SeederOptions,
+  isReset: boolean,
+): Promise<void> {
+  const action = isReset ? 'Running all migrations' : 'Running pending migrations'
+  console.log(`${colors.blue}${action}...${colors.reset}`)
+
+  const runner = new MigrationRunner(sequelize)
+  const results = await runner.runPendingMigrations({
+    direction: 'up',
+    dryRun: false,
+    migrationsPath: MIGRATIONS_PATH,
+  })
+
+  const successful = results.filter((r) => r.status === 'success')
+  const failed = results.filter((r) => r.status === 'failed')
+
+  if (failed.length > 0) {
+    console.log(`${colors.red}✗ ${failed.length} migration(s) failed${colors.reset}`)
+    for (const f of failed) {
+      console.log(`  - ${f.migrationName}: ${f.error?.message}`)
+    }
+    throw new Error('Migration failed - cannot proceed with seeding')
+  }
+
+  if (successful.length > 0) {
+    console.log(`${colors.green}✓ Applied ${successful.length} migration(s)${colors.reset}`)
+    if (options.verbose) {
+      for (const s of successful) {
+        console.log(`  - ${s.migrationName}`)
+      }
+    }
+  } else {
+    console.log(`${colors.green}✓ No pending migrations${colors.reset}`)
+  }
+}
+
+/**
  * Run all seeders
  */
 async function runSeeders(options: SeederOptions): Promise<SeedSummary> {
@@ -231,9 +309,6 @@ async function runSeeders(options: SeederOptions): Promise<SeedSummary> {
   console.log(`${colors.blue}Options:${colors.reset}`)
   console.log(
     `  Reset:      ${options.reset ? colors.yellow + 'Yes' : colors.green + 'No'}${colors.reset}`,
-  )
-  console.log(
-    `  Force Sync: ${options.forceSync ? colors.yellow + 'Yes' : colors.green + 'No'}${colors.reset}`,
   )
   console.log(`  Verbose:    ${options.verbose ? colors.green + 'Yes' : 'No'}${colors.reset}\n`)
 
@@ -332,6 +407,22 @@ function printSummary(summary: SeedSummary): void {
 }
 
 /**
+ * Sync models to create/update tables.
+ * For reset: force sync (drop and recreate)
+ * For normal: alter sync (update existing tables)
+ */
+async function syncModels(sequelize: Sequelize, options: SeederOptions): Promise<void> {
+  if (options.reset) {
+    console.log(`${colors.blue}Creating tables from models...${colors.reset}`)
+    await sequelize.sync({ force: false }) // Tables already dropped, just create
+  } else {
+    console.log(`${colors.blue}Syncing models with database...${colors.reset}`)
+    await sequelize.sync({ alter: false }) // Don't alter, let migrations handle changes
+  }
+  console.log(`${colors.green}✓ Models synced${colors.reset}`)
+}
+
+/**
  * Main entry point
  */
 async function main(): Promise<void> {
@@ -343,10 +434,25 @@ async function main(): Promise<void> {
     console.log(`${colors.blue}Initializing services...${colors.reset}`)
     await initializeServices(options)
 
-    console.log(`${colors.blue}Initializing database connection...${colors.reset}`)
-    sequelize = await initializeDatabase(options)
-    console.log(`${colors.green}✓ Database connected successfully${colors.reset}\n`)
+    console.log(`${colors.blue}Connecting to database...${colors.reset}`)
+    sequelize = await createSequelizeConnection(options)
+    console.log(`${colors.green}✓ Database connected successfully${colors.reset}`)
 
+    // Handle reset: drop all tables first
+    if (options.reset) {
+      await dropAllTables(sequelize, options)
+    }
+
+    // Create enum types (needed before models can create tables that use them)
+    await createEnumTypes(sequelize, options)
+
+    // Sync models to create base tables (migrations alter existing tables)
+    await syncModels(sequelize, options)
+
+    // Run migrations for any schema changes beyond the model definitions
+    await runMigrations(sequelize, options, options.reset)
+
+    // Run seeders
     const summary = await runSeeders(options)
     printSummary(summary)
 

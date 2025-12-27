@@ -190,24 +190,6 @@ export class EmailService {
     }
   }
 
-  // TODO: Only used in test - remove when can
-  public async validateTestEmail(email: string) {
-    if (this.LOCAL) {
-      await EmailModel.validateEmail(email)
-    }
-  }
-
-  // TODO: Only used in test - remove when can
-  public async deleteTestEmail(id: string) {
-    if (this.LOCAL) {
-      await EmailModel.destroy({
-        force: true,
-        where: {
-          id,
-        },
-      })
-    }
-  }
 }
 
 export type EmailServiceType = typeof EmailService.prototype

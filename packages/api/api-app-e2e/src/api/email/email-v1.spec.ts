@@ -31,7 +31,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('The email you provided is not valid.')
+        expect(typedError.response.data.message).toEqual('402 The email you provided is not valid.')
       }
     })
 
@@ -79,7 +79,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`${TEST_EMAIL_ADMIN} already exists.`)
+        expect(typedError.response.data.message).toEqual(`400 ${TEST_EMAIL_ADMIN} already exists.`)
       }
     })
   })
@@ -130,7 +130,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(`${TEST_EMAIL_ADMIN} already exists.`)
+        expect(typedError.response.data.message).toEqual(`400 ${TEST_EMAIL_ADMIN} already exists.`)
       }
     })
 
@@ -159,10 +159,11 @@ describe('v1 Email Routes', () => {
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
-          `The email you provided is not valid. Please note that we do not allow disposable emails or emails that do not exist, so make sure to use a real email address.`,
+          '402 The email you provided is not valid. Disposable emails are not allowed.',
         )
       }
     })
+
     test('should return an error when email is invalid', async () => {
       const payload: CreateEmailPayloadType = {
         code: '',
@@ -187,9 +188,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          `The email you provided is not valid: TLD.`,
-        )
+        expect(typedError.response.data.message).toEqual('402 The email you provided is not valid.')
       }
     })
 
@@ -245,9 +244,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          `Email could not be found with the id: ${TEST_UUID}`,
-        )
+        expect(typedError.response.data.message).toEqual('403 Email could not be found.')
       }
     })
 
@@ -290,9 +287,7 @@ describe('v1 Email Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          `Email could not be found with the id: ${TEST_UUID}`,
-        )
+        expect(typedError.response.data.message).toEqual('403 Email could not be found.')
       }
     })
 
@@ -311,17 +306,7 @@ describe('v1 Email Routes', () => {
       expect(response.data.id).toBeDefined()
     })
 
-    test('should permanently delete an email when called', async () => {
-      const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
-        method: 'DELETE',
-        url: `/api/v1/email/test/${idToUpdate}`,
-        withCredentials: true,
-      }
-
-      const result = await axios.request<AxiosRequestConfig, AxiosResponse<void>>(request)
-
-      expect(result.status).toBe(200)
-    })
+    // Test data cleanup is handled by global-teardown.ts which resets the database
+    // No need for individual record deletion - database will be reset after all E2E tests
   })
 })

@@ -10,12 +10,13 @@ import type { AuthSuccessResponseType } from '@dx3/models-shared'
 
 // Load environment variables from multiple .env files with variable expansion
 // Root .env is loaded first (base config), then api-app/.env (overrides/extends)
+// quiet: true suppresses dotenv's console.log "injecting env" messages
 const rootEnvPath = path.resolve(__dirname, '../../../../../.env')
-const rootEnv = dotenv.config({ path: rootEnvPath })
+const rootEnv = dotenv.config({ path: rootEnvPath, quiet: true })
 dotenvExpand.expand(rootEnv)
 
 const apiAppEnvPath = path.resolve(__dirname, '../../../api-app/.env')
-const apiEnv = dotenv.config({ path: apiAppEnvPath })
+const apiEnv = dotenv.config({ path: apiAppEnvPath, quiet: true })
 dotenvExpand.expand(apiEnv)
 
 /**

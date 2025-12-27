@@ -12,6 +12,7 @@ export const TEST_BIOMETRIC_PRIVATE_KEY = testRsaKeyPair.privateKey
 export const TEST_PHONE_1 = '8584846800'
 export const TEST_PHONE_2 = '8584846802'
 export const TEST_PHONE_3 = '8584846803'
+export const TEST_PHONE_4 = '8584846804'
 export const TEST_PHONE_CARRIER = 'ATT'
 export const TEST_PHONE_COUNTRY_CODE = '1'
 export const TEST_PHONE_COUNTRY_CODE_IT = '39'

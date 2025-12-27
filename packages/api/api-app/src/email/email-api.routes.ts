@@ -1,10 +1,7 @@
 import { Router } from 'express'
 
 import { ensureLoggedIn } from '@dx3/api-libs/auth/middleware/ensure-logged-in.middleware'
-import {
-  hasAdminRole,
-  hasSuperAdminRole,
-} from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
+import { hasAdminRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
 
 import { EmailController } from './email-api.controller'
 
@@ -12,21 +9,15 @@ export class EmailRoutes {
   static configure() {
     const router = Router()
 
-    router.post('/test/validate-email', EmailController.validateTestEmail)
-
     router.all('/*', [ensureLoggedIn])
 
-    router.post('/validate', EmailController.checkAvailability)
-
-    router.post('/', EmailController.createEmail)
-
-    router.put('/:id', EmailController.updateEmail)
-
+    router.delete('/:id', hasAdminRole, EmailController.deleteEmail)
     router.delete('/user-profile/:id', EmailController.deleteEmailUserProfile)
 
-    router.delete('/:id', hasAdminRole, EmailController.deleteEmail)
+    router.post('/', EmailController.createEmail)
+    router.post('/validate', EmailController.checkAvailability)
 
-    router.delete('/test/:id', hasSuperAdminRole, EmailController.deleteEmailTest)
+    router.put('/:id', EmailController.updateEmail)
 
     return router
   }

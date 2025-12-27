@@ -60,34 +60,8 @@ describe('v1 Auth Flow', () => {
   })
 
   afterAll(async () => {
-    if (emailAccountId || phoneAccountId) {
-      const authUtil = new AuthUtil()
-      await authUtil.login()
-
-      if (emailAccountId) {
-        const removeEmailAccountRequest: AxiosRequestConfig = {
-          headers: {
-            ...authUtil.getHeaders(),
-          },
-          method: 'DELETE',
-          url: `/api/v1/user/test/${emailAccountId}`,
-          withCredentials: true,
-        }
-        await axios.request<AxiosRequestConfig, AxiosResponse<void>>(removeEmailAccountRequest)
-      }
-
-      if (phoneAccountId) {
-        const removePhoneAccountRequest: AxiosRequestConfig = {
-          headers: {
-            ...authUtil.getHeaders(),
-          },
-          method: 'DELETE',
-          url: `/api/v1/user/test/${phoneAccountId}`,
-          withCredentials: true,
-        }
-        await axios.request<AxiosRequestConfig, AxiosResponse<void>>(removePhoneAccountRequest)
-      }
-    }
+    // Test data cleanup is handled by global-teardown.ts which resets the database
+    // No need for individual record deletion - database will be reset after all E2E tests
     errorLogSpyMock.mockRestore()
   })
 
@@ -354,7 +328,7 @@ describe('v1 Auth Flow', () => {
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
-          `${TEST_USER_DATA.USER.email} already exists.`,
+          `400 ${TEST_USER_DATA.USER.email} already exists.`,
         )
       }
     })
@@ -436,7 +410,7 @@ describe('v1 Auth Flow', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('(858) 484-6800 is already in use.')
+        expect(typedError.response.data.message).toEqual('500 (858) 484-6800 is already in use.')
       }
     })
 

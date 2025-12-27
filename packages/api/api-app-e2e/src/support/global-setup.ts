@@ -18,16 +18,15 @@ const dotenv = require('dotenv')
 const dotenvExpand = require('dotenv-expand')
 
 // Load root .env first (shared config: APP_DOMAIN, etc.)
+// quiet: true suppresses dotenv's console.log "injecting env" messages
 const rootEnvPath = nodePath.resolve(__dirname, '../../.env')
-const rootEnv = dotenv.config({ path: rootEnvPath })
+const rootEnv = dotenv.config({ path: rootEnvPath, quiet: true })
 dotenvExpand.expand(rootEnv)
-console.log(`📁 Loading root .env from: ${rootEnvPath}`)
 
 // Load api-app/.env second (API-specific config, can reference root vars)
 const apiAppEnvPath = nodePath.resolve(__dirname, '../../../.env')
-const apiEnv = dotenv.config({ path: apiAppEnvPath })
+const apiEnv = dotenv.config({ path: apiAppEnvPath, quiet: true })
 dotenvExpand.expand(apiEnv)
-console.log(`📁 Loading api-app .env from: ${apiAppEnvPath}`)
 
 // Now that paths are registered, we can require @dx3/* modules
 const fs = require('node:fs')

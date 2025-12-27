@@ -19,6 +19,8 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { Sequelize } from 'sequelize'
 
+import { isRunningInContainer } from '../../config/config-api.service'
+import { getPostgresUriForEnvironment } from '../postgres.environment'
 import { MIGRATIONS_PATH } from './index'
 import { MigrationRunner } from './migration.runner'
 
@@ -71,46 +73,14 @@ function parsePostgresUrl(url: string): {
 }
 
 /**
- * Detect if running inside a Docker container
- * Checks for ROOT_DIR env var (set in docker-compose) or /.dockerenv file
- */
-function isRunningInContainer(): boolean {
-  // Check for ROOT_DIR which is set in docker-compose.yml
-  if (process.env.ROOT_DIR === '/app') {
-    return true
-  }
-
-  // Check for Docker environment file
-  try {
-    fs.accessSync('/.dockerenv')
-    return true
-  } catch {
-    return false
-  }
-}
-
-/**
- * Get default PostgreSQL URI based on execution environment
- * - Container: Uses Docker network hostname (postgres:5432)
- * - Host: Uses localhost with mapped port (localhost:5433)
- */
-function getDefaultPostgresUri(): string {
-  const inContainer = isRunningInContainer()
-
-  if (inContainer) {
-    console.log('[Migration] Detected container environment')
-    return 'postgres://pguser:password@postgres:5432/dx3'
-  }
-
-  console.log('[Migration] Detected host environment')
-  return 'postgres://pguser:password@localhost:5433/dx3'
-}
-
-/**
  * Create a new Sequelize instance for migrations
  */
 function createSequelizeInstance(): typeof Sequelize.prototype {
-  const postgresUri = process.env.POSTGRES_URI || getDefaultPostgresUri()
+  const inContainer = isRunningInContainer()
+  console.log(`[Migration] Detected ${inContainer ? 'container' : 'host'} environment`)
+
+  // Get the Postgres URI, swapping hostname to localhost when on host
+  const postgresUri = getPostgresUriForEnvironment()
   const config = parsePostgresUrl(postgresUri)
 
   if (!config) {

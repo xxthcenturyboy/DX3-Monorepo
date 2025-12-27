@@ -202,12 +202,6 @@ export class UserService {
     }
   }
 
-  public async deleteTestUser(id: string) {
-    if (this.LOCAL) {
-      await UserModel.removeUser(id)
-    }
-  }
-
   public async getProfile(userId: string) {
     const profile: GetUserProfileReturnType = {
       profile: null,

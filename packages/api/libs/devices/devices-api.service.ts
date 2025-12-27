@@ -336,17 +336,6 @@ export class DevicesService {
     }
   }
 
-  // TODO: Only used in test - remove when can
-  public async deleteTestDevice(id: string) {
-    if (this.LOCAL) {
-      await DeviceModel.destroy({
-        force: true,
-        where: {
-          id,
-        },
-      })
-    }
-  }
 }
 
 export type DevicesServiceType = typeof DevicesService.prototype

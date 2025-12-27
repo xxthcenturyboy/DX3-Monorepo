@@ -31,6 +31,8 @@ pnpm --filter @dx3/api-app-e2e test auth-flow-v1.spec.ts
 pnpm --filter @dx3/api-app-e2e test root-route.spec.ts
 pnpm --filter @dx3/api-app-e2e test user-v1.spec.ts
 pnpm --filter @dx3/api-app-e2e test media-v1.spec.ts
+pnpm --filter @dx3/api-app-e2e test email-v1.spec.ts
+pnpm --filter @dx3/api-app-e2e test phone-v1.spec.ts
 ```
 
 Run a specific test in a testfile

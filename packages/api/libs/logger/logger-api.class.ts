@@ -8,7 +8,7 @@ import { LOG_LEVEL, WINSTON_LOG_LEVELS } from './logger-api.consts'
 winston.addColors({
   data: 'gray',
   debug: 'green',
-  error: 'red',
+  error: 'magenta',
   info: 'cyan',
   warn: 'yellow',
 })

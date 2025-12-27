@@ -45,17 +45,6 @@ export const PhoneController = {
     }
   },
 
-  deletePhoneTest: async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params as { id: string }
-      const service = new PhoneService()
-      const result = await service.deleteTestPhone(id)
-      return sendOK(req, res, result)
-    } catch (err) {
-      sendBadRequest(req, res, err.message)
-    }
-  },
-
   deletePhoneUserProfile: async (req: Request, res: Response) => {
     try {
       const { id } = req.params as { id: string }

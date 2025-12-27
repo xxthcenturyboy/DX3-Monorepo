@@ -69,7 +69,7 @@ describe('v1 Media Routes', () => {
         // assert
         expect(typedError.response.status).toBe(413)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('100 File upload count exceeded.')
+        expect(typedError.response.data.message).toEqual('200 File upload count exceeded.')
       }
     })
 

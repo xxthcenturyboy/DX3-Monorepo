@@ -168,17 +168,6 @@ export class PhoneService {
     }
   }
 
-  public async deleteTestPhone(id: string) {
-    if (this.LOCAL) {
-      await PhoneModel.destroy({
-        force: true,
-        where: {
-          id,
-        },
-      })
-    }
-  }
-
   public async updatePhone(id: string, payload: UpdatePhonePayloadType) {
     const { def, label } = payload
 

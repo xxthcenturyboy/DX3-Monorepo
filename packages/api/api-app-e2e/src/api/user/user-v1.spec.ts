@@ -127,7 +127,7 @@ describe('v1 User Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('Search for user failed.')
+        expect(typedError.response.data.message).toEqual('302 User could not be found.')
       }
     })
   })
@@ -196,7 +196,9 @@ describe('v1 User Routes', () => {
         // assert
         expect(typedError.response.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('Not enough information to create a user.')
+        expect(typedError.response.data.message).toEqual(
+          '301 Not enough information to create a user.',
+        )
       }
     })
   })
@@ -455,17 +457,7 @@ describe('v1 User Routes', () => {
       expect(result.data.userId).toEqual(workingUserId)
     })
 
-    test('should permanently delete a user when called', async () => {
-      const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
-        method: 'DELETE',
-        url: `/api/v1/user/test/${workingUserId}`,
-        withCredentials: true,
-      }
-
-      const result = await axios.request<AxiosRequestConfig, AxiosResponse<void>>(request)
-
-      expect(result.status).toBe(200)
-    })
+    // Test data cleanup is handled by global-teardown.ts which resets the database
+    // No need for individual record deletion - database will be reset after all E2E tests
   })
 })
