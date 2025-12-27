@@ -1,0 +1,16 @@
+/**
+ * Sequelize CLI Configuration
+ * Defines paths for migrations, seeders, and database configuration
+ *
+ * @fileoverview Professional PostgreSQL migration framework configuration
+ * @module @dx3/api/sequelize-config
+ */
+
+const path = require('path')
+
+module.exports = {
+  config: path.resolve(__dirname, 'libs/pg/migrations/database.config.js'),
+  'migrations-path': path.resolve(__dirname, 'libs/pg/migrations'),
+  'models-path': path.resolve(__dirname, 'libs'),
+  'seeders-path': path.resolve(__dirname, 'libs/pg/seed/seeders'),
+}

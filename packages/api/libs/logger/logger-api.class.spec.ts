@@ -189,6 +189,39 @@ describe('ApiLoggingClass', () => {
         expect(mockWinstonLogger.log).not.toHaveBeenCalled()
       })
     })
+
+    describe('logData', () => {
+      it('should be defined', () => {
+        expect(logger.logData).toBeDefined()
+      })
+
+      it('should log data message in non-production environment', () => {
+        process.env.NODE_ENV = 'development'
+        logger = new ApiLoggingClass({ appName: 'Test App' })
+        logger.logData('Test data message')
+        expect(mockWinstonLogger.log).toHaveBeenCalledWith(LOG_LEVEL.DATA, 'Test data message', {
+          context: undefined,
+        })
+      })
+
+      it('should log data message with context in non-production environment', () => {
+        process.env.NODE_ENV = 'development'
+        logger = new ApiLoggingClass({ appName: 'Test App' })
+        const context = { dataInfo: 'test' }
+        logger.logData('Test data message', context)
+        expect(mockWinstonLogger.log).toHaveBeenCalledWith(LOG_LEVEL.DATA, 'Test data message', {
+          context,
+        })
+      })
+
+      it('should NOT log data message in production environment', () => {
+        process.env.NODE_ENV = 'production'
+        logger = new ApiLoggingClass({ appName: 'Test App' })
+        mockWinstonLogger.log.mockClear()
+        logger.logData('Test data message')
+        expect(mockWinstonLogger.log).not.toHaveBeenCalled()
+      })
+    })
   })
 
   describe('Transport configuration', () => {

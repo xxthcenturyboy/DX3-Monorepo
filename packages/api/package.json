@@ -3,16 +3,21 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "db:migrate": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/migrations/migrate.cli.ts up",
+    "db:migrate:create": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/migrations/migrate.cli.ts create",
+    "db:migrate:down": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/migrations/migrate.cli.ts down",
+    "db:migrate:redo": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/migrations/migrate.cli.ts redo",
+    "db:migrate:status": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/migrations/migrate.cli.ts status",
+    "db:seed": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts",
+    "db:seed:local": "POSTGRES_URI=postgres://pguser:password@localhost:5433/dx3 node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts",
     "lint": "biome check .",
     "test": "jest --detectOpenHandles",
     "test:libs": "NODE_OPTIONS='--no-deprecation' jest --testPathPattern=\"libs\" --detectOpenHandles",
     "test:libs:coverage": "NODE_OPTIONS='--no-deprecation' jest --testPathPattern=\"libs\" --coverage --detectOpenHandles",
-    "test:libs:watch": "jest --testPathPattern=\"libs\" --watch",
-    "test:libs:watch:coverage": "jest --testPathPattern=\"libs\" --watch --coverage",
     "test:libs:debug": "jest --testPathPattern=\"libs\" --debug",
     "test:libs:debug:coverage": "jest --testPathPattern=\"libs\" --debug --coverage",
-    "db:seed": "node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts",
-    "db:seed:local": "POSTGRES_URI=postgres://pguser:password@localhost:5433/dx3 node --no-warnings -r dotenv/config -r @swc-node/register ./libs/pg/seed/index.ts"
+    "test:libs:watch": "jest --testPathPattern=\"libs\" --watch",
+    "test:libs:watch:coverage": "jest --testPathPattern=\"libs\" --watch --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
@@ -72,6 +77,7 @@
     "@types/ioredis-mock": "^8.2.5",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/lodash": "^4.17.5",
+    "@types/node": "^22.10.2",
     "aws-sdk-client-mock": "^4.1.0",
     "esbuild": "^0.19.2",
     "ioredis-mock": "^8.13.1",

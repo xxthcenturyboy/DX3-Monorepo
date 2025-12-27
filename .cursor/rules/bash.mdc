@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+- This repo will only use Mac OS or Linux. For any terminal command in a README or other, only use bash code

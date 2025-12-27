@@ -1,7 +1,17 @@
 import * as winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 
-import { API_LOGGER_COLORS, LOG_LEVEL } from './logger-api.consts'
+import { LOG_LEVEL, WINSTON_LOG_LEVELS } from './logger-api.consts'
+
+// Register custom colors for log levels BEFORE any logger is created
+// Colors must be valid 'colors' package color names
+winston.addColors({
+  data: 'gray',
+  debug: 'green',
+  error: 'red',
+  info: 'cyan',
+  warn: 'yellow',
+})
 
 export class ApiLoggingClass {
   static #instance: ApiLoggingClassType
@@ -34,15 +44,22 @@ export class ApiLoggingClass {
     }
   }
 
+  public logData(msg: string, context?: object) {
+    if (process.env.NODE_ENV !== 'production') {
+      this.log(msg, LOG_LEVEL.DATA, context) // Don't log data in production
+    }
+  }
+
   private log(msg: string, level: string, context?: object) {
     this.logger.log(level, msg, { context: context })
   }
 
   private initializeWinston(appName: string) {
-    const logger = winston.createLogger({
+    return winston.createLogger({
+      level: process.env.NODE_ENV === 'production' ? 'info' : 'data',
+      levels: WINSTON_LOG_LEVELS,
       transports: ApiLoggingClass.getTransports(appName),
     })
-    return logger
   }
 
   private static getTransports(appName: string) {
@@ -60,20 +77,21 @@ export class ApiLoggingClass {
   }
 
   private static getFormatForConsole() {
+    // Custom format to uppercase level before colorization
+    const uppercaseLevel = winston.format((info) => {
+      info.level = info.level.toUpperCase()
+      return info
+    })
+
     return winston.format.combine(
       winston.format.timestamp(),
-      winston.format.printf(
-        (info) =>
-          `[${info.timestamp}] [${info.level.toUpperCase()}]: ${info.message} ${info.context ? ` [CONTEXT] -> \n ${JSON.stringify(info.context, null, 2)}` : ''}`,
-      ),
-      winston.format.colorize({
-        all: true,
-        colors: {
-          debug: API_LOGGER_COLORS.greenBright,
-          error: API_LOGGER_COLORS.magenta,
-          info: API_LOGGER_COLORS.cyan,
-          warn: API_LOGGER_COLORS.yellow,
-        },
+      uppercaseLevel(),
+      winston.format.colorize({ all: true }),
+      winston.format.printf((info) => {
+        const context = info.context
+          ? ` [CONTEXT] ->\n${JSON.stringify(info.context, null, 2)}`
+          : ''
+        return `[${info.timestamp}] [${info.level}]: ${info.message}${context}`
       }),
     )
   }
