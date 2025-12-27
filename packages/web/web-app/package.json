@@ -19,6 +19,8 @@
   "dependencies": {
     "@dx3/models-shared": "workspace:*",
     "@dx3/utils-shared": "workspace:*",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.2.0",
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
@@ -39,13 +41,15 @@
     "react-router": "^7.2.0",
     "react-spinners": "^0.15.0",
     "react-toastify": "^11.0.5",
+    "react-transition-group": "^4.4.5",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^3.1.0",
     "reduxjs-toolkit-persist": "^7.2.1",
     "reselect": "^5.1.1",
     "socket.io-client": "^4.8.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zxcvbn-typescript": "^5.0.1"
   },
   "devDependencies": {
     "@dx3/test-data": "workspace:*",
@@ -59,7 +63,7 @@
     "@types/react-avatar-editor": "^13.0.3",
     "@types/react-dom": "^19.1.4",
     "@types/react-is": "^19.0.0",
-    "build": "^0.1.4",
+    "@types/react-transition-group": "^4.4.10",
     "css-loader": "^7.1.2",
     "dotenv": "^17.2.3",
     "dotenv-webpack": "^8.1.1",

@@ -14,8 +14,8 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@types/node-rsa": "^1.1.4",
     "@types/node": "22.19.1",
+    "@types/node-rsa": "^1.1.4",
     "typescript": "~5.7.2"
   }
 }

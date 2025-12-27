@@ -1,0 +1,13 @@
+{
+  "name": "@dx3/web-app-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "e2e": "cypress run",
+    "e2e:open": "cypress open",
+    "lint": "biome check ."
+  },
+  "devDependencies": {
+    "cypress": "^13.13.0"
+  }
+}

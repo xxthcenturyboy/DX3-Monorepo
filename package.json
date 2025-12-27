@@ -33,7 +33,6 @@
     "@swc/helpers": "~0.5.11",
     "@testing-library/jest-dom": "^6.9.1",
     "@types/jest": "^29.5.12",
-    "@types/morgan": "^1.9.9",
     "@types/node": "22.19.1",
     "babel-jest": "^29.7.0",
     "cypress": "^13.13.0",
