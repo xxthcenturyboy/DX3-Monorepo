@@ -60,7 +60,6 @@ export const AppNavBar: React.FC = () => {
 
   React.useEffect(() => {
     if (isAuthenticated && userProfile && !didCallBootstrap) {
-      console.log('calling login bootstrap')
       loginBootstrap(userProfile, mobileBreak)
       didCallBootstrap = true
     }
