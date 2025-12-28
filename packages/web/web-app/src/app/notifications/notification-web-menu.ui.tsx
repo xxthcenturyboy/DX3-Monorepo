@@ -23,12 +23,13 @@ export const StyledNotificationMenu = styled(Menu)<{
 }))
 
 export const StyledNotificationsList = styled(List)<{
+  maxHeight?: string
   component?: React.ElementType
-}>(() => ({
+}>((props) => ({
   '& .MuiList-root': {
     padding: 0,
   },
-  maxHeight: '80vh',
+  maxHeight: props.maxHeight,
   overflowX: 'hidden',
 }))
 

@@ -2,13 +2,13 @@
  * i18n Hooks Tests
  */
 
-import { renderHook, act } from '@testing-library/react'
+import { configureStore } from '@reduxjs/toolkit'
+import { renderHook } from '@testing-library/react'
 import React from 'react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 
 import { DEFAULT_STRINGS } from './i18n.consts'
-import { useI18n, useTranslation, useString, useStrings } from './i18n.hooks'
+import { useI18n, useString, useStrings, useTranslation } from './i18n.hooks'
 import { i18nInitialState, i18nReducer } from './i18n.reducer'
 import type { I18nStateType } from './i18n.types'
 
@@ -187,10 +187,9 @@ describe('i18n Hooks', () => {
       const wrapper = createWrapper(store)
 
       // act
-      const { result } = renderHook(
-        () => useStrings(['LOGIN', 'PASSWORD', 'USERNAME']),
-        { wrapper }
-      )
+      const { result } = renderHook(() => useStrings(['LOGIN', 'PASSWORD', 'USERNAME']), {
+        wrapper,
+      })
 
       // assert
       expect(result.current).toEqual({
@@ -206,10 +205,7 @@ describe('i18n Hooks', () => {
       const wrapper = createWrapper(store)
 
       // act
-      const { result } = renderHook(
-        () => useStrings(['LOGIN', 'LOGOUT']),
-        { wrapper }
-      )
+      const { result } = renderHook(() => useStrings(['LOGIN', 'LOGOUT']), { wrapper })
 
       // assert - TypeScript should enforce these keys exist
       expect(result.current.LOGIN).toBeDefined()

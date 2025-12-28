@@ -18,6 +18,7 @@ export const DEFAULT_LOCALE: LocaleCode = 'en'
 export const DEFAULT_STRINGS: StringKeys = {
   ACCOUNT_MENU: 'Account Menu',
   ADD: 'Add',
+  APP_MENU: 'App Menu',
   ARRAY_BUFFERS: 'Array Buffers',
   AUTH_FAILED: 'Authentication failed. Please try again.',
   AUTH_INVALID_CREDENTIALS: 'Invalid username or password.',
@@ -82,6 +83,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   NOTIFICATION_MISSING_USER_ID: 'User ID is required for this notification.',
   NOTIFICATION_SERVER_ERROR: 'Notification service error. Please try again.',
   NOTIFICATIONS: 'Notifications',
+  NOTIFICATIONS_WILL_APPEAR_HERE: 'Notifications will appear here as you receive them.',
   OTP_CHOOSE_METHOD: 'Choose where to send a one-time code.',
   PAGE_TITLE_ADMIN_USERS: 'Users',
   PAGE_TITLE_API_HEALTH: 'API Health',

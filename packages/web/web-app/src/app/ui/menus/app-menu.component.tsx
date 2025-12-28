@@ -1,12 +1,21 @@
 import ClearIcon from '@mui/icons-material/Clear'
-import { Divider, IconButton, ListSubheader } from '@mui/material'
+import { Divider, IconButton, ListSubheader, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 
+import {
+  CloseViewItem,
+  StyledBottomContainer,
+  StyledBottomItem,
+  StyledList,
+} from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
+import { DRAWER_WIDTH } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
+import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+
 import { LogoutButton } from '../../auth/auth-web-logout.button'
+import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
 import type { AppMenuItemType, AppMenuType } from './app-menu.types'
-import { CloseMenuItem, ListNav, StyledBottomContainer, StyledBottomItem } from './app-menu.ui'
 import { AppMenuGroup } from './app-menu-group.component'
 import { AppMenuItem } from './app-menu-item.component'
 
@@ -18,6 +27,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
   const { mobileBreak } = props
   const [shouldRenderMenus, setShouldRenderMenus] = useState(false)
   const menus = useAppSelector((state) => state.ui.menus)
+  const strings = useStrings(['APP_MENU'])
   const dispatch = useAppDispatch()
 
   useEffect(() => {
@@ -83,9 +93,17 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
 
   return (
     <>
-      <ListNav>
+      <StyledList>
         {mobileBreak && (
-          <CloseMenuItem>
+          <CloseViewItem justifcation="space-between">
+            <Typography
+              color={themeColors.primary}
+              fontWeight={700}
+              textAlign="center"
+              variant="h6"
+            >
+              {strings.APP_MENU}
+            </Typography>
             <IconButton
               onClick={() => dispatch(uiActions.toggleMenuSet(false))}
               style={{
@@ -98,7 +116,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
                 }}
               />
             </IconButton>
-          </CloseMenuItem>
+          </CloseViewItem>
         )}
         {shouldRenderMenus &&
           (menus as AppMenuType[]).map((menu: AppMenuType, index: number) => {
@@ -119,10 +137,13 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
 
             return renderItems(menu.items, index, isFirst)
           })}
-      </ListNav>
-      <StyledBottomContainer mobilebreak={mobileBreak?.toString() || 'false'}>
+      </StyledList>
+      <StyledBottomContainer width={mobileBreak ? '100%' : `${DRAWER_WIDTH}px`}>
         <Divider key="logout-divider" />
-        <StyledBottomItem key="logout-item">
+        <StyledBottomItem
+          justifcation={mobileBreak ? 'flex-end' : 'center'}
+          key="logout-item"
+        >
           <LogoutButton context="APP_MENU" />
         </StyledBottomItem>
       </StyledBottomContainer>

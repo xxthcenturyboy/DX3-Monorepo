@@ -1,14 +1,21 @@
 import ClearIcon from '@mui/icons-material/Clear'
 import GradingIcon from '@mui/icons-material/Grading'
-import { Divider, Drawer, Grid, IconButton, Typography } from '@mui/material'
+import { Divider, Grid, IconButton, Typography } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import React from 'react'
 import { toast } from 'react-toastify'
 import { TransitionGroup } from 'react-transition-group'
 import { NIL as NIL_UUID } from 'uuid'
 
+import { DrawerMenuComponent } from '@dx3/web-libs/ui/dialog/drawer-menu.component'
+import {
+  CloseViewItem,
+  StyledBottomContainer,
+  StyledBottomItem,
+  StyledList,
+} from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
-import { BORDER_RADIUS, themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -18,14 +25,7 @@ import { useMarkAllAsDismissedMutation } from './notification-web.api'
 import { NotificationComponent } from './notification-web.component'
 import { notificationActions } from './notification-web.reducer'
 import { selectNotificationCount } from './notification-web.selectors'
-import {
-  CloseViewItem,
-  StyledBottomContainer,
-  StyledBottomItem,
-  StyledContentWrapper,
-  StyledList,
-  StyledNotificationsList,
-} from './notification-web-menu.ui'
+import { StyledNotificationsList } from './notification-web-menu.ui'
 
 type NotificationsMobilePropsType = {
   clickCloseMenu: () => void
@@ -40,7 +40,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const userId = useAppSelector((state) => state.userProfile.id)
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
-  const strings = useStrings(['NOTIFICATIONS'])
+  const strings = useStrings(['NOTIFICATIONS', 'NOTIFICATIONS_WILL_APPEAR_HERE'])
   const dispatch = useAppDispatch()
   const [
     requestDismissAll,
@@ -52,7 +52,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
       isUninitialized: dismissAllUninitialized,
     },
   ] = useMarkAllAsDismissedMutation()
-  const topPixel = mobileBreak ? 36 : 64
+  const topPixel = mobileBreak ? 36 : 42
 
   React.useEffect(() => {
     setMobileBreak(windowWidth <= MEDIA_BREAK.MOBILE)
@@ -81,116 +81,101 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
   ])
 
   return (
-    <Drawer
+    <DrawerMenuComponent
       anchor="bottom"
-      onClose={props.clickCloseMenu}
+      clickCloseMenu={props.clickCloseMenu}
       open={open}
-      sx={{
-        '& .MuiDrawer-paper': {
-          borderBottom: 'none',
-          borderRadius: BORDER_RADIUS,
-          borderTop: 'none',
-          // height: '100%',
-          height: `calc(100% - ${topPixel}px)`,
-          position: 'fixed',
-          top: `${topPixel}px`,
-          width: '100%',
-        },
-        flexShrink: 0,
-        // width: `${DRAWER_WIDTH}px`,
-      }}
-      transitionDuration={500}
-      variant="temporary"
+      topPixel={topPixel}
+      width="100%"
+      widthOuter="100%"
     >
-      <StyledContentWrapper>
-        <StyledList>
-          <CloseViewItem justifcation="space-between">
+      <StyledList>
+        <CloseViewItem justifcation="space-between">
+          <Typography
+            color={themeColors.primary}
+            fontWeight={700}
+            textAlign="center"
+            variant="h6"
+          >
+            {strings.NOTIFICATIONS}
+            {notificationCount > 0 && <span>{`: ${notificationCount || ''}`}</span>}
+          </Typography>
+          <IconButton
+            onClick={props.clickCloseMenu}
+            style={{
+              padding: 0,
+            }}
+          >
+            <ClearIcon
+              style={{
+                fontSize: '26px',
+              }}
+            />
+          </IconButton>
+        </CloseViewItem>
+        <Collapse in={notificationCount === 0}>
+          <Grid
+            alignItems="center"
+            container
+            direction="column"
+            display="flex"
+            justifyContent="center"
+            minHeight="100px"
+          >
+            <NoDataLottie />
             <Typography
               color={themeColors.primary}
-              fontWeight={700}
+              mb={3}
+              pl={4}
+              pr={4}
               textAlign="center"
               variant="h6"
             >
-              {strings.NOTIFICATIONS}
-              {notificationCount > 0 && <span>{`: ${notificationCount || ''}`}</span>}
+              {strings.NOTIFICATIONS_WILL_APPEAR_HERE}
             </Typography>
+          </Grid>
+        </Collapse>
+        <StyledNotificationsList>
+          <TransitionGroup>
+            {systemNotifications.map((notification) => {
+              return (
+                <Collapse key={notification.id}>
+                  <NotificationComponent notification={notification} />
+                </Collapse>
+              )
+            })}
+          </TransitionGroup>
+          <TransitionGroup>
+            {userNotifications.map((notification) => {
+              return (
+                <Collapse key={notification.id}>
+                  <NotificationComponent notification={notification} />
+                </Collapse>
+              )
+            })}
+          </TransitionGroup>
+        </StyledNotificationsList>
+      </StyledList>
+      <Collapse in={notificationCount > 0}>
+        <StyledBottomContainer width="100%">
+          <Divider key="dismiss-all-divider" />
+          <StyledBottomItem key="dismiss-all-item">
             <IconButton
-              onClick={props.clickCloseMenu}
-              style={{
-                padding: 0,
+              color="info"
+              onClick={async () => {
+                if (systemNotifications.length && isSuperAdmin) {
+                  requestDismissAll({ userId: NIL_UUID })
+                }
+                if (userNotifications.length) {
+                  requestDismissAll({ userId })
+                }
               }}
             >
-              <ClearIcon
-                style={{
-                  fontSize: '26px',
-                }}
-              />
+              <GradingIcon />
             </IconButton>
-          </CloseViewItem>
-          <Collapse in={notificationCount === 0}>
-            <Grid
-              alignItems="center"
-              container
-              direction="column"
-              display="flex"
-              justifyContent="center"
-              minHeight="100px"
-            >
-              <NoDataLottie />
-              <Typography
-                color={themeColors.primary}
-                mb={3}
-                pl={4}
-                pr={4}
-                textAlign="center"
-                variant="h6"
-              >
-                Notifications will appear here as you receive them.
-              </Typography>
-            </Grid>
-          </Collapse>
-          <StyledNotificationsList>
-            <TransitionGroup>
-              {systemNotifications.map((notification) => {
-                return (
-                  <Collapse key={notification.id}>
-                    <NotificationComponent notification={notification} />
-                  </Collapse>
-                )
-              })}
-            </TransitionGroup>
-            <TransitionGroup>
-              {userNotifications.map((notification) => {
-                return (
-                  <Collapse key={notification.id}>
-                    <NotificationComponent notification={notification} />
-                  </Collapse>
-                )
-              })}
-            </TransitionGroup>
-          </StyledNotificationsList>
-        </StyledList>
-        <Collapse in={notificationCount > 0}>
-          <StyledBottomContainer>
-            <Divider key="dismiss-all-divider" />
-            <StyledBottomItem key="dismiss-all-item">
-              <IconButton
-                color="info"
-                onClick={async () => {
-                  if (systemNotifications.length && isSuperAdmin) {
-                    requestDismissAll({ userId: NIL_UUID })
-                  }
-                  if (userNotifications.length) {
-                    requestDismissAll({ userId })
-                  }
-                }}
-              >
-                <GradingIcon />
-              </IconButton>
-            </StyledBottomItem>
-          </StyledBottomContainer>
-        </Collapse>
-      </StyledContentWrapper>
-    </Drawer>
+          </StyledBottomItem>
+        </StyledBottomContainer>
+      </Collapse>
+    </DrawerMenuComponent>
   )
 }

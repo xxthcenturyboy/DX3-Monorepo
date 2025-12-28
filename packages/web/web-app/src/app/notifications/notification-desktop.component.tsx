@@ -37,7 +37,7 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const userId = useAppSelector((state) => state.userProfile.id)
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
-  const strings = useStrings(['NOTIFICATIONS'])
+  const strings = useStrings(['NOTIFICATIONS', 'NOTIFICATIONS_WILL_APPEAR_HERE'])
   const dispatch = useAppDispatch()
   const [
     requestDismissAll,
@@ -134,11 +134,11 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
             textAlign="center"
             variant="h6"
           >
-            Notifications will appear here as you receive them.
+            {strings.NOTIFICATIONS_WILL_APPEAR_HERE}
           </Typography>
         </Grid>
       </Collapse>
-      <StyledNotificationsList>
+      <StyledNotificationsList maxHeight="80vh">
         <TransitionGroup>
           {systemNotifications.map((notification) => {
             return (

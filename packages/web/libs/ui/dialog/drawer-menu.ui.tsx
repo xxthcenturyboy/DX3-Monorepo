@@ -2,48 +2,39 @@ import { List, ListItem } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { styled } from '@mui/material/styles'
 
-import { DRAWER_WIDTH } from '../system/mui-overrides/mui.theme'
-
-export const StyledList = styled(List)<{ component?: React.ElementType }>({
-  '& .MuiListItemIcon-root': {
-    marginRight: 16,
-    minWidth: 0,
-  },
-  '& .MuiSvgIcon-root': {
-    fontSize: 20,
-  },
-  flexGrow: 1,
-  height: '100%',
-  margin: 0,
-  paddingTop: 0,
-})
-
 export const CloseViewItem = styled(ListItem)<{
+  justifcation: string
   component?: React.ElementType
-}>((_props) => ({
+}>((props) => ({
   backgroundColor: grey[100],
   borderBottom: `1px solid ${grey[300]}`,
   display: 'flex',
-  justifyContent: 'flex-end',
+  justifyContent: props.justifcation || 'flex-end',
   minHeight: '48px',
+  position: 'sticky',
+  top: 0,
+  zIndex: 1,
 }))
 
 export const StyledBottomContainer = styled(List)<{
-  mobilebreak: string
+  width: string
   component?: React.ElementType
 }>((props) => ({
   bottom: 0,
   marginTop: 'auto',
   paddingBottom: '0',
   position: 'fixed',
-  width: props.mobilebreak === 'true' ? '100%' : DRAWER_WIDTH,
+  width: props.width,
 }))
 
-export const StyledBottomItem = styled(ListItem)<{ component?: React.ElementType }>({
+export const StyledBottomItem = styled(ListItem)<{
+  component?: React.ElementType
+  justifcation?: string
+}>((props) => ({
   backgroundColor: grey[100],
   display: 'flex',
-  justifyContent: 'center',
-})
+  justifyContent: props.justifcation || 'flex-end',
+}))
 
 export const StyledContentWrapper = styled('div')<{ component?: React.ElementType }>({
   display: 'flex',
@@ -51,4 +42,25 @@ export const StyledContentWrapper = styled('div')<{ component?: React.ElementTyp
   height: '100%',
   marginBottom: '53px',
   overflow: 'auto',
+})
+
+export const StyledList = styled(List)<{ component?: React.ElementType }>({
+  '& .MuiList-root': {
+    flexGrow: 1,
+    height: '100%',
+    margin: 0,
+    paddingBottom: 0,
+    paddingTop: 0,
+  },
+  '& .MuiListItemIcon-root': {
+    marginRight: 16,
+    minWidth: 0,
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: 20,
+  },
+  display: 'flex',
+  flexDirection: 'column',
+  paddingBottom: 0,
+  paddingTop: 0,
 })

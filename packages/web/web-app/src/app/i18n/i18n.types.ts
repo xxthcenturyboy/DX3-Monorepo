@@ -72,6 +72,7 @@ export type StringKeys = {
   AUTH_SESSION_EXPIRED: string
   AUTH_TOKEN_INVALID: string
   AUTH_UNAUTHORIZED: string
+  APP_MENU: string
   BACK: string
   CANCEL: string
   CHANGE_PASSWORD: string
@@ -128,6 +129,7 @@ export type StringKeys = {
   NOTIFICATION_MISSING_USER_ID: string
   NOTIFICATION_SERVER_ERROR: string
   NOTIFICATIONS: string
+  NOTIFICATIONS_WILL_APPEAR_HERE: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
   PAGE_TITLE_API_HEALTH: string

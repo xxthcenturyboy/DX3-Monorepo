@@ -20,6 +20,7 @@ export const StatsHeaderComponent: React.FC<StatsHeaderComponentProps> = (props)
 
   return (
     <ContentHeader
+      gridDirection={'row'}
       headerColumnRightJustification={'flex-end'}
       headerColumnsBreaks={{
         left: {

@@ -12,6 +12,7 @@ import {
 import type React from 'react'
 
 export type ContentHeaderPropsType = {
+  gridDirection?: 'row' | 'column'
   headerTitle: string
   headerColumnRightJustification?: string
   headerColumnsBreaks?: {
@@ -37,6 +38,7 @@ export type ContentHeaderPropsType = {
 
 export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
   const {
+    gridDirection,
     headerColumnsBreaks,
     headerColumnRightJustification,
     headerContent,
@@ -79,6 +81,14 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
     )
   }
 
+  const getGridDirection = () => {
+    if (gridDirection) {
+      return gridDirection
+    }
+
+    return SM_BREAK ? 'column' : 'row'
+  }
+
   return (
     <Box
       // boxShadow={'0px 2px 9px 5px rgb(0 0 0 / 10%), 0px 2px 2px 0px rgb(0 0 0 / 10%), 0px 1px 5px 0px rgb(0 0 0 / 10%)'}
@@ -98,9 +108,10 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
       <Grid
         alignItems={MD_BREAK ? 'flex-start' : 'center'}
         container
-        direction={SM_BREAK ? 'column' : 'row'}
+        direction={getGridDirection()}
         justifyContent="space-between"
         padding="14px 16px 14px"
+        wrap="nowrap"
       >
         <Grid
           size={{
