@@ -87,8 +87,6 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
     },
   ] = useSendNotificationToUserMutation()
 
-  // React.useEffect(() => {}, []);
-
   React.useEffect(() => {
     if (!isLoadingSendToUser && !sendToUserUninitialized) {
       if (sendToUserSuccess && !sendToUserError) {
@@ -101,7 +99,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         setShowLottieError(true)
       }
     }
-  }, [isLoadingSendToUser, sendToUserError, sendToUserUninitialized, sendToUserSuccess])
+  }, [sendToUserSuccess, sendToUserError, sendToUserUninitialized, sendToUserSuccess])
 
   React.useEffect(() => {
     if (!isLoadingSendToAll && !sendToAllUninitialized) {
@@ -115,10 +113,15 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         setShowLottieError(true)
       }
     }
-  }, [isLoadingSendToAll, sendToAllError, sendToAllUninitialized])
+  }, [sendToAllSuccess, sendToAllError, sendToAllUninitialized])
+
+  React.useEffect(() => {
+    if (allSucceeded) {
+      setTimeout(() => handleClose(), 700)
+    }
+  }, [allSucceeded])
 
   const handleClose = (): void => {
-    console.log('tryna close')
     dispatch(uiActions.appDialogSet(null))
   }
 
@@ -330,7 +333,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
           isMobileWidth={isMobileWidth}
           windowHeight={windwoHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 500)} />
+          <SuccessLottie complete={() => setTimeout(() => handleClose(), 200)} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (

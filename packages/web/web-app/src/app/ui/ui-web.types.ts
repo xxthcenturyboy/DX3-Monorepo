@@ -15,6 +15,7 @@ export type UiStateType = {
   logoUrlSmall: string
   menuOpen: boolean
   menus: AppMenuType[] | null
+  mobileNotiicationsOpen: boolean
   name: string
   notifications: number
   theme: ThemeOptions

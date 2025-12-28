@@ -28,7 +28,7 @@ import {
   selectNotificationCount,
   // useTestSocketsMutation
 } from '../../notifications/notification-web.selectors'
-import { NotificationMenu } from '../../notifications/notification-web-menu.component'
+import { NotificationsMenu } from '../../notifications/notifications.menu'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
 import { AccountMenu } from './app-menu-account.component'
@@ -56,12 +56,15 @@ export const AppNavBar: React.FC = () => {
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const ROUTES = WebConfigService.getWebRoutes()
   // const [requestTestNotifications] = useTestSocketsMutation();
+  let didCallBootstrap = false
 
   React.useEffect(() => {
-    if (isAuthenticated && userProfile) {
+    if (isAuthenticated && userProfile && !didCallBootstrap) {
+      console.log('calling login bootstrap')
       loginBootstrap(userProfile, mobileBreak)
+      didCallBootstrap = true
     }
-  }, [isAuthenticated, mobileBreak, userProfile])
+  }, [isAuthenticated, userProfile])
 
   React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
@@ -95,10 +98,12 @@ export const AppNavBar: React.FC = () => {
 
   const handleClickNotificationMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElementNotificaitonMenu(event.currentTarget)
+    dispatch(uiActions.toggleMobileNotificationsOpenSet(true))
   }
 
   const handleNotificationMenu = () => {
     setAnchorElementNotificaitonMenu(null)
+    dispatch(uiActions.toggleMobileNotificationsOpenSet(false))
   }
 
   const hideLoginForRoutes = (): boolean => {
@@ -234,7 +239,7 @@ export const AppNavBar: React.FC = () => {
         anchorElement={anchorElementAccountMenu}
         clickCloseMenu={handleCloseAccountMenu}
       />
-      <NotificationMenu
+      <NotificationsMenu
         anchorElement={anchorElementNotificationMenu}
         clickCloseMenu={handleNotificationMenu}
       />

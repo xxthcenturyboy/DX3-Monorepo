@@ -15,7 +15,7 @@ const DrawerContent = styled('div')<{ component?: React.ElementType }>({
   overflow: 'auto',
 })
 
-export const ResponsiveMenu: React.FC = () => {
+export const AppMenuDesktop: React.FC = () => {
   const open = useAppSelector((state) => state.ui.menuOpen)
 
   return (

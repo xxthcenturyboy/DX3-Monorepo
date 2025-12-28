@@ -11,6 +11,7 @@ import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
 import { useMarkAllAsDismissedMutation } from './notification-web.api'
@@ -23,12 +24,12 @@ import {
   StyledNotificationsList,
 } from './notification-web-menu.ui'
 
-type NotificationMenuPropsType = {
+type NotificationsDesktopPropsType = {
   anchorElement: HTMLElement | null
   clickCloseMenu: () => void
 }
 
-export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => {
+export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (props) => {
   const [mobileBreak, setMobileBreak] = React.useState(false)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const systemNotifications = useAppSelector((state) => state.notification.system)
@@ -36,6 +37,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const userId = useAppSelector((state) => state.userProfile.id)
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
+  const strings = useStrings(['NOTIFICATIONS'])
   const dispatch = useAppDispatch()
   const [
     requestDismissAll,
@@ -105,7 +107,7 @@ export const NotificationMenu: React.FC<NotificationMenuPropsType> = (props) => 
             fontWeight={700}
             variant="body1"
           >
-            Notifications
+            {strings.NOTIFICATIONS}
             {
               <Fade in={notificationCount > 0}>
                 <span>{`: ${notificationCount || ''}`}</span>

@@ -12,13 +12,19 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
   const [isLoading, setIsLoading] = React.useState(false)
 
   React.useEffect(() => {
-    loadSettings()
     loadAnimationData()
   }, [animationData])
 
+  React.useEffect(() => {
+    if (loadedAnimationData) {
+      loadSettings()
+    }
+  }, [loadedAnimationData])
+
   const loadSettings = (): void => {
-    if (lottieRef) {
-      lottieRef.current?.setSpeed(speed || 1)
+    if (loadedAnimationData && lottieRef.current) {
+      // This is necessary because the final render takes a millisecond to get the ref
+      setTimeout(() => lottieRef.current?.setSpeed(speed || 1), 10)
     }
   }
 

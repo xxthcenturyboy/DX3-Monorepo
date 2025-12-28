@@ -5,20 +5,12 @@ import React from 'react'
 import { DRAWER_WIDTH } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
-import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { uiActions } from '../store/ui-web.reducer'
-import { AppMenu } from './app-menu.component'
+import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
+import { uiActions } from '../ui/store/ui-web.reducer'
+import { DrawerContent } from './drawer-content.component'
 
-const DrawerContent = styled('div')<{ component?: React.ElementType }>({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  marginBottom: '53px',
-  overflow: 'auto',
-})
-
-export const OverlayMenu: React.FC = () => {
-  const open = useAppSelector((state) => state.ui.menuOpen)
+export const DrawerComponent: React.FC = () => {
+  const open = useAppSelector((state) => state.ui.mobileNotiicationsOpen)
   const [mobileBreak, setMobileBreak] = React.useState(false)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const dispatch = useAppDispatch()
@@ -29,7 +21,7 @@ export const OverlayMenu: React.FC = () => {
   }, [windowWidth])
 
   const toggleMenuState = (): void => {
-    dispatch(uiActions.toggleMenuSet(false))
+    dispatch(uiActions.toggleMobileNotificationsOpenSet(false))
   }
 
   return (
@@ -54,9 +46,7 @@ export const OverlayMenu: React.FC = () => {
       transitionDuration={500}
       variant="temporary"
     >
-      <DrawerContent>
-        <AppMenu mobileBreak={mobileBreak} />
-      </DrawerContent>
+      <DrawerContent mobileBreak={mobileBreak} />
     </Drawer>
   )
 }

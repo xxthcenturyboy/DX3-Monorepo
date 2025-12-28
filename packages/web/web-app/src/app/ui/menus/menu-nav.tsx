@@ -3,8 +3,8 @@ import React from 'react'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppSelector } from '../../store/store-web-redux.hooks'
-import { OverlayMenu } from './overlay-menu.component'
-import { ResponsiveMenu } from './responsive-menu.component'
+import { AppMenuDesktop } from './app-menu-desktop.component'
+import { AppMenuMobile } from './app-menu-mobile.component'
 
 export const MenuNav: React.FC = () => {
   const [menuBreak, setMenuBreak] = React.useState(false)
@@ -15,8 +15,8 @@ export const MenuNav: React.FC = () => {
   }, [windowWidth])
 
   if (menuBreak) {
-    return <OverlayMenu />
+    return <AppMenuMobile />
   }
 
-  return <ResponsiveMenu />
+  return <AppMenuDesktop />
 }

@@ -24,6 +24,7 @@ export const uiInitialState: UiStateType = {
   logoUrlSmall: `/assets/img/text-logo-square.png`,
   menuOpen: false,
   menus: null,
+  mobileNotiicationsOpen: false,
   name: APP_NAME,
   notifications: 0,
   theme: appTheme,
@@ -43,6 +44,7 @@ export const uiPersistConfig: PersistConfig<UiStateType> = {
     'isShowingUnauthorizedAlert',
     'logoUrl',
     'logoUrlSmall',
+    'mobileNotiicationsOpen',
   ],
   key: `${APP_PREFIX}:${UI_WEB_ENTITY_NAME}`,
   stateReconciler: autoMergeLevel1,
@@ -83,6 +85,9 @@ const uiSlice = createSlice({
     },
     toggleMenuSet(state, action: PayloadAction<boolean>) {
       state.menuOpen = action.payload
+    },
+    toggleMobileNotificationsOpenSet(state, action: PayloadAction<boolean>) {
+      state.mobileNotiicationsOpen = action.payload
     },
     windowSizeSet(state, _action: PayloadAction<undefined>) {
       state.windowWidth = window?.innerWidth

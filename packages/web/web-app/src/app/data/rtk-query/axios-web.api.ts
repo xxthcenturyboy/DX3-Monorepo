@@ -64,7 +64,7 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
     ) => {
       if (
         error.response?.status === 403 &&
-        error.response?.data?.message === 'Token invalid or expired.'
+        error.response?.data?.message.toLowerCase().includes('token invalid or expired')
       ) {
         const { store } = await import('../../store')
         const accessToken = store.getState().auth.token
