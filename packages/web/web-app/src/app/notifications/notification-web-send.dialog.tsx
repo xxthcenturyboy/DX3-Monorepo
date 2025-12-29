@@ -19,6 +19,7 @@ import {
   type NotificationCreationParamTypes,
   type UserType,
 } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -27,8 +28,7 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useI18n, useStrings } from '../i18n'
-import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import {
   useSendNotificationToAllMutation,
@@ -38,6 +38,7 @@ import { SendNotificationForm } from './notification-web-dialog.ui'
 
 type NotificationSendPropsType = {
   user?: UserType
+  closeDialog: () => void
 }
 
 export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
@@ -54,7 +55,6 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
   )
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windwoHeight = useAppSelector((state) => selectWindowHeight(state))
-  const dispatch = useAppDispatch()
   const { t } = useI18n()
   const strings = useStrings([
     'CANCEL',
@@ -115,14 +115,15 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
     }
   }, [sendToAllSuccess, sendToAllError, sendToAllUninitialized])
 
-  React.useEffect(() => {
-    if (allSucceeded) {
-      setTimeout(() => handleClose(), 700)
-    }
-  }, [allSucceeded])
-
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(() => {
+      setAllSucceeded(false)
+      setShowLottieError(false)
+      setTitle('')
+      setMessage('')
+      setLevel(NOTIFICATION_LEVELS.INFO)
+    })
   }
 
   const submitDisabled = (): boolean => {
@@ -333,7 +334,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
           isMobileWidth={isMobileWidth}
           windowHeight={windwoHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 200)} />
+          <SuccessLottie complete={handleClose} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (

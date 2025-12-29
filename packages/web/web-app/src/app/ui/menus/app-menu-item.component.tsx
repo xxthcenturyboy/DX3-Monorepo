@@ -9,6 +9,7 @@ import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
+import { selectIsMobileWidth } from '../store/ui-web.selector'
 import type { AppMenuItemType } from './app-menu.types'
 
 type AppMenuItemItemProps = {
@@ -20,6 +21,7 @@ type AppMenuItemItemProps = {
 export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   const { isFirst, isSubItem, menuItem } = props
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
+  const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const location = useLocation()
   const { pathname } = location
   const [route, _] = useState(menuItem.routeKey)
@@ -57,6 +59,11 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   }
 
   const goToRoute = (): void => {
+    if (route && isSelected() && isMobileWidth) {
+      dispatch(uiActions.toggleMenuSet(false))
+      return
+    }
+
     if (route && !isSelected()) {
       menuBreak && dispatch(uiActions.toggleMenuSet(false))
       navigate(route)

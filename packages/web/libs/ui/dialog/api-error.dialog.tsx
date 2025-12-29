@@ -5,9 +5,10 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import type React from 'react'
 
-// import DialogTitle from '@mui/material/DialogTitle';
-
 import { ErrorLottie } from '../lottie/error.lottie'
+// import DialogTitle from '@mui/material/DialogTitle';
+import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { SlideTransition, ZoomTransition } from './dialog.ui'
 import { DialogWrapper } from './ui-wrapper.dialog'
 
 type DialogApiErrorPropsType = {
@@ -38,6 +39,12 @@ export const DialogApiError: React.FC<DialogApiErrorPropsType> = (props) => {
         },
         open,
         props,
+        slotProps: {
+          transition: {
+            timeout: TIMEOUT_DUR_500,
+          },
+        },
+        slots: { transition: isMobileWidth ? SlideTransition : ZoomTransition },
       }}
     >
       <Box

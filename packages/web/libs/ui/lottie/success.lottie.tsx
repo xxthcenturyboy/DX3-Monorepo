@@ -10,7 +10,7 @@ export const SuccessLottie: React.FC<LottiePropTypes> = ({ complete }): ReactEle
       animationData="/assets/animations/check-mark-success.json"
       complete={complete}
       loop={false}
-      speed={2}
+      speed={1}
       style={{
         alignSelf: 'center',
         width: '200px',

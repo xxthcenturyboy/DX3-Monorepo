@@ -7,6 +7,7 @@ import AvatarEditor from 'react-avatar-editor'
 import { BeatLoader } from 'react-spinners'
 
 import type { MediaDataType } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -17,12 +18,12 @@ import { APP_COLOR_PALETTE, themeColors } from '@dx3/web-libs/ui/system/mui-over
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
 import { UploadProgressComponent } from '../../media/media-web-upload-progress.component'
-import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
-import { uiActions } from '../../ui/store/ui-web.reducer'
+import { useAppSelector } from '../../store/store-web.redux'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 
 type UserProfileWebAvatarPropTypes = {
   avatarDataCallback: (data: Partial<MediaDataType>) => void
+  closeDialog: () => void
 }
 
 export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes> = (
@@ -42,7 +43,6 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const avatarEditorRef = React.useRef<null | AvatarEditor>(null)
-  const dispatch = useAppDispatch()
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
@@ -84,8 +84,19 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
     }
   }, [uploadAvatarSuccess, uploadAvatarResponse])
 
+  const reset = () => {
+    setAllSucceeded(false)
+    setShowLottieError(false)
+    setImageSource('')
+    setScale(1.2)
+    setUploadProgress(0)
+    setProcessStarted(false)
+    setImageMeta(null)
+  }
+
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(reset)
   }
 
   const submitDisabled = (): boolean => {

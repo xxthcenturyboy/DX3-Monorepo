@@ -1,13 +1,10 @@
-// import DialogTitle from '@mui/material/DialogTitle';
-// import Box from '@mui/material/Box';
 import { useMediaQuery, useTheme } from '@mui/material'
 import Button from '@mui/material/Button'
 import DialogActions from '@mui/material/DialogActions'
-// import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText'
 import React, { type ReactElement } from 'react'
 
-// import Zoom from '@mui/material/Zoom';
+import { sleep } from '@dx3/utils-shared'
 
 import { CancelLottie } from '../lottie/cancel.lottie'
 import { QuestionMarkLottie } from '../lottie/question-mark.lottie'
@@ -20,7 +17,6 @@ type ConfirmationDialogProps = {
   cancelText?: string
   bodyMessage?: string
   bodyMessageHtml?: React.ReactNode
-  // bodyMessageHtml?: DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
   noAwait?: boolean
   title?: string
   onComplete(confirmation?: boolean): void
@@ -42,27 +38,42 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   const theme = useTheme()
   const smBreak = useMediaQuery(theme.breakpoints.down('sm'))
 
+  const resetState = async (): Promise<void> => {
+    sleep(1000).then(() => {
+      setShowLottieCancel(false)
+      setShowLottieSuccess(false)
+      setMessageText(bodyMessage || '')
+    })
+  }
+
   const handleClose = (): void => {
     onComplete(false)
+    resetState()
   }
 
   const handleConfirmation = (): void => {
-    if (!noAwait) {
-      setTimeout(() => onComplete(true), 500)
-    }
+    onComplete(true)
+    resetState()
   }
 
-  const handleCancel = (): void => {
+  const handleClickCancel = (): void => {
     setMessageText('Cancelling')
+    if (noAwait) {
+      handleClose()
+      return
+    }
+
     setShowLottieCancel(true)
   }
 
   const handleClickConfirm = (): void => {
     setMessageText(okText || 'Ok')
-    setShowLottieSuccess(true)
     if (noAwait) {
-      onComplete(true)
+      handleConfirmation()
+      return
     }
+
+    setShowLottieSuccess(true)
   }
 
   return (
@@ -78,10 +89,10 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         <DialogContentText
           align="center"
           id="confirm-dialog-description"
-          margin="0 0 20px"
+          margin="40px 0 12px"
           variant="h6"
         >
-          {messageText || 'Are you sure?'}
+          {messageText || 'Are you sure you want to do this?'}
         </DialogContentText>
         {bodyMessageHtml}
       </CustomDialogContent>
@@ -94,7 +105,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         >
           {cancelText && (
             <Button
-              onClick={handleCancel}
+              onClick={handleClickCancel}
               variant="outlined"
             >
               {cancelText}

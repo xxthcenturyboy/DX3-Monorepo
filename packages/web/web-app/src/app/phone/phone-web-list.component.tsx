@@ -14,14 +14,17 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
-import type React from 'react'
+import React from 'react'
+import { createPortal } from 'react-dom'
 
 import type { PhoneType } from '@dx3/models-shared'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
-import { useAppDispatch } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
 import { AddPhoneDialog } from './phone-web-create.dialog'
 import { DeletePhoneDialog } from './phone-web-delete.dialog'
 
@@ -34,7 +37,10 @@ export type UserPhonesProps = {
 
 export const Phonelist: React.FC<UserPhonesProps> = (props) => {
   const { phones, userId, phoneDataCallback, phoneDeleteCallback } = props
-  const dispatch = useAppDispatch()
+  const [phoneAddDialogOpen, setPhoneAddDialogOpen] = React.useState(false)
+  const [phoneDeleteDialogOpen, setPhoneDeleteDialogOpen] = React.useState(false)
+  const theme = useTheme()
+  const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const rowHeight = '32px'
   const strings = useStrings([
     'DEFAULT',
@@ -58,6 +64,22 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
     // backgroundColor: themeMode && themeMode === 'dark' ? theme.palette.primary.light : theme.palette.secondary.main,
     // }
   }))
+
+  const phoneAddModal = createPortal(
+    <CustomDialog
+      body={
+        <AddPhoneDialog
+          closeDialog={() => setPhoneAddDialogOpen(false)}
+          phoneDataCallback={phoneDataCallback}
+          userId={userId}
+        />
+      }
+      closeDialog={() => setPhoneAddDialogOpen(false)}
+      isMobileWidth={SM_BREAK}
+      open={phoneAddDialogOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
 
   return (
     <Box
@@ -89,16 +111,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
           <Grid>
             <Button
               color="primary"
-              onClick={() =>
-                dispatch(
-                  uiActions.appDialogSet(
-                    <AddPhoneDialog
-                      phoneDataCallback={phoneDataCallback}
-                      userId={userId}
-                    />,
-                  ),
-                )
-              }
+              onClick={() => setPhoneAddDialogOpen(true)}
               size={'small'}
               variant="contained"
             >
@@ -192,27 +205,37 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                           />
                         )}
                         {!phone.default && (
-                          <Tooltip title={strings.TOOLTIP_DELETE_PHONE}>
-                            <Delete
-                              color="primary"
-                              onClick={(event: React.SyntheticEvent) => {
-                                event.stopPropagation()
-                                dispatch(
-                                  uiActions.appDialogSet(
-                                    <DeletePhoneDialog
-                                      phoneDataCallback={phoneDeleteCallback}
-                                      phoneItem={phone}
-                                    />,
-                                  ),
-                                )
-                              }}
-                              style={{
-                                cursor: 'pointer',
-                                margin: '0 10 0 0',
-                                width: '0.75em',
-                              }}
-                            />
-                          </Tooltip>
+                          <>
+                            <Tooltip title={strings.TOOLTIP_DELETE_PHONE}>
+                              <Delete
+                                color="primary"
+                                onClick={(event: React.SyntheticEvent) => {
+                                  event.stopPropagation()
+                                  setPhoneDeleteDialogOpen(true)
+                                }}
+                                style={{
+                                  cursor: 'pointer',
+                                  margin: '0 10 0 0',
+                                  width: '0.75em',
+                                }}
+                              />
+                            </Tooltip>
+                            {createPortal(
+                              <CustomDialog
+                                body={
+                                  <DeletePhoneDialog
+                                    closeDialog={() => setPhoneDeleteDialogOpen(false)}
+                                    phoneDataCallback={phoneDeleteCallback}
+                                    phoneItem={phone}
+                                  />
+                                }
+                                closeDialog={() => setPhoneDeleteDialogOpen(false)}
+                                isMobileWidth={SM_BREAK}
+                                open={phoneDeleteDialogOpen}
+                              />,
+                              document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+                            )}
+                          </>
                         )}
                       </TableCell>
                     </StyledTableRow>
@@ -222,6 +245,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
           </Table>
         </TableContainer>
       </Paper>
+      {phoneAddModal}
     </Box>
   )
 }

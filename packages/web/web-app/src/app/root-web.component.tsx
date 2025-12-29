@@ -7,7 +7,6 @@ import { Slide, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { DialogApiError } from '@dx3/web-libs/ui/dialog/api-error.dialog'
-import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { GlobalAwaiter } from '@dx3/web-libs/ui/global/global-awaiter.component'
 import { appTheme, DRAWER_WIDTH } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
@@ -48,8 +47,6 @@ export const Root: React.FC = () => {
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state)) || 0
   const windowWidth = useAppSelector((state) => selectWindowWidth(state)) || 0
-  const customDialogOpen = useAppSelector((state) => state.ui.dialogOpen)
-  const customDialogBody = useAppSelector((state) => state.ui.dialogComponent)
   const dialogAwaiterMessage = useAppSelector((state) => state.ui.awaitDialogMessage)
   const dialogAwaiterOpen = useAppSelector((state) => state.ui.awaitDialogOpen)
   const dialogErrorMessage = useAppSelector((state) => state.ui.apiDialogError)
@@ -206,12 +203,6 @@ export const Root: React.FC = () => {
           </Box>
         </Box>
       </Fade>
-      <CustomDialog
-        body={customDialogBody}
-        closeDialog={() => dispatch(uiActions.appDialogSet(null))}
-        isMobileWidth={isMobileWidth}
-        open={customDialogOpen}
-      />
       <DialogApiError
         closeDialog={() => dispatch(uiActions.apiDialogSet(''))}
         isMobileWidth={isMobileWidth}

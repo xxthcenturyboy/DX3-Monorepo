@@ -23,7 +23,7 @@ import {
   type EmailType,
   OTP_LENGTH,
 } from '@dx3/models-shared'
-import { regexEmail } from '@dx3/utils-shared'
+import { regexEmail, sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -33,13 +33,13 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { useAddEmailMutation, useCheckEmailAvailabilityMutation } from './email-web.api'
 import { AddEmailForm } from './email-web.ui'
 
 type AddEmailPropsType = {
+  closeDialog: () => void
   userId: string
   emailDataCallback: (email: EmailType) => void
 }
@@ -58,7 +58,6 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const dispatch = useAppDispatch()
   const [
     requestCheckAvailability,
     {
@@ -90,8 +89,21 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     },
   ] = useOtpRequestEmailMutation()
 
+  const reset = () => {
+    setAllSucceeded(false)
+    setShowLottieError(false)
+    setHasSentOtp(false)
+    setIsEmailAvailable(false)
+    setEmail('')
+    setLabel(EMAIL_LABEL.PERSONAL)
+    setErrorMessage('')
+    setOtp('')
+    setIsDefault(false)
+  }
+
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(reset)
   }
 
   const handleCreate = async (): Promise<void> => {

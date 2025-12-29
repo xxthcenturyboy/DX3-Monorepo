@@ -15,6 +15,7 @@ import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import type { UpdatePasswordPayloadType } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -24,13 +25,13 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useCheckPasswordStrengthMutation } from '../../auth/auth-web.api'
 import { AuthWebRequestOtpEntry } from '../../auth/auth-web-request-otp.component'
-import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { uiActions } from '../../ui/store/ui-web.reducer'
+import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { useUpdatePasswordMutation } from './user-profile-web.api'
 import { ChangePasswordForm } from './user-profile-web-change-password.ui'
 
 type UserProfileChangePasswordPropsType = {
+  closeDialog: () => void
   userId: string
 }
 
@@ -49,7 +50,6 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const dispatch = useAppDispatch()
   const [
     requestPasswordStrength,
     {
@@ -121,8 +121,19 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
     checkStrengthUninitialized,
   ])
 
+  const reset = () => {
+    setAllSucceeded(false)
+    setShowLottieError(false)
+    setIsPasswordStrong(false)
+    setPasswordStrengthMessage('')
+    setPassword('')
+    setPasswordConfirm('')
+    setErrorMessage('')
+  }
+
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(reset)
   }
 
   const submitDisabled = (): boolean => {
@@ -316,7 +327,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
           isMobileWidth={isMobileWidth}
           windowHeight={windowHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 500)} />
+          <SuccessLottie complete={handleClose} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (

@@ -1,8 +1,11 @@
 import { Box, Button, Divider, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
+import { createPortal } from 'react-dom'
 
 import type { EmailType, MediaDataType, PhoneType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { EmailList } from '../../email/email-web-list.component'
 import { useStrings } from '../../i18n'
@@ -19,6 +22,7 @@ import { UserProfileHeaderComponent } from './user-profile-web-header.component'
 export const UserProfile: React.FC = () => {
   const profile = useAppSelector((state) => selectProfileFormatted(state))
   const appMode = useAppSelector((state) => state.ui.theme.palette?.mode)
+  const [avatarDialogOpen, setAvatarDialogOpen] = React.useState(false)
   const dispatch = useAppDispatch()
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
@@ -59,6 +63,21 @@ export const UserProfile: React.FC = () => {
     dispatch(userProfileActions.profileImageUpdate(data.id))
   }
 
+  const avatarDialogtModal = createPortal(
+    <CustomDialog
+      body={
+        <UserProfileWebAvatarDialog
+          avatarDataCallback={avatarDataCallback}
+          closeDialog={() => setAvatarDialogOpen(false)}
+        />
+      }
+      closeDialog={() => setAvatarDialogOpen(false)}
+      isMobileWidth={SM_BREAK}
+      open={avatarDialogOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
+
   return (
     <ContentWrapper contentTopOffset={SM_BREAK ? '98px' : '56px'}>
       <UserProfileHeaderComponent />
@@ -87,13 +106,7 @@ export const UserProfile: React.FC = () => {
               >
                 <UserProfileAvatar
                   fontSize="6rem"
-                  handleChangeImage={() =>
-                    dispatch(
-                      uiActions.appDialogSet(
-                        <UserProfileWebAvatarDialog avatarDataCallback={avatarDataCallback} />,
-                      ),
-                    )
-                  }
+                  handleChangeImage={() => setAvatarDialogOpen(true)}
                   justifyContent="center"
                   size={{
                     height: 142,
@@ -174,6 +187,7 @@ export const UserProfile: React.FC = () => {
           </Grid>
         </Paper>
       </Box>
+      {avatarDialogtModal}
     </ContentWrapper>
   )
 }

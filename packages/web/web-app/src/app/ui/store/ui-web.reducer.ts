@@ -17,8 +17,6 @@ export const uiInitialState: UiStateType = {
   awaitDialogMessage: '',
   awaitDialogOpen: false,
   bootstrapped: false,
-  dialogComponent: null,
-  dialogOpen: false,
   isShowingUnauthorizedAlert: false,
   logoUrl: `/assets/img/text-logo-dark-square.png`,
   logoUrlSmall: `/assets/img/text-logo-square.png`,
@@ -39,8 +37,6 @@ export const uiPersistConfig: PersistConfig<UiStateType> = {
     'awaitDialogMessage',
     'awaitDialogOpen',
     'bootstrapped',
-    'dialogOpen',
-    'dialogComponent',
     'isShowingUnauthorizedAlert',
     'logoUrl',
     'logoUrlSmall',
@@ -58,10 +54,6 @@ const uiSlice = createSlice({
     apiDialogSet(state, action: PayloadAction<string>) {
       state.apiDialogOpen = !!action.payload
       state.apiDialogError = action.payload
-    },
-    appDialogSet(state, action: PayloadAction<React.ReactNode | null>) {
-      state.dialogOpen = !!action.payload
-      state.dialogComponent = action.payload
     },
     awaitDialogMessageSet(state, action: PayloadAction<string>) {
       state.awaitDialogMessage = action.payload

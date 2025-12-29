@@ -1,6 +1,7 @@
 import { Button, Grid, useMediaQuery, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
@@ -10,18 +11,20 @@ import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-p
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 
 import { WebConfigService } from '../../config/config-web.service'
 import { useApiError } from '../../data/errors'
 import type { CustomResponseErrorType } from '../../data/rtk-query'
-import { useString } from '../../i18n'
+import { useString, useStrings } from '../../i18n'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
-import { selectWindowHeight } from '../../ui/store/ui-web.selector'
+import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { useLazyGetUserAdminListQuery } from './user-admin-web.api'
 import { userAdminActions } from './user-admin-web.reducer'
@@ -40,6 +43,10 @@ export const UserAdminList: React.FC = () => {
   const usersCount = useAppSelector((state) => state.userAdmin.usersCount)
   const currentUser = useAppSelector((state) => state.userProfile)
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
+  const [alertModalOpen, setAlertModalOpen] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
   const pageTitle = useString('PAGE_TITLE_ADMIN_USERS')
   const usersListHeaders = UserAdminWebListService.getListHeaders()
   const [isInitialized, setIsInitialized] = useState(false)
@@ -51,6 +58,7 @@ export const UserAdminList: React.FC = () => {
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const location = useLocation()
+  const strings = useStrings(['CANCEL', 'SEND'])
   const [
     fetchUserList,
     {
@@ -126,17 +134,8 @@ export const UserAdminList: React.FC = () => {
 
   const clickRow = (data: TableRowType): void => {
     const user = users.find((user) => user.id === data.id)
-    if (user?.username === 'superadmin' && currentUser?.id !== user.id) {
-      dispatch(
-        uiActions.appDialogSet(
-          <DialogAlert
-            buttonText="Got it."
-            closeDialog={() => dispatch(uiActions.appDialogSet(null))}
-            message="You cannot edit the superadmin account."
-            windowHeight={windowHeight}
-          />,
-        ),
-      )
+    if (user?.roles?.includes('SUPER_ADMIN') && currentUser?.id !== user.id) {
+      setAlertModalOpen(true)
       return
     }
 
@@ -161,43 +160,63 @@ export const UserAdminList: React.FC = () => {
     dispatch(userAdminActions.sortDirSet('ASC'))
   }
 
-  const handleSendAppUpdateClick = async (): Promise<void> => {
-    try {
-      dispatch(
-        uiActions.appDialogSet(
-          <ConfirmationDialog
-            bodyMessage="Send App Update to All Users?"
-            cancelText="Cancel"
-            noAwait={true}
-            okText="Send"
-            onComplete={async (isConfirmed: boolean) => {
-              if (isConfirmed) {
-                try {
-                  const appUpdateResponse = await requestSendAppUpdate().unwrap()
-                  if (appUpdateResponse.success) {
-                    setTimeout(() => dispatch(uiActions.appDialogSet(null)), 1000)
-                    return
-                  }
-                  setTimeout(() => dispatch(uiActions.appDialogSet(null)), 1000)
-                } catch (err) {
-                  logger.error(err)
-                  toast.error(
-                    'Could not send the app update notification. Check logs for more info.',
-                  )
-                }
-              }
+  const alertUserEditModal = createPortal(
+    <CustomDialog
+      body={
+        <DialogAlert
+          buttonText="Got it."
+          closeDialog={() => setAlertModalOpen(false)}
+          message="You cannot edit this account."
+          windowHeight={windowHeight}
+        />
+      }
+      closeDialog={() => setAlertModalOpen(false)}
+      isMobileWidth={isMobileWidth}
+      open={alertModalOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
 
-              if (!isConfirmed) {
-                dispatch(uiActions.appDialogSet(null))
+  const confirmAppUpdateModal = createPortal(
+    <CustomDialog
+      body={
+        <ConfirmationDialog
+          bodyMessage="Send App Update to All Users?"
+          cancelText={strings.CANCEL}
+          okText={strings.SEND}
+          onComplete={async (isConfirmed: boolean) => {
+            if (isConfirmed) {
+              try {
+                await requestSendAppUpdate().unwrap()
+                setConfirmOpen(false)
+              } catch (err) {
+                logger.error(err)
+                toast.error('Could not send the app update notification. Check logs for more info.')
               }
-            }}
-          />,
-        ),
-      )
-    } catch (err) {
-      logger.error(err)
-    }
-  }
+            }
+
+            if (!isConfirmed) {
+              setConfirmOpen(false)
+            }
+          }}
+        />
+      }
+      closeDialog={() => setConfirmOpen(false)}
+      isMobileWidth={isMobileWidth}
+      open={confirmOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
+
+  const notificationModal = createPortal(
+    <CustomDialog
+      body={<NotificationSendDialog closeDialog={() => setNotificationOpen(false)} />}
+      closeDialog={() => setNotificationOpen(false)}
+      isMobileWidth={isMobileWidth}
+      open={notificationOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
 
   return (
     <ContentWrapper
@@ -230,7 +249,7 @@ export const UserAdminList: React.FC = () => {
             >
               <Button
                 color={'primary'}
-                onClick={() => dispatch(uiActions.appDialogSet(<NotificationSendDialog />))}
+                onClick={() => setNotificationOpen(true)}
                 sx={{
                   margin: SM_BREAK ? '0 0 12px' : '0 12px 0',
                   minWidth: '262px',
@@ -243,7 +262,7 @@ export const UserAdminList: React.FC = () => {
               {(currentUser.a || currentUser.sa) && (
                 <Button
                   color="info"
-                  onClick={handleSendAppUpdateClick}
+                  onClick={() => setConfirmOpen(true)}
                   sx={{
                     margin: SM_BREAK ? '0' : '0',
                     minWidth: '262px',
@@ -285,6 +304,9 @@ export const UserAdminList: React.FC = () => {
           tableName="Users"
         />
       </Grid>
+      {alertUserEditModal}
+      {confirmAppUpdateModal}
+      {notificationModal}
     </ContentWrapper>
   )
 }

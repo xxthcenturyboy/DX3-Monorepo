@@ -32,14 +32,15 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useOtpRequestPhoneMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { PhoneNumberInput } from './phone-input/phone-web-input.component'
 import { useAddPhoneMutation, useCheckPhoneAvailabilityMutation } from './phone-web.api'
 import { AddPhoneForm } from './phone-web.ui'
+import { sleep } from '@dx3/utils-shared'
 
 type AddPhoneDialogProps = {
+  closeDialog: () => void
   userId: string
   phoneDataCallback: (phone: PhoneType) => void
 }
@@ -59,7 +60,6 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const dispatch = useAppDispatch()
   const [
     requestCheckAvailability,
     {
@@ -91,8 +91,22 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     },
   ] = useOtpRequestPhoneMutation()
 
+  const reset = () => {
+    setAllSucceeded(false)
+    setShowLottieError(false)
+    setHasSentOtp(false)
+    setIsPhoneAvailable(false)
+    setPhone('')
+    setCountryData(null)
+    setLabel(PHONE_LABEL.CELL)
+    setErrorMessage('')
+    setOtp('')
+    setIsDefault(false)
+  }
+
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(reset)
   }
 
   React.useEffect(() => {

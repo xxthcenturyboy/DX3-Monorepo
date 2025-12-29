@@ -8,6 +8,7 @@ jest.mock('./LottieWrapper', () => ({
     <div
       data-animation-data={props.animationData}
       data-loop={props.loop}
+      data-restart={props.restart}
       data-speed={props.speed}
       data-testid="lottie-wrapper"
     >

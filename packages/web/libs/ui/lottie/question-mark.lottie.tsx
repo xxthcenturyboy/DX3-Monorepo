@@ -10,6 +10,7 @@ export const QuestionMarkLottie: React.FC<LottiePropTypes> = ({ complete }): Rea
       animationData="/assets/animations/question-bubble.json"
       complete={complete}
       loop={false}
+      restart={true}
       speed={2}
       style={{
         alignSelf: 'center',

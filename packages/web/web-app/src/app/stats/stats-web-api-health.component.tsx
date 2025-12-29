@@ -75,7 +75,7 @@ export const StatsWebApiHealthComponent: React.FC = () => {
 
   return (
     <ContentWrapper
-      contentHeight={'calc(100vh - 80px)'}
+      // contentHeight={'calc(100vh - 80px)'}
       contentTopOffset={SM_BREAK ? '61px' : '61px'}
       spacerDiv={true}
     >

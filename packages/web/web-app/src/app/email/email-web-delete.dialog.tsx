@@ -6,6 +6,7 @@ import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import type { EmailType } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -15,12 +16,12 @@ import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
-import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { useDeleteEmailProfileMutation } from './email-web.api'
 
 type DeleteEmailDialogProps = {
+  closeDialog: () => void
   emailItem: EmailType
   emailDataCallback: (email: EmailType) => void
 }
@@ -38,7 +39,6 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
   )
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
-  const dispatch = useAppDispatch()
   const [
     requestDeleteEmail,
     {
@@ -75,8 +75,16 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
     }
   }, [deleteEmailSuccess, emailItem])
 
+  const reset = (): void => {
+    setShowLottieCancel(false)
+    setShowLottieSuccess(false)
+    setShowLottieError(false)
+    setBodyMessage('')
+  }
+
   const handleClose = (): void => {
-    dispatch(uiActions.appDialogSet(null))
+    props.closeDialog()
+    sleep(500).then(reset)
   }
 
   const handleDelete = async (): Promise<void> => {

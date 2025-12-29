@@ -4,6 +4,8 @@ import DialogContentText from '@mui/material/DialogContentText'
 import type React from 'react'
 
 import { AwaiterLottie } from '../lottie/awaiter.lottie'
+import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { SlideTransition, ZoomTransition } from './dialog.ui'
 import { DialogWrapper } from './ui-wrapper.dialog'
 
 type DialogAwaiterPropsType = {
@@ -27,6 +29,12 @@ export const DialogAwaiter: React.FC<DialogAwaiterPropsType> = (props) => {
         },
         open,
         props,
+        slotProps: {
+          transition: {
+            timeout: TIMEOUT_DUR_500,
+          },
+        },
+        slots: { transition: isMobileWidth ? SlideTransition : ZoomTransition },
       }}
     >
       <Box

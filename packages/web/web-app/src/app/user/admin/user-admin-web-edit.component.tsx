@@ -14,6 +14,7 @@ import {
   useTheme,
 } from '@mui/material'
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 
@@ -21,14 +22,16 @@ import { ACCOUNT_RESTRICTIONS, type UserRoleUi } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useApiError } from '../../data/errors'
 import type { CustomResponseErrorType } from '../../data/rtk-query'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
-import { selectWindowHeight } from '../../ui/store/ui-web.selector'
+import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { useLazyGetPrivilegeSetsQuery } from '../../user-privilege/user-privilege-web.api'
 import { privilegeSetActions } from '../../user-privilege/user-privilege-web.reducer'
@@ -51,7 +54,10 @@ export const UserAdminEdit: React.FC = () => {
   const sets = useAppSelector((state) => state.privileges.sets)
   const currentUser = useAppSelector((state) => state.userProfile)
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const [title, setTitle] = useState('User')
+  const [alertRoleOpen, setAlertRoleOpen] = useState(false)
+  const [notificationOpen, setNotificationOpen] = useState(false)
   const [restrictions, setRestrictions] = useState<UserRestriction[]>([])
   const [roles, setRoles] = useState<UserRoleUi[]>([])
   const dispatch = useAppDispatch()
@@ -198,17 +204,8 @@ export const UserAdminEdit: React.FC = () => {
   }
 
   const handleRoleClick = async (clickedRole: string): Promise<void> => {
-    if (currentUser?.id === user?.id && !currentUser?.sa) {
-      dispatch(
-        uiActions.appDialogSet(
-          <DialogAlert
-            buttonText="Aw, shucks"
-            closeDialog={() => dispatch(uiActions.appDialogSet(null))}
-            message="You cannot edit your own privileges."
-            windowHeight={windowHeight}
-          />,
-        ),
-      )
+    if (!currentUser?.sa) {
+      setAlertRoleOpen(true)
       return
     }
 
@@ -591,16 +588,49 @@ export const UserAdminEdit: React.FC = () => {
     )
   }
 
+  const alertRoleModal = createPortal(
+    <CustomDialog
+      body={
+        <DialogAlert
+          buttonText="Aw, shucks"
+          closeDialog={() => setAlertRoleOpen(false)}
+          message={'You cannot edit roles.'}
+          windowHeight={windowHeight}
+        />
+      }
+      closeDialog={() => setAlertRoleOpen(false)}
+      isMobileWidth={isMobileWidth}
+      open={alertRoleOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
+
+  const notificationModal = createPortal(
+    <CustomDialog
+      body={
+        <NotificationSendDialog
+          closeDialog={() => setNotificationOpen(false)}
+          user={user}
+        />
+      }
+      closeDialog={() => setNotificationOpen(false)}
+      isMobileWidth={isMobileWidth}
+      open={notificationOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
+
   const renderActionArea = (): React.ReactElement => {
     return (
       <Grid>
         <Button
           color={'primary'}
-          onClick={() => dispatch(uiActions.appDialogSet(<NotificationSendDialog user={user} />))}
+          onClick={() => setNotificationOpen(true)}
           variant="contained"
         >
           Send Notification
         </Button>
+        {notificationModal}
       </Grid>
     )
   }
@@ -642,6 +672,7 @@ export const UserAdminEdit: React.FC = () => {
           </Grid>
         </Paper>
       </Box>
+      {alertRoleModal}
     </ContentWrapper>
   )
 }

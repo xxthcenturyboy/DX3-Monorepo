@@ -14,14 +14,17 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
-import type React from 'react'
+import React from 'react'
+import { createPortal } from 'react-dom'
 
 import type { EmailType } from '@dx3/models-shared'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
-import { useAppDispatch } from '../store/store-web-redux.hooks'
-import { uiActions } from '../ui/store/ui-web.reducer'
 import { AddEmailDialog } from './email-web-create.dialog'
 import { DeleteEmailDialog } from './email-web-delete.dialog'
 
@@ -34,8 +37,11 @@ type EmailListPropsType = {
 
 export const EmailList: React.FC<EmailListPropsType> = (props) => {
   const { emails, userId, emailDataCallback, emailDeleteCallback } = props
-  const dispatch = useAppDispatch()
+  const [emailAddOpen, setEmailAddOpen] = React.useState(false)
+  const [emailDeleteOpen, setEmailDeleteOpen] = React.useState(false)
   const rowHeight = '32px'
+  const theme = useTheme()
+  const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const strings = useStrings([
     'DEFAULT',
     'EMAILS',
@@ -58,6 +64,22 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
     //   backgroundColor: themeMode && themeMode === 'dark' ? theme.palette.primary.light : theme.palette.secondary.main,
     // }
   }))
+
+  const emailAddModal = createPortal(
+    <CustomDialog
+      body={
+        <AddEmailDialog
+          closeDialog={() => setEmailAddOpen(false)}
+          emailDataCallback={emailDataCallback}
+          userId={userId}
+        />
+      }
+      closeDialog={() => setEmailAddOpen(false)}
+      isMobileWidth={SM_BREAK}
+      open={emailAddOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
 
   return (
     <Box
@@ -89,16 +111,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
           <Grid>
             <Button
               color="primary"
-              onClick={() =>
-                dispatch(
-                  uiActions.appDialogSet(
-                    <AddEmailDialog
-                      emailDataCallback={emailDataCallback}
-                      userId={userId}
-                    />,
-                  ),
-                )
-              }
+              onClick={() => setEmailAddOpen(true)}
               size={'small'}
               variant="contained"
             >
@@ -192,27 +205,37 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                           />
                         )}
                         {!email.default && (
-                          <Tooltip title={strings.TOOLTIP_DELETE_EMAIL}>
-                            <Delete
-                              color="primary"
-                              onClick={(event: React.SyntheticEvent) => {
-                                event.stopPropagation()
-                                dispatch(
-                                  uiActions.appDialogSet(
-                                    <DeleteEmailDialog
-                                      emailDataCallback={emailDeleteCallback}
-                                      emailItem={email}
-                                    />,
-                                  ),
-                                )
-                              }}
-                              style={{
-                                cursor: 'pointer',
-                                margin: '0 10 0 0',
-                                width: '0.75em',
-                              }}
-                            />
-                          </Tooltip>
+                          <>
+                            <Tooltip title={strings.TOOLTIP_DELETE_EMAIL}>
+                              <Delete
+                                color="primary"
+                                onClick={(event: React.SyntheticEvent) => {
+                                  event.stopPropagation()
+                                  setEmailDeleteOpen(true)
+                                }}
+                                style={{
+                                  cursor: 'pointer',
+                                  margin: '0 10 0 0',
+                                  width: '0.75em',
+                                }}
+                              />
+                            </Tooltip>
+                            {createPortal(
+                              <CustomDialog
+                                body={
+                                  <DeleteEmailDialog
+                                    closeDialog={() => setEmailDeleteOpen(false)}
+                                    emailDataCallback={emailDeleteCallback}
+                                    emailItem={email}
+                                  />
+                                }
+                                closeDialog={() => setEmailDeleteOpen(false)}
+                                isMobileWidth={SM_BREAK}
+                                open={emailDeleteOpen}
+                              />,
+                              document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+                            )}
+                          </>
                         )}
                       </TableCell>
                     </StyledTableRow>
@@ -222,6 +245,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
           </Table>
         </TableContainer>
       </Paper>
+      {emailAddModal}
     </Box>
   )
 }

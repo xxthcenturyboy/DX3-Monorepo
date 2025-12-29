@@ -2,6 +2,9 @@ import { Box } from '@mui/material'
 import Dialog, { type DialogProps } from '@mui/material/Dialog'
 import type React from 'react'
 
+import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { SlideTransition, ZoomTransition } from './dialog.ui'
+
 type CustomDialogPropsType = {
   body: React.ReactNode
   closeDialog: () => void
@@ -28,6 +31,12 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
         },
         open,
         props,
+        slotProps: {
+          transition: {
+            timeout: TIMEOUT_DUR_500,
+          },
+        },
+        slots: { transition: isMobileWidth ? SlideTransition : ZoomTransition },
       }}
     >
       <Box

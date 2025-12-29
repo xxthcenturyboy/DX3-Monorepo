@@ -8,8 +8,6 @@ export type UiStateType = {
   awaitDialogMessage: string
   awaitDialogOpen: boolean
   bootstrapped: boolean
-  dialogOpen: boolean
-  dialogComponent: React.ReactNode | null
   isShowingUnauthorizedAlert: boolean
   logoUrl: string
   logoUrlSmall: string

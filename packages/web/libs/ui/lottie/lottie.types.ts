@@ -10,6 +10,7 @@ export type LottieWrapperPropTypes = {
   autoPlay?: boolean
   complete?: () => void
   loop?: boolean
+  restart?: boolean
   speed?: number
   style?: CSSProperties
 }

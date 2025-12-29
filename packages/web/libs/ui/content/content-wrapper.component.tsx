@@ -11,7 +11,7 @@ export type ContentWrapperPropsType = {
 }
 
 export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
-  const { children, contentPaddding, contentHeight, contentTopOffset, overflow, spacerDiv } = props
+  const { children, contentPaddding, contentTopOffset, overflow, spacerDiv } = props
 
   return (
     <Grid
@@ -20,9 +20,9 @@ export const ContentWrapper: React.FC<ContentWrapperPropsType> = (props) => {
       justifyContent="flex-start"
       overflow={'hidden'}
       spacing={0}
-      sx={{
-        height: contentHeight ?? 'calc(100vh - 80px)',
-      }}
+      // sx={{
+      //   height: contentHeight ?? 'calc(100vh - 80px)',
+      // }}
       wrap="nowrap"
     >
       <Box
