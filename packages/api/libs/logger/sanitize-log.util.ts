@@ -33,6 +33,7 @@ const SENSITIVE_FIELDS = [
   'cvv',
   'ssn',
   'socialsecuritynumber',
+  'value',
 ] as const
 
 /**

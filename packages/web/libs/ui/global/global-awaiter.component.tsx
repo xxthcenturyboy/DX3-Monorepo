@@ -1,4 +1,6 @@
-import { Backdrop, Box, Typography } from '@mui/material'
+import Backdrop from '@mui/material/Backdrop'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import type React from 'react'
 import { BeatLoader } from 'react-spinners'
 

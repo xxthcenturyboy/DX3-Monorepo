@@ -1,5 +1,5 @@
-import { Fade } from '@mui/material'
 import Box from '@mui/material/Box'
+import Fade from '@mui/material/Fade'
 import { createTheme, type Theme, ThemeProvider } from '@mui/material/styles'
 import * as React from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'

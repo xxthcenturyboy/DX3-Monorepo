@@ -9,7 +9,6 @@ import {
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel } from '../user/user-api.postgres-model'
 import { PhoneUtil } from '../utils'
@@ -17,11 +16,9 @@ import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { PhoneModel } from './phone-api.postgres-model'
 
 export class PhoneService {
-  private LOCAL: boolean
   private logger: ApiLoggingClassType
 
   constructor() {
-    this.LOCAL = isDev()
     this.logger = ApiLoggingClass.instance
   }
 
