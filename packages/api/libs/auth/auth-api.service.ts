@@ -15,7 +15,6 @@ import {
 } from '@dx3/models-shared'
 
 import { isDebug, isProd } from '../config/config-api.service'
-import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { DeviceModel } from '../devices/device-api.postgres-model'
 import { DevicesService } from '../devices/devices-api.service'
 import { EmailModel } from '../email/email-api.postgres-model'
@@ -28,6 +27,7 @@ import { ShortLinkModel } from '../shortlink/shortlink-api.postgres-model'
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
 import { getUserProfileState } from '../user/user-profile-api'
 import { EmailUtil, PhoneUtil } from '../utils'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { OtpCodeCache } from './otp/otp-code.redis-cache'
 import { TokenService } from './tokens/token.service'
 
@@ -321,18 +321,14 @@ export class AuthService {
       }
 
       if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.AUTH_FAILED, 'Could not log you in.'),
-        )
+        throw new Error(createApiErrorMessage(ERROR_CODES.AUTH_FAILED, 'Could not log you in.'))
       }
 
       if (user.deletedAt || user.accountLocked) {
         this.logger.logError(
           `Attempted login by a locked account: ${safeStringify({ accountLocked: user.accountLocked, deletedAt: user.deletedAt, id: user.id })}`,
         )
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.AUTH_FAILED, 'Could not log you in.'),
-        )
+        throw new Error(createApiErrorMessage(ERROR_CODES.AUTH_FAILED, 'Could not log you in.'))
       }
 
       await user.getEmails()
@@ -344,8 +340,6 @@ export class AuthService {
 
       return userProfile
     } catch (err) {
-      const message = `Could not log in with payload: ${safeStringify(payload, 2)}`
-      this.logger.logError(message)
       if ((err as Error).message === 'User not found!') {
         throw new Error(
           createApiErrorMessage(ERROR_CODES.AUTH_INVALID_CREDENTIALS, 'Could not log you in.'),

@@ -1,3 +1,5 @@
+import { DEVELOPMENT } from './config-web.consts'
+
 type WebAppEnvType = {
   API_PORT: string
   API_URL: string
@@ -17,8 +19,8 @@ declare global {
 const webAppEnvVars: WebAppEnvType = {
   API_PORT: process.env.API_PORT || '',
   API_URL: process.env.API_URL || '',
-  ENV: process.env.ENV || process.env.NODE_ENV || 'development',
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  ENV: process.env.ENV || process.env.NODE_ENV || DEVELOPMENT,
+  NODE_ENV: process.env.NODE_ENV || DEVELOPMENT,
   WEB_APP_PORT: process.env.WEB_APP_PORT || '3000',
   WEB_APP_URL: process.env.WEB_APP_URL || 'http://localhost:3000',
 }

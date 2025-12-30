@@ -15,6 +15,7 @@ import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React from 'react'
 import type { CountryData } from 'react-phone-input-2'
 import { BeatLoader } from 'react-spinners'
+import { toast } from 'react-toastify'
 
 import { OTP_LENGTH } from '@dx3/models-shared'
 import { regexEmail } from '@dx3/utils-shared'
@@ -23,10 +24,10 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { WebConfigService } from '../config/config-web.service'
 import { useStrings } from '../i18n'
 import { PhoneNumberInput } from '../phone/phone-input/phone-web-input.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
-import { selectWindowHeight } from '../ui/store/ui-web.selector'
 import {
   selectIsUserProfileValid,
   selectUserEmails,
@@ -37,11 +38,12 @@ import {
   useOtpRequestIdMutation,
   useOtpRequestPhoneMutation,
 } from './auth-web.api'
-import { Form } from './auth-web-login.ui'
+import { LoginForm } from './auth-web-login.ui'
 import { AuthWebOtpEntry } from './auth-web-otp.component'
 
 type AuthWebRequestOtpPropsType = {
   hasCallbackError: boolean
+  isLogin?: boolean
   onCompleteCallback: (value: string, code: string, region?: string) => void
 }
 
@@ -54,11 +56,12 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     const [hasFiredCallback, setHasFiredCallback] = React.useState(false)
     const [otp, setOtp] = React.useState('')
     const [errorMessage, setErrorMessage] = React.useState('')
-    const [selectedMethod, setSelectedMethod] = React.useState<'EMAIL' | 'PHONE' | ''>('')
+    const [selectedMethod, setSelectedMethod] = React.useState<'EMAIL' | 'PHONE' | ''>(
+      props.isLogin ? 'PHONE' : '',
+    )
     const isProfileValid = useAppSelector((state) => selectIsUserProfileValid(state))
     const userEmails = useAppSelector((state) => selectUserEmails(state))
     const userPhones = useAppSelector((state) => selectUserPhones(state))
-    const windowHeight = useAppSelector((state) => selectWindowHeight(state))
     const strings = useStrings([
       'BACK',
       'EMAIL',
@@ -72,7 +75,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     const [
       requestOtpCodeEmail,
       {
-        data: _sendOtpEmailResponse,
+        data: sendOtpEmailResponse,
         error: sendOtpEmailError,
         isLoading: isLoadingSendOtpEmail,
         isSuccess: sendOtpEmailSuccess,
@@ -82,7 +85,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     const [
       requestOtpCodeId,
       {
-        data: _sendOtpIdResponse,
+        data: sendOtpIdResponse,
         error: sendOtpIdError,
         isLoading: isLoadingSendOtpId,
         isSuccess: sendOtpIdSuccess,
@@ -92,7 +95,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     const [
       requestOtpCodePhone,
       {
-        data: _sendOtpPhoneResponse,
+        data: sendOtpPhoneResponse,
         error: sendOtpPhoneError,
         isLoading: isLoadingSendOtpPhone,
         isSuccess: sendOtpPhoneSuccess,
@@ -131,6 +134,19 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     React.useEffect(() => {
       if (sendOtpEmailSuccess || sendOtpPhoneSuccess || sendOtpIdSuccess) {
         setHasSentOtp(true)
+        const code =
+          sendOtpPhoneResponse?.code || sendOtpEmailResponse?.code || sendOtpIdResponse?.code
+        if (WebConfigService.isDev()) {
+          toast.info(`DEV MODE: OTP Code: ${code}`, {
+            autoClose: 5000,
+            closeButton: true,
+            closeOnClick: false,
+            draggable: true,
+            hideProgressBar: true,
+            position: 'bottom-center',
+            theme: 'colored',
+          })
+        }
       }
     }, [sendOtpEmailSuccess, sendOtpPhoneSuccess, sendOtpIdSuccess])
 
@@ -140,7 +156,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
         props.onCompleteCallback(value, otp, countryData?.countryCode)
         setHasFiredCallback(true)
       }
-    }, [otp, countryData?.countryCode, email, phone, selectedMethod])
+    }, [otp])
 
     const phoneSubmitButtonDisabled = (): boolean => {
       const countryCode = countryData?.countryCode
@@ -191,12 +207,17 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     }
 
     const renderBackButton = (startOver?: boolean): React.ReactElement | null => {
+      if (props.isLogin && !startOver) {
+        return null
+      }
+
       if (startOver) {
         return (
           <Button
             fullWidth
             onClick={() => {
-              setSelectedMethod('')
+              setErrorMessage('')
+              setSelectedMethod(props.isLogin ? 'PHONE' : '')
               setHasSentOtp(false)
               setHasFiredCallback(false)
             }}
@@ -236,8 +257,8 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
           in={true}
           timeout={FADE_TIMEOUT_DUR}
         >
-          <Grid>
-            <Form
+          <Grid marginTop={props.isLogin ? '24px' : undefined}>
+            <LoginForm
               name="form-enter-phone"
               onSubmit={handleSendOtpCode}
             >
@@ -282,7 +303,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                   strings.SEND_CODE
                 )}
               </Button>
-            </Form>
+            </LoginForm>
             {renderBackButton()}
           </Grid>
         </Fade>
@@ -296,7 +317,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
           timeout={FADE_TIMEOUT_DUR}
         >
           <Grid>
-            <Form
+            <LoginForm
               name="form-enter-email"
               onSubmit={handleSendOtpCode}
             >
@@ -341,7 +362,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
                   strings.SEND_CODE
                 )}
               </Button>
-            </Form>
+            </LoginForm>
             {renderBackButton()}
           </Grid>
         </Fade>
@@ -459,7 +480,12 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
 
     const renderOtpEntry = (): React.ReactElement => {
       return (
-        <>
+        <Box
+          display="flex"
+          flexDirection="column"
+          height={props.isLogin ? '200px' : undefined}
+          justifyContent="center"
+        >
           {!hasFiredCallback && (
             <AuthWebOtpEntry
               method={selectedMethod}
@@ -474,7 +500,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             />
           )}
           {hasFiredCallback && props.hasCallbackError && renderBackButton(true)}
-        </>
+        </Box>
       )
     }
 
@@ -484,8 +510,10 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
         timeout={FADE_TIMEOUT_DUR}
       >
         <Box
+          // marginTop={props.isLogin ? '60px' : undefined}
+          minHeight={props.isLogin ? '282px' : undefined}
           ref={ref}
-          width={'100%'}
+          width="100%"
         >
           <Grid
             alignItems="center"
@@ -517,7 +545,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
             {!!errorMessage && (
               <DialogError
                 message={errorMessage}
-                windowHeight={windowHeight}
+                windowHeight={400}
               />
             )}
           </Grid>

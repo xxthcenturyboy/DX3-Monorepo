@@ -9,7 +9,7 @@ import {
   OutlinedInput,
   Typography,
 } from '@mui/material'
-import Zoom from '@mui/material/Zoom'
+// import Zoom from '@mui/material/Zoom'
 import React from 'react'
 import { BeatLoader } from 'react-spinners'
 
@@ -20,7 +20,7 @@ import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { authActions } from './auth-web.reducer'
-import * as UI from './auth-web-login.ui'
+import { LoginForm } from './auth-web-login.ui'
 
 type WebLoginUserPassPropType = {
   changeLoginType: () => void
@@ -35,7 +35,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
     const [loginAttempts, setLoginAttempts] = React.useState(0)
     const username = useAppSelector((state) => state.auth.username)
     const password = useAppSelector((state) => state.auth.password)
-    const strings = useStrings(['LOGIN', 'PASSWORD', 'USERNAME', 'TRY_ANOTHER_WAY'])
+    const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME', 'TRY_ANOTHER_WAY'])
     const dispatch = useAppDispatch()
 
     const clearInputs = (): void => {
@@ -98,10 +98,11 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
         timeout={FADE_TIMEOUT_DUR}
       >
         <Box
+          marginTop="12px"
           ref={ref}
-          width={'100%'}
+          width="100%"
         >
-          <UI.Form
+          <LoginForm
             name="form-login"
             onSubmit={handleLogin}
           >
@@ -110,13 +111,13 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               margin="normal"
               variant="outlined"
             >
-              <InputLabel htmlFor="input-username">{strings.USERNAME}</InputLabel>
+              <InputLabel htmlFor="input-username">{`${strings.USERNAME} / ${strings.EMAIL}`}</InputLabel>
               <OutlinedInput
                 autoCapitalize="none"
                 autoCorrect="off"
                 fullWidth
                 id="input-username"
-                label={strings.USERNAME}
+                label={`${strings.USERNAME} / ${strings.EMAIL}`}
                 name="input-username"
                 onChange={handleChangeUsername}
                 // autoComplete="email"
@@ -169,7 +170,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               fullWidth
               onClick={handleLogin}
               sx={{
-                marginTop: '50px',
+                marginTop: '24px',
               }}
               type="submit"
               variant="contained"
@@ -177,30 +178,26 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               {isFetchingLogin ? (
                 <BeatLoader
                   color={themeColors.secondary}
-                  margin="2px"
+                  margin="4px"
                   size={16}
                 />
               ) : (
                 strings.LOGIN
               )}
             </Button>
-          </UI.Form>
-          {loginAttempts > 2 && (
-            <Zoom in={true}>
-              <Typography
-                align="right"
-                alignSelf="flex-end"
-                color="primary"
-                marginBottom={'0'}
-                marginTop={'2em'}
-                onClick={() => props.changeLoginType()}
-                style={{ cursor: 'pointer' }}
-                variant="subtitle2"
-              >
-                {strings.TRY_ANOTHER_WAY}
-              </Typography>
-            </Zoom>
-          )}
+          </LoginForm>
+          <Typography
+            align="right"
+            alignSelf="flex-end"
+            color="primary"
+            marginBottom={'0'}
+            marginTop={'2em'}
+            onClick={() => props.changeLoginType()}
+            style={{ cursor: 'pointer', visibility: loginAttempts > 2 ? 'visible' : 'hidden' }}
+            variant="subtitle2"
+          >
+            {strings.TRY_ANOTHER_WAY}
+          </Typography>
         </Box>
       </Fade>
     )

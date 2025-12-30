@@ -4,6 +4,7 @@ import { SHORTLINK_ROUTES } from '../shortlink/shortlink-web.consts'
 import { STATS_SUDO_ROUTES } from '../stats/stats-web.consts'
 import { USER_ADMIN_ROUTES } from '../user/admin/user-admin-web.consts'
 import { USER_PROFILE_ROUTES } from '../user/profile/user-profile-web.consts'
+import { DEVELOPMENT } from './config-web.consts'
 import { WEB_APP_ENV } from './env'
 
 export class WebConfigService {
@@ -12,6 +13,10 @@ export class WebConfigService {
       API_URL: WEB_APP_ENV.API_URL,
       WEB_APP_URL: WEB_APP_ENV.WEB_APP_URL,
     }
+  }
+
+  public static isDev() {
+    return WEB_APP_ENV.ENV === DEVELOPMENT
   }
 
   public static getWebRoutes() {
