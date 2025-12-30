@@ -27,6 +27,7 @@ export const CustomDialogContent: React.FC<CustomDialogContentType> = (props) =>
         minHeight: '360px',
         minWidth: smBreak ? '' : '320px',
         overflow: 'visible',
+        padding: 0,
       }}
     >
       {children}
