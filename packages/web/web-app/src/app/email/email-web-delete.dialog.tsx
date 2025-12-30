@@ -47,12 +47,12 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
   ] = useDeleteEmailProfileMutation()
 
   React.useEffect(() => {
-    if (!bodyMessage && emailItem) {
+    if (emailItem && !showLottieCancel && !showLottieSuccess && !showLottieError) {
       setBodyMessage(
         `Are you sure you want to delete the email: ${emailItem.email} (${emailItem.label})?`,
       )
     }
-  }, [emailItem])
+  })
 
   React.useEffect(() => {
     if (!isLoadingDeleteEmail && !deleteEmailUninitialized) {

@@ -1,6 +1,13 @@
 import type { IZXCVBNResult } from 'zxcvbn-typescript'
 
-import type { AuthSuccessResponseType, LoginPayloadType, LogoutResponse } from '@dx3/models-shared'
+import type {
+  AccountCreationPayloadType,
+  AuthSuccessResponseType,
+  LoginPayloadType,
+  LogoutResponse,
+  UserLookupQueryType,
+  UserLookupResponseType,
+} from '@dx3/models-shared'
 
 import type { CustomResponseErrorType } from '../data/rtk-query/axios-web.types'
 import { apiWeb } from '../data/rtk-query/web.api'
@@ -29,6 +36,14 @@ export const apiWebAuth = apiWeb.injectEndpoints({
       }),
       transformErrorResponse: transformAuthApiError,
     }),
+    createAccount: build.mutation<AuthSuccessResponseType, AccountCreationPayloadType>({
+      query: (payload) => ({
+        data: payload,
+        method: 'POST',
+        url: 'v1/auth/account',
+      }),
+      transformErrorResponse: transformAuthApiError,
+    }),
     login: build.mutation<AuthSuccessResponseType, LoginPayloadType>({
       query: (payload) => ({
         data: payload,
@@ -46,6 +61,13 @@ export const apiWebAuth = apiWeb.injectEndpoints({
       transformResponse: (response: LogoutResponse) => {
         return response
       },
+    }),
+    lookupEmailPhone: build.query<UserLookupResponseType, UserLookupQueryType>({
+      query: (payload) => ({
+        method: 'GET',
+        params: payload,
+        url: 'v1/auth/lookup',
+      }),
     }),
     otpRequestEmail: build.mutation<{ code?: string }, { email: string }>({
       query: (payload) => ({
@@ -77,6 +99,7 @@ export const apiWebAuth = apiWeb.injectEndpoints({
 
 export const {
   useCheckPasswordStrengthMutation,
+  useLazyLookupEmailPhoneQuery,
   useLoginMutation,
   useLogoutMutation,
   useOtpRequestEmailMutation,

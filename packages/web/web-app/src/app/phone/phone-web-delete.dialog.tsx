@@ -47,12 +47,12 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
   ] = useDeletePhoneProfileMutation()
 
   React.useEffect(() => {
-    if (!bodyMessage && phoneItem) {
+    if (phoneItem && !showLottieCancel && !showLottieSuccess && !showLottieError) {
       setBodyMessage(
         `Are you sure you want to delete the phone: ${phoneItem.uiFormatted} (${phoneItem.label})?`,
       )
     }
-  }, [phoneItem])
+  })
 
   React.useEffect(() => {
     if (!isLoadingDeletePhone && !deletePhoneUninitialized) {
