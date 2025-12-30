@@ -23,6 +23,7 @@ import {
   PHONE_LABEL,
   type PhoneType,
 } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -37,7 +38,6 @@ import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.sele
 import { PhoneNumberInput } from './phone-input/phone-web-input.component'
 import { useAddPhoneMutation, useCheckPhoneAvailabilityMutation } from './phone-web.api'
 import { AddPhoneForm } from './phone-web.ui'
-import { sleep } from '@dx3/utils-shared'
 
 type AddPhoneDialogProps = {
   closeDialog: () => void
@@ -68,6 +68,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
       isLoading: isLoadingCheckAvailability,
       isSuccess: checkAvailabilitySuccess,
       isUninitialized: checkAvailabilityUninitialized,
+      reset: resetCheckAvailability,
     },
   ] = useCheckPhoneAvailabilityMutation()
   const [
@@ -78,6 +79,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
       isLoading: isLoadingAddPhone,
       isSuccess: addPhoneSuccess,
       isUninitialized: addPhoneUninitialized,
+      reset: resetAddPhone,
     },
   ] = useAddPhoneMutation()
   const [
@@ -88,10 +90,14 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
       isLoading: isLoadingSendOtp,
       isSuccess: sendOtpSuccess,
       isUninitialized: sendOtpUninitialized,
+      reset: resetSendOtp,
     },
   ] = useOtpRequestPhoneMutation()
 
   const reset = () => {
+    resetAddPhone()
+    resetCheckAvailability()
+    resetSendOtp()
     setAllSucceeded(false)
     setShowLottieError(false)
     setHasSentOtp(false)
@@ -175,15 +181,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
         phoneFormatted: addPhoneResponse.phoneFormatted,
       })
     }
-  }, [
-    addPhoneSuccess,
-    addPhoneResponse?.id,
-    addPhoneResponse?.phoneFormatted,
-    countryData,
-    isDefault,
-    label,
-    phone,
-  ])
+  }, [addPhoneSuccess, addPhoneResponse?.id, addPhoneResponse?.phoneFormatted])
 
   React.useEffect(() => {
     if (checkAvailabilitySuccess && sendOtpUninitialized) {

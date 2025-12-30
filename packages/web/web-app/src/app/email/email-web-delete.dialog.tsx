@@ -22,7 +22,7 @@ import { useDeleteEmailProfileMutation } from './email-web.api'
 
 type DeleteEmailDialogProps = {
   closeDialog: () => void
-  emailItem: EmailType
+  emailItem?: EmailType
   emailDataCallback: (email: EmailType) => void
 }
 
@@ -32,11 +32,7 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
   const [showLottieCancel, setShowLottieCancel] = React.useState(false)
   const [showLottieSuccess, setShowLottieSuccess] = React.useState(false)
   const [showLottieError, setShowLottieError] = React.useState(false)
-  const [bodyMessage, setBodyMessage] = React.useState(
-    emailItem
-      ? `Are you sure you want to delete the email: ${emailItem.email} (${emailItem.label})?`
-      : '',
-  )
+  const [bodyMessage, setBodyMessage] = React.useState('')
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const [
@@ -49,6 +45,14 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
       isUninitialized: deleteEmailUninitialized,
     },
   ] = useDeleteEmailProfileMutation()
+
+  React.useEffect(() => {
+    if (!bodyMessage && emailItem) {
+      setBodyMessage(
+        `Are you sure you want to delete the email: ${emailItem.email} (${emailItem.label})?`,
+      )
+    }
+  }, [emailItem])
 
   React.useEffect(() => {
     if (!isLoadingDeleteEmail && !deleteEmailUninitialized) {
@@ -69,11 +73,13 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
     if (
       deleteEmailSuccess &&
       props.emailDataCallback &&
-      typeof props.emailDataCallback === 'function'
+      typeof props.emailDataCallback === 'function' &&
+      emailItem
     ) {
+      console.log('deleteEmailSuccess', emailItem)
       props.emailDataCallback(emailItem)
     }
-  }, [deleteEmailSuccess, emailItem])
+  }, [deleteEmailSuccess])
 
   const reset = (): void => {
     setShowLottieCancel(false)

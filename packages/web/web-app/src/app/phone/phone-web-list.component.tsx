@@ -39,6 +39,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
   const { phones, userId, phoneDataCallback, phoneDeleteCallback } = props
   const [phoneAddDialogOpen, setPhoneAddDialogOpen] = React.useState(false)
   const [phoneDeleteDialogOpen, setPhoneDeleteDialogOpen] = React.useState(false)
+  const [phoneToDelete, setPhoneToDelete] = React.useState<PhoneType>()
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const rowHeight = '32px'
@@ -80,6 +81,26 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
     />,
     document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
   )
+
+  const phoneDeleteModal = () => {
+    if (phoneToDelete) {
+      return createPortal(
+        <CustomDialog
+          body={
+            <DeletePhoneDialog
+              closeDialog={() => setPhoneDeleteDialogOpen(false)}
+              phoneDataCallback={phoneDeleteCallback}
+              phoneItem={phoneToDelete}
+            />
+          }
+          closeDialog={() => setPhoneDeleteDialogOpen(false)}
+          isMobileWidth={SM_BREAK}
+          open={phoneDeleteDialogOpen}
+        />,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )
+    }
+  }
 
   return (
     <Box
@@ -205,37 +226,21 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
                           />
                         )}
                         {!phone.default && (
-                          <>
-                            <Tooltip title={strings.TOOLTIP_DELETE_PHONE}>
-                              <Delete
-                                color="primary"
-                                onClick={(event: React.SyntheticEvent) => {
-                                  event.stopPropagation()
-                                  setPhoneDeleteDialogOpen(true)
-                                }}
-                                style={{
-                                  cursor: 'pointer',
-                                  margin: '0 10 0 0',
-                                  width: '0.75em',
-                                }}
-                              />
-                            </Tooltip>
-                            {createPortal(
-                              <CustomDialog
-                                body={
-                                  <DeletePhoneDialog
-                                    closeDialog={() => setPhoneDeleteDialogOpen(false)}
-                                    phoneDataCallback={phoneDeleteCallback}
-                                    phoneItem={phone}
-                                  />
-                                }
-                                closeDialog={() => setPhoneDeleteDialogOpen(false)}
-                                isMobileWidth={SM_BREAK}
-                                open={phoneDeleteDialogOpen}
-                              />,
-                              document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
-                            )}
-                          </>
+                          <Tooltip title={strings.TOOLTIP_DELETE_PHONE}>
+                            <Delete
+                              color="primary"
+                              onClick={(event: React.SyntheticEvent) => {
+                                event.stopPropagation()
+                                setPhoneToDelete(phone)
+                                setPhoneDeleteDialogOpen(true)
+                              }}
+                              style={{
+                                cursor: 'pointer',
+                                margin: '0 10 0 0',
+                                width: '0.75em',
+                              }}
+                            />
+                          </Tooltip>
                         )}
                       </TableCell>
                     </StyledTableRow>
@@ -246,6 +251,7 @@ export const Phonelist: React.FC<UserPhonesProps> = (props) => {
         </TableContainer>
       </Paper>
       {phoneAddModal}
+      {phoneDeleteModal()}
     </Box>
   )
 }

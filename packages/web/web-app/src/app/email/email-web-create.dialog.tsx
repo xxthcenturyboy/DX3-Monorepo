@@ -66,6 +66,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       isLoading: isLoadingCheckAvailability,
       isSuccess: checkAvailabilitySuccess,
       isUninitialized: checkAvailabilityUninitialized,
+      reset: resetCheckAvailability,
     },
   ] = useCheckEmailAvailabilityMutation()
   const [
@@ -76,6 +77,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       isLoading: isLoadingAddEmail,
       isSuccess: addEmailSuccess,
       isUninitialized: addEmailUninitialized,
+      reset: resetAddEmail,
     },
   ] = useAddEmailMutation()
   const [
@@ -86,10 +88,14 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       isLoading: isLoadingSendOtp,
       isSuccess: sendOtpSuccess,
       isUninitialized: sendOtpUninitialized,
+      reset: resetSendOtp,
     },
   ] = useOtpRequestEmailMutation()
 
   const reset = () => {
+    resetAddEmail()
+    resetCheckAvailability()
+    resetSendOtp()
     setAllSucceeded(false)
     setShowLottieError(false)
     setHasSentOtp(false)
@@ -197,7 +203,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
         label,
       })
     }
-  }, [addEmailSuccess, addEmailResponse?.id, email, isDefault, label])
+  }, [addEmailSuccess, addEmailResponse?.id])
 
   React.useEffect(() => {
     if (checkAvailabilitySuccess && sendOtpUninitialized) {

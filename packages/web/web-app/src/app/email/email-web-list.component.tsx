@@ -39,6 +39,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
   const { emails, userId, emailDataCallback, emailDeleteCallback } = props
   const [emailAddOpen, setEmailAddOpen] = React.useState(false)
   const [emailDeleteOpen, setEmailDeleteOpen] = React.useState(false)
+  const [emailToDelete, setEmailToDelete] = React.useState<EmailType>()
   const rowHeight = '32px'
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
@@ -80,6 +81,28 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
     />,
     document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
   )
+
+  const emailDeleteModal = () => {
+    if (emailToDelete) {
+      return createPortal(
+        <CustomDialog
+          body={
+            <DeleteEmailDialog
+              closeDialog={() => setEmailDeleteOpen(false)}
+              emailDataCallback={emailDeleteCallback}
+              emailItem={emailToDelete}
+            />
+          }
+          closeDialog={() => setEmailDeleteOpen(false)}
+          isMobileWidth={SM_BREAK}
+          open={emailDeleteOpen}
+        />,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )
+    }
+
+    return null
+  }
 
   return (
     <Box
@@ -205,37 +228,21 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
                           />
                         )}
                         {!email.default && (
-                          <>
-                            <Tooltip title={strings.TOOLTIP_DELETE_EMAIL}>
-                              <Delete
-                                color="primary"
-                                onClick={(event: React.SyntheticEvent) => {
-                                  event.stopPropagation()
-                                  setEmailDeleteOpen(true)
-                                }}
-                                style={{
-                                  cursor: 'pointer',
-                                  margin: '0 10 0 0',
-                                  width: '0.75em',
-                                }}
-                              />
-                            </Tooltip>
-                            {createPortal(
-                              <CustomDialog
-                                body={
-                                  <DeleteEmailDialog
-                                    closeDialog={() => setEmailDeleteOpen(false)}
-                                    emailDataCallback={emailDeleteCallback}
-                                    emailItem={email}
-                                  />
-                                }
-                                closeDialog={() => setEmailDeleteOpen(false)}
-                                isMobileWidth={SM_BREAK}
-                                open={emailDeleteOpen}
-                              />,
-                              document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
-                            )}
-                          </>
+                          <Tooltip title={strings.TOOLTIP_DELETE_EMAIL}>
+                            <Delete
+                              color="primary"
+                              onClick={(event: React.SyntheticEvent) => {
+                                event.stopPropagation()
+                                setEmailToDelete(email)
+                                setEmailDeleteOpen(true)
+                              }}
+                              style={{
+                                cursor: 'pointer',
+                                margin: '0 10 0 0',
+                                width: '0.75em',
+                              }}
+                            />
+                          </Tooltip>
                         )}
                       </TableCell>
                     </StyledTableRow>
@@ -246,6 +253,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
         </TableContainer>
       </Paper>
       {emailAddModal}
+      {emailDeleteModal()}
     </Box>
   )
 }

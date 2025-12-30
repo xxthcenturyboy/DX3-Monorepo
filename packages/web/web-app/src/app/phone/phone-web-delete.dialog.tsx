@@ -22,7 +22,7 @@ import { useDeletePhoneProfileMutation } from './phone-web.api'
 
 type DeletePhoneDialogProps = {
   closeDialog: () => void
-  phoneItem: PhoneType
+  phoneItem?: PhoneType
   phoneDataCallback: (email: PhoneType) => void
 }
 
@@ -32,11 +32,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
   const [showLottieCancel, setShowLottieCancel] = React.useState(false)
   const [showLottieSuccess, setShowLottieSuccess] = React.useState(false)
   const [showLottieError, setShowLottieError] = React.useState(false)
-  const [bodyMessage, setBodyMessage] = React.useState(
-    phoneItem
-      ? `Are you sure you want to delete the phone: ${phoneItem.uiFormatted} (${phoneItem.label})?`
-      : '',
-  )
+  const [bodyMessage, setBodyMessage] = React.useState('')
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const [
@@ -49,6 +45,14 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
       isUninitialized: deletePhoneUninitialized,
     },
   ] = useDeletePhoneProfileMutation()
+
+  React.useEffect(() => {
+    if (!bodyMessage && phoneItem) {
+      setBodyMessage(
+        `Are you sure you want to delete the phone: ${phoneItem.uiFormatted} (${phoneItem.label})?`,
+      )
+    }
+  }, [phoneItem])
 
   React.useEffect(() => {
     if (!isLoadingDeletePhone && !deletePhoneUninitialized) {
@@ -69,7 +73,8 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
     if (
       deletePhoneSuccess &&
       props.phoneDataCallback &&
-      typeof props.phoneDataCallback === 'function'
+      typeof props.phoneDataCallback === 'function' &&
+      phoneItem
     ) {
       props.phoneDataCallback(phoneItem)
     }
