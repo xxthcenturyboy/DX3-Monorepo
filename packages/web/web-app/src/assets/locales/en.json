@@ -48,7 +48,7 @@
   "LOADING": "Loading...",
   "LOG_OUT": "Log Out",
   "LOGIN": "Login",
-  "LOGIN_TO_YOUR_ACCOUNT": "Login to your account",
+  "LOGIN_TO_YOUR_ACCOUNT": "Log in to your account",
   "LOGOUT": "Logout",
   "MEDIA_FILE_COUNT_EXCEEDED": "Too many files. Maximum {max} files allowed.",
   "MEDIA_FILE_SIZE_EXCEEDED": "File too large. Maximum size is {max} MB.",
