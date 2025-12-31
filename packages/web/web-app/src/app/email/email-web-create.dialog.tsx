@@ -16,7 +16,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
-import { toast } from 'react-toastify'
 
 import {
   type CreateEmailPayloadType,
@@ -34,9 +33,9 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { WebConfigService } from '../config/config-web.service'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
+import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
 import { selectUserEmails } from '../user/profile/user-profile-web.selectors'
 import { useAddEmailMutation, useCheckEmailAvailabilityMutation } from './email-web.api'
 import { AddEmailForm } from './email-web.ui'
@@ -218,18 +217,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   React.useEffect(() => {
     if (sendOtpSuccess) {
       setHasSentOtp(true)
-      const code = sendOtpResponse?.code
-      if (WebConfigService.isDev() && code) {
-        toast.info(`DEV MODE: OTP Code: ${code}`, {
-          autoClose: 5000,
-          closeButton: true,
-          closeOnClick: false,
-          draggable: true,
-          hideProgressBar: true,
-          position: 'bottom-center',
-          theme: 'colored',
-        })
-      }
+      showDevOtpCode(sendOtpResponse?.code)
     }
   }, [sendOtpSuccess])
 

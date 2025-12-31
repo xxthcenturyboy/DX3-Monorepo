@@ -15,7 +15,6 @@ import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React from 'react'
 import type { CountryData } from 'react-phone-input-2'
 import { BeatLoader } from 'react-spinners'
-import { toast } from 'react-toastify'
 
 import { OTP_LENGTH } from '@dx3/models-shared'
 import { regexEmail } from '@dx3/utils-shared'
@@ -24,10 +23,10 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
-import { WebConfigService } from '../config/config-web.service'
 import { useStrings } from '../i18n'
 import { PhoneNumberInput } from '../phone/phone-input/phone-web-input.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
+import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
 import {
   selectIsUserProfileValid,
   selectUserEmails,
@@ -134,19 +133,9 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
     React.useEffect(() => {
       if (sendOtpEmailSuccess || sendOtpPhoneSuccess || sendOtpIdSuccess) {
         setHasSentOtp(true)
-        const code =
-          sendOtpPhoneResponse?.code || sendOtpEmailResponse?.code || sendOtpIdResponse?.code
-        if (WebConfigService.isDev()) {
-          toast.info(`DEV MODE: OTP Code: ${code}`, {
-            autoClose: 5000,
-            closeButton: true,
-            closeOnClick: false,
-            draggable: true,
-            hideProgressBar: true,
-            position: 'bottom-center',
-            theme: 'colored',
-          })
-        }
+        showDevOtpCode(
+          sendOtpPhoneResponse?.code || sendOtpEmailResponse?.code || sendOtpIdResponse?.code,
+        )
       }
     }, [sendOtpEmailSuccess, sendOtpPhoneSuccess, sendOtpIdSuccess])
 

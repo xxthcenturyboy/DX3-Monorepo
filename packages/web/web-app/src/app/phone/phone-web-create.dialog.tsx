@@ -16,7 +16,6 @@ import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React, { type ReactElement } from 'react'
 import type { CountryData } from 'react-phone-input-2'
 import { BeatLoader } from 'react-spinners'
-import { toast } from 'react-toastify'
 
 import {
   type CreatePhonePayloadType,
@@ -34,9 +33,9 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useOtpRequestPhoneMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { WebConfigService } from '../config/config-web.service'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
+import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
 import { PhoneNumberInput } from './phone-input/phone-web-input.component'
 import { useAddPhoneMutation, useCheckPhoneAvailabilityMutation } from './phone-web.api'
 import { AddPhoneForm } from './phone-web.ui'
@@ -197,18 +196,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   React.useEffect(() => {
     if (sendOtpSuccess) {
       setHasSentOtp(true)
-      const code = sendOtpResponse?.code
-      if (WebConfigService.isDev() && code) {
-        toast.info(`DEV MODE: OTP Code: ${code}`, {
-          autoClose: 5000,
-          closeButton: true,
-          closeOnClick: false,
-          draggable: true,
-          hideProgressBar: true,
-          position: 'bottom-center',
-          theme: 'colored',
-        })
-      }
+      showDevOtpCode(sendOtpResponse?.code)
     }
   }, [sendOtpSuccess])
 
