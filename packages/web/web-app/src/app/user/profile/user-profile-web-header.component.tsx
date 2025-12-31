@@ -1,6 +1,7 @@
 import { Button, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
 import { createPortal } from 'react-dom'
+import { toast } from 'react-toastify'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
@@ -40,6 +41,8 @@ export const UserProfileHeaderComponent: React.FC = () => {
     const primaryEmail = profile?.emails.find((e) => e.default)
     if (primaryEmail) {
       setPwdResetOpen(true)
+    } else {
+      toast.info('You need to add a primary email before you can change your password')
     }
   }
 

@@ -32,7 +32,7 @@ describe('AUTH_ROUTES ', () => {
     expect(AUTH_ROUTES.EMAIL_VALIDATED).toEqual('/auth/email-validated')
     expect(AUTH_ROUTES.LOGIN).toEqual('/login')
     expect(AUTH_ROUTES.MAIN).toEqual('/auth')
-    expect(AUTH_ROUTES.SETUP).toEqual('/auth/setup')
+    expect(AUTH_ROUTES.SIGNUP).toEqual('/signup')
     expect(AUTH_ROUTES.Z).toEqual('/auth/z')
   })
 })

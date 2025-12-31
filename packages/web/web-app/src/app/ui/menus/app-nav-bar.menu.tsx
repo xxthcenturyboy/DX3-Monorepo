@@ -24,10 +24,8 @@ import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
 import { loginBootstrap } from '../../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../../config/config-web.service'
-import {
-  selectNotificationCount,
-  // useTestSocketsMutation
-} from '../../notifications/notification-web.selectors'
+import { useStrings } from '../../i18n'
+import { selectNotificationCount } from '../../notifications/notification-web.selectors'
 import { NotificationsMenu } from '../../notifications/notifications.menu'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
@@ -36,7 +34,6 @@ import { AccountMenu } from './app-menu-account.component'
 const Logo = styled('img')`
   width: 36px;
 `
-
 export const AppNavBar: React.FC = () => {
   const [anchorElementAccountMenu, setAnchorElementAccountMenu] =
     React.useState<null | HTMLElement>(null)
@@ -48,15 +45,14 @@ export const AppNavBar: React.FC = () => {
   const navigate = useNavigate()
   const isAuthenticated = useAppSelector((state) => selectIsAuthenticated(state))
   const userProfile = useAppSelector((state) => state.userProfile)
-  // const userId = useAppSelector(state => state.userProfile.id);
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const logoUrl = useAppSelector((state) => state.ui.logoUrlSmall)
   const menuOpen = useAppSelector((state) => state.ui.menuOpen)
   const themeMode = useAppSelector((state) => state.ui.theme.palette?.mode)
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const ROUTES = WebConfigService.getWebRoutes()
-  // const [requestTestNotifications] = useTestSocketsMutation();
   let didCallBootstrap = false
+  const strings = useStrings(['LOGIN', 'SIGNUP'])
 
   React.useEffect(() => {
     if (isAuthenticated && userProfile && !didCallBootstrap) {
@@ -76,10 +72,6 @@ export const AppNavBar: React.FC = () => {
     }
 
     navigate(ROUTES.MAIN)
-  }
-
-  const goToLogin = (): void => {
-    navigate(ROUTES.AUTH.LOGIN)
   }
 
   const handleClickAccountMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -103,10 +95,6 @@ export const AppNavBar: React.FC = () => {
   const handleNotificationMenu = () => {
     setAnchorElementNotificaitonMenu(null)
     dispatch(uiActions.toggleMobileNotificationsOpenSet(false))
-  }
-
-  const hideLoginForRoutes = (): boolean => {
-    return pathname.includes(ROUTES.AUTH.LOGIN)
   }
 
   return (
@@ -223,15 +211,39 @@ export const AppNavBar: React.FC = () => {
               </IconButton>
             </span>
           </Slide>
-          {!isAuthenticated && !mobileBreak && !hideLoginForRoutes() && (
-            <Button
-              color="primary"
-              onClick={goToLogin}
-              variant="contained"
-            >
-              Login
-            </Button>
-          )}
+          <Slide
+            direction="left"
+            in={!isAuthenticated}
+            mountOnEnter
+            unmountOnExit
+          >
+            <span>
+              {!isAuthenticated && (
+                <Button
+                  color={pathname === ROUTES.AUTH.LOGIN ? 'secondary' : 'primary'}
+                  onClick={() => navigate(ROUTES.AUTH.LOGIN)}
+                  style={{
+                    padding: '6px',
+                  }}
+                  variant="contained"
+                >
+                  {strings.LOGIN}
+                </Button>
+              )}
+              {!isAuthenticated && (
+                <Button
+                  color={pathname === ROUTES.AUTH.SIGNUP ? 'secondary' : 'primary'}
+                  onClick={() => navigate(ROUTES.AUTH.SIGNUP)}
+                  style={{
+                    padding: '6px',
+                  }}
+                  variant="contained"
+                >
+                  {strings.SIGNUP}
+                </Button>
+              )}
+            </span>
+          </Slide>
         </Toolbar>
       </AppBar>
       <AccountMenu

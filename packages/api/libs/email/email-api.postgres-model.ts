@@ -111,7 +111,6 @@ export class EmailModel extends Model<EmailModel> {
     validate?: boolean,
   ): Promise<[EmailModel, boolean]> {
     const UserEmail = await EmailModel.findOrCreate({
-      // @ts-expect-error - sequelize types
       defaults: {
         default: true,
         email,

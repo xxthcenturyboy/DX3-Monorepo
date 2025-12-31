@@ -14,21 +14,22 @@ export const AuthWebRouter = () => {
   )
 }
 
-const LazyLoginComponent = lazy(async () => ({
-  default: (await import('./auth-web-login.component')).WebLogin,
+const LazySignupComponent = lazy(async () => ({
+  default: (await import('./auth-web-wrapper.component')).WebAuthWrapper,
 }))
 
 export class AuthWebRouterConfig {
   public static getRouter() {
     const config: RouteObject[] = [
       {
-        // lazy: async () => {
-        //   const { WebLogin } = await import('@dx/auth-web');
-        //   return { Component: WebLogin };
-        // },
-        element: <LazyLoginComponent />,
+        element: <LazySignupComponent route="login" />,
         errorElement: <NotFoundComponent />,
         path: AUTH_ROUTES.LOGIN,
+      },
+      {
+        element: <LazySignupComponent route="signup" />,
+        errorElement: <NotFoundComponent />,
+        path: AUTH_ROUTES.SIGNUP,
       },
       {
         children: [

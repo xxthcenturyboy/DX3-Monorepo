@@ -510,7 +510,6 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpPropsType> = Reac
         timeout={FADE_TIMEOUT_DUR}
       >
         <Box
-          // marginTop={props.isLogin ? '60px' : undefined}
           minHeight={props.isLogin ? '282px' : undefined}
           ref={ref}
           width="100%"

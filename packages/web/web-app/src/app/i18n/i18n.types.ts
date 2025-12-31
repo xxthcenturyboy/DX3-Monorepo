@@ -158,6 +158,7 @@ export type StringKeys = {
   SEND_PUSH_TO_PHONE: string
   SEND_TO_ALL_USERS: string
   SEND_TO_USER: string
+  SIGNUP: string
   START_OVER: string
   STATUS: string
   SUBMIT: string

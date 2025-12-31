@@ -41,7 +41,6 @@ export const UserProfile: React.FC = () => {
   }
 
   const addEmailToProfile = (email: EmailType) => {
-    console.log('addEmailToProfile', email)
     if (email) {
       dispatch(userProfileActions.emailAddedToProfile(email))
     }

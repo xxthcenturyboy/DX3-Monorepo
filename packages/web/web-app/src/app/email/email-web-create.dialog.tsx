@@ -16,6 +16,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
+import { toast } from 'react-toastify'
 
 import {
   type CreateEmailPayloadType,
@@ -33,8 +34,10 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
+import { WebConfigService } from '../config/config-web.service'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
+import { selectUserEmails } from '../user/profile/user-profile-web.selectors'
 import { useAddEmailMutation, useCheckEmailAvailabilityMutation } from './email-web.api'
 import { AddEmailForm } from './email-web.ui'
 
@@ -56,6 +59,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const [isDefault, setIsDefault] = React.useState(false)
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const userEmails = useAppSelector((state) => selectUserEmails(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
@@ -83,7 +87,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const [
     sendOtpCode,
     {
-      data: _sendOtpResponse,
+      data: sendOtpResponse,
       error: sendOtpError,
       isLoading: isLoadingSendOtp,
       isSuccess: sendOtpSuccess,
@@ -126,7 +130,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
         try {
           const payload: CreateEmailPayloadType = {
             code: otp,
-            def: isDefault,
+            def: userEmails.length === 0 || isDefault,
             email,
             label,
             userId: props.userId,
@@ -195,7 +199,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       typeof props.emailDataCallback === 'function'
     ) {
       props.emailDataCallback({
-        default: isDefault,
+        default: userEmails.length === 0 || isDefault,
         email,
         id: addEmailResponse.id,
         isDeleted: false,
@@ -214,6 +218,18 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   React.useEffect(() => {
     if (sendOtpSuccess) {
       setHasSentOtp(true)
+      const code = sendOtpResponse?.code
+      if (WebConfigService.isDev() && code) {
+        toast.info(`DEV MODE: OTP Code: ${code}`, {
+          autoClose: 5000,
+          closeButton: true,
+          closeOnClick: false,
+          draggable: true,
+          hideProgressBar: true,
+          position: 'bottom-center',
+          theme: 'colored',
+        })
+      }
     }
   }, [sendOtpSuccess])
 

@@ -112,6 +112,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   SEND_PUSH_TO_PHONE: 'Send Push Notification To Phone',
   SEND_TO_ALL_USERS: 'Send to all users',
   SEND_TO_USER: 'Send to: {username}',
+  SIGNUP: 'Sign Up',
   START_OVER: 'Start Over',
   STATUS: 'Status',
   SUBMIT: 'Submit',

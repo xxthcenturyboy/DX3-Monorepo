@@ -5,8 +5,6 @@ import type {
   AuthSuccessResponseType,
   LoginPayloadType,
   LogoutResponse,
-  UserLookupQueryType,
-  UserLookupResponseType,
 } from '@dx3/models-shared'
 
 import type { CustomResponseErrorType } from '../data/rtk-query/axios-web.types'
@@ -62,13 +60,6 @@ export const apiWebAuth = apiWeb.injectEndpoints({
         return response
       },
     }),
-    lookupEmailPhone: build.query<UserLookupResponseType, UserLookupQueryType>({
-      query: (payload) => ({
-        method: 'GET',
-        params: payload,
-        url: 'v1/auth/lookup',
-      }),
-    }),
     otpRequestEmail: build.mutation<{ code?: string }, { email: string }>({
       query: (payload) => ({
         data: payload,
@@ -99,7 +90,7 @@ export const apiWebAuth = apiWeb.injectEndpoints({
 
 export const {
   useCheckPasswordStrengthMutation,
-  useLazyLookupEmailPhoneQuery,
+  useCreateAccountMutation,
   useLoginMutation,
   useLogoutMutation,
   useOtpRequestEmailMutation,

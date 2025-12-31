@@ -19,7 +19,7 @@ export class EmailService {
     this.logger = ApiLoggingClass.instance
   }
 
-  public async isEmailAvailableAndValid(email: string) {
+  public async isEmailAvailableAndValid(email: string, authFlow?: boolean) {
     if (!email) {
       throw new Error('No email sent.')
     }
@@ -49,6 +49,9 @@ export class EmailService {
 
     const isEmailAvailable = await EmailModel.isEmailAvailable(emailUtil.formattedEmail())
     if (!isEmailAvailable) {
+      if (authFlow) {
+        return ERROR_CODES.EMAIL_ALREADY_EXISTS
+      }
       throw new Error(
         createApiErrorMessage(ERROR_CODES.EMAIL_ALREADY_EXISTS, `${email} already exists.`),
       )

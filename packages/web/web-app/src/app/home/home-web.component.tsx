@@ -7,21 +7,23 @@ import { WelcomeRobotLottie } from '@dx3/web-libs/ui/lottie/welcome-robot.lottie
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { WebConfigService } from '../config/config-web.service'
+import { useStrings } from '../i18n'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 
 export const HomeComponent: React.FC = () => {
   const theme = useTheme()
   const smBreak = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
+  const strings = useStrings(['SIGNUP'])
 
   React.useEffect(() => {
     setDocumentTitle()
   }, [])
 
-  const goToLogin = () => {
+  const goToSignup = () => {
     const ROUTES = WebConfigService.getWebRoutes()
-    if (ROUTES?.AUTH?.LOGIN) {
-      navigate(ROUTES.AUTH.LOGIN)
+    if (ROUTES?.AUTH?.SIGNUP) {
+      navigate(ROUTES.AUTH.SIGNUP)
     }
   }
 
@@ -66,14 +68,14 @@ export const HomeComponent: React.FC = () => {
         >
           <Button
             fullWidth={smBreak}
-            onClick={goToLogin}
+            onClick={goToSignup}
             size="large"
             style={{
               minWidth: '200px',
             }}
             variant="contained"
           >
-            Login
+            {strings.SIGNUP}
           </Button>
         </Grid>
       </Grid>

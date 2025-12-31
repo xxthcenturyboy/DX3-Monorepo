@@ -1,6 +1,8 @@
-import { Box, Fade, Grid, Paper } from '@mui/material'
+import EmailIcon from '@mui/icons-material/Email'
+import PhoneIcon from '@mui/icons-material/Phone'
+import { Box, Fade } from '@mui/material'
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import type { LoginPayloadType } from '@dx3/models-shared'
@@ -12,10 +14,9 @@ import { useString, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
-import { selectIsUserProfileValid } from '../user/profile/user-profile-web.selectors'
 import { useLoginMutation } from './auth-web.api'
 import { authActions } from './auth-web.reducer'
-import { LoginTypeChip, LoginTypeContainer, Logo } from './auth-web-login.ui'
+import { LoginTypeChip, LoginTypeContainer } from './auth-web-login.ui'
 import { WebLoginUserPass } from './auth-web-login-user-pass.component'
 import { AuthWebRequestOtpEntry } from './auth-web-request-otp.component'
 
@@ -24,14 +25,9 @@ export const WebLogin: React.FC = () => {
   const [loginType, setLoginType] = React.useState<'USER_PASS' | 'PHONE' | 'OTP' | false>(
     'USER_PASS',
   )
-  const user = useAppSelector((state) => state.userProfile)
-  const isProfileValid = useAppSelector((state) => selectIsUserProfileValid(state))
-  const logo = useAppSelector((state) => state.ui.logoUrl)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const stringLogin = useString('LOGIN')
-  const location = useLocation()
   const navigate = useNavigate()
-  const lastPath = location.pathname
   const dispatch = useAppDispatch()
   const ROUTES = WebConfigService.getWebRoutes()
   const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'PHONE', 'USERNAME', 'TRY_ANOTHER_WAY'])
@@ -47,15 +43,7 @@ export const WebLogin: React.FC = () => {
 
   React.useEffect(() => {
     setDocumentTitle(stringLogin)
-
-    // we're already logged in
-    if (user && isProfileValid) {
-      if (lastPath !== ROUTES.MAIN && lastPath !== ROUTES.AUTH.LOGIN) {
-        navigate(lastPath, { replace: true })
-      }
-      return
-    }
-  }, [ROUTES.AUTH.LOGIN, ROUTES.MAIN, isProfileValid, lastPath, stringLogin, user])
+  }, [stringLogin])
 
   React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
@@ -74,7 +62,7 @@ export const WebLogin: React.FC = () => {
 
       return
     }
-  }, [loginError, ROUTES.LIMITED])
+  }, [loginError])
 
   React.useEffect(() => {
     if (loginResponse) {
@@ -87,31 +75,10 @@ export const WebLogin: React.FC = () => {
       loginBootstrap(profile, mobileBreak)
       navigate(ROUTES.DASHBOARD.MAIN)
     }
-  }, [ROUTES.DASHBOARD.MAIN, loginResponse])
+  }, [loginResponse])
 
   const handleLogin = async (payload: LoginPayloadType): Promise<void> => {
     await requestLogin(payload)
-  }
-
-  const renderChips = () => {
-    return (
-      <LoginTypeContainer>
-        <LoginTypeChip
-          active={loginType === 'USER_PASS'}
-          color="primary"
-          label={strings.PASSWORD}
-          onClick={() => setLoginType('USER_PASS')}
-          variant={loginType === 'USER_PASS' ? 'filled' : 'outlined'}
-        />
-        <LoginTypeChip
-          active={loginType === 'PHONE'}
-          color="primary"
-          label={strings.PHONE}
-          onClick={() => setLoginType('PHONE')}
-          variant={loginType === 'PHONE' ? 'filled' : 'outlined'}
-        />
-      </LoginTypeContainer>
-    )
   }
 
   return (
@@ -119,59 +86,48 @@ export const WebLogin: React.FC = () => {
       in={true}
       timeout={FADE_TIMEOUT_DUR}
     >
-      <Box>
-        <Grid
-          alignItems="center"
-          container
-          direction="column"
-          justifyContent="center"
-          spacing={0}
-          style={{
-            minHeight: mobileBreak ? 'unset' : '80vh',
-          }}
-        >
-          <Paper
-            elevation={mobileBreak ? 0 : 2}
-            sx={(_theme) => {
-              return {
-                alignItems: 'center',
-                backgroundColor: mobileBreak ? 'transparent' : undefined,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                maxWidth: '420px',
-                minHeight: '592px',
-                minWidth: windowWidth < 375 ? `${windowWidth - 40}px` : '330px',
-                padding: mobileBreak ? '20px' : '40px',
-                width: '100%',
+      <Box width="100%">
+        {(loginType === 'PHONE' || loginType === 'USER_PASS') && (
+          <LoginTypeContainer>
+            <LoginTypeChip
+              active={loginType === 'USER_PASS'}
+              color="primary"
+              icon={<EmailIcon />}
+              label={strings.PASSWORD}
+              onClick={() => setLoginType('USER_PASS')}
+              variant={loginType === 'USER_PASS' ? 'filled' : 'outlined'}
+            />
+            <LoginTypeChip
+              active={loginType === 'PHONE'}
+              color="primary"
+              icon={<PhoneIcon />}
+              label={strings.PHONE}
+              onClick={() => setLoginType('PHONE')}
+              variant={loginType === 'PHONE' ? 'filled' : 'outlined'}
+            />
+          </LoginTypeContainer>
+        )}
+        {loginType === 'USER_PASS' && (
+          <WebLoginUserPass
+            changeLoginType={() => setLoginType('OTP')}
+            isFetchingLogin={isFetchingLogin}
+            login={handleLogin}
+          />
+        )}
+        {(loginType === 'OTP' || loginType === 'PHONE') && (
+          <AuthWebRequestOtpEntry
+            hasCallbackError={!!loginError}
+            isLogin={loginType === 'PHONE'}
+            onCompleteCallback={(value: string, code: string, region?: string) => {
+              const data: LoginPayloadType = {
+                code,
+                region,
+                value,
               }
+              void handleLogin(data)
             }}
-          >
-            <Logo src={logo} />
-            {(loginType === 'PHONE' || loginType === 'USER_PASS') && renderChips()}
-            {loginType === 'USER_PASS' && (
-              <WebLoginUserPass
-                changeLoginType={() => setLoginType('OTP')}
-                isFetchingLogin={isFetchingLogin}
-                login={handleLogin}
-              />
-            )}
-            {(loginType === 'OTP' || loginType === 'PHONE') && (
-              <AuthWebRequestOtpEntry
-                hasCallbackError={!!loginError}
-                isLogin={loginType === 'PHONE'}
-                onCompleteCallback={(value: string, code: string, region?: string) => {
-                  const data: LoginPayloadType = {
-                    code,
-                    region,
-                    value,
-                  }
-                  void handleLogin(data)
-                }}
-              />
-            )}
-          </Paper>
-        </Grid>
+          />
+        )}
       </Box>
     </Fade>
   )

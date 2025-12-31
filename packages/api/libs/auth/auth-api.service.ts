@@ -84,7 +84,11 @@ export class AuthService {
         }
 
         const phoneService = new PhoneService()
-        await phoneService.isPhoneAvailableAndValid(value, region || '')
+        const phoneValidResult = await phoneService.isPhoneAvailableAndValid(
+          value,
+          region || '',
+          true,
+        )
 
         const otpCache = new OtpCodeCache()
         const isCodeValid = await otpCache.validatePhoneOtp(
@@ -93,11 +97,22 @@ export class AuthService {
           phoneUtil.nationalNumber,
         )
         if (isCodeValid) {
-          user = await UserModel.registerAndCreateFromPhone(
-            phoneUtil.nationalNumber,
-            phoneUtil.countryCode,
-            region || PHONE_DEFAULT_REGION_CODE,
-          )
+          if (phoneValidResult === ERROR_CODES.PHONE_ALREADY_EXISTS) {
+            // Phone is in use but user sent valid code so let's just log them in
+            const phone = await PhoneModel.findByPhoneAndCode(
+              phoneUtil.nationalNumber,
+              phoneUtil.countryCode,
+            )
+            if (phone?.isVerified && phone.userId) {
+              user = await UserModel.findByPk(phone.userId)
+            }
+          } else {
+            user = await UserModel.registerAndCreateFromPhone(
+              phoneUtil.nationalNumber,
+              phoneUtil.countryCode,
+              region || PHONE_DEFAULT_REGION_CODE,
+            )
+          }
         }
       }
 
@@ -105,13 +120,26 @@ export class AuthService {
         if (emailUtil.validate()) {
           didAttemptAccountCreation = true
           const emailService = new EmailService()
-          await emailService.isEmailAvailableAndValid(value)
+          const emailValidResult = await emailService.isEmailAvailableAndValid(value, true)
 
-          const otpCache = new OtpCodeCache()
-          const isCodeValid = await otpCache.validateEmailOtp(code, emailUtil.formattedEmail())
-          if (isCodeValid) {
-            user = await UserModel.registerAndCreateFromEmail(emailUtil.formattedEmail(), true)
-
+          // Hanlde verification by OTP code
+          if (code) {
+            const otpCache = new OtpCodeCache()
+            const isCodeValid = await otpCache.validateEmailOtp(code, emailUtil.formattedEmail())
+            if (isCodeValid) {
+              if (emailValidResult === ERROR_CODES.EMAIL_ALREADY_EXISTS) {
+                // Email is in use but user sent valid code so let's just log them in
+                const email = await EmailModel.findByEmail(emailUtil.formattedEmail())
+                if (email?.userId) {
+                  user = await UserModel.findByPk(email.userId)
+                }
+              } else {
+                user = await UserModel.registerAndCreateFromEmail(emailUtil.formattedEmail(), true)
+              }
+            }
+          } else {
+            // Handle verification with email validation
+            user = await UserModel.registerAndCreateFromEmail(emailUtil.formattedEmail(), false)
             if (user) {
               const mail = new MailSendgrid()
               const inviteUrl = `/auth/z?route=validate&token=${user.token}`
@@ -285,6 +313,15 @@ export class AuthService {
             if (phone?.isVerified && phone.userId) {
               user = await UserModel.findByPk(phone.userId)
             }
+
+            if (!user && !phone) {
+              // Code is valid and phone is not in system, go ahead and create user
+              user = await UserModel.registerAndCreateFromPhone(
+                phoneUtil.nationalNumber,
+                phoneUtil.countryCode,
+                region || PHONE_DEFAULT_REGION_CODE,
+              )
+            }
           }
         }
       }
@@ -306,6 +343,11 @@ export class AuthService {
               const email = await EmailModel.findByEmail(emailUtil.formattedEmail())
               if (email?.userId) {
                 user = await UserModel.findByPk(email.userId)
+              }
+
+              if (!email && !user) {
+                // Code is valid and email is not in system, go ahead and create user
+                user = await UserModel.registerAndCreateFromEmail(emailUtil.formattedEmail(), true)
               }
             }
           }

@@ -22,7 +22,7 @@ export class PhoneService {
     this.logger = ApiLoggingClass.instance
   }
 
-  public async isPhoneAvailableAndValid(phone: string, regionCode: string) {
+  public async isPhoneAvailableAndValid(phone: string, regionCode: string, authFlow?: boolean) {
     if (!phone || !regionCode) {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.PHONE_INVALID, 'Missing phone or region code.'),
@@ -43,6 +43,9 @@ export class PhoneService {
       phoneUtil.countryCode,
     )
     if (!phoneAvailable) {
+      if (authFlow) {
+        return ERROR_CODES.PHONE_ALREADY_EXISTS
+      }
       const formatted = parsePhoneNumber(phoneUtil.normalizedPhone)
       throw new Error(
         createApiErrorMessage(
@@ -51,6 +54,8 @@ export class PhoneService {
         ),
       )
     }
+
+    return null
   }
 
   public async createPhone(payload: CreatePhonePayloadType) {

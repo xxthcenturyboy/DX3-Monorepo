@@ -5,6 +5,6 @@ export const AUTH_ROUTES = {
   EMAIL_VALIDATED: '/auth/email-validated',
   LOGIN: '/login',
   MAIN: '/auth',
-  SETUP: '/auth/setup',
+  SIGNUP: '/signup',
   Z: '/auth/z',
 }
