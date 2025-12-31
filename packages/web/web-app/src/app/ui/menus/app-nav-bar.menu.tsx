@@ -223,7 +223,7 @@ export const AppNavBar: React.FC = () => {
                   color={pathname === ROUTES.AUTH.LOGIN ? 'secondary' : 'primary'}
                   onClick={() => navigate(ROUTES.AUTH.LOGIN)}
                   style={{
-                    padding: '6px',
+                    padding: '6px 12px',
                   }}
                   variant="contained"
                 >
@@ -235,7 +235,7 @@ export const AppNavBar: React.FC = () => {
                   color={pathname === ROUTES.AUTH.SIGNUP ? 'secondary' : 'primary'}
                   onClick={() => navigate(ROUTES.AUTH.SIGNUP)}
                   style={{
-                    padding: '6px',
+                    padding: '6px 12px',
                   }}
                   variant="contained"
                 >

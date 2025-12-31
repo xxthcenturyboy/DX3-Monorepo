@@ -7,7 +7,7 @@ import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.comp
 
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { WebConfigService } from '../config/config-web.service'
-import { store } from '../store/store-web.redux'
+import { useAppSelector } from '../store/store-web.redux'
 import { AdminWebRouterConfig } from './admin.router'
 import { SudoWebRouterConfig } from './sudo.router'
 
@@ -20,7 +20,7 @@ const LazyUserProfileComponent = lazy(async () => ({
 }))
 
 export const PrivateRouter = () => {
-  const isAuthenticated = selectIsAuthenticated(store.getState())
+  const isAuthenticated = useAppSelector((store) => selectIsAuthenticated(store))
   const ROUTES = WebConfigService.getWebRoutes()
   return isAuthenticated ? (
     <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>

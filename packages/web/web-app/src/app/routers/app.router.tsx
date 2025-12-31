@@ -8,6 +8,7 @@ import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component
 import { AuthWebRouterConfig } from '../auth/auth-web.router'
 import { WebConfigService } from '../config/config-web.service'
 import { Root } from '../root-web.component'
+import { AuthenticatedRouter } from '../routers/authenticated.router'
 import { PrivateWebRouterConfig } from './private.router'
 
 const LazyHomeComponent = lazy(async () => ({
@@ -26,8 +27,14 @@ export class AppRouter {
       {
         children: [
           {
-            element: <LazyHomeComponent />,
-            path: ROUTES.MAIN,
+            children: [
+              {
+                element: <LazyHomeComponent />,
+                path: ROUTES.MAIN,
+              },
+            ],
+            element: <AuthenticatedRouter />,
+            errorElement: <GlobalErrorComponent />,
           },
           ...AuthWebRouterConfig.getRouter(),
           {

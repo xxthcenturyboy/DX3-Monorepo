@@ -56,7 +56,7 @@ export const Root: React.FC = () => {
   const navigate = useNavigate()
   const ROUTES = WebConfigService.getWebRoutes()
   const NO_REDICRET_ROUTES = WebConfigService.getNoRedirectRoutes()
-  const canRedirect = !NO_REDICRET_ROUTES.some((route) => pathname.startsWith(route))
+  const canRedirect = !NO_REDICRET_ROUTES.some((route) => pathname === route)
   const [fetchProfile, { data: profileResponse, isSuccess: fetchProfileSuccess }] =
     useLazyGetProfileQuery()
 
@@ -99,7 +99,7 @@ export const Root: React.FC = () => {
       dispatch(userProfileActions.profileInvalidated())
       canRedirect && navigate(ROUTES.MAIN)
     }
-  }, [logoutResponse, ROUTES.MAIN, canRedirect])
+  }, [logoutResponse, canRedirect])
 
   React.useEffect(() => {
     if (
@@ -109,7 +109,7 @@ export const Root: React.FC = () => {
     ) {
       dispatch(userProfileActions.profileUpdated(profileResponse.profile))
     }
-  }, [fetchProfileSuccess, dispatch, profileResponse?.profile])
+  }, [fetchProfileSuccess, profileResponse?.profile])
 
   React.useEffect(() => {
     if (bootstrapped) {

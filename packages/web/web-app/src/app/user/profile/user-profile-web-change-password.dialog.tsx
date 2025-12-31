@@ -24,10 +24,12 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 
 import { useCheckPasswordStrengthMutation } from '../../auth/auth-web.api'
-import { AuthWebRequestOtpEntry } from '../../auth/auth-web-request-otp.component'
+import { AuthWebRequestOtp } from '../../auth/auth-web-request-otp.component'
+import { useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { useUpdatePasswordMutation } from './user-profile-web.api'
+import { selectProfileFormatted } from './user-profile-web.selectors'
 import { ChangePasswordForm } from './user-profile-web-change-password.ui'
 
 type UserProfileChangePasswordPropsType = {
@@ -48,6 +50,8 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
   const [errorMessage, setErrorMessage] = React.useState('')
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const profile = useAppSelector((state) => selectProfileFormatted(state))
+  const strings = useStrings(['CHANGE_PASSWORD', 'CREATE_PASSWORD'])
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
@@ -291,7 +295,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
           textAlign: 'center',
         }}
       >
-        Change Password
+        {profile.emails.length ? strings.CHANGE_PASSWORD : strings.CREATE_PASSWORD}
       </DialogTitle>
       {!allSucceeded && !showLottieError && !isPasswordStrong && renderFormContent()}
       {!allSucceeded && !showLottieError && isPasswordStrong && (
@@ -299,7 +303,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
           isMobileWidth={isMobileWidth}
           windowHeight={windowHeight}
         >
-          <AuthWebRequestOtpEntry
+          <AuthWebRequestOtp
             hasCallbackError={!!updatePasswordlError}
             onCompleteCallback={(value: string, code: string, region?: string) => {
               void handleUpdatePassword({

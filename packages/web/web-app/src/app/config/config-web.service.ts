@@ -40,7 +40,7 @@ export class WebConfigService {
   public static getNoRedirectRoutes() {
     const routes = WebConfigService.getWebRoutes()
     if (routes) {
-      return [routes.MAIN, routes.AUTH.LOGIN, routes.SHORTLINK.MAIN]
+      return [routes.MAIN, routes.AUTH.LOGIN, routes.AUTH.SIGNUP, routes.SHORTLINK.MAIN]
     }
 
     return []

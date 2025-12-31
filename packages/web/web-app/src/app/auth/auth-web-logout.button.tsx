@@ -54,14 +54,12 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
               try {
                 const logoutResponse = await requestLogout().unwrap()
                 if (logoutResponse.loggedOut) {
-                  navigate(ROUTES.AUTH.LOGIN)
                   dispatch(uiActions.toggleMenuSet(false))
                   sleep(500).then(() => {
                     setConfirmOpen(false)
-                    sleep(500).then(() => {
-                      dispatch(authActions.tokenRemoved())
-                      dispatch(authActions.setLogoutResponse(true))
-                    })
+                    dispatch(authActions.tokenRemoved())
+                    dispatch(authActions.setLogoutResponse(true))
+                    navigate(ROUTES.AUTH.LOGIN)
                   })
                 }
               } catch (err) {

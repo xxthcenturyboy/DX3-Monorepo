@@ -1,6 +1,4 @@
-import EmailIcon from '@mui/icons-material/Email'
-import PhoneIcon from '@mui/icons-material/Phone'
-import { Box, Fade } from '@mui/material'
+import { Box, Fade, Typography } from '@mui/material'
 import React from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
@@ -16,28 +14,30 @@ import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
 import { useLoginMutation } from './auth-web.api'
 import { authActions } from './auth-web.reducer'
-import { LoginTypeChip, LoginTypeContainer } from './auth-web-login.ui'
 import { WebLoginUserPass } from './auth-web-login-user-pass.component'
-import { AuthWebRequestOtpEntry } from './auth-web-request-otp.component'
+import { AuthWebRequestOtp } from './auth-web-request-otp.component'
 
 export const WebLogin: React.FC = () => {
   const [mobileBreak, setMobileBreak] = React.useState(false)
-  const [loginType, setLoginType] = React.useState<'USER_PASS' | 'PHONE' | 'OTP' | false>(
-    'USER_PASS',
-  )
+  const [loginType, setLoginType] = React.useState<'USER_PASS' | 'OTP'>('OTP')
+  const [hideTypeSwitch, setHideTypeSwitch] = React.useState(false)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const stringLogin = useString('LOGIN')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const ROUTES = WebConfigService.getWebRoutes()
-  const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'PHONE', 'USERNAME', 'TRY_ANOTHER_WAY'])
+  const strings = useStrings([
+    'LOGIN_TO_YOUR_ACCOUNT',
+    'TRY_WITH_ONE_TIME_CODE',
+    'TRY_WITH_USERNAME_AND_PASSWORD',
+  ])
   const [
     requestLogin,
     {
       data: loginResponse,
       error: loginError,
       isLoading: isFetchingLogin,
-      isSuccess: _loginIsSuccess,
+      isSuccess: loginIsSuccess,
     },
   ] = useLoginMutation()
 
@@ -67,18 +67,28 @@ export const WebLogin: React.FC = () => {
   React.useEffect(() => {
     if (loginResponse) {
       const { accessToken, profile } = loginResponse
-      dispatch(authActions.usernameUpdated(''))
-      dispatch(authActions.passwordUpdated(''))
-      dispatch(authActions.tokenAdded(accessToken))
-      dispatch(authActions.setLogoutResponse(false))
-      dispatch(userProfileActions.profileUpdated(profile))
-      loginBootstrap(profile, mobileBreak)
-      navigate(ROUTES.DASHBOARD.MAIN)
+      if (accessToken && profile) {
+        dispatch(authActions.usernameUpdated(''))
+        dispatch(authActions.passwordUpdated(''))
+        dispatch(authActions.tokenAdded(accessToken))
+        dispatch(userProfileActions.profileUpdated(profile))
+        loginBootstrap(profile, mobileBreak)
+        navigate(ROUTES.DASHBOARD.MAIN)
+        dispatch(authActions.setLogoutResponse(false))
+      }
     }
   }, [loginResponse])
 
   const handleLogin = async (payload: LoginPayloadType): Promise<void> => {
     await requestLogin(payload)
+  }
+
+  const getTypeSwitcherVisiblity = (): 'hidden' | 'visible' => {
+    if (hideTypeSwitch || isFetchingLogin || loginIsSuccess) {
+      return 'hidden'
+    }
+
+    return 'visible'
   }
 
   return (
@@ -87,26 +97,15 @@ export const WebLogin: React.FC = () => {
       timeout={FADE_TIMEOUT_DUR}
     >
       <Box width="100%">
-        {(loginType === 'PHONE' || loginType === 'USER_PASS') && (
-          <LoginTypeContainer>
-            <LoginTypeChip
-              active={loginType === 'USER_PASS'}
-              color="primary"
-              icon={<EmailIcon />}
-              label={strings.PASSWORD}
-              onClick={() => setLoginType('USER_PASS')}
-              variant={loginType === 'USER_PASS' ? 'filled' : 'outlined'}
-            />
-            <LoginTypeChip
-              active={loginType === 'PHONE'}
-              color="primary"
-              icon={<PhoneIcon />}
-              label={strings.PHONE}
-              onClick={() => setLoginType('PHONE')}
-              variant={loginType === 'PHONE' ? 'filled' : 'outlined'}
-            />
-          </LoginTypeContainer>
-        )}
+        <Typography
+          align="center"
+          color="primary"
+          justifySelf="center"
+          margin="-16px 0 28px"
+          variant="h5"
+        >
+          {strings.LOGIN_TO_YOUR_ACCOUNT}
+        </Typography>
         {loginType === 'USER_PASS' && (
           <WebLoginUserPass
             changeLoginType={() => setLoginType('OTP')}
@@ -114,20 +113,36 @@ export const WebLogin: React.FC = () => {
             login={handleLogin}
           />
         )}
-        {(loginType === 'OTP' || loginType === 'PHONE') && (
-          <AuthWebRequestOtpEntry
-            hasCallbackError={!!loginError}
-            isLogin={loginType === 'PHONE'}
-            onCompleteCallback={(value: string, code: string, region?: string) => {
-              const data: LoginPayloadType = {
-                code,
-                region,
-                value,
-              }
-              void handleLogin(data)
-            }}
-          />
+        {loginType === 'OTP' && (
+          <Box>
+            <AuthWebRequestOtp
+              hasCallbackError={!!loginError}
+              onCompleteCallback={(value: string, code: string, region?: string) => {
+                const data: LoginPayloadType = {
+                  code,
+                  region,
+                  value,
+                }
+                void handleLogin(data)
+              }}
+              setHasSentOtp={setHideTypeSwitch}
+            />
+          </Box>
         )}
+        <Typography
+          align="center"
+          color="primary"
+          justifySelf="center"
+          marginBottom={'0'}
+          marginTop={loginType === 'OTP' ? '-2em' : '2em'}
+          onClick={() => setLoginType(loginType === 'OTP' ? 'USER_PASS' : 'OTP')}
+          style={{ cursor: 'pointer', visibility: getTypeSwitcherVisiblity() }}
+          variant="subtitle2"
+        >
+          {loginType === 'OTP'
+            ? strings.TRY_WITH_USERNAME_AND_PASSWORD
+            : strings.TRY_WITH_ONE_TIME_CODE}
+        </Typography>
       </Box>
     </Fade>
   )

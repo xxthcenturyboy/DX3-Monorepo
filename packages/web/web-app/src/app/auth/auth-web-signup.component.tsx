@@ -1,4 +1,4 @@
-import { Box, Fade } from '@mui/material'
+import { Box, Fade, Typography } from '@mui/material'
 import React from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
@@ -14,25 +14,22 @@ import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
 import { useCreateAccountMutation } from './auth-web.api'
 import { authActions } from './auth-web.reducer'
-// import { LoginTypeChip, LoginTypeContainer } from './auth-web-login.ui'
-// import { WebLoginUserPass } from './auth-web-login-user-pass.component'
-import { AuthWebRequestOtpEntry } from './auth-web-request-otp.component'
+import { AuthWebRequestOtp } from './auth-web-request-otp.component'
 
 export const WebSignup: React.FC = () => {
   const [mobileBreak, setMobileBreak] = React.useState(false)
-  // const [signupType, setSignupType] = React.useState<'EMAIL' | 'PHONE'>('PHONE')
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const stringSignup = useString('SIGNUP')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const ROUTES = WebConfigService.getWebRoutes()
-  // const strings = useStrings(['EMAIL', 'SIGNUP', 'PASSWORD', 'PHONE'])
+  const strings = useStrings(['SIGNUP_FOR_AN_ACCOUNT'])
   const [
     requstSignup,
     {
       data: signupResponse,
       error: signupError,
-      isLoading: isFetchingSignup,
+      isLoading: _isFetchingSignup,
       isSuccess: _signupSuccess,
     },
   ] = useCreateAccountMutation()
@@ -83,7 +80,16 @@ export const WebSignup: React.FC = () => {
       timeout={FADE_TIMEOUT_DUR}
     >
       <Box width="100%">
-        <AuthWebRequestOtpEntry
+        <Typography
+          align="center"
+          color="primary"
+          justifySelf="center"
+          margin="-16px 0 28px"
+          variant="h5"
+        >
+          {strings.SIGNUP_FOR_AN_ACCOUNT}
+        </Typography>
+        <AuthWebRequestOtp
           hasCallbackError={!!signupError}
           onCompleteCallback={(value: string, code: string, region?: string) => {
             const data: AccountCreationPayloadType = {

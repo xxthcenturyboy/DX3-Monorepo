@@ -16,7 +16,7 @@ export const Logo = styled('img')(({ theme }) => ({
   maxWidth: '224px',
 }))
 
-export const LoginTypeContainer = styled(Box)<{
+export const AuthTypeContainer = styled(Box)<{
   component?: React.ElementType
 }>((_props) => ({
   alignItems: 'center',
@@ -26,7 +26,7 @@ export const LoginTypeContainer = styled(Box)<{
   width: '100%',
 }))
 
-export const LoginTypeChip = styled(Chip)<{
+export const AuthTypeChip = styled(Chip)<{
   active: boolean
   component?: React.ElementType
 }>((props) => ({

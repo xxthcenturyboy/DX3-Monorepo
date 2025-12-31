@@ -17,7 +17,7 @@ export const UserProfileHeaderComponent: React.FC = () => {
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const profile = useAppSelector((state) => selectProfileFormatted(state))
-  const strings = useStrings(['PAGE_TITLE_USER_PROFILE', 'CHANGE_PASSWORD'])
+  const strings = useStrings(['PAGE_TITLE_USER_PROFILE', 'CHANGE_PASSWORD', 'CREATE_PASSWORD'])
   const title = profile.username
     ? `${strings.PAGE_TITLE_USER_PROFILE} - ${profile.username}`
     : strings.PAGE_TITLE_USER_PROFILE
@@ -67,7 +67,7 @@ export const UserProfileHeaderComponent: React.FC = () => {
             size="small"
             variant="contained"
           >
-            {strings.CHANGE_PASSWORD}
+            {profile.emails.length ? strings.CHANGE_PASSWORD : strings.CREATE_PASSWORD}
           </Button>
         }
         headerTitle={title}

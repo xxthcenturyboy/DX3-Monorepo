@@ -1,14 +1,6 @@
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import {
-  Box,
-  Button,
-  Fade,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Fade, FormControl, InputLabel, OutlinedInput } from '@mui/material'
 // import Zoom from '@mui/material/Zoom'
 import React from 'react'
 import { BeatLoader } from 'react-spinners'
@@ -32,10 +24,9 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
   (props, ref) => {
     const { isFetchingLogin } = props
     const [showPassword, setShowPassword] = React.useState(false)
-    const [loginAttempts, setLoginAttempts] = React.useState(0)
     const username = useAppSelector((state) => state.auth.username)
     const password = useAppSelector((state) => state.auth.password)
-    const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME', 'TRY_ANOTHER_WAY'])
+    const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME'])
     const dispatch = useAppDispatch()
 
     const clearInputs = (): void => {
@@ -80,7 +71,6 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
         }
 
         await props.login(data)
-        setLoginAttempts(loginAttempts + 1)
       }
     }
 
@@ -186,18 +176,6 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               )}
             </Button>
           </LoginForm>
-          <Typography
-            align="right"
-            alignSelf="flex-end"
-            color="primary"
-            marginBottom={'0'}
-            marginTop={'2em'}
-            onClick={() => props.changeLoginType()}
-            style={{ cursor: 'pointer', visibility: loginAttempts > 2 ? 'visible' : 'hidden' }}
-            variant="subtitle2"
-          >
-            {strings.TRY_ANOTHER_WAY}
-          </Typography>
         </Box>
       </Fade>
     )

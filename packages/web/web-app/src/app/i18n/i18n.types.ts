@@ -83,6 +83,7 @@ export type StringKeys = {
   COULD_NOT_LOG_YOU_IN: string
   COULD_NOT_LOGOUT: string
   CREATE: string
+  CREATE_PASSWORD: string
   DASHBOARD_WELCOME: string
   DEFAULT: string
   DELETE: string
@@ -103,8 +104,6 @@ export type StringKeys = {
   GENERIC_NOT_FOUND: string
   GENERIC_SERVER_ERROR: string
   GENERIC_VALIDATION_FAILED: string
-  GET_CODE_VIA_EMAIL: string
-  GET_CODE_VIA_PHONE: string
   GREETING: string
   HEAP_TOTAL: string
   HEAP_USED: string
@@ -112,6 +111,7 @@ export type StringKeys = {
   LOADING: string
   LOG_OUT: string
   LOGIN: string
+  LOGIN_TO_YOUR_ACCOUNT: string
   LOGOUT: string
   MEDIA_FILE_COUNT_EXCEEDED: string
   MEDIA_FILE_SIZE_EXCEEDED: string
@@ -159,6 +159,7 @@ export type StringKeys = {
   SEND_TO_ALL_USERS: string
   SEND_TO_USER: string
   SIGNUP: string
+  SIGNUP_FOR_AN_ACCOUNT: string
   START_OVER: string
   STATUS: string
   SUBMIT: string
@@ -170,7 +171,8 @@ export type StringKeys = {
   TOOLTIP_DELETE_PHONE: string
   TOOLTIP_REFRESH_DATA: string
   TOOLTIP_REFRESH_LIST: string
-  TRY_ANOTHER_WAY: string
+  TRY_WITH_ONE_TIME_CODE: string
+  TRY_WITH_USERNAME_AND_PASSWORD: string
   TYPE: string
   UNAUTHORIZED: string
   UPDATE: string
