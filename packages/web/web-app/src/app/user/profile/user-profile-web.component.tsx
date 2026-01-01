@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Paper,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Box, Button, Divider, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -23,6 +14,7 @@ import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hook
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { UserProfileEditNames } from './user-profile-names-edit.component'
+import { UserProfileEditUsername } from './user-profile-usernname-edit.component'
 import { userProfileActions } from './user-profile-web.reducer'
 import { selectProfileFormatted } from './user-profile-web.selectors'
 import { UserProfileAvatar } from './user-profile-web-avatar.component'
@@ -135,24 +127,14 @@ export const UserProfile: React.FC = () => {
               }}
             />
 
-            {/** Username and Name */}
+            {/** Username */}
             <Grid
               container
               direction={SM_BREAK ? 'column' : 'row'}
               justifyContent={'center'}
               size={12}
             >
-              <Grid
-                padding="10px"
-                size={{
-                  xs: 12,
-                }}
-                width={'100%'}
-              >
-                <Typography>
-                  {strings.USERNAME}: {profile.username}
-                </Typography>
-              </Grid>
+              <UserProfileEditUsername />
             </Grid>
             <Divider
               sx={{

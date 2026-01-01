@@ -13,6 +13,7 @@ export { propertiesToArray } from './lib/properties-to-array'
 export {
   regexEmail,
   regexMatchNumberGroups,
+  regexNoWhiteSpaceAlphaNumeric,
   regexNoWhiteSpaceString,
   regexPhone,
   regexPhoneUS,

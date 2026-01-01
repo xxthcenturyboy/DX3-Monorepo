@@ -119,7 +119,7 @@ export const UserAdminEdit: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      setTitle(`User: ${user.username}`)
+      setTitle(`User: ${user.username || ''}`)
       setupRestrictions()
       setupRoles()
     }

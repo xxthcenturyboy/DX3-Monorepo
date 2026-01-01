@@ -26,9 +26,10 @@ import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
 import { useCheckPasswordStrengthMutation } from '../../auth/auth-web.api'
 import { AuthWebRequestOtp } from '../../auth/auth-web-request-otp.component'
 import { useStrings } from '../../i18n'
-import { useAppSelector } from '../../store/store-web-redux.hooks'
+import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
-import { useUpdatePasswordMutation } from './user-profile-web.api'
+import { useLazyGetProfileQuery, useUpdatePasswordMutation } from './user-profile-web.api'
+import { userProfileActions } from './user-profile-web.reducer'
 import { selectProfileFormatted } from './user-profile-web.selectors'
 import { ChangePasswordForm } from './user-profile-web-change-password.ui'
 
@@ -51,6 +52,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const profile = useAppSelector((state) => selectProfileFormatted(state))
+  const dispatch = useAppDispatch()
   const strings = useStrings(['CHANGE_PASSWORD', 'CREATE_PASSWORD'])
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
@@ -70,10 +72,20 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
       data: _updatePasswordResponse,
       error: updatePasswordlError,
       isLoading: isLoadingUpdatePassword,
-      isSuccess: _updatePasswordSuccess,
+      isSuccess: updatePasswordSuccess,
       isUninitialized: updatePasswordUninitialized,
     },
   ] = useUpdatePasswordMutation()
+  const [
+    requestGetProfile,
+    {
+      data: getProfileResponse,
+      error: getProfileError,
+      isLoading: isLoadingGetProfile,
+      isSuccess: getProfileSuccess,
+      isUninitialized: getProfileUninitialized,
+    },
+  ] = useLazyGetProfileQuery()
 
   React.useEffect(() => {
     if (!props.userId) {
@@ -83,17 +95,45 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
 
   React.useEffect(() => {
     if (!isLoadingUpdatePassword && !updatePasswordUninitialized) {
-      if (!updatePasswordlError) {
+      if (updatePasswordSuccess) {
         setShowLottieError(false)
+
+        if (!profile.hasSecuredAccount) {
+          void requestGetProfile()
+          return
+        }
+
         setAllSucceeded(true)
-      } else {
+      }
+
+      if (updatePasswordlError) {
         if ('error' in updatePasswordlError) {
           setErrorMessage(updatePasswordlError.error)
         }
         setShowLottieError(true)
       }
     }
-  }, [isLoadingUpdatePassword, updatePasswordUninitialized, updatePasswordlError])
+  }, [
+    isLoadingUpdatePassword,
+    updatePasswordUninitialized,
+    updatePasswordlError,
+    updatePasswordSuccess,
+  ])
+
+  React.useEffect(() => {
+    if (!isLoadingGetProfile && !getProfileUninitialized) {
+      if (
+        getProfileSuccess &&
+        getProfileResponse.profile &&
+        typeof getProfileResponse.profile !== 'string'
+      ) {
+        dispatch(userProfileActions.profileUpdated(getProfileResponse.profile))
+      }
+
+      setShowLottieError(false)
+      setAllSucceeded(true)
+    }
+  }, [isLoadingGetProfile, getProfileUninitialized, getProfileError, getProfileSuccess])
 
   React.useEffect(() => {
     if (!isLoadingCheckStrength && !checkStrengthUninitialized) {

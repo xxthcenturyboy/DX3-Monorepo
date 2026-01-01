@@ -14,6 +14,7 @@ import {
   type GetUserProfileReturnType,
   type GetUserResponseType,
   type GetUsersListQueryType,
+  isUsernameValid,
   type OtpResponseType,
   PHONE_DEFAULT_REGION_CODE,
   type UpdatePasswordPayloadType,
@@ -24,7 +25,7 @@ import {
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isDev, isProd } from '../config/config-api.service'
+import { isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
 import { EmailModel } from '../email/email-api.postgres-model'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
@@ -39,7 +40,6 @@ import { UserModel } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
 
 export class UserService {
-  private LOCAL = isDev()
   private logger: ApiLoggingClassType
 
   constructor() {
@@ -309,6 +309,10 @@ export class UserService {
 
     const result = { available: false }
 
+    if (!isUsernameValid(usernameToCheck)) {
+      return result
+    }
+
     const profanityUtil = new ProfanityFilter()
     if (profanityUtil.isProfane(usernameToCheck)) {
       throw new Error('Profanity is not allowed')
@@ -565,10 +569,9 @@ export class UserService {
   ): Promise<UpdateUserResponseType> {
     const { otpCode, signature, username } = payload
 
-    if (!id) {
-      throw new Error(
-        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
-      )
+    if (!id || !(otpCode || signature)) {
+      const msg = `${!id ? 'No id provided' : 'No otp or signature provided'} for username update.`
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, msg))
     }
 
     if (otpCode) {

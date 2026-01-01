@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import {
   regexEmail,
+  regexNoWhiteSpaceAlphaNumeric,
   regexNoWhiteSpaceString,
   regexPhone,
   regexPhoneUS,
@@ -37,7 +38,26 @@ describe('regexNoWhiteSpaceString', () => {
   const invalidTest = regexNoWhiteSpaceString.test(stringWithoutWhiteSpace)
   // assert
   it('should exist when imported', () => {
-    expect(regexEmail).toBeDefined()
+    expect(regexNoWhiteSpaceString).toBeDefined()
+  })
+  it('should return true when tested against a valid string', () => {
+    expect(validTest).toBeTruthy()
+  })
+  it('should return false when tested against an invalid string', () => {
+    expect(invalidTest).toBeFalsy()
+  })
+})
+
+describe('regexNoWhiteSpaceAlphaNumeric', () => {
+  // arrange
+  const stringWithoutWhiteSpace = 'no_Whitespace_42'
+  const stringWithWhiteSpace = 'this is full of gaps 86'
+  // act
+  const validTest = regexNoWhiteSpaceAlphaNumeric.test(stringWithoutWhiteSpace)
+  const invalidTest = regexNoWhiteSpaceAlphaNumeric.test(stringWithWhiteSpace)
+  // assert
+  it('should exist when imported', () => {
+    expect(regexNoWhiteSpaceAlphaNumeric).toBeDefined()
   })
   it('should return true when tested against a valid string', () => {
     expect(validTest).toBeTruthy()

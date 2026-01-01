@@ -95,7 +95,7 @@ export class DxRateLimiters {
       handler: DxRateLimiters.handleLimitCommon,
       keyGenerator: DxRateLimiters.keyGenLogin,
       limit: RATE_LIMITS.AUTH_LOOKUP, // limit each IP to 20 requests
-      message: 'This insanity has been stopped. Quit tryna hack us.',
+      message: 'This insanity has been stopped.',
       standardHeaders: true,
       store: new RedisStore({
         prefix: `${APP_PREFIX}${REDIS_DELIMITER}rl-auth-lookup${REDIS_DELIMITER}`,

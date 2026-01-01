@@ -6,6 +6,8 @@ export const regexEmail =
 
 export const regexNoWhiteSpaceString = /^\S*$/
 
+export const regexNoWhiteSpaceAlphaNumeric = /^[a-zA-Z0-9_]+$/
+
 export const regexPhone = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/
 
 export const regexPhoneUS = /^\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/

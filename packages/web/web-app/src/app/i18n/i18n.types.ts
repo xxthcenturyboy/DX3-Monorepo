@@ -77,6 +77,7 @@ export type StringKeys = {
   CANCEL: string
   CHANGE_PASSWORD: string
   CHARACTERS_REMAINING: string
+  CHECK_AVAILABLILITY: string
   CLOSE: string
   CONFIRM: string
   CONFIRM_PASSWORD: string
@@ -98,6 +99,7 @@ export type StringKeys = {
   EMAILS: string
   EXTERNAL: string
   FILTER: string
+  FIRST_NAME: string
   GENERIC: string
   GENERIC_BAD_REQUEST: string
   GENERIC_FORBIDDEN: string
@@ -108,6 +110,7 @@ export type StringKeys = {
   HEAP_TOTAL: string
   HEAP_USED: string
   LABEL: string
+  LAST_NAME: string
   LOADING: string
   LOG_OUT: string
   LOGIN: string
@@ -147,6 +150,7 @@ export type StringKeys = {
   PHONES: string
   PING: string
   PROFILE: string
+  PROFILE_UPDATED: string
   READ: string
   REFRESH: string
   RESTRICTIONS: string
@@ -181,6 +185,9 @@ export type StringKeys = {
   USER_NOT_FOUND: string
   USER_UPDATE_FAILED: string
   USERNAME: string
+  USERNAME_IS_AVAILABLE: string
+  USERNAME_IS_UNAVAILABLE: string
+  USERNAME_REQUIREMENT: string
   VERIFIED: string
   VERIFY: string
   VERSION: string

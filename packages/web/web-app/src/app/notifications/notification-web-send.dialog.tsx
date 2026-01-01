@@ -314,7 +314,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         }}
       >
         {props.user
-          ? t('SEND_TO_USER', { username: props.user.username })
+          ? t('SEND_TO_USER', { username: props.user.username || '' })
           : strings.SEND_TO_ALL_USERS}
       </DialogTitle>
       {!allSucceeded && !showLottieError && renderFormContent()}

@@ -1,7 +1,9 @@
 import type {
   UpdatePasswordPayloadType,
+  UpdateUsernamePayloadType,
   UpdateUserPayloadType,
   UpdateUserResponseType,
+  UserLookupResponseType,
   UserProfileStateType,
 } from '@dx3/models-shared'
 
@@ -13,6 +15,15 @@ export const apiWebUserProfile = apiWeb.injectEndpoints({
       query: () => ({
         method: 'GET',
         url: 'v1/user/profile',
+      }),
+    }),
+    getUsernameAvailability: build.query<UserLookupResponseType, string>({
+      query: (username) => ({
+        method: 'GET',
+        params: {
+          username: username,
+        },
+        url: 'v1/user/check/availability',
       }),
     }),
     updatePassword: build.mutation<{ success: boolean }, UpdatePasswordPayloadType>({
@@ -29,9 +40,24 @@ export const apiWebUserProfile = apiWeb.injectEndpoints({
         url: `v1/user/${encodeURIComponent(paylaod.id)}`,
       }),
     }),
+    updateUsername: build.mutation<
+      UpdateUserResponseType,
+      { id: string; payload: UpdateUsernamePayloadType }
+    >({
+      query: (params) => ({
+        data: params.payload,
+        method: 'PUT',
+        url: `v1/user/update/username/${encodeURIComponent(params.id)}`,
+      }),
+    }),
   }),
   overrideExisting: true,
 })
 
-export const { useLazyGetProfileQuery, useUpdatePasswordMutation, useUpdateUserMutation } =
-  apiWebUserProfile
+export const {
+  useLazyGetProfileQuery,
+  useLazyGetUsernameAvailabilityQuery,
+  useUpdatePasswordMutation,
+  useUpdateUserMutation,
+  useUpdateUsernameMutation,
+} = apiWebUserProfile

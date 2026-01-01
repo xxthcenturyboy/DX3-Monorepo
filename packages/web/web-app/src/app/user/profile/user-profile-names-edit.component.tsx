@@ -8,6 +8,7 @@ import {
   IconButton,
   InputLabel,
   OutlinedInput,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -17,6 +18,7 @@ import { toast } from 'react-toastify'
 
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { useUpdateUserMutation } from './user-profile-web.api'
@@ -32,6 +34,17 @@ export const UserProfileEditNames: React.FC = () => {
   const dispatch = useAppDispatch()
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const strings = useStrings([
+    'NAME',
+    'FIRST_NAME',
+    'LAST_NAME',
+    'EDIT',
+    'ADD',
+    'NO_DATA',
+    'PROFILE_UPDATED',
+    'SAVE',
+    'CANCEL',
+  ])
   const [
     requestUpdateUser,
     {
@@ -47,7 +60,7 @@ export const UserProfileEditNames: React.FC = () => {
   React.useEffect(() => {
     if (!isLoadingUpdateUser && !updateUserUninitialized) {
       if (updateUserSuccess) {
-        toast.success('Profile updated')
+        toast.success(strings.PROFILE_UPDATED)
         dispatch(
           userProfileActions.profileUpdated({
             ...profile,
@@ -56,7 +69,6 @@ export const UserProfileEditNames: React.FC = () => {
             lastName: nameLast,
           }),
         )
-        dispatch(uiActions.awaitDialogOpenSet(false))
         setEditNames(false)
         setNameFirst('')
         setNameLast('')
@@ -68,6 +80,8 @@ export const UserProfileEditNames: React.FC = () => {
           toast.error(updateUserError.error)
         }
       }
+
+      dispatch(uiActions.awaitDialogOpenSet(false))
     }
   }, [isLoadingUpdateUser, updateUserError, updateUserSuccess])
 
@@ -122,12 +136,12 @@ export const UserProfileEditNames: React.FC = () => {
                     width: '100%',
                   }}
                 >
-                  <InputLabel htmlFor="input-first-name">First Name</InputLabel>
+                  <InputLabel htmlFor="input-first-name">{strings.FIRST_NAME}</InputLabel>
                   <OutlinedInput
                     autoCorrect="off"
                     fullWidth
                     id="input-first-name"
-                    label={'First Name'}
+                    label={strings.FIRST_NAME}
                     name="input-first-name"
                     onChange={(event) => setNameFirst(event.target.value)}
                     type="text"
@@ -152,12 +166,12 @@ export const UserProfileEditNames: React.FC = () => {
                     width: '100%',
                   }}
                 >
-                  <InputLabel htmlFor="input-last-name">Last Name</InputLabel>
+                  <InputLabel htmlFor="input-last-name">{strings.LAST_NAME}</InputLabel>
                   <OutlinedInput
                     autoCorrect="off"
                     fullWidth
                     id="input-last-name"
-                    label={'Last Name'}
+                    label={strings.LAST_NAME}
                     name="input-last-name"
                     onChange={(event) => setNameLast(event.target.value)}
                     type="text"
@@ -169,7 +183,7 @@ export const UserProfileEditNames: React.FC = () => {
               {/** Submit Button */}
               <Grid
                 container
-                direction={SM_BREAK ? 'column' : 'row'}
+                direction={SM_BREAK ? 'column-reverse' : 'row'}
                 justifyContent={SM_BREAK ? 'center' : 'flex-end'}
                 padding={SM_BREAK ? '12px' : '0 12px'}
                 size={12}
@@ -181,7 +195,7 @@ export const UserProfileEditNames: React.FC = () => {
                   type="button"
                   variant="contained"
                 >
-                  Cancel
+                  {strings.CANCEL}
                 </Button>
                 <Button
                   color="primary"
@@ -189,7 +203,7 @@ export const UserProfileEditNames: React.FC = () => {
                   type="submit"
                   variant="contained"
                 >
-                  Save
+                  {strings.SAVE}
                 </Button>
               </Grid>
             </Grid>
@@ -212,17 +226,19 @@ export const UserProfileEditNames: React.FC = () => {
               display={'flex'}
               marginTop={'12px'}
             >
-              <IconButton
-                color="primary"
-                onClick={() => {
-                  setNameFirst(profile.firstName)
-                  setNameLast(profile.lastName)
-                  setEditNames(true)
-                }}
-                size="small"
-              >
-                <Edit />
-              </IconButton>
+              <Tooltip title={strings.EDIT}>
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    setNameFirst(profile.firstName)
+                    setNameLast(profile.lastName)
+                    setEditNames(true)
+                  }}
+                  size="small"
+                >
+                  <Edit />
+                </IconButton>
+              </Tooltip>
             </Box>
 
             <Grid
@@ -234,19 +250,7 @@ export const UserProfileEditNames: React.FC = () => {
               width={'100%'}
             >
               <Typography>
-                <strong>First Name:</strong> {profile.firstName}
-              </Typography>
-            </Grid>
-
-            <Grid
-              padding="10px"
-              size={{
-                xs: 12,
-              }}
-              width={'100%'}
-            >
-              <Typography>
-                <strong>Last Name:</strong> {profile.lastName}
+                <strong>{strings.NAME}:</strong> {profile.fullName || strings.NO_DATA}
               </Typography>
             </Grid>
           </Grid>

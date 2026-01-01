@@ -50,6 +50,13 @@ export type {
   DeviceAuthType,
   DeviceType,
 } from './devices/device-shared.types'
+export { EMAIL_LABEL } from './email/email-shared.consts'
+// EMAIL Types
+export type {
+  CreateEmailPayloadType,
+  EmailType,
+  UpdateEmailPayloadType,
+} from './email/email-shared.types'
 // ERROR Types
 export { ERROR_CODE_TO_I18N_KEY, ERROR_CODES } from './errors/error-shared.consts'
 export type {
@@ -62,13 +69,6 @@ export {
   isValidErrorCode,
   parseApiError,
 } from './errors/error-shared.utils'
-export { EMAIL_LABEL } from './email/email-shared.consts'
-// EMAIL Types
-export type {
-  CreateEmailPayloadType,
-  EmailType,
-  UpdateEmailPayloadType,
-} from './email/email-shared.types'
 // HEALTHZ Types
 export type {
   HealthzHttpType,
@@ -139,6 +139,8 @@ export type {
 // STATS Types
 export type { StatsStateType } from './stats/stats-model-web.types'
 // USER Types
+export { isUsernameValid } from './user/isUsernameValid'
+export { USERNAME_MIN_LENGTH } from './user/user-shared.consts'
 export type {
   CreateUserPayloadType,
   CreateUserResponseType,
