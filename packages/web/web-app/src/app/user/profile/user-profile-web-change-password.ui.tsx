@@ -8,3 +8,8 @@ export const ChangePasswordForm = muiStyled('form')(({ theme }) => ({
   minHeight: '200px',
   width: '100%',
 }))
+
+export const UpdateProfileNamesForm = muiStyled('form')(({ theme }) => ({
+  display: 'flex',
+  width: '100%',
+}))

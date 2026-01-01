@@ -1,4 +1,9 @@
-import type { UpdatePasswordPayloadType, UserProfileStateType } from '@dx3/models-shared'
+import type {
+  UpdatePasswordPayloadType,
+  UpdateUserPayloadType,
+  UpdateUserResponseType,
+  UserProfileStateType,
+} from '@dx3/models-shared'
 
 import { apiWeb } from '../../data/rtk-query/web.api'
 
@@ -17,8 +22,16 @@ export const apiWebUserProfile = apiWeb.injectEndpoints({
         url: `v1/user/update/password`,
       }),
     }),
+    updateUser: build.mutation<UpdateUserResponseType, UpdateUserPayloadType>({
+      query: (paylaod) => ({
+        data: paylaod,
+        method: 'PUT',
+        url: `v1/user/${encodeURIComponent(paylaod.id)}`,
+      }),
+    }),
   }),
   overrideExisting: true,
 })
 
-export const { useLazyGetProfileQuery, useUpdatePasswordMutation } = apiWebUserProfile
+export const { useLazyGetProfileQuery, useUpdatePasswordMutation, useUpdateUserMutation } =
+  apiWebUserProfile

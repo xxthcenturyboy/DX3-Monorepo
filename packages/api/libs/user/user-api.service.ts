@@ -535,14 +535,16 @@ export class UserService {
       if (firstName !== undefined && typeof firstName === 'string') {
         if (profanityFilter.isProfane(firstName)) {
           user.setDataValue('firstName', profanityFilter.cleanProfanity(firstName))
+        } else {
+          user.setDataValue('firstName', firstName)
         }
-        user.setDataValue('firstName', firstName)
       }
       if (lastName !== undefined && typeof lastName === 'string') {
         if (profanityFilter.isProfane(lastName)) {
           user.setDataValue('lastName', profanityFilter.cleanProfanity(lastName))
+        } else {
+          user.setDataValue('lastName', lastName)
         }
-        user.setDataValue('lastName', lastName)
       }
 
       await user.save()

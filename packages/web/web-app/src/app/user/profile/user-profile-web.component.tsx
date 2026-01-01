@@ -1,4 +1,13 @@
-import { Box, Button, Divider, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  Paper,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -13,6 +22,7 @@ import { Phonelist } from '../../phone/phone-web-list.component'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
+import { UserProfileEditNames } from './user-profile-names-edit.component'
 import { userProfileActions } from './user-profile-web.reducer'
 import { selectProfileFormatted } from './user-profile-web.selectors'
 import { UserProfileAvatar } from './user-profile-web-avatar.component'
@@ -27,7 +37,7 @@ export const UserProfile: React.FC = () => {
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const strings = useStrings(['PAGE_TITLE_PROFILE', 'TOGGLE_DARK_MODE'])
+  const strings = useStrings(['PAGE_TITLE_PROFILE', 'TOGGLE_DARK_MODE', 'USERNAME'])
 
   React.useEffect(() => {
     setDocumentTitle(strings.PAGE_TITLE_PROFILE)
@@ -93,6 +103,7 @@ export const UserProfile: React.FC = () => {
             justifyContent="flex-start"
             padding={SM_BREAK ? '16px' : '24px'}
           >
+            {/** Avatar */}
             <Grid
               container
               direction={MD_BREAK ? 'column' : 'row'}
@@ -124,6 +135,49 @@ export const UserProfile: React.FC = () => {
               }}
             />
 
+            {/** Username and Name */}
+            <Grid
+              container
+              direction={SM_BREAK ? 'column' : 'row'}
+              justifyContent={'center'}
+              size={12}
+            >
+              <Grid
+                padding="10px"
+                size={{
+                  xs: 12,
+                }}
+                width={'100%'}
+              >
+                <Typography>
+                  {strings.USERNAME}: {profile.username}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Divider
+              sx={{
+                margin: '24px 0 0 0',
+                width: '100%',
+              }}
+            />
+
+            {/** Names */}
+            <Grid
+              container
+              direction={SM_BREAK ? 'column' : 'row'}
+              justifyContent={'center'}
+              size={12}
+            >
+              <UserProfileEditNames />
+            </Grid>
+            <Divider
+              sx={{
+                margin: '24px 0 0 0',
+                width: '100%',
+              }}
+            />
+
+            {/** Emails and Phones */}
             <Grid
               container
               direction={MD_BREAK ? 'column' : 'row'}
@@ -161,13 +215,14 @@ export const UserProfile: React.FC = () => {
                 />
               </Grid>
             </Grid>
-
             <Divider
               sx={{
                 margin: '12px 0 12px 0',
                 width: '100%',
               }}
             />
+
+            {/** Bottom Action Area */}
             <Grid
               container
               direction={MD_BREAK ? 'column' : 'row'}

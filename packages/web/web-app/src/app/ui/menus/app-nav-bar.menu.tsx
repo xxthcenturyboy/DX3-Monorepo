@@ -39,6 +39,7 @@ export const AppNavBar: React.FC = () => {
     React.useState<null | HTMLElement>(null)
   const [anchorElementNotificationMenu, setAnchorElementNotificaitonMenu] =
     React.useState<null | HTMLElement>(null)
+  const [didCallBootstrap, setDidCallBootstrap] = React.useState(false)
   const [mobileBreak, setMobileBreak] = React.useState(false)
   const dispatch = useAppDispatch()
   const { pathname } = useLocation()
@@ -51,13 +52,12 @@ export const AppNavBar: React.FC = () => {
   const themeMode = useAppSelector((state) => state.ui.theme.palette?.mode)
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const ROUTES = WebConfigService.getWebRoutes()
-  let didCallBootstrap = false
   const strings = useStrings(['LOGIN', 'SIGNUP'])
 
   React.useEffect(() => {
     if (isAuthenticated && userProfile && !didCallBootstrap) {
       loginBootstrap(userProfile, mobileBreak)
-      didCallBootstrap = true
+      setDidCallBootstrap(true)
     }
   }, [isAuthenticated, userProfile])
 
