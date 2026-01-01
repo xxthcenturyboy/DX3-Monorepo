@@ -48,6 +48,17 @@ export class UserService {
 
   private getSortListOptions(orderBy?: string, sortDir?: string): FindOptions['order'] {
     if (orderBy && USER_SORT_FIELDS.includes(orderBy)) {
+      if (orderBy === 'fullName') {
+        return [
+          ['firstName', sortDir || DEFAULT_SORT],
+          ['lastName', sortDir || DEFAULT_SORT],
+        ]
+      }
+
+      if (orderBy === 'isAdmin' || orderBy === 'isSuperAdmin') {
+        return [['roles', sortDir || DEFAULT_SORT]]
+      }
+
       return [[orderBy, sortDir || DEFAULT_SORT]]
     }
 

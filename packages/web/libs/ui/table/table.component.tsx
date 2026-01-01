@@ -148,7 +148,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
           ? cell.data
           : cell.originalStringValue
       case 'icon':
-        return renderIcon(cell.icon, cell.color)
+        return renderIcon(cell.icon as IconNames, cell.color)
       case 'checkbox':
         return cell.data as React.ReactElement
     }
@@ -343,7 +343,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                     page={offset}
-                    rowsPerPage={getRowsPerPageValue()}
+                    rowsPerPage={limit}
                     rowsPerPageOptions={count > 10 ? rowsPerPageOptions : undefined}
                     sx={{
                       borderBottom: 'none',

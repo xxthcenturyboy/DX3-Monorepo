@@ -16,7 +16,9 @@ import { useFocus } from '@dx3/web-libs/ui/system/hooks/use-focus.hook'
 import { debounce } from '@dx3/web-libs/utils/debounce'
 
 import { useStrings } from '../../i18n'
+import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
 import { DEBOUNCE } from '../../ui/ui-web.consts'
+import { userAdminActions } from '../../user/admin/user-admin-web.reducer'
 
 type UserAdminListHeaderComponentProps = {
   fetchUsers: (filterValue?: string) => Promise<void>
@@ -26,7 +28,10 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
   props,
 ) => {
   const [searchInputRef, _setSearchInputRef] = useFocus()
-  const [filterVal, setFilterVal] = useState('')
+  const [filterVal, setFilterVal] = useState(
+    useAppSelector((state) => state.userAdmin.filterValue) || '',
+  )
+  const dispatch = useAppDispatch()
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
@@ -35,6 +40,7 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
   const debounceFetch = useRef(
     debounce((value: string) => {
       void props.fetchUsers(value)
+      dispatch(userAdminActions.filterValueSet(value))
     }, DEBOUNCE),
   ).current
 

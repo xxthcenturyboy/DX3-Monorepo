@@ -38,19 +38,22 @@ export const StyledTableRow = styled(TableRow)<{
   thememode: string
   data?: string
 }>(({ loading, theme, thememode }) => ({
-  // hide last border
-  // '&:last-child td, &:last-child th': {
-  //   border: 0,
-  // },
   '&:hover': {
     backgroundColor:
       loading !== 'true'
         ? thememode === 'dark'
-          ? theme.palette.primary.light
-          : theme.palette.secondary.light
+          ? `${theme.palette.primary.light} !important`
+          : `${theme.palette.secondary.light} !important`
         : 'initial',
   },
+  // hide last border
+  // '&:last-child td, &:last-child th': {
+  //   border: 0,
+  // },
+  // '&:nth-of-type(even)': {
+  //   backgroundColor: loading === 'true' ? 'transparent' : theme.palette.action.hover,
+  // },
   '&:nth-of-type(odd)': {
-    backgroundColor: loading === 'true' ? 'transparent' : theme.palette.action.hover,
+    backgroundColor: loading === 'true' ? 'transparent' : theme.palette.grey[100],
   },
 }))

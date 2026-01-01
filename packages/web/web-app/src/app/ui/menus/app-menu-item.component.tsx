@@ -43,6 +43,9 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       return true
     }
 
+    // might be better - 01012026
+    // return pathname.startsWith(route);
+
     if ((isSubItem || !match) && Array.isArray(menuItem.pathMatches)) {
       for (const path of menuItem.pathMatches) {
         if (pathname.includes(path)) {

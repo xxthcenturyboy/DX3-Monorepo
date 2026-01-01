@@ -137,20 +137,24 @@ export const UserAdminList: React.FC = () => {
 
   const handleOffsetChange = (offset: number) => {
     dispatch(userAdminActions.offsetSet(offset))
+    void fetchUsers()
   }
 
   const handleLimitChange = (limit: number) => {
     dispatch(userAdminActions.limitSet(limit))
+    void fetchUsers()
   }
 
   const handleSortChange = (fieldName: string): void => {
     if (fieldName === orderBy) {
       dispatch(userAdminActions.sortDirSet(sortDir === 'ASC' ? 'DESC' : 'ASC'))
+      void fetchUsers()
       return
     }
 
     dispatch(userAdminActions.orderBySet(fieldName))
     dispatch(userAdminActions.sortDirSet('ASC'))
+    void fetchUsers()
   }
 
   const alertUserEditModal = createPortal(
