@@ -9,16 +9,14 @@ import {
   useTheme,
 } from '@mui/material'
 import type * as React from 'react'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { useFocus } from '@dx3/web-libs/ui/system/hooks/use-focus.hook'
 import { debounce } from '@dx3/web-libs/utils/debounce'
 
 import { useStrings } from '../../i18n'
-import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
 import { DEBOUNCE } from '../../ui/ui-web.consts'
-import { userAdminActions } from './user-admin-web.reducer'
 
 type UserAdminListHeaderComponentProps = {
   fetchUsers: (filterValue?: string) => Promise<void>
@@ -28,9 +26,8 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
   props,
 ) => {
   const [searchInputRef, _setSearchInputRef] = useFocus()
-  const filterValue = useAppSelector((state) => state.userAdmin.filterValue)
+  const [filterVal, setFilterVal] = useState('')
   const theme = useTheme()
-  const dispatch = useAppDispatch()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const strings = useStrings(['PAGE_TITLE_ADMIN_USERS', 'FILTER', 'TOOLTIP_REFRESH_LIST'])
@@ -42,11 +39,8 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
   ).current
 
   const handleFilterValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value
-    if (value !== filterValue) {
-      debounceFetch(value)
-    }
-    dispatch(userAdminActions.filterValueSet(value))
+    setFilterVal(e.target.value)
+    debounceFetch(e.target.value || '')
   }
 
   return (
@@ -101,7 +95,7 @@ export const UserAdminListHeaderComponent: React.FC<UserAdminListHeaderComponent
                 ref={searchInputRef}
                 size="small"
                 type="search"
-                value={filterValue}
+                value={filterVal}
               />
             </FormControl>
             <span>

@@ -49,7 +49,7 @@ export const UserAdminList: React.FC = () => {
   const [notificationOpen, setNotificationOpen] = useState(false)
   const pageTitle = useString('PAGE_TITLE_ADMIN_USERS')
   const usersListHeaders = UserAdminWebListService.getListHeaders()
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(true)
   const [isFetching, setIsFetching] = useState(true)
   const { getErrorMessage } = useApiError()
   const ROUTES = WebConfigService.getWebRoutes()
@@ -82,24 +82,17 @@ export const UserAdminList: React.FC = () => {
 
   useEffect(() => {
     setDocumentTitle(pageTitle)
-    if (!users || users.length === 0) {
-      void fetchUsers()
-    }
-    if (location?.pathname) {
-      dispatch(userAdminActions.lastRouteSet(location.pathname))
-    }
-    if (users?.length) {
-      setIsInitialized(true)
-    }
-  }, [location?.pathname, users])
-
-  useEffect(() => {
-    if (isInitialized && !isLoadingUserList) {
+    if (!isLoadingUserList) {
       void fetchUsers()
       return
     }
 
+    if (location?.pathname) {
+      dispatch(userAdminActions.lastRouteSet(location.pathname))
+    }
+
     setIsFetching(false)
+    setIsInitialized(true)
   }, [])
 
   useEffect(() => {

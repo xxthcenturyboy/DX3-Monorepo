@@ -18,8 +18,9 @@ export const USER_ADMIN_MENU: AppMenuType = {
     {
       icon: IconNames.PEOPLE,
       id: 'menu-user-main',
+      pathMatches: [USER_ADMIN_ROUTES.MAIN],
       restriction: 'ADMIN',
-      routeKey: USER_ADMIN_ROUTES.MAIN,
+      routeKey: USER_ADMIN_ROUTES.LIST,
       title: 'User Admin',
       type: 'ROUTE',
     },

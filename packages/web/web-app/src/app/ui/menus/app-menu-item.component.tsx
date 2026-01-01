@@ -43,7 +43,7 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       return true
     }
 
-    if (isSubItem && !match && menuItem.pathMatches) {
+    if ((isSubItem || !match) && Array.isArray(menuItem.pathMatches)) {
       for (const path of menuItem.pathMatches) {
         if (pathname.includes(path)) {
           return true
