@@ -367,22 +367,24 @@ export const UserProfileEditUsername: React.FC = () => {
               display={'flex'}
               marginTop={'12px'}
             >
-              <Tooltip title={strings.EDIT}>
-                <IconButton
-                  color="primary"
-                  onClick={() => {
-                    setNameUser(profile.username)
-                    setEditUsername(true)
-                  }}
-                  size="small"
-                >
-                  <Edit />
-                </IconButton>
-              </Tooltip>
+              {!profile.sa && (
+                <Tooltip title={strings.EDIT}>
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      setNameUser(profile.username)
+                      setEditUsername(true)
+                    }}
+                    size="small"
+                  >
+                    <Edit />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
 
             <Grid
-              marginTop={'-32px'}
+              marginTop={profile.sa ? '0px' : '-32px'}
               padding="10px"
               size={{
                 xs: 12,
