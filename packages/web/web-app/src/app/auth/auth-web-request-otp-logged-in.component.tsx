@@ -7,7 +7,7 @@ import { BeatLoader } from 'react-spinners'
 
 import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -33,6 +33,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
     const userEmails = useAppSelector((state) => selectUserEmails(state))
     const userPhones = useAppSelector((state) => selectUserPhones(state))
     const strings = useStrings(['OTP_CHOOSE_METHOD', 'SEND_CODE', 'START_OVER'])
+    const themeColors = getThemePalette()
     const [
       requestOtpCodeId,
       {

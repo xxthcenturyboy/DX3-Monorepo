@@ -2,7 +2,7 @@
 import type React from 'react'
 import { useRef } from 'react'
 
-export const useFocus = (): [React.MutableRefObject<any>, () => void] => {
+export const useFocus = (): [React.RefObject<any>, () => void] => {
   const htmlElRef = useRef<any>(null)
   const setFocus = () => {
     htmlElRef?.current?.focus()

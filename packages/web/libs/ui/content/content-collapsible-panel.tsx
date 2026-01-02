@@ -13,8 +13,7 @@ import {
 import React, { useState } from 'react'
 import { BeatLoader } from 'react-spinners'
 
-import { APP_COLOR_PALETTE, BORDER_RADIUS } from '../system/mui-overrides/styles'
-import { FADE_TIMEOUT_DUR } from '../system/ui.consts'
+import { APP_COLOR_PALETTE, BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../system/ui.consts'
 
 export type CollapsiblePanelPropsType = {
   children: React.ReactNode

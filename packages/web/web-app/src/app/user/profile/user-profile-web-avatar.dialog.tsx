@@ -13,7 +13,8 @@ import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dial
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { APP_COLOR_PALETTE, themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
+import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
@@ -45,6 +46,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
   const avatarEditorRef = React.useRef<null | AvatarEditor>(null)
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const themeColors = getThemePalette()
   const [
     uplodAvatar,
     {

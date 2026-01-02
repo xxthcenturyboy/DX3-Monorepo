@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
 import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import type { AppMenuType } from './app-menu.types'
 
@@ -22,6 +22,7 @@ export const AppMenuGroup: React.FC<AppMenuGroupProps> = (props) => {
   const theme = useTheme()
   const location = useLocation()
   const { pathname } = location
+  const themeColors = getThemePalette()
 
   const isSubItemActive = () => {
     const subItemRouteKeys = Array.from(menu.items, (item) => item.routeKey)

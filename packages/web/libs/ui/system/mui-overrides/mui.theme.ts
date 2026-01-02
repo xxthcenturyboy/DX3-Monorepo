@@ -9,11 +9,10 @@ import {
   listItemOverrides,
   outlinedInputInputDefaults,
   outlinedInputSyleOverrides,
+  textFieldSyleOverrides,
   themeColors,
 } from './styles'
 import { toolbarItemOverrides } from './styles/menus'
-
-export const DRAWER_WIDTH = 300
 
 export const appTheme: ThemeOptions = {
   components: {
@@ -36,6 +35,9 @@ export const appTheme: ThemeOptions = {
     MuiOutlinedInput: {
       defaultProps: outlinedInputInputDefaults,
       styleOverrides: outlinedInputSyleOverrides,
+    },
+    MuiTextField: {
+      styleOverrides: textFieldSyleOverrides,
     },
     MuiToolbar: {
       styleOverrides: toolbarItemOverrides,
@@ -63,6 +65,6 @@ export const appTheme: ThemeOptions = {
     },
   },
   typography: {
-    fontFamily: 'Roboto, Helvetica, Arial, sans-serif, serif',
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
   },
 }

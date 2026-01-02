@@ -5,13 +5,14 @@ import { createPortal } from 'react-dom'
 import type { EmailType, MediaDataType, PhoneType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { EmailList } from '../../email/email-web-list.component'
 import { useStrings } from '../../i18n'
 import { Phonelist } from '../../phone/phone-web-list.component'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
+import { selectCurrentThemeMode } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { UserProfileEditNames } from './user-profile-names-edit.component'
 import { UserProfileEditUsername } from './user-profile-usernname-edit.component'
@@ -23,7 +24,7 @@ import { UserProfileHeaderComponent } from './user-profile-web-header.component'
 
 export const UserProfile: React.FC = () => {
   const profile = useAppSelector((state) => selectProfileFormatted(state))
-  const appMode = useAppSelector((state) => state.ui.theme.palette?.mode)
+  const themeMode = useAppSelector((state) => selectCurrentThemeMode(state))
   const [avatarDialogOpen, setAvatarDialogOpen] = React.useState(false)
   const dispatch = useAppDispatch()
   const theme = useTheme()
@@ -36,10 +37,9 @@ export const UserProfile: React.FC = () => {
   }, [strings.PAGE_TITLE_PROFILE])
 
   const toggleDarkMode = () => {
-    if (appMode) {
-      const nextMode = appMode === 'light' ? 'dark' : 'light'
-      dispatch(uiActions.themeModeSet(nextMode))
-    }
+    const nextMode = themeMode === 'light' ? 'dark' : 'light'
+    localStorage.setItem(STORAGE_KEYS_UI.THEME_MODE, nextMode)
+    dispatch(uiActions.themeModeSet(nextMode))
   }
 
   const addEmailToProfile = (email: EmailType) => {

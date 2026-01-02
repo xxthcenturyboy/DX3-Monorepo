@@ -4,7 +4,7 @@ import React from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import { OTP_LENGTH } from '@dx3/models-shared'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -21,6 +21,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpEntryPropsType> =
   const [hasFiredCallback, setHasFiredCallback] = React.useState(false)
   const [otp, setOtp] = React.useState('')
   const strings = useStrings(['START_OVER'])
+  const themeColors = getThemePalette()
 
   React.useEffect(() => {
     if (otp.length === OTP_LENGTH) {

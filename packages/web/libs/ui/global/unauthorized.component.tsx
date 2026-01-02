@@ -2,7 +2,6 @@
 import { Grid, Typography } from '@mui/material'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
-// import { themeColors } from '../mui-overrides/styles';
 import { AccessDeniedLottie } from '../lottie/access-denied.lottie'
 
 type LoadingProps = {

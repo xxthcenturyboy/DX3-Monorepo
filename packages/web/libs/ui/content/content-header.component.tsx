@@ -101,7 +101,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
               : theme.palette.common.black,
         }
       }}
-      top={'60px'}
+      top={SM_BREAK ? '56px' : '64px'}
       width={'fill-available'}
       zIndex={10}
     >

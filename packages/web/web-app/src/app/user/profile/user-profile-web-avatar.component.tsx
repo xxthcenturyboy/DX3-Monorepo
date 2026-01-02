@@ -3,7 +3,7 @@ import { Avatar, Badge, Grid, IconButton } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import React from 'react'
 
-import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'

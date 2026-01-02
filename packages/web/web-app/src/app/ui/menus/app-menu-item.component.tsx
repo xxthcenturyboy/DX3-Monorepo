@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 
 import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
@@ -29,6 +29,7 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const match = useMatch(route)
+  const themeColors = getThemePalette()
 
   React.useEffect(() => {
     setMenuBreak(windowWidth < MEDIA_BREAK.MENU)

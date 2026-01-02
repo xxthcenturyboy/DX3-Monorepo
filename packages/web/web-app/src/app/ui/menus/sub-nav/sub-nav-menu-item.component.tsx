@@ -12,7 +12,7 @@ import { useLocation, useMatch, useNavigate } from 'react-router'
 // import { getIcon } from '@mira/ui-web-shared/icons/icons';
 // import { IconNames } from '@mira/ui-web-shared/icons/icons.enum';
 
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import type { SubMenuConfigType } from '../app-menu.types'
 
@@ -28,6 +28,7 @@ export const SubNavMenuItem: React.FC<SubNavMenuItemItemProps> = (props) => {
   const location = useLocation()
   const navigate = useNavigate()
   const match = useMatch(menuItem.route.replace(':id', id))
+  const themeColors = getThemePalette()
 
   const isSelected = (): boolean => {
     if (match) {

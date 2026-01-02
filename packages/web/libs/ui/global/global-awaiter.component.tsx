@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography'
 import type React from 'react'
 import { BeatLoader } from 'react-spinners'
 
-import { themeColors } from '../system/mui-overrides/styles'
+import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 
 type GlobalAwaiterPropstype = {
   open: boolean
@@ -13,6 +13,7 @@ type GlobalAwaiterPropstype = {
 
 export const GlobalAwaiter: React.FC<GlobalAwaiterPropstype> = (props) => {
   const { message, open } = props
+  const themeColors = getThemePalette()
 
   return (
     <Backdrop

@@ -6,7 +6,7 @@ import React from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import type { LoginPayloadType } from '@dx3/models-shared'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -28,6 +28,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
     const password = useAppSelector((state) => state.auth.password)
     const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME'])
     const dispatch = useAppDispatch()
+    const themeColors = getThemePalette()
 
     const clearInputs = (): void => {
       dispatch(authActions.usernameUpdated(''))
@@ -104,6 +105,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
               <InputLabel htmlFor="input-username">{`${strings.USERNAME} / ${strings.EMAIL}`}</InputLabel>
               <OutlinedInput
                 autoCapitalize="none"
+                autoComplete="username"
                 autoCorrect="off"
                 fullWidth
                 id="input-username"

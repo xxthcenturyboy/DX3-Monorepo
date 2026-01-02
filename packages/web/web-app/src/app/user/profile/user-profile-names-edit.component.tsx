@@ -138,6 +138,7 @@ export const UserProfileEditNames: React.FC = () => {
                 >
                   <InputLabel htmlFor="input-first-name">{strings.FIRST_NAME}</InputLabel>
                   <OutlinedInput
+                    autoComplete="given-name"
                     autoCorrect="off"
                     fullWidth
                     id="input-first-name"
@@ -168,6 +169,7 @@ export const UserProfileEditNames: React.FC = () => {
                 >
                   <InputLabel htmlFor="input-last-name">{strings.LAST_NAME}</InputLabel>
                   <OutlinedInput
+                    autoComplete="family-name"
                     autoCorrect="off"
                     fullWidth
                     id="input-last-name"

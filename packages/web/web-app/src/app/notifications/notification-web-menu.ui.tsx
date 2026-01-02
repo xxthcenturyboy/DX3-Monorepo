@@ -3,7 +3,9 @@ import { grey } from '@mui/material/colors'
 import Menu from '@mui/material/Menu'
 import { styled } from '@mui/material/styles'
 
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
+
+const themeColors = getThemePalette()
 
 const MIN_WIDTH = '358px'
 
@@ -22,7 +24,9 @@ export const StyledNotificationMenu = styled(Menu)<{
   top: '30px',
 }))
 
-export const StyledNotificationsList = styled(List)<{
+export const StyledNotificationsList = styled(List, {
+  shouldForwardProp: (prop) => prop !== 'maxHeight',
+})<{
   maxHeight?: string
   component?: React.ElementType
 }>((props) => ({

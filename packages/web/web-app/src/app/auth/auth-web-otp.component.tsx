@@ -45,6 +45,9 @@ export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElem
         length={OTP_LENGTH}
         onChange={handleChangeOtp}
         onComplete={handleOtpComplete}
+        TextFieldsProps={{
+          autoComplete: 'one-time-code',
+        }}
         value={otp}
       />
     </Grid>

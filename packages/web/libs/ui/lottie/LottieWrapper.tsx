@@ -4,7 +4,7 @@ import { ScaleLoader } from 'react-spinners'
 
 import { sleep } from '@dx3/utils-shared'
 
-import { themeColors } from '../system/mui-overrides/styles'
+import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 import type { LottieWrapperPropTypes } from './lottie.types'
 
 export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactElement | null => {
@@ -12,6 +12,7 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
   const lottieRef = React.useRef(null) as LottieRef
   const [loadedAnimationData, setLoadedAnimationData] = React.useState<object | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
+  const themeColors = getThemePalette()
 
   React.useEffect(() => {
     loadAnimationData()

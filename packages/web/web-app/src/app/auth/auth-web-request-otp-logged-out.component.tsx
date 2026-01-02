@@ -9,7 +9,7 @@ import { BeatLoader } from 'react-spinners'
 import { regexEmail } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -34,6 +34,7 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
     const [errorMessage, setErrorMessage] = React.useState('')
     const [selectedMethod, setSelectedMethod] = React.useState<'EMAIL' | 'PHONE'>('PHONE')
     const strings = useStrings(['EMAIL', 'PHONE', 'SEND_CODE'])
+    const themeColors = getThemePalette()
     const [
       requestOtpCodeEmail,
       {
@@ -196,7 +197,7 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
                 <InputLabel htmlFor="input-email">{strings.EMAIL}</InputLabel>
                 <OutlinedInput
                   autoCapitalize="off"
-                  autoComplete="off"
+                  autoComplete="email"
                   autoCorrect="off"
                   fullWidth
                   id="input-email"

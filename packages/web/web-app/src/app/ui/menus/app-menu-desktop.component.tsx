@@ -2,7 +2,7 @@ import { Drawer } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import type React from 'react'
 
-import { DRAWER_WIDTH } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
+import { DRAWER_WIDTH } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { AppMenu } from './app-menu.component'

@@ -5,7 +5,6 @@ import storage from 'reduxjs-toolkit-persist/lib/storage'
 import type { PersistConfig } from 'reduxjs-toolkit-persist/lib/types'
 
 import { APP_NAME, APP_PREFIX } from '@dx3/models-shared'
-import { appTheme } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
 
 import type { AppMenuType } from '../menus/app-menu.types'
 import { UI_WEB_ENTITY_NAME } from '../ui-web.consts'
@@ -25,7 +24,7 @@ export const uiInitialState: UiStateType = {
   mobileNotiicationsOpen: false,
   name: APP_NAME,
   notifications: 0,
-  theme: appTheme,
+  theme: 'light',
   windowHeight: window.innerHeight,
   windowWidth: window.innerWidth,
 }
@@ -71,9 +70,7 @@ const uiSlice = createSlice({
       state.isShowingUnauthorizedAlert = action.payload
     },
     themeModeSet(state, action: PayloadAction<PaletteMode>) {
-      if (state.theme.palette && action.payload) {
-        state.theme.palette.mode = action.payload
-      }
+      state.theme = action.payload
     },
     toggleMenuSet(state, action: PayloadAction<boolean>) {
       state.menuOpen = action.payload

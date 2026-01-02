@@ -2,7 +2,7 @@ import { Button, Grid, Typography } from '@mui/material'
 import { BeatLoader } from 'react-spinners'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
-import { themeColors } from '../system/mui-overrides/styles'
+import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 
 type LoadingProps = {
   error?: Error
@@ -17,7 +17,7 @@ export const UiLoadingComponent = (props: LoadingProps): React.ReactElement | nu
       props.retry()
     }
   }
-
+  const themeColors = getThemePalette()
   if (props.error) {
     return (
       <StyledContentWrapper>

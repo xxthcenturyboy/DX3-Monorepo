@@ -1,5 +1,4 @@
-import { BORDER_RADIUS } from './common'
-import { APP_COLOR_PALETTE } from './themeColors'
+import { APP_COLOR_PALETTE, BORDER_RADIUS } from '../../ui.consts'
 
 export const filledInputSyleOverrides = {
   root: {
@@ -44,5 +43,14 @@ export const checkboxStyleOverrides = {
       color: APP_COLOR_PALETTE.RED[200],
     },
     color: APP_COLOR_PALETTE.PRIMARY[200],
+  },
+}
+
+export const textFieldSyleOverrides = {
+  root: {
+    '&:-webkit-autofill': {
+      WebkitBoxShadow: '0 0 0 1000px #ffffff inset', // Your color
+      WebkitTextFillColor: '#000000', // Your text color
+    },
   },
 }

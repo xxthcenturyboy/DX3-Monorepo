@@ -1,7 +1,7 @@
 import { Button, Grid } from '@mui/material'
 import { styled, type Theme } from '@mui/material/styles'
 
-import { APP_COLOR_PALETTE, BORDER_RADIUS } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { APP_COLOR_PALETTE, BORDER_RADIUS } from '@dx3/web-libs/ui/system/ui.consts'
 
 export const StyledTopControlRowContainer = styled(Grid)(({ theme }) => ({
   justifyContent: 'center',

@@ -25,7 +25,7 @@ import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dial
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
@@ -66,6 +66,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
     'TITLE',
     'TYPE',
   ])
+  const themeColors = getThemePalette()
   const [
     requestSendNotificationToAll,
     {

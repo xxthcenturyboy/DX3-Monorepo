@@ -1,7 +1,7 @@
 import type { Theme } from '@mui/material'
 import type React from 'react'
 
-import { BORDER_RADIUS } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { BORDER_RADIUS } from '@dx3/web-libs/ui/system/ui.consts'
 
 export const getDefaultStyles = (theme: Theme): { [key: string]: React.CSSProperties } => {
   const buttonStyleDefaults: React.CSSProperties = {

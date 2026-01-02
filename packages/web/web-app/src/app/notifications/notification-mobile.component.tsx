@@ -15,7 +15,7 @@ import {
   StyledList,
 } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useStrings } from '../i18n'
@@ -42,6 +42,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
   const strings = useStrings(['NOTIFICATIONS', 'NOTIFICATIONS_WILL_APPEAR_HERE'])
   const dispatch = useAppDispatch()
+  const themeColors = getThemePalette()
   const [
     requestDismissAll,
     {

@@ -11,7 +11,7 @@ import { toast } from 'react-toastify'
 import { NIL as NIL_UUID } from 'uuid'
 
 import { NOTIFICATION_LEVELS, type NotificationType } from '@dx3/models-shared'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
@@ -28,6 +28,7 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
   const MAX_LEN = 100
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
   const dispatch = useAppDispatch()
+  const themeColors = getThemePalette()
   const [
     requestDismiss,
     {

@@ -20,8 +20,8 @@ import { BeatLoader } from 'react-spinners'
 
 import { waveItem } from '../global/skeletons.ui'
 import { getIcon, type IconNames } from '../system/icons'
-import { BORDER_RADIUS, themeColors } from '../system/mui-overrides/styles'
-import { FADE_TIMEOUT_DUR } from '../system/ui.consts'
+import { getThemePalette } from '../system/mui-themes/mui-theme.service'
+import { BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../system/ui.consts'
 import { TablePaginationActions } from './pagination.component'
 import {
   StyledEllipsisHeaderText,
@@ -68,6 +68,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
   const [rowsPerPageOptions, setRowsPerPageOptions] = useState<number[]>()
   const rowHeight = '32px'
   const order = sortDir === 'ASC' ? 'asc' : 'desc'
+  const themeColors = getThemePalette()
 
   useEffect(() => {
     getLoadingData()

@@ -1,6 +1,6 @@
 import { yellow } from '@mui/material/colors'
 
-import { BORDER_RADIUS, BOX_SHADOW } from './common'
+import { BORDER_RADIUS, BOX_SHADOW } from '../../ui.consts'
 
 export const listItemOverrides = {
   root: {

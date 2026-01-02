@@ -6,10 +6,11 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { Slide, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import { sleep } from '@dx3/utils-shared'
 import { DialogApiError } from '@dx3/web-libs/ui/dialog/api-error.dialog'
 import { GlobalAwaiter } from '@dx3/web-libs/ui/global/global-awaiter.component'
-import { appTheme, DRAWER_WIDTH } from '@dx3/web-libs/ui/system/mui-overrides/mui.theme'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { getTheme, getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
+import { DRAWER_WIDTH, MEDIA_BREAK, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { selectIsAuthenticated } from './auth/auth-web.selector'
 import { appBootstrap } from './config/bootstrap/app-bootstrap'
@@ -23,12 +24,12 @@ import {
   selectWindowHeight,
   selectWindowWidth,
 } from './ui/store/ui-web.selector'
-import { STORAGE_KEYS, TOAST_LOCATION, TOAST_TIMEOUT } from './ui/ui-web.consts'
+import { TOAST_LOCATION, TOAST_TIMEOUT } from './ui/ui-web.consts'
 import { useLazyGetProfileQuery } from './user/profile/user-profile-web.api'
 import { userProfileActions } from './user/profile/user-profile-web.reducer'
 
 export const Root: React.FC = () => {
-  const [theme, setTheme] = React.useState<Theme>(createTheme())
+  const [themeStateLocal, setThemeStateLocal] = React.useState<Theme>(createTheme(getTheme()))
   const [bootstrapped, setBootstrapped] = React.useState(false)
   const [menuBreak, setMenuBreak] = React.useState(false)
   const [mobileBreak, setMobileBreak] = React.useState(false)
@@ -41,7 +42,7 @@ export const Root: React.FC = () => {
   const dispatch = useAppDispatch()
   const userProfile = useAppSelector((state) => state.userProfile)
   const menuOpen = useAppSelector((state) => state.ui.menuOpen)
-  const themeOptions = useAppSelector((state) => state.ui.theme)
+  const themeState = useAppSelector((state) => state.ui.theme)
   const isAuthenticated = useAppSelector((state) => selectIsAuthenticated(state))
   const logoutResponse = useAppSelector((state) => state.auth.logoutResponse)
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
@@ -51,7 +52,7 @@ export const Root: React.FC = () => {
   const dialogAwaiterOpen = useAppSelector((state) => state.ui.awaitDialogOpen)
   const dialogErrorMessage = useAppSelector((state) => state.ui.apiDialogError)
   const dialogErrorOpen = useAppSelector((state) => state.ui.apiDialogOpen)
-  // const toastTheme: ToastifyTheme = useAppSelector((state: RootState) => state.ui.theme.palette?.mode || 'color');
+  // const toastTheme: ToastifyTheme = useAppSelector((state: RootState) => state.ui.theme.palette || 'color');
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const ROUTES = WebConfigService.getWebRoutes()
@@ -60,10 +61,58 @@ export const Root: React.FC = () => {
   const [fetchProfile, { data: profileResponse, isSuccess: fetchProfileSuccess }] =
     useLazyGetProfileQuery()
 
+  const updateAppThemeStyle = (): void => {
+    const nextTheme = createTheme(getTheme())
+    const themeColors = getThemePalette()
+    setThemeStateLocal(nextTheme)
+
+    setAppFrameStyle({
+      ...appFrameStyle,
+      backgroundColor: themeColors.background,
+    })
+  }
+
+  const getContentWrapperStyles = (): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      height: `calc(100vh - ${topPixel}px)`, // Subtract width of header
+      // padding: themeStateLocal.spacing(3),
+      // paddingBottom: themeStateLocal.spacing(3),
+      overflow: 'auto',
+      position: 'relative',
+      top: `${topPixel}px`,
+      transition: themeStateLocal.transitions.create('margin', {
+        duration: themeStateLocal.transitions.duration.leavingScreen,
+        easing: themeStateLocal.transitions.easing.sharp,
+      }),
+    }
+
+    let openStyles: React.CSSProperties = {}
+
+    if (menuOpen && !menuBreak) {
+      openStyles = {
+        marginLeft: `${DRAWER_WIDTH}px`,
+        transition: themeStateLocal.transitions.create('margin', {
+          duration: themeStateLocal.transitions.duration.enteringScreen,
+          easing: themeStateLocal.transitions.easing.easeOut,
+        }),
+      }
+    }
+
+    return {
+      ...baseStyle,
+      ...openStyles,
+    }
+  }
+
   const updateContentWrapperStyles = (): void => {
     const styles = getContentWrapperStyles()
     setContentWrapperStyle(styles)
   }
+
+  React.useEffect(() => {
+    updateAppThemeStyle()
+    updateContentWrapperStyles()
+  }, [])
 
   React.useEffect(() => {
     appBootstrap()
@@ -78,18 +127,16 @@ export const Root: React.FC = () => {
       void fetchProfile()
     }
 
-    setTheme(createTheme(appTheme))
     updateAppThemeStyle()
 
-    const t = setTimeout(() => {
+    sleep(200).then(() => {
       setBootstrapped(true)
       dispatch(uiActions.bootstrapSet(true))
       // loginBootstrap();
-    }, 200)
+    })
 
     return () => {
       window.removeEventListener('resize', handleResize)
-      clearTimeout(t)
     }
   }, [canRedirect, userProfile])
 
@@ -113,21 +160,15 @@ export const Root: React.FC = () => {
 
   React.useEffect(() => {
     if (bootstrapped) {
-      setTheme(createTheme(themeOptions))
-      localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeOptions.palette?.mode || 'light')
+      updateAppThemeStyle()
     }
-  }, [themeOptions, bootstrapped])
-
-  React.useEffect(() => {
-    updateAppThemeStyle()
-    updateContentWrapperStyles()
-  }, [])
+  }, [themeState, bootstrapped])
 
   React.useEffect(() => {
     if (bootstrapped) {
       updateContentWrapperStyles()
       if (isAuthenticated) {
-        localStorage.setItem(STORAGE_KEYS.MENU_STATE, menuOpen ? 'OPEN' : 'CLOSED')
+        localStorage.setItem(STORAGE_KEYS_UI.MENU_STATE, menuOpen ? 'OPEN' : 'CLOSED')
       }
     }
   }, [menuOpen, bootstrapped, isAuthenticated])
@@ -147,47 +188,8 @@ export const Root: React.FC = () => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
   }, [windowWidth])
 
-  const updateAppThemeStyle = (): void => {
-    setAppFrameStyle({
-      ...appFrameStyle,
-      backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.default : '#fbfbfb',
-    })
-  }
-
-  const getContentWrapperStyles = (): React.CSSProperties => {
-    const baseStyle: React.CSSProperties = {
-      height: `calc(100vh - ${topPixel}px)`, // Subtract width of header
-      // padding: theme.spacing(3),
-      // paddingBottom: theme.spacing(3),
-      overflow: 'auto',
-      position: 'relative',
-      top: `${topPixel}px`,
-      transition: theme.transitions.create('margin', {
-        duration: theme.transitions.duration.leavingScreen,
-        easing: theme.transitions.easing.sharp,
-      }),
-    }
-
-    let openStyles: React.CSSProperties = {}
-
-    if (menuOpen && !menuBreak) {
-      openStyles = {
-        marginLeft: `${DRAWER_WIDTH}px`,
-        transition: theme.transitions.create('margin', {
-          duration: theme.transitions.duration.enteringScreen,
-          easing: theme.transitions.easing.easeOut,
-        }),
-      }
-    }
-
-    return {
-      ...baseStyle,
-      ...openStyles,
-    }
-  }
-
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={themeStateLocal}>
       <Fade
         in={true}
         timeout={2000}

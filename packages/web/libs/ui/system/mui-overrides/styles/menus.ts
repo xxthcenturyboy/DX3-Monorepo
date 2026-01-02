@@ -1,4 +1,4 @@
-import { APP_COLOR_PALETTE } from './themeColors'
+import { APP_COLOR_PALETTE } from '../../ui.consts'
 
 export const toolbarItemOverrides = {
   root: {

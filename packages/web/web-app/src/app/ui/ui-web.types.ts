@@ -1,4 +1,4 @@
-import type { ThemeOptions } from '@mui/material/styles'
+import type { PaletteMode } from '@mui/material/styles'
 
 import type { AppMenuType } from './menus/app-menu.types'
 
@@ -16,7 +16,7 @@ export type UiStateType = {
   mobileNotiicationsOpen: boolean
   name: string
   notifications: number
-  theme: ThemeOptions
+  theme: PaletteMode
   windowWidth: number
   windowHeight: number
 }

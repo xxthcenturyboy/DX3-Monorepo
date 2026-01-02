@@ -14,7 +14,7 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { CancelLottie } from '@dx3/web-libs/ui/lottie/cancel.lottie'
 import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { themeColors } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
@@ -35,6 +35,7 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
   const [bodyMessage, setBodyMessage] = React.useState('')
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
+  const themeColors = getThemePalette()
   const [
     requestDeleteEmail,
     {

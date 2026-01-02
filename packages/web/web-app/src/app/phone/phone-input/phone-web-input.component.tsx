@@ -5,7 +5,7 @@ import PhoneInput, { type CountryData } from 'react-phone-input-2'
 // import 'react-phone-input-2/lib/high-res.css';
 import 'react-phone-input-2/lib/material.css'
 
-import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/mui-overrides/styles'
+import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { getDefaultStyles } from './phone-web-input.config'
 import type { PhoneInputProps } from './phone-web-input.types'
@@ -87,6 +87,7 @@ export const PhoneNumberInput: React.FC<PhoneInputProps> = (props): React.ReactE
       dropdownStyle={dropdownStyleDefaults}
       enableSearch={true}
       inputProps={{
+        autoComplete: 'tel',
         id: inputId,
         name: inputId,
         required,

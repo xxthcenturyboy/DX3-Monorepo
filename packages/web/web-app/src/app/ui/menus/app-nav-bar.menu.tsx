@@ -49,7 +49,6 @@ export const AppNavBar: React.FC = () => {
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const logoUrl = useAppSelector((state) => state.ui.logoUrlSmall)
   const menuOpen = useAppSelector((state) => state.ui.menuOpen)
-  const themeMode = useAppSelector((state) => state.ui.theme.palette?.mode)
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const ROUTES = WebConfigService.getWebRoutes()
   const strings = useStrings(['LOGIN', 'SIGNUP'])
@@ -100,7 +99,7 @@ export const AppNavBar: React.FC = () => {
   return (
     <Box>
       <AppBar
-        color={themeMode === 'dark' ? 'default' : 'primary'}
+        color="primary"
         elevation={2}
         enableColorOnDark
         position="static"
