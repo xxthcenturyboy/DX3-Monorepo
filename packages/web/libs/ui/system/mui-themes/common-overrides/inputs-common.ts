@@ -30,12 +30,5 @@ export const checkboxOverridesCommon: Components['MuiCheckbox'] = {
 
 export const textFieldOverridesCommon: Components['MuiTextField'] = {
   defaultProps: {},
-  styleOverrides: {
-    root: {
-      '&:-webkit-autofill': {
-        WebkitBoxShadow: '0 0 0 1000px #ffffff inset', // Your color
-        WebkitTextFillColor: '#000000', // Your text color
-      },
-    },
-  },
+  styleOverrides: {},
 }

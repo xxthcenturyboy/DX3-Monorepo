@@ -2,6 +2,7 @@ import type { ThemeOptions } from '@mui/material/styles'
 
 import { STORAGE_KEYS_UI } from '@dx3/web-libs/ui/system/ui.consts'
 
+import { muiThemeDark, muiThemeDarkColors } from './dark/mui-dark.theme'
 import { muiThemeLight, muiThemeLightColors } from './light/mui-light.theme'
 
 function getThemeModeFromLocalStorage() {
@@ -14,7 +15,7 @@ export function getTheme(): ThemeOptions {
   if (mode === 'light') {
     return muiThemeLight
   } else {
-    return muiThemeLight
+    return muiThemeDark
   }
 }
 
@@ -23,6 +24,6 @@ export function getThemePalette() {
   if (mode === 'light') {
     return muiThemeLightColors
   } else {
-    return muiThemeLightColors
+    return muiThemeDarkColors
   }
 }

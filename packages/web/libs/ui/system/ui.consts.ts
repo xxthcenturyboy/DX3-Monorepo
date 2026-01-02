@@ -8,7 +8,7 @@ export const APP_COLOR_PALETTE = {
   DARK: {
     BACKGROUND: grey,
     PRIMARY: yellow,
-    SECONDARY: blueGrey,
+    SECONDARY: grey,
   },
   GREEN: green,
   INFO: lightBlue,

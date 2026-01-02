@@ -102,6 +102,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
             {notificationCount > 0 && <span>{`: ${notificationCount || ''}`}</span>}
           </Typography>
           <IconButton
+            color="primary"
             onClick={props.clickCloseMenu}
             style={{
               padding: 0,

@@ -43,7 +43,7 @@ export const StyledNotification = styled(ListItem)<{
 }>((props) => ({
   alignItems: 'flex-start',
   backgroundColor: props.isunread === 'true' ? themeColors.notificationHighlight : 'inherit',
-  border: `1px solid ${grey[300]}`,
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   maxHeight: '108px',
   minHeight: '75px',
   minWidth: MIN_WIDTH,
@@ -51,9 +51,9 @@ export const StyledNotification = styled(ListItem)<{
 
 export const StyledNotificationActionArea = styled('div')<{
   component?: React.ElementType
-}>(() => ({
-  backgroundColor: grey[200],
-  border: `1px solid ${grey[300]}`,
+}>((props) => ({
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[200],
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   minHeight: '30px',
   minWidth: MIN_WIDTH,
 }))
@@ -83,8 +83,8 @@ export const CloseViewItem = styled(ListItem)<{
   justifcation: string
   component?: React.ElementType
 }>((props) => ({
-  backgroundColor: grey[100],
-  borderBottom: `1px solid ${grey[300]}`,
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
+  borderBottom: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   display: 'flex',
   justifyContent: props.justifcation || 'flex-end',
   minHeight: '48px',
@@ -103,11 +103,11 @@ export const StyledBottomContainer = styled(List)<{
   width: '100%',
 }))
 
-export const StyledBottomItem = styled(ListItem)<{ component?: React.ElementType }>({
-  backgroundColor: grey[100],
+export const StyledBottomItem = styled(ListItem)<{ component?: React.ElementType }>((props) => ({
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
   display: 'flex',
   justifyContent: 'flex-end',
-})
+}))
 
 export const StyledContentWrapper = styled('div')<{ component?: React.ElementType }>({
   display: 'flex',

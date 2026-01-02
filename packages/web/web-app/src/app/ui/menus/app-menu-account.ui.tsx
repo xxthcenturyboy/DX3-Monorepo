@@ -30,16 +30,16 @@ export const StyledAccountList = styled(List)<{
 
 export const StyledAccountMenuListItem = styled(ListItem)<{
   component?: React.ElementType
-}>(() => ({
-  border: `1px solid ${grey[300]}`,
+}>((props) => ({
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   cursor: 'pointer',
   height: '48px',
 }))
 
 export const StyledAccountActionArea = styled('div')<{
   component?: React.ElementType
-}>(() => ({
-  backgroundColor: grey[200],
-  border: `1px solid ${grey[300]}`,
+}>((props) => ({
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[200],
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   minHeight: '20px',
 }))

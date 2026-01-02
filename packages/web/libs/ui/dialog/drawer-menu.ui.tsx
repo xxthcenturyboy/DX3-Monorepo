@@ -6,8 +6,8 @@ export const CloseViewItem = styled(ListItem)<{
   justifcation: string
   component?: React.ElementType
 }>((props) => ({
-  backgroundColor: grey[100],
-  borderBottom: `1px solid ${grey[300]}`,
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
+  borderBottom: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
   display: 'flex',
   justifyContent: props.justifcation || 'flex-end',
   minHeight: '48px',
@@ -31,7 +31,7 @@ export const StyledBottomItem = styled(ListItem)<{
   component?: React.ElementType
   justifcation?: string
 }>((props) => ({
-  backgroundColor: grey[100],
+  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
   display: 'flex',
   justifyContent: props.justifcation || 'flex-end',
 }))

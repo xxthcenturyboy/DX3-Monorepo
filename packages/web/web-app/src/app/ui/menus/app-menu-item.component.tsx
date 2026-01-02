@@ -101,10 +101,12 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       )}
       <ListItemText
         primary={menuItem.title}
-        primaryTypographyProps={{
-          color: themeColors.primary,
-          fontSize: 14,
-          fontWeight: 'medium',
+        slotProps={{
+          primary: {
+            color: themeColors.primary,
+            fontSize: 14,
+            fontWeight: 'medium',
+          },
         }}
         sx={{
           marginLeft: isSubItem ? '48px' : undefined,

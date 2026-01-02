@@ -106,6 +106,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
               {strings.APP_MENU}
             </Typography>
             <IconButton
+              color="primary"
               onClick={() => dispatch(uiActions.toggleMenuSet(false))}
               style={{
                 padding: 0,

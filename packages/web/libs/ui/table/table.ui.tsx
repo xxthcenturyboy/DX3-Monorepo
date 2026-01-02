@@ -41,9 +41,9 @@ export const StyledTableRow = styled(TableRow)<{
   '&:hover': {
     backgroundColor:
       loading !== 'true'
-        ? thememode === 'dark'
+        ? theme.palette.mode === 'dark'
           ? `${theme.palette.primary.light} !important`
-          : `${theme.palette.secondary.light} !important`
+          : `${theme.palette.secondary.dark} !important`
         : 'initial',
   },
   // hide last border
@@ -54,6 +54,9 @@ export const StyledTableRow = styled(TableRow)<{
   //   backgroundColor: loading === 'true' ? 'transparent' : theme.palette.action.hover,
   // },
   '&:nth-of-type(odd)': {
-    backgroundColor: loading === 'true' ? 'transparent' : theme.palette.grey[100],
+    backgroundColor:
+      loading === 'true'
+        ? 'transparent'
+        : theme.palette.grey[theme.palette.mode === 'dark' ? 800 : 200],
   },
 }))
