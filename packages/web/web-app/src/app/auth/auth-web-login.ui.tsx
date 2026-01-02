@@ -26,9 +26,10 @@ export const AuthTypeContainer = styled(Box)<{
   width: '100%',
 }))
 
-export const AuthTypeChip = styled(Chip)<{
+export const AuthTypeChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'active',
+})<{
   active: boolean
-  component?: React.ElementType
 }>((props) => ({
   '& .MuiChip-label': {
     color: props.active ? 'white' : undefined,
