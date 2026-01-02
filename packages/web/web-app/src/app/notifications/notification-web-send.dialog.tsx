@@ -218,7 +218,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
                 margin: '6px 6px 0',
               }}
             >
-              {title.length ? t('CHARACTERS_REMAINING', { count: 30 - title.length }) : ''}
+              {title.length > 0 ? t('CHARACTERS_REMAINING', { count: 30 - title.length }) : ''}
             </span>
           </FormControl>
 

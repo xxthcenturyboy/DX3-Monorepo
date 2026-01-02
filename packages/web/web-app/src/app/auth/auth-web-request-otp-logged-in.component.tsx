@@ -100,7 +100,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
           >
             {strings.OTP_CHOOSE_METHOD}
           </Typography>
-          {userPhones.length &&
+          {userPhones.length > 0 &&
             userPhones.map((userPhone) => {
               if (userPhone.isVerified) {
                 return (
@@ -135,7 +135,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
                 )
               }
             })}
-          {userEmails.length &&
+          {userEmails.length > 0 &&
             userEmails.map((userEmail) => {
               if (userEmail.isVerified) {
                 return (

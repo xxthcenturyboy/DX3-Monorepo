@@ -17,62 +17,60 @@ type AuthWebRequestOtpEntryPropsType = {
   selectedMethod: 'EMAIL' | 'PHONE' | ''
 }
 
-export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpEntryPropsType> = React.forwardRef(
-  (props) => {
-    const [hasFiredCallback, setHasFiredCallback] = React.useState(false)
-    const [otp, setOtp] = React.useState('')
-    const strings = useStrings(['START_OVER'])
+export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpEntryPropsType> = (props) => {
+  const [hasFiredCallback, setHasFiredCallback] = React.useState(false)
+  const [otp, setOtp] = React.useState('')
+  const strings = useStrings(['START_OVER'])
 
-    React.useEffect(() => {
-      if (otp.length === OTP_LENGTH) {
-        props.onCompleteCallback(otp)
-        setHasFiredCallback(true)
-      }
-    }, [otp])
+  React.useEffect(() => {
+    if (otp.length === OTP_LENGTH) {
+      props.onCompleteCallback(otp)
+      setHasFiredCallback(true)
+    }
+  }, [otp])
 
-    return (
-      <Fade
-        in={true}
-        timeout={FADE_TIMEOUT_DUR}
+  return (
+    <Fade
+      in={true}
+      timeout={FADE_TIMEOUT_DUR}
+    >
+      <Box
+        display="flex"
+        flexDirection="column"
+        height={'200px'}
+        justifyContent="center"
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          height={'200px'}
-          justifyContent="center"
-        >
-          {!hasFiredCallback && (
-            <AuthWebOtpEntry
-              method={props.selectedMethod}
-              onCompleteCallback={setOtp}
-            />
-          )}
-          {hasFiredCallback && !props.hasCallbackError && (
-            <BeatLoader
-              color={themeColors.secondary}
-              margin="2px"
-              size={24}
-            />
-          )}
-          {hasFiredCallback && props.hasCallbackError && (
-            <Button
-              fullWidth
-              onClick={() => {
-                props.onClickStartOver()
-                setHasFiredCallback(false)
-              }}
-              startIcon={<ChevronLeftIcon />}
-              style={{
-                justifyContent: 'center',
-                marginTop: '50px',
-              }}
-              variant="text"
-            >
-              {strings.START_OVER}
-            </Button>
-          )}
-        </Box>
-      </Fade>
-    )
-  },
-)
+        {!hasFiredCallback && (
+          <AuthWebOtpEntry
+            method={props.selectedMethod}
+            onCompleteCallback={setOtp}
+          />
+        )}
+        {hasFiredCallback && !props.hasCallbackError && (
+          <BeatLoader
+            color={themeColors.secondary}
+            margin="2px"
+            size={24}
+          />
+        )}
+        {hasFiredCallback && props.hasCallbackError && (
+          <Button
+            fullWidth
+            onClick={() => {
+              props.onClickStartOver()
+              setHasFiredCallback(false)
+            }}
+            startIcon={<ChevronLeftIcon />}
+            style={{
+              justifyContent: 'center',
+              marginTop: '50px',
+            }}
+            variant="text"
+          >
+            {strings.START_OVER}
+          </Button>
+        )}
+      </Box>
+    </Fade>
+  )
+}
