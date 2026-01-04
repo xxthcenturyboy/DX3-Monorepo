@@ -39,7 +39,7 @@ export const StyledNotification = styled(ListItem)<{
   component?: React.ElementType
 }>((props) => ({
   alignItems: 'flex-start',
-  backgroundColor: props.isunread === 'true' ? props.theme.palette.highlight.main : 'inherit',
+  backgroundColor: `${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[900] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[100]}`,
   border: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   maxHeight: '108px',
   minHeight: '75px',

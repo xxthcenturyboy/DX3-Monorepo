@@ -42,6 +42,7 @@ export const muiThemePalette: ThemeOptions['palette'] = {
     main: WEB_APP_COLOR_PALETTE.ERROR[700],
   },
   highlight: {
+    light: WEB_APP_COLOR_PALETTE.HIGHTLIGHT[50],
     main: WEB_APP_COLOR_PALETTE.HIGHTLIGHT[200],
   },
   info: {

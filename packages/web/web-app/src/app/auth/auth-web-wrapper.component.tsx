@@ -1,7 +1,7 @@
-import { Box, Fade, Grid, Paper, useTheme } from '@mui/material'
+import { Box, Fade, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
 import React from 'react'
 
-import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
+import { BORDER_RADIUS, FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { WebLogin } from './auth-web-login.component'
@@ -14,6 +14,7 @@ export const WebAuthWrapper: React.FC<{ route: 'login' | 'signup' }> = ({ route 
   const logoDark = useAppSelector((state) => state.ui.logoUrlSmall)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const theme = useTheme()
+  const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
 
   React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
@@ -42,7 +43,10 @@ export const WebAuthWrapper: React.FC<{ route: 'login' | 'signup' }> = ({ route 
               return {
                 alignItems: 'center',
                 background:
-                  theme.palette.mode === 'light' ? 'transparent' : theme.palette.background.paper,
+                  theme.palette.mode === 'light'
+                    ? theme.palette.background.default
+                    : theme.palette.background.paper,
+                borderRadius: SM_BREAK ? 0 : BORDER_RADIUS,
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-start',

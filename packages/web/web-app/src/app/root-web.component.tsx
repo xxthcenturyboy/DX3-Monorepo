@@ -17,6 +17,7 @@ import { WebConfigService } from './config/config-web.service'
 import { useAppDispatch, useAppSelector } from './store/store-web-redux.hooks'
 import { AppNavBar } from './ui/menus/app-nav-bar.menu'
 import { MenuNav } from './ui/menus/menu-nav'
+import { WEB_APP_COLOR_PALETTE } from './ui/mui-themes/mui-palette.theme'
 import { getTheme } from './ui/mui-themes/mui-theme.service'
 import { uiActions } from './ui/store/ui-web.reducer'
 import {
@@ -153,12 +154,18 @@ export const Root: React.FC = () => {
       updateContentWrapperStyles()
       if (isAuthenticated) {
         localStorage.setItem(STORAGE_KEYS_UI.MENU_STATE, menuOpen ? 'OPEN' : 'CLOSED')
+        if (theme.palette.mode === 'light') {
+          setAppFrameStyle({
+            ...appFrameStyle,
+            backgroundColor: theme.palette.background.default,
+          })
+        }
       }
     }
   }, [menuOpen, bootstrapped, isAuthenticated])
 
   React.useEffect(() => {
-    mobileBreak ? setTopPixel(58) : setTopPixel(64)
+    mobileBreak ? setTopPixel(57) : setTopPixel(64)
   }, [mobileBreak])
 
   React.useEffect(() => {
@@ -170,6 +177,15 @@ export const Root: React.FC = () => {
   React.useEffect(() => {
     setMenuBreak(windowWidth < MEDIA_BREAK.MENU)
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
+    if (
+      theme.palette.mode === 'light' &&
+      (pathname === ROUTES.AUTH.LOGIN || pathname === ROUTES.AUTH.SIGNUP)
+    ) {
+      setAppFrameStyle({
+        ...appFrameStyle,
+        backgroundColor: WEB_APP_COLOR_PALETTE.BACKGROUND.LIGHT.PAPER,
+      })
+    }
   }, [windowWidth])
 
   return (
