@@ -4,7 +4,7 @@ export const dialogOverridesCommon: Components['MuiDialog'] = {
   defaultProps: {},
   styleOverrides: {
     root: {
-      backdropFilter: 'blur(5px)',
+      // backdropFilter: 'blur(5px)', // CAUSES BUGS in webkit
     },
   },
 }

@@ -37,6 +37,9 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
           },
         },
         slots: { transition: isMobileWidth ? SlideTransition : ZoomTransition },
+        sx: {
+          backdropFilter: open ? 'blur(5px)' : undefined,
+        },
       }}
     >
       <Box
