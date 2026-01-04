@@ -1,10 +1,10 @@
+import { useTheme } from '@mui/material'
 import Lottie, { type LottieRef } from 'lottie-react'
 import React, { type ReactElement } from 'react'
 import { ScaleLoader } from 'react-spinners'
 
 import { sleep } from '@dx3/utils-shared'
 
-import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 import type { LottieWrapperPropTypes } from './lottie.types'
 
 export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactElement | null => {
@@ -12,7 +12,7 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
   const lottieRef = React.useRef(null) as LottieRef
   const [loadedAnimationData, setLoadedAnimationData] = React.useState<object | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
-  const themeColors = getThemePalette()
+  const theme = useTheme()
 
   React.useEffect(() => {
     loadAnimationData()
@@ -69,7 +69,7 @@ export const LottieWrapper: React.FC<LottieWrapperPropTypes> = (props): ReactEle
       <div
         style={{ alignItems: 'center', display: 'flex', justifyContent: 'center', width: '100%' }}
       >
-        <ScaleLoader color={themeColors.primary} />
+        <ScaleLoader color={theme.palette.primary.main} />
       </div>
     )
   }

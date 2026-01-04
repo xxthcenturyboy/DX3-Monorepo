@@ -1,7 +1,8 @@
 import { List, ListItem } from '@mui/material'
-import { grey } from '@mui/material/colors'
 import Menu from '@mui/material/Menu'
 import { styled } from '@mui/material/styles'
+
+import { WEB_APP_COLOR_PALETTE } from '../mui-themes/mui-palette.theme'
 
 export const StyledAccountnMenu = styled(Menu)<{
   mobilebreak: string
@@ -31,7 +32,7 @@ export const StyledAccountList = styled(List)<{
 export const StyledAccountMenuListItem = styled(ListItem)<{
   component?: React.ElementType
 }>((props) => ({
-  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   cursor: 'pointer',
   height: '48px',
 }))
@@ -39,7 +40,10 @@ export const StyledAccountMenuListItem = styled(ListItem)<{
 export const StyledAccountActionArea = styled('div')<{
   component?: React.ElementType
 }>((props) => ({
-  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[200],
-  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
+  backgroundColor:
+    props.theme.palette.mode === 'dark'
+      ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800]
+      : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300],
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   minHeight: '20px',
 }))

@@ -4,7 +4,7 @@ import DialogContentText from '@mui/material/DialogContentText'
 import type React from 'react'
 
 import { AwaiterLottie } from '../lottie/awaiter.lottie'
-import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { TIMEOUT_DUR_500 } from '../ui.consts'
 import { SlideTransition, ZoomTransition } from './dialog.ui'
 import { DialogWrapper } from './ui-wrapper.dialog'
 

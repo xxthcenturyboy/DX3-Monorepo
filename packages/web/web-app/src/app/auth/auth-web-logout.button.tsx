@@ -9,7 +9,7 @@ import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { WebConfigService } from '../config/config-web.service'
 import { useStrings } from '../i18n'

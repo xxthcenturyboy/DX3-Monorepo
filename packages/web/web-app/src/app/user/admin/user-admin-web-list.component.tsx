@@ -12,9 +12,9 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { WebConfigService } from '../../config/config-web.service'
 import { useApiError } from '../../data/errors'

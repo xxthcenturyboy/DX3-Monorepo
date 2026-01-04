@@ -1,14 +1,16 @@
 import type { Components } from '@mui/material'
 
-import { APP_COLOR_PALETTE, BORDER_RADIUS } from '../../../ui.consts'
+import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'
+
+import { WEB_APP_COLOR_PALETTE } from '../../mui-palette.theme'
 import {
   checkboxOverridesCommon,
   filledInputOverridesCommon,
   outlinedInputOverridesCommon,
   textFieldOverridesCommon,
-} from '../../common-overrides/inputs-common'
+} from '../common/inputs-common'
 
-export const filledInputOverridesDark: Components['MuiFilledInput'] = {
+export const filledInputOverridesLight: Components['MuiFilledInput'] = {
   ...filledInputOverridesCommon,
   styleOverrides: {
     ...filledInputOverridesCommon?.styleOverrides,
@@ -16,14 +18,14 @@ export const filledInputOverridesDark: Components['MuiFilledInput'] = {
       // @ts-expect-error - is an object
       ...filledInputOverridesCommon?.styleOverrides?.root,
       '&.Mui-focused': {
-        backgroundColor: APP_COLOR_PALETTE.DARK.BACKGROUND[600],
-        border: `1px solid ${APP_COLOR_PALETTE.DARK.SECONDARY[700]}`,
+        backgroundColor: WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[50],
+        border: `1px solid ${WEB_APP_COLOR_PALETTE.PRIMARY[700]}`,
       },
     },
   },
 }
 
-export const outlinedInputOverridesDark: Components['MuiOutlinedInput'] = {
+export const outlinedInputOverridesLight: Components['MuiOutlinedInput'] = {
   ...outlinedInputOverridesCommon,
   styleOverrides: {
     ...outlinedInputOverridesCommon?.styleOverrides,
@@ -32,16 +34,16 @@ export const outlinedInputOverridesDark: Components['MuiOutlinedInput'] = {
       ...outlinedInputOverridesCommon?.styleOverrides?.root,
       '&.Mui-focused': {
         '& .MuiOutlinedInput-notchedOutline': {
-          border: `1px solid ${APP_COLOR_PALETTE.SECONDARY[700]}`,
+          border: `1px solid ${WEB_APP_COLOR_PALETTE.PRIMARY[700]}`,
         },
-        backgroundColor: APP_COLOR_PALETTE.DARK.BACKGROUND[600],
+        backgroundColor: WEB_APP_COLOR_PALETTE.SECONDARY[50],
       },
       borderRadius: BORDER_RADIUS,
     },
   },
 }
 
-export const checkboxOverridesDark: Components['MuiCheckbox'] = {
+export const checkboxOverridesLight: Components['MuiCheckbox'] = {
   ...checkboxOverridesCommon,
   styleOverrides: {
     ...checkboxOverridesCommon?.styleOverrides,
@@ -49,20 +51,20 @@ export const checkboxOverridesDark: Components['MuiCheckbox'] = {
       // @ts-expect-error - is an ojbect
       ...checkboxOverridesCommon?.styleOverrides?.root,
       '&.Mui-checked': {
-        color: APP_COLOR_PALETTE.SECONDARY[700],
+        color: WEB_APP_COLOR_PALETTE.SECONDARY[700],
       },
       '&.Mui-checked-error': {
         '&.Mui-checked': {
-          color: APP_COLOR_PALETTE.RED[500],
+          color: WEB_APP_COLOR_PALETTE.ERROR[500],
         },
-        color: APP_COLOR_PALETTE.RED[200],
+        color: WEB_APP_COLOR_PALETTE.ERROR[200],
       },
-      color: APP_COLOR_PALETTE.PRIMARY[200],
+      color: WEB_APP_COLOR_PALETTE.PRIMARY[200],
     },
   },
 }
 
-export const textFieldOverridesDark: Components['MuiTextField'] = {
+export const textFieldOverridesLight: Components['MuiTextField'] = {
   ...textFieldOverridesCommon,
   styleOverrides: {
     ...textFieldOverridesCommon?.styleOverrides,
@@ -70,7 +72,7 @@ export const textFieldOverridesDark: Components['MuiTextField'] = {
       // @ts-expect-error - is an object
       ...textFieldOverridesCommon?.styleOverrides?.root,
       '&:-webkit-autofill': {
-        WebkitBoxShadow: `0 0 0 1000px ${APP_COLOR_PALETTE.DARK.BACKGROUND[600]} inset`, // Your color
+        WebkitBoxShadow: `0 0 0 1000px ${WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[100]} inset`, // Your color
         WebkitTextFillColor: '#000000', // Your text color
       },
     },

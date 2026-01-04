@@ -1,6 +1,6 @@
 import type { Components } from '@mui/material'
 
-import { BORDER_RADIUS } from '../../ui.consts'
+import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'
 
 export const filledInputOverridesCommon: Components['MuiFilledInput'] = {
   defaultProps: {

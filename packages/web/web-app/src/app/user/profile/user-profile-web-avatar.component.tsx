@@ -1,26 +1,11 @@
 import PhotoCamera from '@mui/icons-material/Photo'
 import { Avatar, Badge, Grid, IconButton } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
-
-import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { selectProfileFormatted } from './user-profile-web.selectors'
-
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  '& .MuiBadge-badge': {
-    backgroundColor: APP_COLOR_PALETTE.PRIMARY[700],
-    borderRadius: '50%',
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    color: APP_COLOR_PALETTE.PRIMARY[200],
-    cursor: 'pointer',
-    height: '25%',
-    padding: '15%',
-    width: '25%',
-  },
-}))
 
 type UserProfileAvatarPropTypes = {
   fontSize?: string
@@ -32,6 +17,7 @@ type UserProfileAvatarPropTypes = {
 export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) => {
   const { fontSize, handleChangeImage, justifyContent, size } = props
   const profile = useAppSelector((state) => selectProfileFormatted(state))
+  const theme = useTheme()
 
   React.useEffect(() => {
     setDocumentTitle('Profile')
@@ -45,16 +31,15 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) =
       justifyContent={justifyContent || 'flex-start'}
     >
       {!!handleChangeImage && (
-        <StyledBadge
+        <Badge
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           badgeContent={
             <IconButton
+              color="primary"
               component="span"
-              sx={{
-                color: APP_COLOR_PALETTE.SECONDARY[600],
-              }}
             >
               <PhotoCamera
+                color="secondary"
                 style={{
                   padding: '5px',
                 }}
@@ -63,29 +48,41 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) =
           }
           onClick={handleChangeImage}
           overlap="circular"
+          sx={{
+            '& .MuiBadge-badge': {
+              backgroundColor: theme.palette.primary.main,
+              borderRadius: '50%',
+              boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+              color: theme.palette.secondary.main,
+              cursor: 'pointer',
+              height: '25%',
+              padding: '15%',
+              width: '25%',
+            },
+          }}
           variant="standard"
         >
           <Avatar
             alt={profile.fullName}
             src={profile.profileImageUrl}
             sx={{
-              bgcolor: APP_COLOR_PALETTE.SECONDARY[600],
-              color: APP_COLOR_PALETTE.PRIMARY[700],
+              bgcolor: theme.palette.secondary.main,
+              color: theme.palette.primary.main,
               fontSize: fontSize || '1rem',
               height: size?.height || 64,
               width: size?.width || 64,
             }}
             variant="circular"
           />
-        </StyledBadge>
+        </Badge>
       )}
       {!handleChangeImage && (
         <Avatar
           alt={profile.fullName}
           src={profile.profileImageUrl}
           sx={{
-            bgcolor: APP_COLOR_PALETTE.SECONDARY[600],
-            color: APP_COLOR_PALETTE.PRIMARY[700],
+            bgcolor: theme.palette.secondary.main,
+            color: theme.palette.primary.main,
             fontSize: fontSize || '1rem',
             height: size?.height || 64,
             width: size?.width || 64,

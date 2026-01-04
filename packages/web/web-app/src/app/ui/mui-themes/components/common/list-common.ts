@@ -1,6 +1,6 @@
 import type { Components } from '@mui/material'
 
-import { BORDER_RADIUS, BOX_SHADOW } from '../../ui.consts'
+import { BORDER_RADIUS, BOX_SHADOW } from '@dx3/web-libs/ui/ui.consts'
 
 export const listItemOverridesCommon: Components['MuiListItem'] = {
   defaultProps: {},

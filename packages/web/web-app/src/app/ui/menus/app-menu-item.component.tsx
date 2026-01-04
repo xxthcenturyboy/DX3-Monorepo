@@ -1,11 +1,10 @@
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { ListItemButton, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 import Badge from '@mui/material/Badge'
 import React, { useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'
 
-import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { getIcon, type IconNames } from '@dx3/web-libs/ui/icons'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
@@ -29,7 +28,7 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const match = useMatch(route)
-  const themeColors = getThemePalette()
+  const theme = useTheme()
 
   React.useEffect(() => {
     setMenuBreak(windowWidth < MEDIA_BREAK.MENU)
@@ -96,14 +95,14 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
             color: 'inherit',
           }}
         >
-          {renderIcon(menuItem.icon as IconNames, themeColors.primary)}
+          {renderIcon(menuItem.icon as IconNames, theme.palette.primary.light)}
         </ListItemIcon>
       )}
       <ListItemText
         primary={menuItem.title}
         slotProps={{
           primary: {
-            color: themeColors.primary,
+            color: theme.palette.primary.light,
             fontSize: 14,
             fontWeight: 'medium',
           },

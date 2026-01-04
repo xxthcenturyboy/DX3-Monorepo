@@ -8,8 +8,7 @@ import {
   StyledBottomItem,
   StyledList,
 } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { DRAWER_WIDTH } from '@dx3/web-libs/ui/system/ui.consts'
+import { DRAWER_WIDTH } from '@dx3/web-libs/ui/ui.consts'
 
 import { LogoutButton } from '../../auth/auth-web-logout.button'
 import { useStrings } from '../../i18n'
@@ -29,7 +28,6 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
   const menus = useAppSelector((state) => state.ui.menus)
   const strings = useStrings(['APP_MENU'])
   const dispatch = useAppDispatch()
-  const themeColors = getThemePalette()
 
   useEffect(() => {
     if (menus && Array.isArray(menus)) {
@@ -98,7 +96,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
         {mobileBreak && (
           <CloseViewItem justifcation="space-between">
             <Typography
-              color={themeColors.primary}
+              color="default"
               fontWeight={700}
               textAlign="center"
               variant="h6"
@@ -106,7 +104,7 @@ export const AppMenu: React.FC<AppMenuItemsProps> = (props) => {
               {strings.APP_MENU}
             </Typography>
             <IconButton
-              color="primary"
+              color="default"
               onClick={() => dispatch(uiActions.toggleMenuSet(false))}
               style={{
                 padding: 0,

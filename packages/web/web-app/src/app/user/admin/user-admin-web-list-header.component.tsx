@@ -12,7 +12,7 @@ import type * as React from 'react'
 import { useRef, useState } from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
-import { useFocus } from '@dx3/web-libs/ui/system/hooks/use-focus.hook'
+import { useFocus } from '@dx3/web-libs/ui/hooks/use-focus.hook'
 import { debounce } from '@dx3/web-libs/utils/debounce'
 
 import { useStrings } from '../../i18n'

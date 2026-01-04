@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { AppMenuDesktop } from './app-menu-desktop.component'

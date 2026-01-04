@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web.redux'

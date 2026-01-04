@@ -1,11 +1,10 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import { Box, Button, Fade } from '@mui/material'
+import { Box, Button, Fade, useTheme } from '@mui/material'
 import React from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import { OTP_LENGTH } from '@dx3/models-shared'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { AuthWebOtpEntry } from './auth-web-otp.component'
@@ -21,7 +20,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpEntryPropsType> =
   const [hasFiredCallback, setHasFiredCallback] = React.useState(false)
   const [otp, setOtp] = React.useState('')
   const strings = useStrings(['START_OVER'])
-  const themeColors = getThemePalette()
+  const theme = useTheme()
 
   React.useEffect(() => {
     if (otp.length === OTP_LENGTH) {
@@ -49,7 +48,7 @@ export const AuthWebRequestOtpEntry: React.FC<AuthWebRequestOtpEntryPropsType> =
         )}
         {hasFiredCallback && !props.hasCallbackError && (
           <BeatLoader
-            color={themeColors.secondary}
+            color={theme.palette.secondary.main}
             margin="2px"
             size={24}
           />

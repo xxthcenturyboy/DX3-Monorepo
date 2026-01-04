@@ -1,7 +1,7 @@
 import { Box, Fade, Grid } from '@mui/material'
 import React from 'react'
 
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsUserProfileValid } from '../user/profile/user-profile-web.selectors'

@@ -1,8 +1,7 @@
-import { Button, Grid, Typography } from '@mui/material'
+import { Button, Grid, Typography, useTheme } from '@mui/material'
 import { BeatLoader } from 'react-spinners'
 
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
-import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 
 type LoadingProps = {
   error?: Error
@@ -12,12 +11,12 @@ type LoadingProps = {
 }
 
 export const UiLoadingComponent = (props: LoadingProps): React.ReactElement | null => {
+  const theme = useTheme()
   const handleRetry = (): void => {
     if (typeof props.retry === 'function') {
       props.retry()
     }
   }
-  const themeColors = getThemePalette()
   if (props.error) {
     return (
       <StyledContentWrapper>
@@ -68,7 +67,7 @@ export const UiLoadingComponent = (props: LoadingProps): React.ReactElement | nu
           }}
         >
           <BeatLoader
-            color={themeColors.secondary}
+            color={theme.palette.secondary.main}
             margin="2px"
             size={30}
           />

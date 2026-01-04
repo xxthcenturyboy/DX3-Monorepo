@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 
 import { APP_NAME } from '@dx3/models-shared'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useLazyGetShortlinkTargetQuery } from './shortlink-web.api'
 

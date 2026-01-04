@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import type { LoginPayloadType } from '@dx3/models-shared'
-import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { loginBootstrap } from '../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../config/config-web.service'

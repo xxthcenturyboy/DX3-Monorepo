@@ -24,7 +24,7 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useApiError } from '../../data/errors'
 import type { CustomResponseErrorType } from '../../data/rtk-query'

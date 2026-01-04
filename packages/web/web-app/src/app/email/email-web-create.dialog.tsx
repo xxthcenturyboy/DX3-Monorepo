@@ -29,7 +29,6 @@ import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dial
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
@@ -61,7 +60,6 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const userEmails = useAppSelector((state) => selectUserEmails(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const themeColors = getThemePalette()
   const [
     requestCheckAvailability,
     {
@@ -381,7 +379,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
             >
               {isLoadingAddEmail || isLoadingCheckAvailability || isLoadingSendOtp ? (
                 <BeatLoader
-                  color={themeColors.secondary}
+                  color={theme.palette.secondary.main}
                   margin="2px"
                   size={16}
                 />

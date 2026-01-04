@@ -3,7 +3,7 @@ import Fade from '@mui/material/Fade'
 import Grid from '@mui/material/Grid'
 import type React from 'react'
 
-import { FADE_TIMEOUT_DUR } from '../system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '../ui.consts'
 
 export type ContentWrapperPropsType = {
   children: React.ReactNode

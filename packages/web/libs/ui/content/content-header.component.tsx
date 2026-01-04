@@ -95,10 +95,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
       position={'fixed'}
       sx={(theme) => {
         return {
-          background:
-            theme.palette.mode === 'light'
-              ? theme.palette.common.white
-              : theme.palette.common.black,
+          background: theme.palette.background.paper,
         }
       }}
       top={SM_BREAK ? '56px' : '64px'}

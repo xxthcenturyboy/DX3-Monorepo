@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import type { EmailType, MediaDataType, PhoneType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/ui.consts'
 
 import { EmailList } from '../../email/email-web-list.component'
 import { useStrings } from '../../i18n'
@@ -216,6 +216,7 @@ export const UserProfile: React.FC = () => {
                 width={MD_BREAK ? '100%' : '50%'}
               >
                 <Button
+                  color="primary"
                   onClick={toggleDarkMode}
                   variant="outlined"
                 >

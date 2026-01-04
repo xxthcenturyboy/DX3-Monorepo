@@ -8,7 +8,7 @@ import type React from 'react'
 
 import { ErrorLottie } from '../lottie/error.lottie'
 // import DialogTitle from '@mui/material/DialogTitle';
-import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { TIMEOUT_DUR_500 } from '../ui.consts'
 import { SlideTransition, ZoomTransition } from './dialog.ui'
 import { DialogWrapper } from './ui-wrapper.dialog'
 
@@ -49,8 +49,15 @@ export const DialogApiError: React.FC<DialogApiErrorPropsType> = (props) => {
       }}
     >
       <Box
-        style={{
-          padding: '10px 24px',
+        sx={(theme) => {
+          return {
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+            height: '100%',
+            padding: '10px 24px',
+          }
         }}
       >
         <DialogWrapper>

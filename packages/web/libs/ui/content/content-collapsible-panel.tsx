@@ -13,7 +13,7 @@ import {
 import React, { useState } from 'react'
 import { BeatLoader } from 'react-spinners'
 
-import { APP_COLOR_PALETTE, BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../system/ui.consts'
+import { BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../ui.consts'
 
 export type CollapsiblePanelPropsType = {
   children: React.ReactNode
@@ -116,7 +116,7 @@ export const CollapsiblePanel: React.FC<CollapsiblePanelPropsType> = React.forwa
                   }}
                 >
                   <BeatLoader
-                    color={APP_COLOR_PALETTE.SECONDARY[700]}
+                    color={theme.palette.secondary.main}
                     size={24}
                   />
                 </Box>

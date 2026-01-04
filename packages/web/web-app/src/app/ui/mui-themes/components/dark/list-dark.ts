@@ -1,10 +1,7 @@
 import type { Components } from '@mui/material'
 
-import { APP_COLOR_PALETTE } from '../../../ui.consts'
-import {
-  listItemButtonOverridesCommon,
-  listItemOverridesCommon,
-} from '../../common-overrides/list-common'
+import { WEB_APP_COLOR_PALETTE } from '../../mui-palette.theme'
+import { listItemButtonOverridesCommon, listItemOverridesCommon } from '../common/list-common'
 
 export const listItemOverridesDark: Components['MuiListItem'] = {
   ...listItemOverridesCommon,
@@ -18,7 +15,7 @@ export const listItemButtonOverridesDark: Components['MuiListItemButton'] = {
       // @ts-expect-error - is an object
       ...listItemButtonOverridesCommon?.styleOverrides?.root,
       '&&.Mui-selected': {
-        backgroundColor: APP_COLOR_PALETTE.DARK.BACKGROUND[800],
+        backgroundColor: WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[900],
       },
     },
   },

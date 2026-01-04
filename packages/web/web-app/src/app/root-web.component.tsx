@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box'
 import Fade from '@mui/material/Fade'
-import { createTheme, type Theme, ThemeProvider } from '@mui/material/styles'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 import * as React from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { Slide, ToastContainer } from 'react-toastify'
@@ -9,8 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { sleep } from '@dx3/utils-shared'
 import { DialogApiError } from '@dx3/web-libs/ui/dialog/api-error.dialog'
 import { GlobalAwaiter } from '@dx3/web-libs/ui/global/global-awaiter.component'
-import { getTheme, getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { DRAWER_WIDTH, MEDIA_BREAK, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/system/ui.consts'
+import { DRAWER_WIDTH, MEDIA_BREAK, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from './auth/auth-web.selector'
 import { appBootstrap } from './config/bootstrap/app-bootstrap'
@@ -18,6 +17,7 @@ import { WebConfigService } from './config/config-web.service'
 import { useAppDispatch, useAppSelector } from './store/store-web-redux.hooks'
 import { AppNavBar } from './ui/menus/app-nav-bar.menu'
 import { MenuNav } from './ui/menus/menu-nav'
+import { getTheme } from './ui/mui-themes/mui-theme.service'
 import { uiActions } from './ui/store/ui-web.reducer'
 import {
   selectIsMobileWidth,
@@ -29,7 +29,6 @@ import { useLazyGetProfileQuery } from './user/profile/user-profile-web.api'
 import { userProfileActions } from './user/profile/user-profile-web.reducer'
 
 export const Root: React.FC = () => {
-  const [themeStateLocal, setThemeStateLocal] = React.useState<Theme>(createTheme(getTheme()))
   const [bootstrapped, setBootstrapped] = React.useState(false)
   const [menuBreak, setMenuBreak] = React.useState(false)
   const [mobileBreak, setMobileBreak] = React.useState(false)
@@ -60,57 +59,51 @@ export const Root: React.FC = () => {
   const canRedirect = !NO_REDICRET_ROUTES.some((route) => pathname === route)
   const [fetchProfile, { data: profileResponse, isSuccess: fetchProfileSuccess }] =
     useLazyGetProfileQuery()
-
-  const updateAppThemeStyle = (): void => {
+  const theme = React.useMemo(() => {
     const nextTheme = createTheme(getTheme())
-    const themeColors = getThemePalette()
-    setThemeStateLocal(nextTheme)
-
     setAppFrameStyle({
       ...appFrameStyle,
-      backgroundColor: themeColors.background,
+      backgroundColor: nextTheme.palette.background.default,
     })
-  }
+    return nextTheme
+  }, [themeState])
 
-  const getContentWrapperStyles = (): React.CSSProperties => {
-    const baseStyle: React.CSSProperties = {
-      height: `calc(100vh - ${topPixel}px)`, // Subtract width of header
-      // padding: themeStateLocal.spacing(3),
-      // paddingBottom: themeStateLocal.spacing(3),
-      overflow: 'auto',
-      position: 'relative',
-      top: `${topPixel}px`,
-      transition: themeStateLocal.transitions.create('margin', {
-        duration: themeStateLocal.transitions.duration.leavingScreen,
-        easing: themeStateLocal.transitions.easing.sharp,
-      }),
-    }
-
-    let openStyles: React.CSSProperties = {}
-
-    if (menuOpen && !menuBreak) {
-      openStyles = {
-        marginLeft: `${DRAWER_WIDTH}px`,
-        transition: themeStateLocal.transitions.create('margin', {
-          duration: themeStateLocal.transitions.duration.enteringScreen,
-          easing: themeStateLocal.transitions.easing.easeOut,
+  const updateContentWrapperStyles = (): void => {
+    const getContentWrapperStyles = (): React.CSSProperties => {
+      const baseStyle: React.CSSProperties = {
+        height: `calc(100vh - ${topPixel}px)`, // Subtract width of header
+        overflow: 'auto',
+        position: 'relative',
+        top: `${topPixel}px`,
+        transition: theme.transitions.create('margin', {
+          duration: theme.transitions.duration.leavingScreen,
+          easing: theme.transitions.easing.sharp,
         }),
+      }
+
+      let openStyles: React.CSSProperties = {}
+
+      if (menuOpen && !menuBreak) {
+        openStyles = {
+          marginLeft: `${DRAWER_WIDTH}px`,
+          transition: theme.transitions.create('margin', {
+            duration: theme.transitions.duration.enteringScreen,
+            easing: theme.transitions.easing.easeOut,
+          }),
+        }
+      }
+
+      return {
+        ...baseStyle,
+        ...openStyles,
       }
     }
 
-    return {
-      ...baseStyle,
-      ...openStyles,
-    }
-  }
-
-  const updateContentWrapperStyles = (): void => {
     const styles = getContentWrapperStyles()
     setContentWrapperStyle(styles)
   }
 
   React.useEffect(() => {
-    updateAppThemeStyle()
     updateContentWrapperStyles()
   }, [])
 
@@ -127,12 +120,9 @@ export const Root: React.FC = () => {
       void fetchProfile()
     }
 
-    updateAppThemeStyle()
-
     sleep(200).then(() => {
       setBootstrapped(true)
       dispatch(uiActions.bootstrapSet(true))
-      // loginBootstrap();
     })
 
     return () => {
@@ -160,12 +150,6 @@ export const Root: React.FC = () => {
 
   React.useEffect(() => {
     if (bootstrapped) {
-      updateAppThemeStyle()
-    }
-  }, [themeState, bootstrapped])
-
-  React.useEffect(() => {
-    if (bootstrapped) {
       updateContentWrapperStyles()
       if (isAuthenticated) {
         localStorage.setItem(STORAGE_KEYS_UI.MENU_STATE, menuOpen ? 'OPEN' : 'CLOSED')
@@ -174,7 +158,7 @@ export const Root: React.FC = () => {
   }, [menuOpen, bootstrapped, isAuthenticated])
 
   React.useEffect(() => {
-    mobileBreak ? setTopPixel(60) : setTopPixel(64)
+    mobileBreak ? setTopPixel(58) : setTopPixel(64)
   }, [mobileBreak])
 
   React.useEffect(() => {
@@ -189,7 +173,7 @@ export const Root: React.FC = () => {
   }, [windowWidth])
 
   return (
-    <ThemeProvider theme={themeStateLocal}>
+    <ThemeProvider theme={theme}>
       <Fade
         in={true}
         timeout={2000}

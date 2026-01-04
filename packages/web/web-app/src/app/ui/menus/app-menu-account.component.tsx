@@ -3,8 +3,7 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 import { useNavigate } from 'react-router'
 
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { LogoutButton } from '../../auth/auth-web-logout.button'
 import { WebConfigService } from '../../config/config-web.service'
@@ -29,7 +28,6 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
   const ROUTES = WebConfigService.getWebRoutes()
   const navigate = useNavigate()
   const strings = useStrings(['ACCOUNT_MENU', 'PROFILE'])
-  const themeColors = getThemePalette()
 
   React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
@@ -67,7 +65,7 @@ export const AccountMenu: React.FC<AccountMenuPropsType> = (props) => {
           width="auto"
         >
           <Typography
-            color={themeColors.primary}
+            color="primary"
             fontWeight={700}
             variant="body1"
           >

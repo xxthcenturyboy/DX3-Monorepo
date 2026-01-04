@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { DrawerMenuComponent } from '@dx3/web-libs/ui/dialog/drawer-menu.component'
-import { DRAWER_WIDTH, MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { DRAWER_WIDTH, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'

@@ -22,7 +22,7 @@ import { createPortal } from 'react-dom'
 
 import type { EmailType } from '@dx3/models-shared'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/system/ui.consts'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { AddEmailDialog } from './email-web-create.dialog'

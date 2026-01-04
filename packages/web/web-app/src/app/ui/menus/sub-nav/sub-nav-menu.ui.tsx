@@ -1,19 +1,18 @@
 import { Button, Grid } from '@mui/material'
 import { styled, type Theme } from '@mui/material/styles'
 
-import { APP_COLOR_PALETTE, BORDER_RADIUS } from '@dx3/web-libs/ui/system/ui.consts'
+import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'
 
 export const StyledTopControlRowContainer = styled(Grid)(({ theme }) => ({
   justifyContent: 'center',
   margin: '16px 0 0',
-  // borderBottom: `1px solid ${APP_COLOR_PALETTE.GREY[400]}`,
   width: '100%',
 }))
 
 export const StyledControlItem = styled(Button)(
   ({ theme, selected }: { theme?: Theme; selected: boolean }) => ({
     '&:first-of-type': {
-      border: `1px solid ${APP_COLOR_PALETTE.BLUE_GREY[400]}`,
+      border: `1px solid ${theme?.palette.primary.main}`,
       borderBottomLeftRadius: BORDER_RADIUS,
       borderRight: 'hidden !important',
       borderTopLeftRadius: BORDER_RADIUS,
@@ -23,14 +22,14 @@ export const StyledControlItem = styled(Button)(
       cursor: 'pointer',
     },
     '&:last-of-type': {
-      border: `1px solid ${APP_COLOR_PALETTE.BLUE_GREY[400]} !important`,
+      border: `1px solid ${theme?.palette.primary.main} !important`,
       borderBottomRightRadius: BORDER_RADIUS,
-      borderRight: `1px solid ${APP_COLOR_PALETTE.BLUE_GREY[400]} !important`,
+      borderRight: `1px solid ${theme?.palette.primary.main} !important`,
       borderTopRightRadius: BORDER_RADIUS,
     },
     backgroundColor: selected ? theme?.palette.secondary.main : theme?.palette.common.white,
     // boxShadow: BOX_SHADOW,
-    border: `1px solid ${APP_COLOR_PALETTE.BLUE_GREY[400]}`,
+    border: `1px solid ${theme?.palette.primary.main}`,
     borderRadius: '0px',
     borderRight: 'hidden !important',
     color: selected ? theme?.palette.primary.dark : theme?.palette.primary.main,

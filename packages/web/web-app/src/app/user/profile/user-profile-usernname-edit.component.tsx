@@ -20,7 +20,7 @@ import { toast } from 'react-toastify'
 
 import { isUsernameValid, USERNAME_MIN_LENGTH } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { AuthWebRequestOtp } from '../../auth/auth-web-request-otp.component'
 import { useI18n, useStrings } from '../../i18n'

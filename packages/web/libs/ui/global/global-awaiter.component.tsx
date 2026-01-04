@@ -1,10 +1,9 @@
+import { useTheme } from '@mui/material'
 import Backdrop from '@mui/material/Backdrop'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import type React from 'react'
 import { BeatLoader } from 'react-spinners'
-
-import { getThemePalette } from '../system/mui-themes/mui-theme.service'
 
 type GlobalAwaiterPropstype = {
   open: boolean
@@ -13,7 +12,7 @@ type GlobalAwaiterPropstype = {
 
 export const GlobalAwaiter: React.FC<GlobalAwaiterPropstype> = (props) => {
   const { message, open } = props
-  const themeColors = getThemePalette()
+  const theme = useTheme()
 
   return (
     <Backdrop
@@ -25,14 +24,14 @@ export const GlobalAwaiter: React.FC<GlobalAwaiterPropstype> = (props) => {
     >
       <Box>
         <BeatLoader
-          color={themeColors.secondary}
+          color={theme.palette.primary.main}
           margin="2px"
           size={30}
         />
         {!!message && (
           <Box
             style={{
-              backgroundColor: themeColors.primary,
+              backgroundColor: theme.palette.primary.main,
               borderRadius: '50px',
               margin: '40px 20px',
               opacity: 0.75,

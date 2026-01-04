@@ -4,14 +4,13 @@ import ReportIcon from '@mui/icons-material/Report'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import WarningIcon from '@mui/icons-material/Warning'
 import WavingHandIcon from '@mui/icons-material/WavingHand'
-import { Grid, IconButton } from '@mui/material'
+import { Grid, IconButton, useTheme } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 import { toast } from 'react-toastify'
 import { NIL as NIL_UUID } from 'uuid'
 
 import { NOTIFICATION_LEVELS, type NotificationType } from '@dx3/models-shared'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
@@ -28,7 +27,7 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
   const MAX_LEN = 100
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
   const dispatch = useAppDispatch()
-  const themeColors = getThemePalette()
+  const theme = useTheme()
   const [
     requestDismiss,
     {
@@ -90,17 +89,17 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
   const getTitleColor = (): string => {
     switch (notification.level) {
       case NOTIFICATION_LEVELS.DANGER:
-        return themeColors.error
+        return theme.palette.error.main
       case NOTIFICATION_LEVELS.INFO:
-        return themeColors.info
+        return theme.palette.info.main
       case NOTIFICATION_LEVELS.PRIMARY:
-        return themeColors.primary
+        return theme.palette.primary.main
       case NOTIFICATION_LEVELS.SUCCESS:
-        return themeColors.success
+        return theme.palette.success.main
       case NOTIFICATION_LEVELS.WARNING:
-        return themeColors.warning
+        return theme.palette.warning.main
       default:
-        return themeColors.primary
+        return theme.palette.primary.main
     }
   }
 

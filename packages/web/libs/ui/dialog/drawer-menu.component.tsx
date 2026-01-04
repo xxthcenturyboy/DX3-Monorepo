@@ -1,7 +1,7 @@
 import { Drawer } from '@mui/material'
 import type React from 'react'
 
-import { BORDER_RADIUS } from '../system/ui.consts'
+import { BORDER_RADIUS } from '../ui.consts'
 import { StyledContentWrapper } from './drawer-menu.ui'
 
 type DrawerMenuComponentPropsType = {

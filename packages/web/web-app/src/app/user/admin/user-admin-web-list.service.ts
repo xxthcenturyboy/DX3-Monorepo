@@ -2,7 +2,7 @@
 import { blue, green, red } from '@mui/material/colors'
 
 import type { UserType } from '@dx3/models-shared'
-import { IconNames } from '@dx3/web-libs/ui/system/icons'
+import { IconNames } from '@dx3/web-libs/ui/icons'
 import type { TableHeaderItem, TableMeta, TableRowType } from '@dx3/web-libs/ui/table/types'
 
 export class UserAdminWebListService {

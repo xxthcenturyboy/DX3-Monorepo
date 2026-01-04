@@ -1,7 +1,7 @@
 import type { Components } from '@mui/material'
 
-import { APP_COLOR_PALETTE } from '../../../ui.consts'
-import { toolbarItemOverridesCommon } from '../../common-overrides/menus-common'
+import { WEB_APP_COLOR_PALETTE } from '../../mui-palette.theme'
+import { toolbarItemOverridesCommon } from '../common/menus-common'
 
 export const toolbarItemOverridesDark: Components['MuiToolbar'] = {
   ...toolbarItemOverridesCommon,
@@ -11,10 +11,10 @@ export const toolbarItemOverridesDark: Components['MuiToolbar'] = {
       // @ts-expect-error - is an object
       ...toolbarItemOverridesCommon?.styleOverrides?.root,
       '.toolbar-app-name': {
-        color: APP_COLOR_PALETTE.DARK.SECONDARY[50],
+        color: WEB_APP_COLOR_PALETTE.SECONDARY[700],
       },
       '.toolbar-icons': {
-        color: APP_COLOR_PALETTE.DARK.SECONDARY[50],
+        color: WEB_APP_COLOR_PALETTE.SECONDARY[700],
       },
     },
   },

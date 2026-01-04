@@ -1,14 +1,13 @@
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
-import { Box, Button, Fade, Grid, Typography } from '@mui/material'
+import { Box, Button, Fade, Grid, Typography, useTheme } from '@mui/material'
 import React from 'react'
 import type { CountryData } from 'react-phone-input-2'
 import { BeatLoader } from 'react-spinners'
 
 import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
@@ -33,7 +32,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
     const userEmails = useAppSelector((state) => selectUserEmails(state))
     const userPhones = useAppSelector((state) => selectUserPhones(state))
     const strings = useStrings(['OTP_CHOOSE_METHOD', 'SEND_CODE', 'START_OVER'])
-    const themeColors = getThemePalette()
+    const theme = useTheme()
     const [
       requestOtpCodeId,
       {
@@ -191,7 +190,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
             {hasSentOtp && !errorMessage && renderOtpEntry()}
             {isLoadingSendOtpId && (
               <BeatLoader
-                color={themeColors.secondary}
+                color={theme.palette.secondary.main}
                 margin="2px"
                 size={16}
               />

@@ -8,6 +8,7 @@ import {
   OutlinedInput,
   Select,
   type SelectChangeEvent,
+  useTheme,
 } from '@mui/material'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -25,7 +26,6 @@ import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dial
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
@@ -66,7 +66,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
     'TITLE',
     'TYPE',
   ])
-  const themeColors = getThemePalette()
+  const theme = useTheme()
   const [
     requestSendNotificationToAll,
     {
@@ -359,7 +359,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
             >
               {isLoadingSendToAll || isLoadingSendToUser ? (
                 <BeatLoader
-                  color={themeColors.secondary}
+                  color={theme.palette.secondary.main}
                   margin="2px"
                   size={16}
                 />

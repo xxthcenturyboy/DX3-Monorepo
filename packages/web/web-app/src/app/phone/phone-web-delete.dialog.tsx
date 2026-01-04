@@ -1,5 +1,5 @@
 // import DialogTitle from '@mui/material/DialogTitle';
-import { Button } from '@mui/material'
+import { Button, useTheme } from '@mui/material'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import React, { type ReactElement } from 'react'
@@ -14,7 +14,6 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { CancelLottie } from '@dx3/web-libs/ui/lottie/cancel.lottie'
 import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
 
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
@@ -35,7 +34,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
   const [bodyMessage, setBodyMessage] = React.useState('')
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
-  const themeColors = getThemePalette()
+  const theme = useTheme()
   const [
     requestDeletePhone,
     {
@@ -181,7 +180,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
             >
               {isLoadingDeletePhone ? (
                 <BeatLoader
-                  color={themeColors.secondary}
+                  color={theme.palette.secondary.main}
                   margin="2px"
                   size={16}
                 />

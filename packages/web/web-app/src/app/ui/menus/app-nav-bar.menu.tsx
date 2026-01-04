@@ -8,18 +8,20 @@ import {
   Badge,
   Box,
   Button,
+  type ButtonOwnProps,
   Icon,
   IconButton,
   Slide,
   styled,
   Toolbar,
   Typography,
+  useTheme,
 } from '@mui/material'
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
 import { APP_NAME } from '@dx3/models-shared'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
 import { loginBootstrap } from '../../config/bootstrap/login-bootstrap'
@@ -52,6 +54,7 @@ export const AppNavBar: React.FC = () => {
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const ROUTES = WebConfigService.getWebRoutes()
   const strings = useStrings(['LOGIN', 'SIGNUP'])
+  const theme = useTheme()
 
   React.useEffect(() => {
     if (isAuthenticated && userProfile && !didCallBootstrap) {
@@ -96,12 +99,41 @@ export const AppNavBar: React.FC = () => {
     dispatch(uiActions.toggleMobileNotificationsOpenSet(false))
   }
 
+  const getAuthButtonColor = (type: 'login' | 'signup'): ButtonOwnProps['color'] => {
+    if (theme.palette.mode === 'dark') {
+      if (pathname === ROUTES.AUTH.LOGIN && type === 'login') {
+        return 'primary'
+      }
+
+      if (pathname === ROUTES.AUTH.SIGNUP && type === 'signup') {
+        return 'primary'
+      }
+
+      // @ts-expect-error - causes error, but it's ok
+      return ''
+    }
+
+    if (theme.palette.mode === 'light') {
+      if (pathname === ROUTES.AUTH.LOGIN && type === 'login') {
+        return 'secondary'
+      }
+
+      if (pathname === ROUTES.AUTH.SIGNUP && type === 'signup') {
+        return 'secondary'
+      }
+
+      return 'primary'
+    }
+
+    return 'inherit'
+  }
+
   return (
     <Box>
       <AppBar
         color="primary"
         elevation={2}
-        enableColorOnDark
+        // enableColorOnDark
         position="static"
         sx={{
           '& .MuiAppBar': {
@@ -219,9 +251,11 @@ export const AppNavBar: React.FC = () => {
             <span>
               {!isAuthenticated && (
                 <Button
-                  color={pathname === ROUTES.AUTH.LOGIN ? 'secondary' : 'primary'}
+                  color={getAuthButtonColor('login')}
                   onClick={() => navigate(ROUTES.AUTH.LOGIN)}
                   style={{
+                    boxShadow: 'none',
+                    marginRight: '12px',
                     padding: '6px 12px',
                   }}
                   variant="contained"
@@ -231,9 +265,10 @@ export const AppNavBar: React.FC = () => {
               )}
               {!isAuthenticated && (
                 <Button
-                  color={pathname === ROUTES.AUTH.SIGNUP ? 'secondary' : 'primary'}
+                  color={getAuthButtonColor('signup')}
                   onClick={() => navigate(ROUTES.AUTH.SIGNUP)}
                   style={{
+                    boxShadow: 'none',
                     padding: '6px 12px',
                   }}
                   variant="contained"

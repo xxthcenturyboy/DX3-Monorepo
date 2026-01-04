@@ -19,9 +19,8 @@ import React, { useEffect, useState } from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import { waveItem } from '../global/skeletons.ui'
-import { getIcon, type IconNames } from '../system/icons'
-import { getThemePalette } from '../system/mui-themes/mui-theme.service'
-import { BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../system/ui.consts'
+import { getIcon, type IconNames } from '../icons'
+import { BORDER_RADIUS, FADE_TIMEOUT_DUR } from '../ui.consts'
 import { TablePaginationActions } from './pagination.component'
 import {
   StyledEllipsisHeaderText,
@@ -68,7 +67,6 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
   const [rowsPerPageOptions, setRowsPerPageOptions] = useState<number[]>()
   const rowHeight = '32px'
   const order = sortDir === 'ASC' ? 'asc' : 'desc'
-  const themeColors = getThemePalette()
 
   useEffect(() => {
     getLoadingData()
@@ -115,7 +113,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
     setDummyData(rowData)
   }
 
-  const getRowsPerPageValue = () => {
+  const _getRowsPerPageValue = () => {
     const lastLegaValue = rowsPerPageOptions
       ? rowsPerPageOptions[rowsPerPageOptions?.length - 1 || 0]
       : 10
@@ -349,8 +347,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
                     sx={{
                       borderBottom: 'none',
                       borderTop: 'none',
-                      // borderTop: `1px solid ${theme.palette.grey[400]}`,
-                      color: themeColors.primary,
+                      color: theme.palette.primary.main,
                     }}
                   />
                 </TableRow>
@@ -369,7 +366,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
           width={'100%'}
         >
           <BeatLoader
-            color={loadingColor || themeColors.secondary}
+            color={loadingColor || theme.palette.secondary.main}
             margin="2px"
             size={24}
           />

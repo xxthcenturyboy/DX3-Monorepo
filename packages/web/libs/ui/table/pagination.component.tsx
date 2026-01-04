@@ -6,8 +6,6 @@ import { Box, IconButton, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
-import { getThemePalette } from '../system/mui-themes/mui-theme.service'
-
 interface TablePaginationActionsProps {
   count: number
   disabled?: boolean
@@ -20,7 +18,6 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
   const theme = useTheme()
   const { count, disabled, page, rowsPerPage, onPageChange } = props
   const [lastOffset, setLastOffset] = useState<number>(0)
-  const themeColors = getThemePalette()
 
   useEffect(() => {
     const n = count !== undefined ? Math.max(0, Math.ceil(count / rowsPerPage) - 1) : 1
@@ -62,7 +59,7 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
         disabled={disabled || page === 0}
         onClick={handleFirstPageButtonClick}
         style={{
-          color: page === 0 ? themeColors.secondary : themeColors.primary,
+          color: page === 0 ? theme.palette.secondary.main : theme.palette.primary.main,
         }}
       >
         {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
@@ -72,7 +69,7 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
         disabled={disabled || page === 0}
         onClick={handleBackButtonClick}
         style={{
-          color: page === 0 ? themeColors.secondary : themeColors.primary,
+          color: page === 0 ? theme.palette.secondary.main : theme.palette.primary.main,
         }}
       >
         {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
@@ -82,7 +79,7 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
         disabled={disabled || page >= lastOffset}
         onClick={handleNextButtonClick}
         style={{
-          color: page >= lastOffset ? themeColors.secondary : themeColors.primary,
+          color: page >= lastOffset ? theme.palette.secondary.main : theme.palette.primary.main,
         }}
       >
         {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
@@ -92,7 +89,7 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
         disabled={disabled || page >= lastOffset}
         onClick={handleLastPageButtonClick}
         style={{
-          color: page >= lastOffset ? themeColors.secondary : themeColors.primary,
+          color: page >= lastOffset ? theme.palette.secondary.main : theme.palette.primary.main,
         }}
       >
         {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}

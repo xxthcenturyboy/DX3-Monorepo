@@ -8,8 +8,7 @@ import { TransitionGroup } from 'react-transition-group'
 import { NIL as NIL_UUID } from 'uuid'
 
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
@@ -39,7 +38,6 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
   const strings = useStrings(['NOTIFICATIONS', 'NOTIFICATIONS_WILL_APPEAR_HERE'])
   const dispatch = useAppDispatch()
-  const themeColors = getThemePalette()
   const [
     requestDismissAll,
     {
@@ -104,7 +102,7 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
           width="auto"
         >
           <Typography
-            color={themeColors.primary}
+            color="primary"
             fontWeight={700}
             variant="body1"
           >
@@ -128,7 +126,7 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
         >
           {props.anchorElement && <NoDataLottie />}
           <Typography
-            color={themeColors.primary}
+            color="primary"
             mb={3}
             pl={4}
             pr={4}

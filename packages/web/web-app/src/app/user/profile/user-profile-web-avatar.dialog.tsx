@@ -13,8 +13,6 @@ import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dial
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { APP_COLOR_PALETTE } from '@dx3/web-libs/ui/system/ui.consts'
 
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
@@ -46,7 +44,6 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
   const avatarEditorRef = React.useRef<null | AvatarEditor>(null)
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const themeColors = getThemePalette()
   const [
     uplodAvatar,
     {
@@ -170,7 +167,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
               }}
               scale={scale}
               style={{
-                background: APP_COLOR_PALETTE.PRIMARY[900],
+                background: theme.palette.background.default,
                 borderRadius: '20px',
               }}
               width={SM_BREAK ? 290 : 390}
@@ -291,6 +288,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
           }}
         >
           <Button
+            color="secondary"
             disabled={isUploadingdAvatar}
             onClick={handleClose}
             variant="outlined"
@@ -305,7 +303,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
             >
               {isUploadingdAvatar ? (
                 <BeatLoader
-                  color={themeColors.secondary}
+                  color={theme.palette.secondary.main}
                   margin="2px"
                   size={16}
                 />

@@ -1,4 +1,4 @@
-import { IconNames } from '@dx3/web-libs/ui/system/icons'
+import { IconNames } from '@dx3/web-libs/ui/icons'
 
 import type { AppMenuType } from '../../ui/menus/app-menu.types'
 

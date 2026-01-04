@@ -1,13 +1,12 @@
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import { Box, Button, Fade, FormControl, InputLabel, OutlinedInput } from '@mui/material'
+import { Box, Button, Fade, FormControl, InputLabel, OutlinedInput, useTheme } from '@mui/material'
 // import Zoom from '@mui/material/Zoom'
 import React from 'react'
 import { BeatLoader } from 'react-spinners'
 
 import type { LoginPayloadType } from '@dx3/models-shared'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
@@ -28,7 +27,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
     const password = useAppSelector((state) => state.auth.password)
     const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME'])
     const dispatch = useAppDispatch()
-    const themeColors = getThemePalette()
+    const theme = useTheme()
 
     const clearInputs = (): void => {
       dispatch(authActions.usernameUpdated(''))
@@ -169,7 +168,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
             >
               {isFetchingLogin ? (
                 <BeatLoader
-                  color={themeColors.secondary}
+                  color={theme.palette.secondary.main}
                   margin="4px"
                   size={16}
                 />

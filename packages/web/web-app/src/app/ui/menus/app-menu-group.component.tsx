@@ -4,8 +4,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
-import { getIcon, type IconNames } from '@dx3/web-libs/ui/system/icons'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
+import { getIcon, type IconNames } from '@dx3/web-libs/ui/icons'
 
 import type { AppMenuType } from './app-menu.types'
 
@@ -22,7 +21,6 @@ export const AppMenuGroup: React.FC<AppMenuGroupProps> = (props) => {
   const theme = useTheme()
   const location = useLocation()
   const { pathname } = location
-  const themeColors = getThemePalette()
 
   const isSubItemActive = () => {
     const subItemRouteKeys = Array.from(menu.items, (item) => item.routeKey)
@@ -76,24 +74,26 @@ export const AppMenuGroup: React.FC<AppMenuGroupProps> = (props) => {
               marginTop: 0,
             }}
           >
-            {renderIcon(menu.icon as IconNames, themeColors.primary)}
+            {renderIcon(menu.icon as IconNames, theme.palette.primary.light)}
           </ListItemIcon>
         )}
         <ListItemText
           primary={menu.title}
-          primaryTypographyProps={{
-            color: 'primary',
-            fontSize: '0.85rem',
-            fontWeight: 'medium',
-            lineHeight: '20px',
-            pl: -2,
-          }}
           secondary={menu.description}
-          secondaryTypographyProps={{
-            color: open ? 'rgba(0,0,0,0)' : theme.palette.grey[500],
-            fontSize: 11,
-            lineHeight: '16px',
-            noWrap: true,
+          slotProps={{
+            primary: {
+              color: theme.palette.primary.light,
+              fontSize: '0.85rem',
+              fontWeight: 'medium',
+              lineHeight: '20px',
+              pl: -2,
+            },
+            secondary: {
+              color: open ? 'rgba(0,0,0,0)' : theme.palette.grey[500],
+              fontSize: 11,
+              lineHeight: '16px',
+              noWrap: true,
+            },
           }}
           sx={{ my: 0 }}
         />

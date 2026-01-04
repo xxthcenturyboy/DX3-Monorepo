@@ -1,6 +1,15 @@
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
-import { Box, Button, Fade, FormControl, Grid, InputLabel, OutlinedInput } from '@mui/material'
+import {
+  Box,
+  Button,
+  Fade,
+  FormControl,
+  Grid,
+  InputLabel,
+  OutlinedInput,
+  useTheme,
+} from '@mui/material'
 import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React from 'react'
 import type { CountryData } from 'react-phone-input-2'
@@ -9,8 +18,7 @@ import { BeatLoader } from 'react-spinners'
 import { regexEmail } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/system/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { PhoneNumberInput } from '../phone/phone-input/phone-web-input.component'
@@ -34,7 +42,7 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
     const [errorMessage, setErrorMessage] = React.useState('')
     const [selectedMethod, setSelectedMethod] = React.useState<'EMAIL' | 'PHONE'>('PHONE')
     const strings = useStrings(['EMAIL', 'PHONE', 'SEND_CODE'])
-    const themeColors = getThemePalette()
+    const theme = useTheme()
     const [
       requestOtpCodeEmail,
       {
@@ -163,7 +171,7 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
               >
                 {isLoadingSendOtpPhone ? (
                   <BeatLoader
-                    color={themeColors.secondary}
+                    color={theme.palette.secondary.main}
                     margin="2px"
                     size={16}
                   />
@@ -221,7 +229,7 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
               >
                 {isLoadingSendOtpEmail ? (
                   <BeatLoader
-                    color={themeColors.secondary}
+                    color={theme.palette.secondary.main}
                     margin="2px"
                     size={16}
                   />

@@ -1,11 +1,8 @@
 import { List, ListItem } from '@mui/material'
-import { grey } from '@mui/material/colors'
 import Menu from '@mui/material/Menu'
 import { styled } from '@mui/material/styles'
 
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-
-const themeColors = getThemePalette()
+import { WEB_APP_COLOR_PALETTE } from '../ui/mui-themes/mui-palette.theme'
 
 const MIN_WIDTH = '358px'
 
@@ -42,8 +39,8 @@ export const StyledNotification = styled(ListItem)<{
   component?: React.ElementType
 }>((props) => ({
   alignItems: 'flex-start',
-  backgroundColor: props.isunread === 'true' ? themeColors.notificationHighlight : 'inherit',
-  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
+  backgroundColor: props.isunread === 'true' ? props.theme.palette.highlight.main : 'inherit',
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   maxHeight: '108px',
   minHeight: '75px',
   minWidth: MIN_WIDTH,
@@ -52,8 +49,11 @@ export const StyledNotification = styled(ListItem)<{
 export const StyledNotificationActionArea = styled('div')<{
   component?: React.ElementType
 }>((props) => ({
-  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[200],
-  border: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
+  backgroundColor:
+    props.theme.palette.mode === 'dark'
+      ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800]
+      : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300],
+  border: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   minHeight: '30px',
   minWidth: MIN_WIDTH,
 }))
@@ -83,8 +83,11 @@ export const CloseViewItem = styled(ListItem)<{
   justifcation: string
   component?: React.ElementType
 }>((props) => ({
-  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
-  borderBottom: `1px solid ${props.theme.palette.mode === 'dark' ? grey[900] : grey[300]}`,
+  backgroundColor:
+    props.theme.palette.mode === 'dark'
+      ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800]
+      : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300],
+  borderBottom: `1px solid ${props.theme.palette.mode === 'dark' ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800] : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300]}`,
   display: 'flex',
   justifyContent: props.justifcation || 'flex-end',
   minHeight: '48px',
@@ -104,7 +107,10 @@ export const StyledBottomContainer = styled(List)<{
 }))
 
 export const StyledBottomItem = styled(ListItem)<{ component?: React.ElementType }>((props) => ({
-  backgroundColor: props.theme.palette.mode === 'dark' ? grey[900] : grey[100],
+  backgroundColor:
+    props.theme.palette.mode === 'dark'
+      ? WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[800]
+      : WEB_APP_COLOR_PALETTE.BACKGROUND.BASE[300],
   display: 'flex',
   justifyContent: 'flex-end',
 }))

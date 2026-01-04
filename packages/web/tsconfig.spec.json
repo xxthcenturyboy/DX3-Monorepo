@@ -19,5 +19,5 @@
     "libs/**/*.test.jsx",
     "libs/**/*.spec.jsx",
     "libs/**/*.d.ts"
-  ]
+, "web-app/src/app/ui/mui-themes/components/common/dialog-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/inputs-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/list-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/menus-common.spec.ts"  ]
 }

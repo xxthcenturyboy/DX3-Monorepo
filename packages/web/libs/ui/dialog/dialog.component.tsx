@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import Dialog, { type DialogProps } from '@mui/material/Dialog'
 import type React from 'react'
 
-import { TIMEOUT_DUR_500 } from '../system/ui.consts'
+import { TIMEOUT_DUR_500 } from '../ui.consts'
 import { SlideTransition, ZoomTransition } from './dialog.ui'
 
 type CustomDialogPropsType = {
@@ -44,6 +44,15 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
         justifyContent={'center'}
         overflow={'hidden'}
         padding={'10px 24px'}
+        sx={(theme) => {
+          return {
+            backgroundColor:
+              theme.palette.mode === 'dark'
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+            height: '100%',
+          }
+        }}
       >
         {body}
       </Box>

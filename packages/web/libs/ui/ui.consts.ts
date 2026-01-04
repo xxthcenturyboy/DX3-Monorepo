@@ -1,27 +1,4 @@
-import { blue, blueGrey, green, grey, lightBlue, orange, red, yellow } from '@mui/material/colors'
-
 import { APP_PREFIX } from '@dx3/models-shared'
-
-export const APP_COLOR_PALETTE = {
-  BLUE: blue,
-  BLUE_GREY: blueGrey,
-  DARK: {
-    BACKGROUND: grey,
-    PRIMARY: yellow,
-    SECONDARY: grey,
-  },
-  GREEN: green,
-  INFO: lightBlue,
-  LIGHT: {
-    BACKGROUND: grey,
-    PRIMARY: blueGrey,
-    SECONDARY: yellow,
-  },
-  ORANGE: orange,
-  PRIMARY: blueGrey,
-  RED: red,
-  SECONDARY: yellow,
-}
 
 export const BORDER_RADIUS = '6px'
 export const BOX_SHADOW =

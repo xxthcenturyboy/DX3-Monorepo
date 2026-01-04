@@ -15,8 +15,7 @@ import {
   StyledList,
 } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
-import { getThemePalette } from '@dx3/web-libs/ui/system/mui-themes/mui-theme.service'
-import { MEDIA_BREAK } from '@dx3/web-libs/ui/system/ui.consts'
+import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
@@ -42,7 +41,6 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
   const isSuperAdmin = useAppSelector((state) => selectHasSuperAdminRole(state))
   const strings = useStrings(['NOTIFICATIONS', 'NOTIFICATIONS_WILL_APPEAR_HERE'])
   const dispatch = useAppDispatch()
-  const themeColors = getThemePalette()
   const [
     requestDismissAll,
     {
@@ -93,7 +91,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
       <StyledList>
         <CloseViewItem justifcation="space-between">
           <Typography
-            color={themeColors.primary}
+            color="default"
             fontWeight={700}
             textAlign="center"
             variant="h6"
@@ -102,7 +100,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
             {notificationCount > 0 && <span>{`: ${notificationCount || ''}`}</span>}
           </Typography>
           <IconButton
-            color="primary"
+            color="default"
             onClick={props.clickCloseMenu}
             style={{
               padding: 0,
@@ -126,7 +124,7 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
           >
             <NoDataLottie />
             <Typography
-              color={themeColors.primary}
+              color="primary"
               mb={3}
               pl={4}
               pr={4}

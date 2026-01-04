@@ -1,6 +1,6 @@
 import type { PrimitiveTypes, SortDirType } from '@dx3/utils-shared'
 
-import type { IconNames } from '../system/icons'
+import type { IconNames } from '../icons'
 
 export type CellAlignment = 'left' | 'center' | 'right' | 'justify' | 'inherit'
 export type ComponentType = 'text' | 'icon' | 'checkbox' | 'none'
