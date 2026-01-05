@@ -17,7 +17,7 @@ import { WebConfigService } from './config/config-web.service'
 import { useAppDispatch, useAppSelector } from './store/store-web-redux.hooks'
 import { AppNavBar } from './ui/menus/app-nav-bar.menu'
 import { MenuNav } from './ui/menus/menu-nav'
-import { WEB_APP_COLOR_PALETTE } from './ui/mui-themes/mui-palette.theme'
+import { WEB_APP_COLOR_PALETTE } from './ui/mui-themes/mui.palette'
 import { getTheme } from './ui/mui-themes/mui-theme.service'
 import { uiActions } from './ui/store/ui-web.reducer'
 import {

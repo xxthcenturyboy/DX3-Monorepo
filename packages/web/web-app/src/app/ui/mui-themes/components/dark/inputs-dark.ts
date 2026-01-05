@@ -2,7 +2,7 @@ import type { Components } from '@mui/material'
 
 import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'
 
-import { WEB_APP_COLOR_PALETTE } from '../../mui-palette.theme'
+import { WEB_APP_COLOR_PALETTE } from '../../mui.palette'
 import {
   checkboxOverridesCommon,
   filledInputOverridesCommon,

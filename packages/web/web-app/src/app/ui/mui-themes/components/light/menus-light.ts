@@ -1,6 +1,6 @@
 import type { Components } from '@mui/material'
 
-import { WEB_APP_COLOR_PALETTE } from '../../mui-palette.theme'
+import { WEB_APP_COLOR_PALETTE } from '../../mui.palette'
 import { toolbarItemOverridesCommon } from '../common/menus-common'
 
 export const toolbarItemOverridesLight: Components['MuiToolbar'] = {

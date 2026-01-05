@@ -1,40 +1,12 @@
-import {
-  blue,
-  // blueGrey,
-  green,
-  grey,
-  lightBlue,
-  // orange,
-  purple,
-  red,
-  yellow,
-} from '@mui/material/colors'
 import type { ThemeOptions } from '@mui/material/styles'
 
-export const WEB_APP_COLOR_PALETTE = {
-  BACKGROUND: {
-    BASE: grey,
-    DARK: {
-      DEFAULT: grey[600],
-      PAPER: grey[800],
-    },
-    LIGHT: {
-      DEFAULT: grey[50],
-      PAPER: grey[200],
-    },
-  },
-  BRAND: blue,
-  ERROR: red,
-  HIGHTLIGHT: lightBlue,
-  INFO: blue,
-  PRIMARY: blue,
-  SECONDARY: yellow,
-  SUCCESS: green,
-  TERTIARY: purple,
-  WARNING: yellow,
-}
+import { WEB_APP_COLOR_PALETTE } from './mui.palette'
 
-export const muiThemePalette: ThemeOptions['palette'] = {
+export const muiDarkPalette: ThemeOptions['palette'] = {
+  background: {
+    default: WEB_APP_COLOR_PALETTE.BACKGROUND.DARK.DEFAULT,
+    paper: WEB_APP_COLOR_PALETTE.BACKGROUND.DARK.PAPER,
+  },
   brandColor: {
     main: WEB_APP_COLOR_PALETTE.BRAND[600],
   },
@@ -48,6 +20,7 @@ export const muiThemePalette: ThemeOptions['palette'] = {
   info: {
     main: WEB_APP_COLOR_PALETTE.INFO[300],
   },
+  mode: 'dark',
   primary: {
     main: WEB_APP_COLOR_PALETTE.PRIMARY[600],
   },

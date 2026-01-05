@@ -2,7 +2,7 @@ import { List, ListItem } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import { styled } from '@mui/material/styles'
 
-import { WEB_APP_COLOR_PALETTE } from '../mui-themes/mui-palette.theme'
+import { WEB_APP_COLOR_PALETTE } from '../mui-themes/mui.palette'
 
 export const StyledAccountnMenu = styled(Menu)<{
   mobilebreak: string
