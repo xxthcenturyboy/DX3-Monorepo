@@ -30,6 +30,7 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
+import { useStrings } from '../i18n'
 import { useOtpRequestPhoneMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
@@ -59,6 +60,16 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const theme = useTheme()
+  const strings = useStrings([
+    'CANCEL',
+    'CLOSE',
+    'CREATE',
+    'EMAIL',
+    'LABEL',
+    'NEW_PHONE',
+    'PHONE',
+    'SET_AS_DEFAULT',
+  ])
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
     requestCheckAvailability,
@@ -285,7 +296,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
               defaultValue=""
               disabled={false}
               inputId="input-new-user-phone"
-              label="Phone"
+              label={strings.PHONE}
               onChange={(value: string, data: CountryData) => {
                 setPhone(value)
                 setCountryData(data)
@@ -300,10 +311,10 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
             margin="normal"
             variant="outlined"
           >
-            <InputLabel htmlFor="label-select">Label</InputLabel>
+            <InputLabel htmlFor="label-select">{strings.LABEL}</InputLabel>
             <Select
               id="label-select"
-              label="Label"
+              label={strings.LABEL}
               name="label-select"
               notched
               onChange={handleChangeLabel}
@@ -329,7 +340,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
                 size="large"
               />
             }
-            label="Set as Default"
+            label={strings.SET_AS_DEFAULT}
           />
         </AddPhoneForm>
       </CustomDialogContent>
@@ -343,7 +354,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
           textAlign: 'center',
         }}
       >
-        {`New Phone`}
+        {strings.NEW_PHONE}
       </DialogTitle>
       {!allSucceeded && !showLottieError && !hasSentOtp && renderFormContent()}
       {!allSucceeded && !showLottieError && isPhoneAvailable && hasSentOtp && (
@@ -373,7 +384,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
           isMobileWidth={isMobileWidth}
           windowHeight={windowHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 700)} />
+          <SuccessLottie complete={() => sleep(700).then(() => handleClose())} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (
@@ -387,7 +398,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
             onClick={handleClose}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && (
             <Button
@@ -402,7 +413,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
                   size={16}
                 />
               ) : (
-                'Create'
+                strings.CREATE
               )}
             </Button>
           )}

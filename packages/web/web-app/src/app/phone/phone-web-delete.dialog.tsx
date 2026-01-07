@@ -15,6 +15,7 @@ import { CancelLottie } from '@dx3/web-libs/ui/lottie/cancel.lottie'
 import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
+import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { useDeletePhoneProfileMutation } from './phone-web.api'
@@ -35,6 +36,8 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const theme = useTheme()
+  const { t } = useI18n()
+  const strings = useStrings(['CANCEL', 'CANCELING', 'CLOSE', 'DELETE', 'PHONE_DELETED'])
   const [
     requestDeletePhone,
     {
@@ -49,7 +52,10 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
   React.useEffect(() => {
     if (phoneItem && !showLottieCancel && !showLottieSuccess && !showLottieError) {
       setBodyMessage(
-        `Are you sure you want to delete the phone: ${phoneItem.uiFormatted} (${phoneItem.label})?`,
+        t('ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_PHONE', {
+          label: phoneItem.label,
+          phone: phoneItem.uiFormatted || '',
+        }),
       )
     }
   })
@@ -59,7 +65,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
       if (!deletePhoneError) {
         setShowLottieError(false)
         setShowLottieSuccess(true)
-        setBodyMessage('Phone deleted.')
+        setBodyMessage(strings.PHONE_DELETED)
       } else {
         setShowLottieError(true)
         if ('error' in deletePhoneError) {
@@ -110,11 +116,11 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
     }
 
     if (showLottieCancel) {
-      return <CancelLottie complete={() => setTimeout(() => handleClose(), 200)} />
+      return <CancelLottie complete={() => sleep(200).then(() => handleClose())} />
     }
 
     if (showLottieSuccess) {
-      return <SuccessLottie complete={() => setTimeout(() => handleClose(), 500)} />
+      return <SuccessLottie complete={() => sleep(500).then(() => handleClose())} />
     }
 
     return <QuestionMarkLottie />
@@ -166,12 +172,12 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
                 return
               }
 
-              setBodyMessage('Canceling')
+              setBodyMessage(strings.CANCELING)
               setShowLottieCancel(true)
             }}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && (
             <Button
@@ -185,7 +191,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
                   size={16}
                 />
               ) : (
-                'Delete'
+                strings.DELETE
               )}
             </Button>
           )}

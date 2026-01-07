@@ -32,6 +32,7 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
+import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
@@ -60,6 +61,15 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const userEmails = useAppSelector((state) => selectUserEmails(state))
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const strings = useStrings([
+    'CANCEL',
+    'CLOSE',
+    'CREATE',
+    'EMAIL',
+    'LABEL',
+    'NEW_EMAIL',
+    'SET_AS_DEFAULT',
+  ])
   const [
     requestCheckAvailability,
     {
@@ -263,16 +273,16 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
               minWidth: 300,
             }}
           >
-            <InputLabel htmlFor="input-email">Email</InputLabel>
+            <InputLabel htmlFor="input-email">{strings.EMAIL}</InputLabel>
             <OutlinedInput
               autoCapitalize="off"
               autoCorrect="off"
               fullWidth
               id="input-email"
-              label={'Email'}
+              label={strings.EMAIL}
               name="input-email"
               onChange={handleChangeEmail}
-              placeholder={'Email'}
+              placeholder={strings.EMAIL}
               type="email"
               value={email || ''}
             />
@@ -282,10 +292,10 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
             margin="normal"
             variant="outlined"
           >
-            <InputLabel htmlFor="label-select">Label</InputLabel>
+            <InputLabel htmlFor="label-select">{strings.LABEL}</InputLabel>
             <Select
               id="label-select"
-              label="Label"
+              label={strings.LABEL}
               name="label-select"
               notched
               onChange={handleChangeLabel}
@@ -311,7 +321,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
                 size="large"
               />
             }
-            label="Set as Default"
+            label={strings.SET_AS_DEFAULT}
           />
         </AddEmailForm>
       </CustomDialogContent>
@@ -325,7 +335,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
           textAlign: 'center',
         }}
       >
-        {`New Email`}
+        {strings.NEW_EMAIL}
       </DialogTitle>
       {!allSucceeded && !showLottieError && !hasSentOtp && renderFormContent()}
       {!allSucceeded && !showLottieError && isEmailAvailable && hasSentOtp && (
@@ -355,7 +365,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
           isMobileWidth={isMobileWidth}
           windowHeight={windowHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 500)} />
+          <SuccessLottie complete={() => sleep(500).then(() => handleClose())} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (
@@ -369,7 +379,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
             onClick={handleClose}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && (
             <Button
@@ -384,7 +394,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
                   size={16}
                 />
               ) : (
-                'Create'
+                strings.CREATE
               )}
             </Button>
           )}

@@ -1,5 +1,7 @@
 import { type ModelCtor, Sequelize } from 'sequelize-typescript'
 
+import { sleep } from '@dx3/utils-shared'
+
 import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { parsePostgresConnectionUrl } from './parse-postgres-connection-url'
@@ -97,7 +99,7 @@ export class PostgresDbConnection {
           throw new Error('Could not establish a connection to Postgres.')
         }
         this.logger.logInfo(`${this.retries} Postgres DB connection retries left.`)
-        await new Promise((res) => setTimeout(res, 5000))
+        await new Promise((res) => sleep(5000).then(res))
       }
     }
   }

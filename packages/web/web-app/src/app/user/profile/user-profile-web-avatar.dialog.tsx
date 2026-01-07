@@ -278,7 +278,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
           isMobileWidth={isMobileWidth}
           windowHeight={windowHeight}
         >
-          <SuccessLottie complete={() => setTimeout(() => handleClose(), 500)} />
+          <SuccessLottie complete={() => sleep(500).then(() => handleClose())} />
         </CustomDialogContent>
       )}
       {!allSucceeded && (

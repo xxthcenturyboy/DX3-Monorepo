@@ -64,6 +64,8 @@ export type StringKeyName = keyof StringKeys
 export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
+  ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
+  ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_PHONE: string
   ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT: string
   ARRAY_BUFFERS: string
   AUTH_FAILED: string
@@ -96,6 +98,7 @@ export type StringKeys = {
   EMAIL: string
   EMAIL_ALREADY_EXISTS: string
   EMAIL_DELETE_FAILED: string
+  EMAIL_DELETED: string
   EMAIL_INVALID: string
   EMAIL_NOT_FOUND: string
   EMAIL_SEND_FAILED: string
@@ -151,6 +154,7 @@ export type StringKeys = {
   PHONE: string
   PHONE_ALREADY_EXISTS: string
   PHONE_DELETE_FAILED: string
+  PHONE_DELETED: string
   PHONE_INVALID: string
   PHONE_NOT_FOUND: string
   PHONE_VERIFICATION_FAILED: string
@@ -172,6 +176,7 @@ export type StringKeys = {
   SEND_PUSH_TO_PHONE: string
   SEND_TO_ALL_USERS: string
   SEND_TO_USER: string
+  SET_AS_DEFAULT: string
   SIGNUP: string
   SIGNUP_FOR_AN_ACCOUNT: string
   START_OVER: string
