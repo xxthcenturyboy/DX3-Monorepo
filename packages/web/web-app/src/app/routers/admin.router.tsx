@@ -27,19 +27,21 @@ export const AdminRouter = () => {
 
     return false
   }
+  const strings = store.getState()?.i18n?.translations
 
   return hasAdminRole() ? (
     <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
       <Outlet />
     </Suspense>
   ) : (
-    <UnauthorizedComponent />
+    <UnauthorizedComponent message={strings?.YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE} />
   )
 }
 
 export class AdminWebRouterConfig {
   public static getRouter() {
     const ROUTES = WebConfigService.getWebRoutes()
+    const strings = store.getState()?.i18n?.translations
 
     const config: RouteObject[] = [
       {
@@ -58,7 +60,9 @@ export class AdminWebRouterConfig {
           },
         ],
         element: <AdminRouter />,
-        errorElement: <UnauthorizedComponent />,
+        errorElement: (
+          <UnauthorizedComponent message={strings?.YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE} />
+        ),
       },
     ]
 

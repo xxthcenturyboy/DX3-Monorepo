@@ -4,14 +4,24 @@ import { Grid, Typography } from '@mui/material'
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
 import { AccessDeniedLottie } from '../lottie/access-denied.lottie'
 
-type LoadingProps = {
+type UnauthorizedPropTypes = {
   error?: Error
-  timedOut?: boolean
-  pastDelay?: boolean
-  retry?: () => void
+  message?: string
 }
 
-export const UnauthorizedComponent = (_props: LoadingProps): React.ReactElement | null => {
+export const UnauthorizedComponent = (props: UnauthorizedPropTypes): React.ReactElement | null => {
+  const getBodyText = (): string => {
+    if (props.error?.message) {
+      return props.error.message
+    }
+
+    if (props.message) {
+      return props.message
+    }
+
+    return 'You are not authorized to access this feature.'
+  }
+
   return (
     <StyledContentWrapper>
       <Grid
@@ -29,7 +39,7 @@ export const UnauthorizedComponent = (_props: LoadingProps): React.ReactElement 
           color="primary"
           variant="h3"
         >
-          You are not authorized to access this feature.
+          {getBodyText()}
         </Typography>
         <AccessDeniedLottie loop={false} />
       </Grid>

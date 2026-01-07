@@ -58,7 +58,16 @@ export const UserAdminList: React.FC = () => {
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const location = useLocation()
-  const strings = useStrings(['CANCEL', 'SEND'])
+  const strings = useStrings([
+    'CANCEL',
+    'CANCELING',
+    'OK',
+    'SEND',
+    'SEND_APP_UPDATE',
+    'SEND_APP_UPDATE_TO_ALL_USERS',
+    'SEND_NOTIFICATION_TO_ALL_USERS',
+    'THIS_ACCOUNT_CANNOT_BE_EDITED',
+  ])
   const [
     fetchUserList,
     {
@@ -161,9 +170,9 @@ export const UserAdminList: React.FC = () => {
     <CustomDialog
       body={
         <DialogAlert
-          buttonText="Got it."
+          buttonText={strings.OK}
           closeDialog={() => setAlertModalOpen(false)}
-          message="You cannot edit this account."
+          message={strings.THIS_ACCOUNT_CANNOT_BE_EDITED}
           windowHeight={windowHeight}
         />
       }
@@ -178,7 +187,8 @@ export const UserAdminList: React.FC = () => {
     <CustomDialog
       body={
         <ConfirmationDialog
-          bodyMessage="Send App Update to All Users?"
+          bodyMessage={strings.SEND_APP_UPDATE_TO_ALL_USERS}
+          cancellingText={strings.CANCELING}
           cancelText={strings.CANCEL}
           okText={strings.SEND}
           onComplete={async (isConfirmed: boolean) => {
@@ -253,7 +263,7 @@ export const UserAdminList: React.FC = () => {
                 }}
                 variant="contained"
               >
-                Send Notification To All Users
+                {strings.SEND_NOTIFICATION_TO_ALL_USERS}
               </Button>
 
               {(currentUser.a || currentUser.sa) && (
@@ -266,7 +276,7 @@ export const UserAdminList: React.FC = () => {
                   }}
                   variant="contained"
                 >
-                  Send Web App Update
+                  {strings.SEND_APP_UPDATE}
                 </Button>
               )}
             </Grid>

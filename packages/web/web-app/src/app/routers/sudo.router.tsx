@@ -15,18 +15,21 @@ const LazyStatsComponent = lazy(async () => ({
 
 export const SudoRouter = () => {
   const hasSuperAdminRole = store.getState ? store.getState().userProfile.sa : false
+  const strings = store.getState()?.i18n?.translations
+
   return hasSuperAdminRole ? (
     <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
       <Outlet />
     </Suspense>
   ) : (
-    <UnauthorizedComponent />
+    <UnauthorizedComponent message={strings?.YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE} />
   )
 }
 
 export class SudoWebRouterConfig {
   public static getRouter() {
     const ROUTES = WebConfigService.getWebRoutes()
+    const strings = store.getState()?.i18n?.translations
 
     const config: RouteObject[] = [
       {
@@ -36,13 +39,20 @@ export class SudoWebRouterConfig {
             path: ROUTES.SUDO.STATS.HEALTH,
           },
           {
-            element: <BetaFeatureComponent />,
+            element: (
+              <BetaFeatureComponent
+                comingSoon={strings?.COMING_SOON}
+                message={strings?.CHECK_AVAILABLILITY}
+              />
+            ),
             errorElement: <GlobalErrorComponent />,
             path: ROUTES.SUDO.STATS.USERS,
           },
         ],
         element: <SudoRouter />,
-        errorElement: <UnauthorizedComponent />,
+        errorElement: (
+          <UnauthorizedComponent message={strings?.YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE} />
+        ),
       },
     ]
 

@@ -14,6 +14,7 @@ import { DialogWrapper } from './ui-wrapper.dialog'
 
 type ConfirmationDialogProps = {
   okText?: string
+  cancellingText: string
   cancelText?: string
   bodyMessage?: string
   bodyMessageHtml?: React.ReactNode
@@ -24,6 +25,7 @@ type ConfirmationDialogProps = {
 
 export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   okText,
+  cancellingText,
   cancelText,
   bodyMessage,
   bodyMessageHtml,
@@ -57,7 +59,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   }
 
   const handleClickCancel = (): void => {
-    setMessageText('Cancelling')
+    setMessageText(cancellingText || 'Canceling')
     if (noAwait) {
       handleClose()
       return
@@ -92,7 +94,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           margin="40px 0 12px"
           variant="h6"
         >
-          {messageText || 'Are you sure you want to do this?'}
+          {messageText || 'Confirm this action.'}
         </DialogContentText>
         {bodyMessageHtml}
       </CustomDialogContent>
@@ -108,7 +110,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
               onClick={handleClickCancel}
               variant="outlined"
             >
-              {cancelText}
+              {cancelText || 'cancel'}
             </Button>
           )}
           <Button

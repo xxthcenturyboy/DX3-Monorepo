@@ -4,7 +4,12 @@ import type * as React from 'react'
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
 import { BetaBadgeLottie } from '../lottie/beta-badge.lottie'
 
-export const BetaFeatureComponent: React.FC = () => {
+type BetaFeaturePropTypes = {
+  comingSoon?: string
+  message?: string
+}
+
+export const BetaFeatureComponent: React.FC<BetaFeaturePropTypes> = (props) => {
   return (
     <StyledContentWrapper>
       <Grid
@@ -20,14 +25,14 @@ export const BetaFeatureComponent: React.FC = () => {
           color="primary"
           variant="h1"
         >
-          Coming Soon
+          {props.comingSoon || 'Coming Soon'}
         </Typography>
         <Typography
           color="secondary"
           margin="15px"
           variant="h5"
         >
-          This feature is not ready yet. Check back for updates.
+          {props.message || 'This feature is not ready yet. Check back for updates.'}
         </Typography>
       </Grid>
     </StyledContentWrapper>

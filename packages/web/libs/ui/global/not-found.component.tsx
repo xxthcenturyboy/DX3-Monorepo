@@ -7,11 +7,15 @@ import { NotFoundLottie } from '../lottie/not-found.lottie'
 type NotFoundComponentPropsType = {
   routingFn?: () => void
   buttonText?: string
+  notFoundHeader?: string
+  notFoundText?: string
 }
 
 export const NotFoundComponent: React.FC<NotFoundComponentPropsType> = ({
   routingFn,
   buttonText,
+  notFoundHeader,
+  notFoundText,
 }) => {
   return (
     <StyledContentWrapper>
@@ -28,14 +32,14 @@ export const NotFoundComponent: React.FC<NotFoundComponentPropsType> = ({
           color="primary"
           variant="h1"
         >
-          Not Found
+          {notFoundHeader || 'Not Found'}
         </Typography>
         <Typography
           color="secondary"
           margin="15px"
           variant="h5"
         >
-          We couldn't find what you were looking for.
+          {notFoundText || "We couldn't find what you were looking for."}
         </Typography>
         <Box margin="20px">
           <Button

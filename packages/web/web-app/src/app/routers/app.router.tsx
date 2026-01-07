@@ -9,6 +9,7 @@ import { AuthWebRouterConfig } from '../auth/auth-web.router'
 import { WebConfigService } from '../config/config-web.service'
 import { Root } from '../root-web.component'
 import { AuthenticatedRouter } from '../routers/authenticated.router'
+import { store } from '../store/store-web.redux'
 import { PrivateWebRouterConfig } from './private.router'
 
 const LazyHomeComponent = lazy(async () => ({
@@ -22,6 +23,7 @@ const LazyShortlinkComponent = lazy(async () => ({
 export class AppRouter {
   public static getRouter() {
     const ROUTES = WebConfigService.getWebRoutes()
+    const strings = store.getState()?.i18n?.translations
 
     return createBrowserRouter([
       {
@@ -43,15 +45,30 @@ export class AppRouter {
           },
           ...PrivateWebRouterConfig.getRouter(),
           {
-            element: <NotFoundComponent />,
+            element: (
+              <NotFoundComponent
+                notFoundHeader={strings?.NOT_FOUND}
+                notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+              />
+            ),
             path: ROUTES.NOT_FOUND,
           },
           {
-            element: <RateLimitComponent />,
+            element: (
+              <RateLimitComponent
+                bodyText={strings?.YOU_HAVE_MADE_TOO_MANY_REQUESTS}
+                headerText={strings?.TIMEOUT_TURBO}
+              />
+            ),
             path: ROUTES.LIMITED,
           },
           {
-            element: <NotFoundComponent />,
+            element: (
+              <NotFoundComponent
+                notFoundHeader={strings?.NOT_FOUND}
+                notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+              />
+            ),
             path: '*',
           },
         ],

@@ -19,7 +19,7 @@ import { AuthWebRequestOtp } from './auth-web-request-otp.component'
 
 export const WebLogin: React.FC = () => {
   const [mobileBreak, setMobileBreak] = React.useState(false)
-  const [loginType, setLoginType] = React.useState<'USER_PASS' | 'OTP'>('OTP')
+  const [loginType, setLoginType] = React.useState<'USER_PASS' | 'OTP'>('USER_PASS')
   const [hideTypeSwitch, setHideTypeSwitch] = React.useState(false)
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const stringLogin = useString('LOGIN')
@@ -27,7 +27,7 @@ export const WebLogin: React.FC = () => {
   const dispatch = useAppDispatch()
   const ROUTES = WebConfigService.getWebRoutes()
   const strings = useStrings([
-    'LOGIN_TO_YOUR_ACCOUNT',
+    'LOG_IN_TO_YOUR_ACCOUNT',
     'TRY_WITH_ONE_TIME_CODE',
     'TRY_WITH_USERNAME_AND_PASSWORD',
   ])
@@ -104,7 +104,7 @@ export const WebLogin: React.FC = () => {
           margin="-16px 0 28px"
           variant="h5"
         >
-          {strings.LOGIN_TO_YOUR_ACCOUNT}
+          {strings.LOG_IN_TO_YOUR_ACCOUNT}
         </Typography>
         {loginType === 'USER_PASS' && (
           <WebLoginUserPass

@@ -32,7 +32,14 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
   const navigate = useNavigate()
   const [requestLogout] = useLogoutMutation()
   const ROUTES = WebConfigService.getWebRoutes()
-  const strings = useStrings(['CANCEL', 'LOG_OUT', 'LOGOUT', 'COULD_NOT_LOGOUT'])
+  const strings = useStrings([
+    'ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT',
+    'CANCEL',
+    'CANCELING',
+    'LOG_OUT',
+    'LOGOUT',
+    'COULD_NOT_LOGOUT',
+  ])
 
   const logout = async (): Promise<void> => {
     if (onLocalClick && typeof onLocalClick === 'function') {
@@ -46,7 +53,8 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
     <CustomDialog
       body={
         <ConfirmationDialog
-          bodyMessage={''}
+          bodyMessage={strings.ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT}
+          cancellingText={strings.CANCELING}
           cancelText={strings.CANCEL}
           okText={strings.LOG_OUT}
           onComplete={async (isConfirmed: boolean) => {

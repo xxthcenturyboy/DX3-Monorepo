@@ -25,7 +25,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
     const [showPassword, setShowPassword] = React.useState(false)
     const username = useAppSelector((state) => state.auth.username)
     const password = useAppSelector((state) => state.auth.password)
-    const strings = useStrings(['EMAIL', 'LOGIN', 'PASSWORD', 'USERNAME'])
+    const strings = useStrings(['EMAIL', 'LOG_IN', 'LOGIN', 'PASSWORD', 'USERNAME'])
     const dispatch = useAppDispatch()
     const theme = useTheme()
 
@@ -173,7 +173,7 @@ export const WebLoginUserPass: React.FC<WebLoginUserPassPropType> = React.forwar
                   size={16}
                 />
               ) : (
-                strings.LOGIN
+                strings.LOG_IN
               )}
             </Button>
           </LoginForm>

@@ -4,7 +4,12 @@ import type * as React from 'react'
 import { StyledContentWrapper } from '../content/content-wrapper.styled'
 import { StopwatchLottie } from '../lottie/stopwatch.lottie'
 
-export const RateLimitComponent: React.FC = () => {
+type RateLimitPropTypes = {
+  bodyText?: string
+  headerText?: string
+}
+
+export const RateLimitComponent: React.FC<RateLimitPropTypes> = (props) => {
   return (
     <StyledContentWrapper>
       <Grid
@@ -20,14 +25,15 @@ export const RateLimitComponent: React.FC = () => {
           color="primary"
           variant="h1"
         >
-          Timeout, Turbo
+          {props.headerText || 'Timeout, Turbo'}
         </Typography>
         <Typography
           color="secondary"
           margin="15px"
           variant="h5"
         >
-          You have made too many requests. Please wait several minutes before trying again.
+          {props.bodyText ||
+            'You have made too many requests. Please wait several minutes before trying again.'}
         </Typography>
       </Grid>
     </StyledContentWrapper>

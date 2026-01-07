@@ -64,6 +64,7 @@ export type StringKeyName = keyof StringKeys
 export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
+  ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT: string
   ARRAY_BUFFERS: string
   AUTH_FAILED: string
   AUTH_INVALID_CREDENTIALS: string
@@ -75,10 +76,13 @@ export type StringKeys = {
   APP_MENU: string
   BACK: string
   CANCEL: string
+  CANCELING: string
   CHANGE_PASSWORD: string
   CHARACTERS_REMAINING: string
   CHECK_AVAILABLILITY: string
+  CHECK_BACK_FOR_UPDATES: string
   CLOSE: string
+  COMING_SOON: string
   CONFIRM: string
   CONFIRM_PASSWORD: string
   COULD_NOT_LOG_YOU_IN: string
@@ -114,7 +118,8 @@ export type StringKeys = {
   LOADING: string
   LOG_OUT: string
   LOGIN: string
-  LOGIN_TO_YOUR_ACCOUNT: string
+  LOG_IN: string
+  LOG_IN_TO_YOUR_ACCOUNT: string
   LOGOUT: string
   MEDIA_FILE_COUNT_EXCEEDED: string
   MEDIA_FILE_SIZE_EXCEEDED: string
@@ -133,6 +138,7 @@ export type StringKeys = {
   NOTIFICATION_SERVER_ERROR: string
   NOTIFICATIONS: string
   NOTIFICATIONS_WILL_APPEAR_HERE: string
+  OK: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
   PAGE_TITLE_API_HEALTH: string
@@ -158,7 +164,10 @@ export type StringKeys = {
   RSS: string
   SAVE: string
   SEND: string
+  SEND_APP_UPDATE: string
+  SEND_APP_UPDATE_TO_ALL_USERS: string
   SEND_CODE: string
+  SEND_NOTIFICATION_TO_ALL_USERS: string
   SEND_PUSH_TO_PHONE: string
   SEND_TO_ALL_USERS: string
   SEND_TO_USER: string
@@ -169,6 +178,8 @@ export type StringKeys = {
   SUBMIT: string
   SUCCESS_DELETED: string
   SUCCESS_SAVED: string
+  THIS_ACCOUNT_CANNOT_BE_EDITED: string
+  TIMEOUT_TURBO: string
   TITLE: string
   TOGGLE_DARK_MODE: string
   TOOLTIP_DELETE_EMAIL: string
@@ -191,8 +202,11 @@ export type StringKeys = {
   VERIFIED: string
   VERIFY: string
   VERSION: string
+  WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR: string
   WELCOME_BACK: string
   WRITE: string
+  YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE: string
+  YOU_HAVE_MADE_TOO_MANY_REQUESTS: string
 }
 
 /**
