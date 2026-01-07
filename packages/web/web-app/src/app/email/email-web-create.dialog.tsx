@@ -17,12 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
 
-import {
-  type CreateEmailPayloadType,
-  EMAIL_LABEL,
-  type EmailType,
-  OTP_LENGTH,
-} from '@dx3/models-shared'
+import { type CreateEmailPayloadType, type EmailType, OTP_LENGTH } from '@dx3/models-shared'
 import { regexEmail, sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
@@ -52,7 +47,8 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
   const [hasSentOtp, setHasSentOtp] = React.useState(false)
   const [isEmailAvailable, setIsEmailAvailable] = React.useState(false)
   const [email, setEmail] = React.useState('')
-  const [label, setLabel] = React.useState(EMAIL_LABEL.PERSONAL)
+  const [label, setLabel] = React.useState('')
+  const [labels, setLabels] = React.useState<string[]>([])
   const [errorMessage, setErrorMessage] = React.useState('')
   const [otp, setOtp] = React.useState('')
   const [isDefault, setIsDefault] = React.useState(false)
@@ -68,7 +64,10 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     'EMAIL',
     'LABEL',
     'NEW_EMAIL',
+    'OTHER',
+    'PERSONAL',
     'SET_AS_DEFAULT',
+    'WORK',
   ])
   const [
     requestCheckAvailability,
@@ -113,7 +112,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     setHasSentOtp(false)
     setIsEmailAvailable(false)
     setEmail('')
-    setLabel(EMAIL_LABEL.PERSONAL)
+    setLabel(strings.PERSONAL)
     setErrorMessage('')
     setOtp('')
     setIsDefault(false)
@@ -151,6 +150,11 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       }
     }
   }
+
+  React.useEffect(() => {
+    setLabel(strings.PERSONAL)
+    setLabels([strings.PERSONAL, strings.WORK, strings.OTHER])
+  }, [])
 
   React.useEffect(() => {
     if (!props.userId) {
@@ -301,7 +305,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
               onChange={handleChangeLabel}
               value={label || ''}
             >
-              {Object.values(EMAIL_LABEL).map((labelValue) => {
+              {labels.map((labelValue) => {
                 return (
                   <MenuItem
                     key={labelValue}

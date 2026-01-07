@@ -79,6 +79,7 @@ export type StringKeys = {
   BACK: string
   CANCEL: string
   CANCELING: string
+  CELL: string
   CHANGE_PASSWORD: string
   CHARACTERS_REMAINING: string
   CHECK_AVAILABLILITY: string
@@ -117,6 +118,7 @@ export type StringKeys = {
   GREETING: string
   HEAP_TOTAL: string
   HEAP_USED: string
+  HOME: string
   LABEL: string
   LAST_NAME: string
   LOADING: string
@@ -143,6 +145,7 @@ export type StringKeys = {
   NOTIFICATIONS: string
   NOTIFICATIONS_WILL_APPEAR_HERE: string
   OK: string
+  OTHER: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
   PAGE_TITLE_API_HEALTH: string
@@ -151,6 +154,7 @@ export type StringKeys = {
   PAGE_TITLE_PROFILE: string
   PAGE_TITLE_USER_PROFILE: string
   PASSWORD: string
+  PERSONAL: string
   PHONE: string
   PHONE_ALREADY_EXISTS: string
   PHONE_DELETE_FAILED: string
@@ -210,6 +214,7 @@ export type StringKeys = {
   VERSION: string
   WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR: string
   WELCOME_BACK: string
+  WORK: string
   WRITE: string
   YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE: string
   YOU_HAVE_MADE_TOO_MANY_REQUESTS: string

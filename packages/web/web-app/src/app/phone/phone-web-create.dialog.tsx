@@ -17,12 +17,7 @@ import React, { type ReactElement } from 'react'
 import type { CountryData } from 'react-phone-input-2'
 import { BeatLoader } from 'react-spinners'
 
-import {
-  type CreatePhonePayloadType,
-  OTP_LENGTH,
-  PHONE_LABEL,
-  type PhoneType,
-} from '@dx3/models-shared'
+import { type CreatePhonePayloadType, OTP_LENGTH, type PhoneType } from '@dx3/models-shared'
 import { sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
@@ -30,9 +25,9 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
-import { useStrings } from '../i18n'
 import { useOtpRequestPhoneMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
+import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
@@ -53,7 +48,8 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   const [isPhoneAvailable, setIsPhoneAvailable] = React.useState(false)
   const [phone, setPhone] = React.useState('')
   const [countryData, setCountryData] = React.useState<CountryData | null>(null)
-  const [label, setLabel] = React.useState(PHONE_LABEL.CELL)
+  const [label, setLabel] = React.useState('')
+  const [labels, setLabels] = React.useState<string[]>([])
   const [errorMessage, setErrorMessage] = React.useState('')
   const [otp, setOtp] = React.useState('')
   const [isDefault, setIsDefault] = React.useState(false)
@@ -62,13 +58,17 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   const theme = useTheme()
   const strings = useStrings([
     'CANCEL',
+    'CELL',
     'CLOSE',
     'CREATE',
     'EMAIL',
+    'HOME',
     'LABEL',
     'NEW_PHONE',
     'PHONE',
+    'OTHER',
     'SET_AS_DEFAULT',
+    'WORK',
   ])
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
@@ -115,7 +115,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     setIsPhoneAvailable(false)
     setPhone('')
     setCountryData(null)
-    setLabel(PHONE_LABEL.CELL)
+    setLabel(strings.CELL)
     setErrorMessage('')
     setOtp('')
     setIsDefault(false)
@@ -125,6 +125,11 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     props.closeDialog()
     sleep(500).then(reset)
   }
+
+  React.useEffect(() => {
+    setLabel(strings.CELL)
+    setLabels([strings.CELL, strings.HOME, strings.WORK, strings.OTHER])
+  }, [])
 
   React.useEffect(() => {
     if (!props.userId) {
@@ -320,7 +325,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
               onChange={handleChangeLabel}
               value={label || ''}
             >
-              {Object.values(PHONE_LABEL).map((labelValue) => {
+              {labels.map((labelValue) => {
                 return (
                   <MenuItem
                     key={labelValue}

@@ -15,8 +15,6 @@ import {
   Unique,
 } from 'sequelize-typescript'
 
-import { EMAIL_LABEL } from '@dx3/models-shared'
-
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
 import { EMAIL_POSTGRES_DB_NAME } from './email-api.consts'
 
@@ -114,7 +112,7 @@ export class EmailModel extends Model<EmailModel> {
       defaults: {
         default: true,
         email,
-        label: EMAIL_LABEL.PERSONAL,
+        label: 'Personal', // hard-coded for U.S.
         token,
         userId,
         verifiedAt: validate ? new Date() : null,

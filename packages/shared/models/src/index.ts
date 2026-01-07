@@ -50,7 +50,6 @@ export type {
   DeviceAuthType,
   DeviceType,
 } from './devices/device-shared.types'
-export { EMAIL_LABEL } from './email/email-shared.consts'
 // EMAIL Types
 export type {
   CreateEmailPayloadType,
@@ -116,7 +115,6 @@ export type {
   NotificationSocketServerToClientEvents,
   NotificationType,
 } from './notifications/notification-shared.types'
-export { PHONE_LABEL } from './phone/phone-shared.consts'
 // PHONE Types
 export type {
   CreatePhonePayloadType,
