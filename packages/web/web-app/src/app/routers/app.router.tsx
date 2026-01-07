@@ -36,7 +36,7 @@ export class AppRouter {
               },
             ],
             element: <AuthenticatedRouter />,
-            errorElement: <GlobalErrorComponent />,
+            errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
           },
           ...AuthWebRouterConfig.getRouter(),
           {
@@ -73,7 +73,7 @@ export class AppRouter {
           },
         ],
         element: <Root />,
-        errorElement: <GlobalErrorComponent />,
+        errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
       },
     ])
   }

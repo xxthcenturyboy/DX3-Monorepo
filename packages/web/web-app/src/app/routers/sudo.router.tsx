@@ -45,7 +45,7 @@ export class SudoWebRouterConfig {
                 message={strings?.CHECK_AVAILABLILITY}
               />
             ),
-            errorElement: <GlobalErrorComponent />,
+            errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
             path: ROUTES.SUDO.STATS.USERS,
           },
         ],

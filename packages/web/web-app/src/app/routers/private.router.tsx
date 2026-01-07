@@ -42,12 +42,12 @@ export class PrivateWebRouterConfig {
         children: [
           {
             element: <LazyDashboardComponent />,
-            errorElement: <GlobalErrorComponent />,
+            errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
             path: ROUTES.DASHBOARD.MAIN,
           },
           {
             element: <LazyUserProfileComponent />,
-            errorElement: <GlobalErrorComponent />,
+            errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
             path: ROUTES.USER_PROFILE.MAIN,
           },
           ...AdminWebRouterConfig.getRouter(),
