@@ -101,6 +101,7 @@ export type StringKeys = {
   EMAIL_SEND_FAILED: string
   EMAIL_VERIFICATION_FAILED: string
   EMAILS: string
+  ENTER_THE_CODE_SENT_TO_YOUR_VAR: string
   EXTERNAL: string
   FILTER: string
   FIRST_NAME: string

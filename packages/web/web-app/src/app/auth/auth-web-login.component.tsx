@@ -30,6 +30,7 @@ export const WebLogin: React.FC = () => {
     'LOG_IN_TO_YOUR_ACCOUNT',
     'TRY_WITH_ONE_TIME_CODE',
     'TRY_WITH_USERNAME_AND_PASSWORD',
+    'TIMEOUT_TURBO',
   ])
   const [
     requestLogin,
@@ -53,7 +54,7 @@ export const WebLogin: React.FC = () => {
     if (loginError) {
       if (loginError.code && loginError.code === '429') {
         navigate(ROUTES.LIMITED)
-        'error' in loginError && toast.error(loginError.error)
+        toast.error(strings.TIMEOUT_TURBO)
         return
       }
 

@@ -55,6 +55,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   EMAIL_SEND_FAILED: 'Failed to send email. Please try again.',
   EMAIL_VERIFICATION_FAILED: 'Email verification failed. Please try again.',
   EMAILS: 'Emails',
+  ENTER_THE_CODE_SENT_TO_YOUR_VAR: 'Enter the code sent to your {method}',
   EXTERNAL: 'External',
   FILTER: 'Filter',
   FIRST_NAME: 'First Name',

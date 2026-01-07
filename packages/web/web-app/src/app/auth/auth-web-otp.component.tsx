@@ -5,6 +5,8 @@ import React, { type ReactElement } from 'react'
 import { OTP_LENGTH } from '@dx3/models-shared'
 import { stringToTitleCase } from '@dx3/utils-shared'
 
+import { useI18n, useStrings } from '../i18n'
+
 type AuthWebOtpPropsType = {
   method: 'EMAIL' | 'PHONE' | ''
   onCompleteCallback: (value: string) => void
@@ -12,6 +14,8 @@ type AuthWebOtpPropsType = {
 
 export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElement => {
   const [otp, setOtp] = React.useState('')
+  const { t } = useI18n()
+  const strings = useStrings(['EMAIL', 'ENTER_THE_CODE_SENT_TO_YOUR_VAR', 'PHONE'])
 
   React.useEffect(() => {
     if (otp.length === OTP_LENGTH && typeof props.onCompleteCallback === 'function') {
@@ -29,6 +33,13 @@ export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElem
     }
   }
 
+  const getMessage = (): string => {
+    const methodString = props.method === 'EMAIL' ? strings.EMAIL : strings.PHONE
+    return t('ENTER_THE_CODE_SENT_TO_YOUR_VAR', {
+      method: methodString || stringToTitleCase(props.method),
+    })
+  }
+
   return (
     <Grid>
       <Typography
@@ -38,7 +49,7 @@ export const AuthWebOtpEntry: React.FC<AuthWebOtpPropsType> = (props): ReactElem
         }}
         variant="h6"
       >
-        {`Enter the code sent to your ${stringToTitleCase(props.method)}`}
+        {getMessage()}
       </Typography>
       <MuiOtpInput
         autoFocus={true}

@@ -117,7 +117,7 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
           endIcon={<LogoutIcon />}
           onClick={logout}
         >
-          {strings.LOGOUT}
+          {strings.LOG_OUT}
         </Button>
         {confirmModal}
       </>
@@ -126,7 +126,7 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
 
   return (
     <>
-      <Button onClick={logout}>{strings.LOGOUT}</Button>
+      <Button onClick={logout}>{strings.LOG_OUT}</Button>
       {confirmModal}
     </>
   )
