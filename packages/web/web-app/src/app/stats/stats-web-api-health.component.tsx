@@ -18,7 +18,7 @@ import { toast } from 'react-toastify'
 import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 
-import { useString } from '../i18n'
+import { useString, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectCurrentThemeMode } from '../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
@@ -34,6 +34,22 @@ export const StatsWebApiHealthComponent: React.FC = () => {
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const dispatch = useAppDispatch()
   const pageTitle = useString('PAGE_TITLE_API_HEALTH')
+  const strings = useStrings([
+    'ARRAY_BUFFERS',
+    'DOWN',
+    'EXTERNAL',
+    'FAIL',
+    'HEAP_TOTAL',
+    'HEAP_USED',
+    'NO_DATA',
+    'OK',
+    'PING',
+    'READ',
+    'RSS',
+    'STATUS',
+    'VERSION',
+    'WRITE',
+  ])
   const [
     fetchApiStats,
     {
@@ -103,10 +119,12 @@ export const StatsWebApiHealthComponent: React.FC = () => {
             >
               <TableBody>
                 <TableRow>
-                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>Status</StyledTableCell>
+                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>
+                    {strings.STATUS}
+                  </StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.http?.status || 'Down'}
+                      label={apiStats?.http?.status || strings.DOWN}
                       sx={{
                         backgroundColor: apiStats?.http?.status === 'OK' ? green[500] : grey[600],
                         color: grey[50],
@@ -136,10 +154,12 @@ export const StatsWebApiHealthComponent: React.FC = () => {
             >
               <TableBody>
                 <TableRow>
-                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>Status</StyledTableCell>
+                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>
+                    {strings.STATUS}
+                  </StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.memory?.status || 'Down'}
+                      label={apiStats?.memory?.status || strings.DOWN}
                       sx={{
                         backgroundColor: apiStats?.memory?.status === 'OK' ? green[500] : grey[600],
                         color: grey[50],
@@ -148,31 +168,31 @@ export const StatsWebApiHealthComponent: React.FC = () => {
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Array Buffers</StyledTableCell>
+                  <StyledTableCell>{strings.ARRAY_BUFFERS}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.memory?.usage.arrayBuffers || 0}
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>External</StyledTableCell>
+                  <StyledTableCell>{strings.EXTERNAL}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.memory?.usage.external || 0}
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Heap Total</StyledTableCell>
+                  <StyledTableCell>{strings.HEAP_TOTAL}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.memory?.usage.heapTotal || 0}
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Heap Used</StyledTableCell>
+                  <StyledTableCell>{strings.HEAP_USED}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.memory?.usage.heapUsed || 0}
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>RSS</StyledTableCell>
+                  <StyledTableCell>{strings.RSS}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.memory?.usage.rss || 0}
                   </StyledTableCell>
@@ -199,10 +219,12 @@ export const StatsWebApiHealthComponent: React.FC = () => {
             >
               <TableBody>
                 <TableRow>
-                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>Status</StyledTableCell>
+                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>
+                    {strings.STATUS}
+                  </StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.postgres?.status || 'No Data'}
+                      label={apiStats?.postgres?.status || strings.NO_DATA}
                       sx={{
                         backgroundColor:
                           apiStats?.postgres?.status === 'OK' ? green[500] : grey[600],
@@ -212,7 +234,7 @@ export const StatsWebApiHealthComponent: React.FC = () => {
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Version</StyledTableCell>
+                  <StyledTableCell>{strings.VERSION}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     {apiStats?.postgres?.version || '-'}
                   </StyledTableCell>
@@ -239,10 +261,12 @@ export const StatsWebApiHealthComponent: React.FC = () => {
             >
               <TableBody>
                 <TableRow>
-                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>Status</StyledTableCell>
+                  <StyledTableCell width={MD_BREAK ? '80%' : '20%'}>
+                    {strings.STATUS}
+                  </StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.redis?.status || 'Down'}
+                      label={apiStats?.redis?.status || strings.DOWN}
                       sx={{
                         backgroundColor: apiStats?.redis?.status === 'OK' ? green[500] : grey[600],
                         color: grey[50],
@@ -251,10 +275,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Ping</StyledTableCell>
+                  <StyledTableCell>{strings.PING}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.redis?.profile.ping ? 'OK' : 'FAIL'}
+                      label={apiStats?.redis?.profile.ping ? strings.OK : strings.FAIL}
                       sx={{
                         backgroundColor: apiStats?.redis?.profile.ping ? green[500] : red[600],
                         color: grey[50],
@@ -263,10 +287,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Read</StyledTableCell>
+                  <StyledTableCell>{strings.READ}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.redis?.profile.read ? 'OK' : 'FAIL'}
+                      label={apiStats?.redis?.profile.read ? strings.OK : strings.FAIL}
                       sx={{
                         backgroundColor: apiStats?.redis?.profile.read ? green[500] : red[600],
                         color: grey[50],
@@ -275,10 +299,10 @@ export const StatsWebApiHealthComponent: React.FC = () => {
                   </StyledTableCell>
                 </TableRow>
                 <TableRow>
-                  <StyledTableCell>Write</StyledTableCell>
+                  <StyledTableCell>{strings.WRITE}</StyledTableCell>
                   <StyledTableCell align={MD_BREAK ? 'right' : 'left'}>
                     <Chip
-                      label={apiStats?.redis?.profile.write ? 'OK' : 'FAIL'}
+                      label={apiStats?.redis?.profile.write ? strings.OK : strings.FAIL}
                       sx={{
                         backgroundColor: apiStats?.redis?.profile.write ? green[500] : red[600],
                         color: grey[50],

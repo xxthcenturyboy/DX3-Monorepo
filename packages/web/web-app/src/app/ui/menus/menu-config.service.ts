@@ -1,16 +1,19 @@
-import { DASHBOARD_MENU } from '../../dashboard/dashboard-web.consts'
-import { STATS_SUDO_WEB_MENU } from '../../stats/stats-web.consts'
-import type {
-  AppMenuItemType,
-  AppMenuType,
-  MenuRestrictionType,
-} from '../../ui/menus/app-menu.types'
-import { USER_ADMIN_MENU } from '../../user/admin/user-admin-web.consts'
-import { USER_PROFILE_MENU } from '../../user/profile/user-profile-web.consts'
+import { USER_ROLE } from '@dx3/models-shared'
+
+import { dashboardMenu } from '../../dashboard/dashboard.menu'
+import { statsMenu } from '../../stats/stats.menu'
+import { userAdminMenu } from '../../user/admin/user-admin.menu'
+import { userProfileMenu } from '../../user/profile/user-profile.menu'
+import type { AppMenuItemType, AppMenuType } from './app-menu.types'
 
 export class MenuConfigService {
   // Order to appear in sidebar menu
-  CARDINAL_MENU_SET = [DASHBOARD_MENU, USER_PROFILE_MENU, USER_ADMIN_MENU, STATS_SUDO_WEB_MENU]
+  CARDINAL_MENU_SET: AppMenuType[] = [
+    dashboardMenu(),
+    userProfileMenu(),
+    userAdminMenu(),
+    statsMenu(),
+  ]
 
   private restrictSuperAdmin(menu: AppMenuType, includeBeta: boolean) {
     const items: AppMenuItemType[] = []
@@ -24,7 +27,7 @@ export class MenuConfigService {
 
         if (
           item.restriction &&
-          (item.restriction === 'ADMIN' || item.restriction === 'SUPER_ADMIN')
+          (item.restriction === USER_ROLE.ADMIN || item.restriction === USER_ROLE.SUPER_ADMIN)
         ) {
           items.push(item)
           continue
@@ -39,7 +42,7 @@ export class MenuConfigService {
 
         if (
           item.restriction &&
-          (item.restriction === 'ADMIN' || item.restriction === 'SUPER_ADMIN') &&
+          (item.restriction === USER_ROLE.ADMIN || item.restriction === USER_ROLE.SUPER_ADMIN) &&
           !item.beta
         ) {
           items.push(item)
@@ -67,7 +70,7 @@ export class MenuConfigService {
           continue
         }
 
-        if (item.restriction && item.restriction === 'ADMIN') {
+        if (item.restriction && item.restriction === USER_ROLE.ADMIN) {
           items.push(item)
           continue
         }
@@ -79,7 +82,7 @@ export class MenuConfigService {
           continue
         }
 
-        if (item.restriction && item.restriction === 'ADMIN' && !item.beta) {
+        if (item.restriction && item.restriction === USER_ROLE.ADMIN && !item.beta) {
           items.push(item)
         }
       }
@@ -107,8 +110,8 @@ export class MenuConfigService {
 
         if (
           item.restriction &&
-          item.restriction !== 'ADMIN' &&
-          item.restriction !== 'SUPER_ADMIN'
+          item.restriction !== USER_ROLE.ADMIN &&
+          item.restriction !== USER_ROLE.SUPER_ADMIN
         ) {
           items.push(item)
           continue
@@ -123,8 +126,8 @@ export class MenuConfigService {
 
         if (
           item.restriction &&
-          item.restriction !== 'ADMIN' &&
-          item.restriction !== 'SUPER_ADMIN' &&
+          item.restriction !== USER_ROLE.ADMIN &&
+          item.restriction !== USER_ROLE.SUPER_ADMIN &&
           !item.beta
         ) {
           items.push(item)
@@ -142,10 +145,10 @@ export class MenuConfigService {
     return null
   }
 
-  public getMenus(restriction?: MenuRestrictionType, includeBeta?: boolean) {
+  public getMenus(restriction?: string, includeBeta?: boolean) {
     const menus: AppMenuType[] = []
 
-    if (restriction === 'SUPER_ADMIN') {
+    if (restriction === USER_ROLE.SUPER_ADMIN) {
       for (const menu of this.CARDINAL_MENU_SET) {
         const menuItem = this.restrictSuperAdmin(menu, includeBeta || false)
         if (menuItem) {
@@ -156,7 +159,7 @@ export class MenuConfigService {
       return menus
     }
 
-    if (restriction === 'ADMIN') {
+    if (restriction === USER_ROLE.ADMIN) {
       for (const menu of this.CARDINAL_MENU_SET) {
         const menuItem = this.restrictAdmin(menu, includeBeta || false)
         if (menuItem) {

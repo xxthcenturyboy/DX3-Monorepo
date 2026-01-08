@@ -1,4 +1,5 @@
 import type { UserProfileStateType } from '@dx3/models-shared'
+import { USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 
 import { fetchNotifications } from '../../notifications/notification-web.api'
@@ -6,16 +7,16 @@ import { notificationActions } from '../../notifications/notification-web.reduce
 import { NotificationWebSockets } from '../../notifications/notification-web.sockets'
 import { store } from '../../store/store-web.redux'
 import type { AppMenuType } from '../../ui/menus/app-menu.types'
+import { MenuConfigService } from '../../ui/menus/menu-config.service'
 import { uiActions } from '../../ui/store/ui-web.reducer'
-import { MenuConfigService } from '../menus/menu-config.service'
 
 function setUpMenus(userProfile: UserProfileStateType, mobileBreak: boolean) {
   const menuService = new MenuConfigService()
   let menus: AppMenuType[] = []
-  if (userProfile.role.includes('SUPER_ADMIN')) {
-    menus = menuService.getMenus('SUPER_ADMIN', userProfile.b)
-  } else if (userProfile.role.includes('ADMIN')) {
-    menus = menuService.getMenus('ADMIN', userProfile.b)
+  if (userProfile.role.includes(USER_ROLE.SUPER_ADMIN)) {
+    menus = menuService.getMenus(USER_ROLE.SUPER_ADMIN, userProfile.b)
+  } else if (userProfile.role.includes(USER_ROLE.ADMIN)) {
+    menus = menuService.getMenus(USER_ROLE.ADMIN, userProfile.b)
   } else {
     menus = menuService.getMenus(undefined, userProfile.b)
   }

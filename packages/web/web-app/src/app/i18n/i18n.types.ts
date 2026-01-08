@@ -64,6 +64,8 @@ export type StringKeyName = keyof StringKeys
 export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
+  API_HEALTH: string
+  APP_STATS: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_PHONE: string
   ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT: string
@@ -92,9 +94,11 @@ export type StringKeys = {
   COULD_NOT_LOGOUT: string
   CREATE: string
   CREATE_PASSWORD: string
+  DASHBOARD: string
   DASHBOARD_WELCOME: string
   DEFAULT: string
   DELETE: string
+  DOWN: string
   EDIT: string
   EMAIL: string
   EMAIL_ALREADY_EXISTS: string
@@ -107,6 +111,7 @@ export type StringKeys = {
   EMAILS: string
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: string
   EXTERNAL: string
+  FAIL: string
   FILTER: string
   FIRST_NAME: string
   GENERIC: string
@@ -201,9 +206,11 @@ export type StringKeys = {
   TYPE: string
   UNAUTHORIZED: string
   UPDATE: string
+  USER_ADMIN: string
   USER_ALREADY_EXISTS: string
   USER_CREATE_FAILED: string
   USER_NOT_FOUND: string
+  USER_STATS: string
   USER_UPDATE_FAILED: string
   USERNAME: string
   USERNAME_IS_AVAILABLE: string

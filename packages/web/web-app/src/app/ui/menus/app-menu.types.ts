@@ -1,11 +1,9 @@
-export type MenuRestrictionType = 'ADMIN' | 'SUPER_ADMIN'
-
 export type AppMenuItemType = {
   beta?: boolean
   id: string
   icon?: string
   pathMatches?: string[]
-  restriction?: MenuRestrictionType
+  restriction?: string
   routeKey: string
   stringsKey?: string
   title: string
