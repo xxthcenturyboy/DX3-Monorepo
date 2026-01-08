@@ -60,7 +60,7 @@ export const UserProfileEditUsername: React.FC = () => {
   const [
     requestUpdateUsername,
     {
-      data: updateUsernameResponse,
+      data: _updateUsernameResponse,
       error: updateUsernameError,
       isLoading: isUpdatingUsername,
       isSuccess: updateUsernameSuccess,

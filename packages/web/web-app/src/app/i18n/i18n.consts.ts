@@ -35,6 +35,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   AUTH_SESSION_EXPIRED: 'Your session has expired. Please log in again.',
   AUTH_TOKEN_INVALID: 'Your session is invalid. Please log in again.',
   AUTH_UNAUTHORIZED: 'You are not authorized to perform this action.',
+  AVATAR: 'Avatar',
   BACK: 'Back',
   BETA: 'Beta',
   CANCEL: 'Cancel',
@@ -44,6 +45,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   CHARACTERS_REMAINING: '{count} characters remaining.',
   CHECK_AVAILABLILITY: 'Check Availability',
   CHECK_BACK_FOR_UPDATES: 'Check back for updates.',
+  CHOOSE_IMAGE: 'Choose Image',
   CLOSE: 'Close',
   COMING_SOON: 'Coming Soon',
   CONFIRM: 'Confirm',
@@ -192,6 +194,8 @@ export const DEFAULT_STRINGS: StringKeys = {
   YOU_CANNOT_EDIT_ROLES: 'You cannot edit roles.',
   YOU_HAVE_MADE_TOO_MANY_REQUESTS:
     'You have made too many requests. Please wait several minutes before trying again.',
+  YOU_NEED_TO_ADD_A_PRIMARY_EMAIL:
+    'You need to add a primary email before you can change your password.',
 }
 
 /**

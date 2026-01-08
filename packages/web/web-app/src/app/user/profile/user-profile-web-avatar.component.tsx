@@ -3,6 +3,7 @@ import { Avatar, Badge, Grid, IconButton } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import React from 'react'
 
+import { useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { selectProfileFormatted } from './user-profile-web.selectors'
@@ -18,9 +19,10 @@ export const UserProfileAvatar: React.FC<UserProfileAvatarPropTypes> = (props) =
   const { fontSize, handleChangeImage, justifyContent, size } = props
   const profile = useAppSelector((state) => selectProfileFormatted(state))
   const theme = useTheme()
+  const strings = useStrings(['PROFILE'])
 
   React.useEffect(() => {
-    setDocumentTitle('Profile')
+    setDocumentTitle(strings.PROFILE)
   }, [])
 
   return (

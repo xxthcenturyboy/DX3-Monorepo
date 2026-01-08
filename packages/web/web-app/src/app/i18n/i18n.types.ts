@@ -78,6 +78,7 @@ export type StringKeys = {
   AUTH_SESSION_EXPIRED: string
   AUTH_TOKEN_INVALID: string
   AUTH_UNAUTHORIZED: string
+  AVATAR: string
   APP_MENU: string
   BACK: string
   BETA: string
@@ -88,6 +89,7 @@ export type StringKeys = {
   CHARACTERS_REMAINING: string
   CHECK_AVAILABLILITY: string
   CHECK_BACK_FOR_UPDATES: string
+  CHOOSE_IMAGE: string
   CLOSE: string
   COMING_SOON: string
   CONFIRM: string
@@ -234,6 +236,7 @@ export type StringKeys = {
   YOU_CANNOT_EDIT_ROLES: string
   YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE: string
   YOU_HAVE_MADE_TOO_MANY_REQUESTS: string
+  YOU_NEED_TO_ADD_A_PRIMARY_EMAIL: string
 }
 
 /**

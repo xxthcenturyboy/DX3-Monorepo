@@ -14,6 +14,7 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
+import { useStrings } from '../../i18n'
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
 import { UploadProgressComponent } from '../../media/media-web-upload-progress.component'
@@ -44,6 +45,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
   const avatarEditorRef = React.useRef<null | AvatarEditor>(null)
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const strings = useStrings(['AVATAR', 'CANCEL', 'CHOOSE_IMAGE', 'CLOSE', 'UPDATE'])
   const [
     uplodAvatar,
     {
@@ -206,7 +208,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
               fullWidth={SM_BREAK}
               variant="contained"
             >
-              Choose Image
+              {strings.CHOOSE_IMAGE}
               <input
                 accept=".jpg, .jpeg, .png"
                 hidden
@@ -259,7 +261,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
           textAlign: 'center',
         }}
       >
-        {`Avatar `}
+        {strings.AVATAR}
       </DialogTitle>
       {!allSucceeded && !showLottieError && renderFormContent()}
       {showLottieError && (
@@ -293,7 +295,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
             onClick={handleClose}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && (
             <Button
@@ -308,7 +310,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
                   size={16}
                 />
               ) : (
-                'Update'
+                strings.UPDATE
               )}
             </Button>
           )}

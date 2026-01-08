@@ -52,7 +52,15 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const profile = useAppSelector((state) => selectProfileFormatted(state))
   const dispatch = useAppDispatch()
-  const strings = useStrings(['CHANGE_PASSWORD', 'CREATE_PASSWORD'])
+  const strings = useStrings([
+    'CANCEL',
+    'CHANGE_PASSWORD',
+    'CLOSE',
+    'CONFIRM_PASSWORD',
+    'CREATE_PASSWORD',
+    'PASSWORD',
+    'UPDATE',
+  ])
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const [
@@ -248,7 +256,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
               minWidth: 300,
             }}
           >
-            <InputLabel htmlFor="input-password">Password</InputLabel>
+            <InputLabel htmlFor="input-password">{strings.PASSWORD}</InputLabel>
             <OutlinedInput
               autoComplete="new-password"
               autoCorrect="off"
@@ -273,7 +281,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
               }
               fullWidth
               id="input-password"
-              label={'Password'}
+              label={strings.PASSWORD}
               name="input-password"
               onChange={handleChangePassword}
               type={showPassword ? 'text' : 'password'}
@@ -287,7 +295,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
               minWidth: 300,
             }}
           >
-            <InputLabel htmlFor="input-password-confirm">Confirm Password</InputLabel>
+            <InputLabel htmlFor="input-password-confirm">{strings.CONFIRM_PASSWORD}</InputLabel>
             <OutlinedInput
               autoComplete="new-password"
               autoCorrect="off"
@@ -312,7 +320,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
               }
               fullWidth
               id="input-password-confirm"
-              label={'Confirm Password'}
+              label={strings.CONFIRM_PASSWORD}
               name="input-password-confirm"
               onChange={handleChangePasswordConfirm}
               type={showPassword ? 'text' : 'password'}
@@ -384,7 +392,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
             onClick={handleClose}
             variant="outlined"
           >
-            {showLottieError ? 'Close' : 'Cancel'}
+            {showLottieError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showLottieError && !isPasswordStrong && (
             <Button
@@ -399,7 +407,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
                   size={16}
                 />
               ) : (
-                'Update'
+                strings.UPDATE
               )}
             </Button>
           )}

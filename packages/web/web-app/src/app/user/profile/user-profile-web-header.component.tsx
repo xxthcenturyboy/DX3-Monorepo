@@ -17,7 +17,12 @@ export const UserProfileHeaderComponent: React.FC = () => {
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const profile = useAppSelector((state) => selectProfileFormatted(state))
-  const strings = useStrings(['PAGE_TITLE_USER_PROFILE', 'CHANGE_PASSWORD', 'CREATE_PASSWORD'])
+  const strings = useStrings([
+    'PAGE_TITLE_USER_PROFILE',
+    'CHANGE_PASSWORD',
+    'CREATE_PASSWORD',
+    'YOU_NEED_TO_ADD_A_PRIMARY_EMAIL',
+  ])
   const title = profile.username
     ? `${strings.PAGE_TITLE_USER_PROFILE} - ${profile.username}`
     : strings.PAGE_TITLE_USER_PROFILE
@@ -42,7 +47,7 @@ export const UserProfileHeaderComponent: React.FC = () => {
     if (primaryEmail) {
       setPwdResetOpen(true)
     } else {
-      toast.info('You need to add a primary email before you can change your password')
+      toast.info(strings.YOU_NEED_TO_ADD_A_PRIMARY_EMAIL)
     }
   }
 
