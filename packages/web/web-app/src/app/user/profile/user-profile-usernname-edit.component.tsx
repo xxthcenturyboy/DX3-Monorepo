@@ -23,7 +23,7 @@ import { logger } from '@dx3/web-libs/logger'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { AuthWebRequestOtp } from '../../auth/auth-web-request-otp.component'
-import { useI18n, useStrings } from '../../i18n'
+import { DEFAULT_STRINGS, useI18n, useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import {
   useLazyGetUsernameAvailabilityQuery,
@@ -104,9 +104,16 @@ export const UserProfileEditUsername: React.FC = () => {
       }
 
       if (usernameAvailableError) {
-        if ('error' in usernameAvailableError) {
-          toast.error(usernameAvailableError.error)
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if (
+          'localizedMessage' in usernameAvailableError &&
+          usernameAvailableError.localizedMessage
+        ) {
+          msg = usernameAvailableError.localizedMessage
+        } else if ('error' in usernameAvailableError) {
+          msg = usernameAvailableError.error
         }
+        toast.error(msg)
       }
     }
   }, [isCheckingUsernameAvailability, usernameAvailableError, usernameAvailableSuccess])
@@ -125,9 +132,13 @@ export const UserProfileEditUsername: React.FC = () => {
       }
 
       if (updateUsernameError) {
-        if ('error' in updateUsernameError) {
-          toast.error(updateUsernameError.error)
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if ('localizedMessage' in updateUsernameError && updateUsernameError.localizedMessage) {
+          msg = updateUsernameError.localizedMessage
+        } else if ('error' in updateUsernameError) {
+          msg = updateUsernameError.error
         }
+        toast.error(msg)
       }
     }
   }, [isUpdatingUsername, updateUsernameError, updateUsernameSuccess])

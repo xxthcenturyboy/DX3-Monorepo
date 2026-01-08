@@ -14,6 +14,7 @@
  * - 900-999: Generic/System
  */
 
+// biome-ignore assist/source/useSortedKeys: intentional key order
 export const ERROR_CODES = {
   // Authentication (100-199)
   AUTH_FAILED: '100',

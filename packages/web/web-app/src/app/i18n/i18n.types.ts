@@ -152,6 +152,7 @@ export type StringKeys = {
   NOTIFICATIONS: string
   NOTIFICATIONS_WILL_APPEAR_HERE: string
   OK: string
+  OOPS_SOMETHING_WENT_WRONG: string
   OPT_IN_BETA: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string

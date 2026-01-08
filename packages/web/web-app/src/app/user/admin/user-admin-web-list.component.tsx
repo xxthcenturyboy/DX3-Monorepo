@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
-import { USER_ROLE, type GetUsersListQueryType } from '@dx3/models-shared'
+import { type GetUsersListQueryType, USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
@@ -17,9 +17,7 @@ import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { WebConfigService } from '../../config/config-web.service'
-import { useApiError } from '../../data/errors'
-import type { CustomResponseErrorType } from '../../data/rtk-query'
-import { useString, useStrings } from '../../i18n'
+import { DEFAULT_STRINGS, useString, useStrings } from '../../i18n'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
@@ -51,7 +49,6 @@ export const UserAdminList: React.FC = () => {
   const usersListHeaders = UserAdminWebListService.getListHeaders()
   const [isInitialized, setIsInitialized] = useState(true)
   const [isFetching, setIsFetching] = useState(true)
-  const { getErrorMessage } = useApiError()
   const ROUTES = WebConfigService.getWebRoutes()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -112,11 +109,13 @@ export const UserAdminList: React.FC = () => {
         setIsFetching(false)
       }
       if (userListError) {
-        const msg = getErrorMessage(
-          userListError?.code || null,
-          (userListError as CustomResponseErrorType)?.localizedMessage,
-        )
-        'error' in userListError && dispatch(uiActions.apiDialogSet(msg))
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if ('localizedMessage' in userListError && userListError.localizedMessage) {
+          msg = userListError.localizedMessage
+        } else if ('error' in userListError) {
+          msg = userListError.error
+        }
+        dispatch(uiActions.apiDialogSet(msg))
         setIsFetching(false)
       }
     }

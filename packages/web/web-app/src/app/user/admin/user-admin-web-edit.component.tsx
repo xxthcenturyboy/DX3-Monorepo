@@ -28,7 +28,7 @@ import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useApiError } from '../../data/errors'
 import type { CustomResponseErrorType } from '../../data/rtk-query'
-import { useI18n, useStrings } from '../../i18n'
+import { DEFAULT_STRINGS, useI18n, useStrings } from '../../i18n'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -152,9 +152,17 @@ export const UserAdminEdit: React.FC = () => {
       if (!privilegeError && privilegeResponse) {
         dispatch(privilegeSetActions.setPrivileges(privilegeResponse))
       }
-      if (privilegeError && 'error' in privilegeError) {
-        dispatch(uiActions.apiDialogSet(privilegeError.error))
+      let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+      if (
+        privilegeError &&
+        'localizedMessage' in privilegeError &&
+        privilegeError.localizedMessage
+      ) {
+        msg = privilegeError.localizedMessage
+      } else if (privilegeError && 'error' in privilegeError) {
+        msg = privilegeError.error
       }
+      dispatch(uiActions.apiDialogSet(msg))
     }
   }, [isLoadingPrivilegeSet, privilegeError, privilegeResponse])
 

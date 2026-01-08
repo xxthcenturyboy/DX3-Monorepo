@@ -17,7 +17,7 @@ import {
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
-import { useStrings } from '../i18n'
+import { DEFAULT_STRINGS, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
 import { useMarkAllAsDismissedMutation } from './notification-web.api'
@@ -67,7 +67,13 @@ export const NotificationsMobile: React.FC<NotificationsMobilePropsType> = (prop
           dispatch(notificationActions.setSystemNotifications([]))
         }
       } else {
-        'error' in dismissAllError && toast.error(dismissAllError.error)
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if ('localizedMessage' in dismissAllError && dismissAllError.localizedMessage) {
+          msg = dismissAllError.localizedMessage
+        } else if ('error' in dismissAllError) {
+          msg = dismissAllError.error
+        }
+        toast.error(msg)
       }
     }
   }, [

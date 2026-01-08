@@ -6,11 +6,16 @@ import { toast } from 'react-toastify'
 
 // import { Navigate } from 'react-router';
 
+// import { Navigate } from 'react-router';
+
+// import { Navigate } from 'react-router';
+
 // import { store } from '@dx/store-web';
 import { logger } from '@dx3/web-libs/logger'
 
 import { authActions } from '../../auth/auth-web.reducer'
 import { WebConfigService } from '../../config/config-web.service'
+import { DEFAULT_STRINGS } from '../../i18n'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { ErrorWebService } from '../errors/error-web.service'
 import type {
@@ -135,9 +140,7 @@ async function _handleNotification(message?: string): Promise<void> {
   // const dispatch = useAppDispatch();
   // if (location.pathname !== ROUTES.MAIN) {
   if (!store.getState().ui.isShowingUnauthorizedAlert) {
-    const msg = message
-      ? message
-      : `Something went wrong. It's probably our fault. Please try again later.`
+    const msg = message ? message : DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
     store.dispatch(uiActions.setIsShowingUnauthorizedAlert(true))
     toast.warn(msg, {
       onClose: () => store.dispatch(uiActions.setIsShowingUnauthorizedAlert(false)),
@@ -191,16 +194,10 @@ export const axiosBaseQuery =
         status: number
         url: string
       }>
-      const message =
-        err?.response?.data?.message ||
-        "Oops! Something went wrong. It's probably our fault. Please try again later."
+      const message = err?.response?.data?.message || DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
       logger.error('Error in axiosBaseQuery', err)
       if (err.status === 500) {
-        store.dispatch(
-          uiActions.apiDialogSet(
-            "Oops! Something went wrong. It's probably our fault. Please try again later.",
-          ),
-        )
+        store.dispatch(uiActions.apiDialogSet(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG))
       }
 
       const { code, localizedMessage, originalMessage } = ErrorWebService.resolveApiError(message)

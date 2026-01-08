@@ -18,7 +18,7 @@ import { toast } from 'react-toastify'
 import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 
-import { useString, useStrings } from '../i18n'
+import { DEFAULT_STRINGS, useString, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectCurrentThemeMode } from '../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
@@ -72,7 +72,13 @@ export const StatsWebApiHealthComponent: React.FC = () => {
         dispatch(statsActions.setApiStats(apiStatsResponse))
       }
       if (apiStatsError) {
-        'error' in apiStatsError && toast.error(apiStatsError.error)
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if ('localizedMessage' in apiStatsError && apiStatsError.localizedMessage) {
+          msg = apiStatsError.localizedMessage
+        } else if ('error' in apiStatsError) {
+          msg = apiStatsError.error
+        }
+        toast.error(msg)
       }
     }
   }, [isLoadingApiStats, apiStatsError, apiStatsResponse])

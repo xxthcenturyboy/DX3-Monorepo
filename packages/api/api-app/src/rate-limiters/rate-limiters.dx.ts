@@ -126,6 +126,7 @@ export class DxRateLimiters {
       handler: DxRateLimiters.handleLimitCommon,
       keyGenerator: DxRateLimiters.keyGenStandard,
       limit: RATE_LIMITS.STD, // limit each IP to 500 requests
+      passOnStoreError: true,
       skip: (req: Request, _res: Response) => {
         const url = req.originalUrl
         return AUTH_ROUTES_V1_RATE_LIMIT.indexOf(url) > -1

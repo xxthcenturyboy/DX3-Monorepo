@@ -108,6 +108,8 @@ export const DEFAULT_STRINGS: StringKeys = {
   NOTIFICATIONS: 'Notifications',
   NOTIFICATIONS_WILL_APPEAR_HERE: 'Notifications will appear here as you receive them.',
   OK: 'OK',
+  OOPS_SOMETHING_WENT_WRONG:
+    "Oops! Something went wrong. It's probably our fault. Please try again later.",
   OPT_IN_BETA: 'Opt-in Beta',
   OTP_CHOOSE_METHOD: 'Choose where to send a one-time code.',
   PAGE_TITLE_ADMIN_USERS: 'Users',

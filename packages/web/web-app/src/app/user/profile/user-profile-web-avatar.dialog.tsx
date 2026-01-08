@@ -14,7 +14,7 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
-import { useStrings } from '../../i18n'
+import { DEFAULT_STRINGS, useStrings } from '../../i18n'
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
 import { UploadProgressComponent } from '../../media/media-web-upload-progress.component'
@@ -63,9 +63,13 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        if ('error' in uploadAvatarError) {
-          setErrorMessage(uploadAvatarError.error)
+        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+        if ('localizedMessage' in uploadAvatarError && uploadAvatarError.localizedMessage) {
+          msg = uploadAvatarError.localizedMessage
+        } else if ('error' in uploadAvatarError) {
+          msg = uploadAvatarError.error
         }
+        setErrorMessage(msg)
         setShowLottieError(true)
       }
     }
