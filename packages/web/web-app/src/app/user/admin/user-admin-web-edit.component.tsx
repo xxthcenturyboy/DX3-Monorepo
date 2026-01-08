@@ -28,6 +28,7 @@ import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useApiError } from '../../data/errors'
 import type { CustomResponseErrorType } from '../../data/rtk-query'
+import { useI18n, useStrings } from '../../i18n'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -67,6 +68,21 @@ export const UserAdminEdit: React.FC = () => {
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const { t } = useI18n()
+  const strings = useStrings([
+    'DEFAULT',
+    'EMAILS',
+    'NAME',
+    'OK',
+    'PHONES',
+    'RESTRICTIONS',
+    'ROLES',
+    'SEND_NOTIFICATION',
+    'USER_TITLE',
+    'USER_UPDATED',
+    'VERIFIED',
+    'YOU_CANNOT_EDIT_ROLES',
+  ])
   const [
     fetchPrivilegeSets,
     {
@@ -119,7 +135,7 @@ export const UserAdminEdit: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      setTitle(`User: ${user.username || ''}`)
+      setTitle(t('USER_TITLE', { name: user.username || '' }))
       setupRestrictions()
       setupRoles()
     }
@@ -169,7 +185,7 @@ export const UserAdminEdit: React.FC = () => {
       }
 
       if (!updateUserError) {
-        toast.success('User updated.')
+        toast.success(strings.USER_UPDATED)
       }
     }
   }, [isLoadingUpdateUser, updateUserError, updateUserUninitialized])
@@ -246,7 +262,7 @@ export const UserAdminEdit: React.FC = () => {
     return (
       <Chip
         color="info"
-        label="Default"
+        label={strings.DEFAULT}
         sx={{
           height: '20px',
           marginRight: '12px',
@@ -259,7 +275,7 @@ export const UserAdminEdit: React.FC = () => {
     return (
       <Chip
         color="success"
-        label="Verified"
+        label={strings.VERIFIED}
         sx={{
           height: '20px',
           marginRight: '12px',
@@ -304,7 +320,7 @@ export const UserAdminEdit: React.FC = () => {
                     }
                   }}
                 >
-                  <Typography fontWeight={700}>Name</Typography>
+                  <Typography fontWeight={700}>{strings.NAME}</Typography>
                 </Grid>
                 <Grid>
                   <Typography variant="body1">{user?.fullName}</Typography>
@@ -330,7 +346,7 @@ export const UserAdminEdit: React.FC = () => {
               }
             }}
           >
-            <Typography fontWeight={700}>Emails</Typography>
+            <Typography fontWeight={700}>{strings.EMAILS}</Typography>
           </Grid>
 
           {/* {renderDivider('0 0 10')} */}
@@ -405,7 +421,7 @@ export const UserAdminEdit: React.FC = () => {
               }
             }}
           >
-            <Typography fontWeight={700}>Phones</Typography>
+            <Typography fontWeight={700}>{strings.PHONES}</Typography>
           </Grid>
           {/* {renderDivider('0 0 10')} */}
           {isLoadingUser && listSkeleton(2, '48px')}
@@ -497,7 +513,7 @@ export const UserAdminEdit: React.FC = () => {
               }
             }}
           >
-            <Typography fontWeight={700}>Roles</Typography>
+            <Typography fontWeight={700}>{strings.ROLES}</Typography>
           </Grid>
           {renderDivider('0 0 10')}
           {isLoadingUser && listSkeleton(2, '48px')}
@@ -549,7 +565,7 @@ export const UserAdminEdit: React.FC = () => {
               }
             }}
           >
-            <Typography fontWeight={700}>Restrictions</Typography>
+            <Typography fontWeight={700}>{strings.RESTRICTIONS}</Typography>
           </Grid>
           {renderDivider('0 0 10')}
           {isLoadingUser && listSkeleton(2, '48px')}
@@ -592,9 +608,9 @@ export const UserAdminEdit: React.FC = () => {
     <CustomDialog
       body={
         <DialogAlert
-          buttonText="Aw, shucks"
+          buttonText={strings.OK}
           closeDialog={() => setAlertRoleOpen(false)}
-          message={'You cannot edit roles.'}
+          message={strings.YOU_CANNOT_EDIT_ROLES}
           windowHeight={windowHeight}
         />
       }
@@ -628,7 +644,7 @@ export const UserAdminEdit: React.FC = () => {
           onClick={() => setNotificationOpen(true)}
           variant="contained"
         >
-          Send Notification
+          {strings.SEND_NOTIFICATION}
         </Button>
         {notificationModal}
       </Grid>

@@ -64,6 +64,7 @@ export type StringKeyName = keyof StringKeys
 export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
+  ADMIN: string
   API_HEALTH: string
   APP_STATS: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
@@ -79,6 +80,7 @@ export type StringKeys = {
   AUTH_UNAUTHORIZED: string
   APP_MENU: string
   BACK: string
+  BETA: string
   CANCEL: string
   CANCELING: string
   CELL: string
@@ -150,6 +152,7 @@ export type StringKeys = {
   NOTIFICATIONS: string
   NOTIFICATIONS_WILL_APPEAR_HERE: string
   OK: string
+  OPT_IN_BETA: string
   OTHER: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
@@ -173,6 +176,7 @@ export type StringKeys = {
   PROFILE_UPDATED: string
   READ: string
   REFRESH: string
+  RESTRICTED: string
   RESTRICTIONS: string
   ROLES: string
   RSS: string
@@ -181,6 +185,7 @@ export type StringKeys = {
   SEND_APP_UPDATE: string
   SEND_APP_UPDATE_TO_ALL_USERS: string
   SEND_CODE: string
+  SEND_NOTIFICATION: string
   SEND_NOTIFICATION_TO_ALL_USERS: string
   SEND_PUSH_TO_PHONE: string
   SEND_TO_ALL_USERS: string
@@ -193,6 +198,7 @@ export type StringKeys = {
   SUBMIT: string
   SUCCESS_DELETED: string
   SUCCESS_SAVED: string
+  SUPER: string
   THIS_ACCOUNT_CANNOT_BE_EDITED: string
   TIMEOUT_TURBO: string
   TITLE: string
@@ -211,6 +217,8 @@ export type StringKeys = {
   USER_CREATE_FAILED: string
   USER_NOT_FOUND: string
   USER_STATS: string
+  USER_TITLE: string
+  USER_UPDATED: string
   USER_UPDATE_FAILED: string
   USERNAME: string
   USERNAME_IS_AVAILABLE: string
@@ -223,6 +231,7 @@ export type StringKeys = {
   WELCOME_BACK: string
   WORK: string
   WRITE: string
+  YOU_CANNOT_EDIT_ROLES: string
   YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE: string
   YOU_HAVE_MADE_TOO_MANY_REQUESTS: string
 }

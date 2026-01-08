@@ -5,7 +5,12 @@ import type { UserType } from '@dx3/models-shared'
 import { IconNames } from '@dx3/web-libs/ui/icons'
 import type { TableHeaderItem, TableMeta, TableRowType } from '@dx3/web-libs/ui/table/types'
 
+import { DEFAULT_STRINGS } from '../../i18n'
+import { store } from '../../store'
+
 export class UserAdminWebListService {
+  public static STRINGS = store.getState()?.i18n?.translations || DEFAULT_STRINGS
+
   public static USER_ADMIN_LIST_META: TableMeta<unknown>[] = [
     {
       align: 'left',
@@ -14,7 +19,7 @@ export class UserAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: true,
-      title: 'Name',
+      title: UserAdminWebListService.STRINGS.NAME,
       width: '15%',
     },
     {
@@ -24,7 +29,7 @@ export class UserAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: true,
-      title: 'Username',
+      title: UserAdminWebListService.STRINGS.USERNAME,
       width: '15%',
     },
     {
@@ -34,7 +39,7 @@ export class UserAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: false,
-      title: 'Email',
+      title: UserAdminWebListService.STRINGS.EMAIL,
       width: '25%',
     },
     {
@@ -44,7 +49,7 @@ export class UserAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: false,
-      title: 'Phone',
+      title: UserAdminWebListService.STRINGS.PHONE,
       width: '15%',
     },
     {
@@ -54,7 +59,7 @@ export class UserAdminWebListService {
       fieldType: 'boolean',
       headerAlign: 'center',
       sortable: true,
-      title: 'Admin',
+      title: UserAdminWebListService.STRINGS.ADMIN,
       width: '5%',
     },
     {
@@ -64,7 +69,7 @@ export class UserAdminWebListService {
       fieldType: 'boolean',
       headerAlign: 'center',
       sortable: true,
-      title: 'Super',
+      title: UserAdminWebListService.STRINGS.SUPER,
       width: '5%',
     },
     {
@@ -74,7 +79,7 @@ export class UserAdminWebListService {
       fieldType: 'boolean',
       headerAlign: 'center',
       sortable: true,
-      title: 'Beta',
+      title: UserAdminWebListService.STRINGS.BETA,
       width: '5%',
     },
     {
@@ -84,7 +89,7 @@ export class UserAdminWebListService {
       fieldType: 'boolean',
       headerAlign: 'center',
       sortable: true,
-      title: 'Restricted',
+      title: UserAdminWebListService.STRINGS.RESTRICTED,
       width: '10%',
     },
     {

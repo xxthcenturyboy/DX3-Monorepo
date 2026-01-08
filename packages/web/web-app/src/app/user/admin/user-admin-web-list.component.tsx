@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
-import type { GetUsersListQueryType } from '@dx3/models-shared'
+import { USER_ROLE, type GetUsersListQueryType } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
@@ -136,7 +136,7 @@ export const UserAdminList: React.FC = () => {
 
   const clickRow = (data: TableRowType): void => {
     const user = users.find((user) => user.id === data.id)
-    if (user?.roles?.includes('SUPER_ADMIN') && currentUser?.id !== user.id) {
+    if (user?.roles?.includes(USER_ROLE.SUPER_ADMIN) && currentUser?.id !== user.id) {
       setAlertModalOpen(true)
       return
     }

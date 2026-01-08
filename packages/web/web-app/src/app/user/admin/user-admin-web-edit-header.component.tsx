@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 
 import { WebConfigService } from '../../config/config-web.service'
-import { useString } from '../../i18n'
+import { useString, useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web.redux'
 import { selectUserFormatted } from './user-admin-web.selectors'
 
@@ -19,6 +19,7 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
   const title = username ? `${titleString} - ${username}` : titleString
   const user = useAppSelector((state) => selectUserFormatted(state))
   const ROUTES = WebConfigService.getWebRoutes()
+  const strings = useStrings(['OPT_IN_BETA', 'RESTRICTED'])
 
   return (
     <ContentHeader
@@ -37,7 +38,7 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
         <>
           {user?.optInBeta && (
             <Chip
-              label="Opt-in Beta"
+              label={strings.OPT_IN_BETA}
               sx={{
                 backgroundColor: lightBlue[700],
                 color: grey[50],
@@ -48,7 +49,7 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
           {user?.restrictions && user.restrictions.length > 0 && (
             <Chip
               color="error"
-              label="RESTRICTED"
+              label={strings.RESTRICTED.toUpperCase()}
             />
           )}
         </>
