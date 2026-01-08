@@ -5,15 +5,14 @@ import {
   FormControl,
   FormControlLabel,
   InputLabel,
-  MenuItem,
   OutlinedInput,
-  Select,
-  type SelectChangeEvent,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
 import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
 
@@ -64,7 +63,6 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     'EMAIL',
     'LABEL',
     'NEW_EMAIL',
-    'OTHER',
     'PERSONAL',
     'SET_AS_DEFAULT',
     'WORK',
@@ -153,7 +151,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
 
   React.useEffect(() => {
     setLabel(strings.PERSONAL)
-    setLabels([strings.PERSONAL, strings.WORK, strings.OTHER])
+    setLabels([strings.PERSONAL, strings.WORK])
   }, [])
 
   React.useEffect(() => {
@@ -256,7 +254,9 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     setEmail(event.target.value)
   }
 
-  const handleChangeLabel = (event: SelectChangeEvent<string>): void => {
+  const handleChangeLabel = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ): void => {
     setLabel(event.target.value)
   }
 
@@ -296,26 +296,23 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
             margin="normal"
             variant="outlined"
           >
-            <InputLabel htmlFor="label-select">{strings.LABEL}</InputLabel>
-            <Select
-              id="label-select"
-              label={strings.LABEL}
-              name="label-select"
-              notched
-              onChange={handleChangeLabel}
-              value={label || ''}
-            >
-              {labels.map((labelValue) => {
-                return (
-                  <MenuItem
-                    key={labelValue}
-                    value={labelValue}
-                  >
-                    {labelValue}
-                  </MenuItem>
-                )
-              })}
-            </Select>
+            <Autocomplete
+              freeSolo
+              id="email-label-autocomplete"
+              options={labels.map((option) => option)}
+              renderInput={(params) => (
+                <>
+                  <TextField
+                    {...params}
+                    label={strings.LABEL}
+                    name="email-label"
+                    onChange={handleChangeLabel}
+                    value={label}
+                    variant="outlined"
+                  />
+                </>
+              )}
+            />
           </FormControl>
           <FormControlLabel
             control={

@@ -3,15 +3,13 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  type SelectChangeEvent,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
+import TextField from '@mui/material/TextField'
 import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React, { type ReactElement } from 'react'
 import type { CountryData } from 'react-phone-input-2'
@@ -58,15 +56,14 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   const theme = useTheme()
   const strings = useStrings([
     'CANCEL',
-    'CELL',
     'CLOSE',
     'CREATE',
     'EMAIL',
-    'HOME',
     'LABEL',
     'NEW_PHONE',
+    'PERSONAL',
     'PHONE',
-    'OTHER',
+    'PHONE_MUST_BE_ABLE_TO_RECEIVE_SMS',
     'SET_AS_DEFAULT',
     'WORK',
   ])
@@ -115,7 +112,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     setIsPhoneAvailable(false)
     setPhone('')
     setCountryData(null)
-    setLabel(strings.CELL)
+    setLabel(strings.PERSONAL)
     setErrorMessage('')
     setOtp('')
     setIsDefault(false)
@@ -127,8 +124,8 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
   }
 
   React.useEffect(() => {
-    setLabel(strings.CELL)
-    setLabels([strings.CELL, strings.HOME, strings.WORK, strings.OTHER])
+    setLabel(strings.PERSONAL)
+    setLabels([strings.PERSONAL, strings.WORK])
   }, [])
 
   React.useEffect(() => {
@@ -273,7 +270,9 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
     }
   }
 
-  const handleChangeLabel = (event: SelectChangeEvent<string>): void => {
+  const handleChangeLabel = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ): void => {
     setLabel(event.target.value)
   }
 
@@ -316,26 +315,23 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
             margin="normal"
             variant="outlined"
           >
-            <InputLabel htmlFor="label-select">{strings.LABEL}</InputLabel>
-            <Select
-              id="label-select"
-              label={strings.LABEL}
-              name="label-select"
-              notched
-              onChange={handleChangeLabel}
-              value={label || ''}
-            >
-              {labels.map((labelValue) => {
-                return (
-                  <MenuItem
-                    key={labelValue}
-                    value={labelValue}
-                  >
-                    {labelValue}
-                  </MenuItem>
-                )
-              })}
-            </Select>
+            <Autocomplete
+              freeSolo
+              id="phone-label-autocomplete"
+              options={labels.map((option) => option)}
+              renderInput={(params) => (
+                <>
+                  <TextField
+                    {...params}
+                    label={strings.LABEL}
+                    name="phone-label"
+                    onChange={handleChangeLabel}
+                    value={label}
+                    variant="outlined"
+                  />
+                </>
+              )}
+            />
           </FormControl>
           <FormControlLabel
             control={

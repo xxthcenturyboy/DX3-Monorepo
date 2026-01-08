@@ -84,7 +84,6 @@ export type StringKeys = {
   BETA: string
   CANCEL: string
   CANCELING: string
-  CELL: string
   CHANGE_PASSWORD: string
   CHARACTERS_REMAINING: string
   CHECK_AVAILABLILITY: string
@@ -127,7 +126,6 @@ export type StringKeys = {
   GREETING: string
   HEAP_TOTAL: string
   HEAP_USED: string
-  HOME: string
   LABEL: string
   LAST_NAME: string
   LOADING: string
@@ -155,7 +153,6 @@ export type StringKeys = {
   NOTIFICATIONS_WILL_APPEAR_HERE: string
   OK: string
   OPT_IN_BETA: string
-  OTHER: string
   OTP_CHOOSE_METHOD: string
   PAGE_TITLE_ADMIN_USERS: string
   PAGE_TITLE_API_HEALTH: string
@@ -170,6 +167,7 @@ export type StringKeys = {
   PHONE_DELETE_FAILED: string
   PHONE_DELETED: string
   PHONE_INVALID: string
+  PHONE_MUST_BE_ABLE_TO_RECEIVE_SMS: string
   PHONE_NOT_FOUND: string
   PHONE_VERIFICATION_FAILED: string
   PHONES: string
