@@ -3,6 +3,7 @@ import {
   Checkbox,
   FormControl,
   FormControlLabel,
+  Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
@@ -283,6 +284,18 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
         justifyContent={SM_BREAK ? 'flex-start' : 'space-around'}
         windowHeight={windowHeight}
       >
+        <Typography
+          align="center"
+          color="primary"
+          style={{
+            margin: '0 72px',
+            position: SM_BREAK ? 'relative' : 'absolute',
+            top: SM_BREAK ? '0' : '80px',
+          }}
+          variant="subtitle1"
+        >
+          {strings.PHONE_MUST_BE_ABLE_TO_RECEIVE_SMS}
+        </Typography>
         <AddPhoneForm
           name="form-add-phone"
           onSubmit={handleCreate}
