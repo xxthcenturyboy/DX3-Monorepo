@@ -12,7 +12,7 @@ import { NIL as NIL_UUID } from 'uuid'
 
 import { NOTIFICATION_LEVELS, type NotificationType } from '@dx3/models-shared'
 
-import { DEFAULT_STRINGS } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
 import { useMarkAsDismissedMutation } from './notification-web.api'
@@ -45,13 +45,7 @@ export const NotificationComponent: React.FC<NotificationMenuPropsType> = (props
       if (!dismissError) {
         dispatch(notificationActions.removeNotification(notification.id))
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in dismissError && dismissError.localizedMessage) {
-          msg = dismissError.localizedMessage
-        } else if ('error' in dismissError) {
-          msg = dismissError.error
-        }
-        toast.error(msg)
+        toast.error(getErrorStringFromApiResponse(dismissError))
       }
     }
   }, [isLoadingDismiss, dismissError, dismissUninitialized, notification.id])

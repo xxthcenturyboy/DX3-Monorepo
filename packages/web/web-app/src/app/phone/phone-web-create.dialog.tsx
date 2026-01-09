@@ -26,7 +26,8 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { useOtpRequestPhoneMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { DEFAULT_STRINGS, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
@@ -141,13 +142,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in addPhoneError && addPhoneError.localizedMessage) {
-          msg = addPhoneError.localizedMessage
-        } else if ('error' in addPhoneError) {
-          msg = addPhoneError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(addPhoneError))
         setShowLottieError(true)
       }
     }
@@ -159,16 +154,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
         setShowLottieError(false)
         setIsPhoneAvailable(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if (
-          'localizedMessage' in checkAvailabilityError &&
-          checkAvailabilityError.localizedMessage
-        ) {
-          msg = checkAvailabilityError.localizedMessage
-        } else if ('error' in checkAvailabilityError) {
-          msg = checkAvailabilityError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(checkAvailabilityError))
         setShowLottieError(true)
         setIsPhoneAvailable(false)
       }
@@ -180,13 +166,7 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
       if (!sendOtpError) {
         setShowLottieError(false)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in sendOtpError && sendOtpError.localizedMessage) {
-          msg = sendOtpError.localizedMessage
-        } else if ('error' in sendOtpError) {
-          msg = sendOtpError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(sendOtpError))
         setShowLottieError(true)
       }
     }

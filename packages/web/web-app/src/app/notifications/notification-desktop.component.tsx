@@ -10,7 +10,8 @@ import { NIL as NIL_UUID } from 'uuid'
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
-import { DEFAULT_STRINGS, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { selectHasSuperAdminRole } from '../user/profile/user-profile-web.selectors'
 import { useMarkAllAsDismissedMutation } from './notification-web.api'
@@ -63,13 +64,7 @@ export const NotificationsDesktop: React.FC<NotificationsDesktopPropsType> = (pr
           dispatch(notificationActions.setSystemNotifications([]))
         }
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in dismissAllError && dismissAllError.localizedMessage) {
-          msg = dismissAllError.localizedMessage
-        } else if ('error' in dismissAllError) {
-          msg = dismissAllError.error
-        }
-        toast.error(msg)
+        toast.error(getErrorStringFromApiResponse(dismissAllError))
       }
     }
   }, [

@@ -26,7 +26,8 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { useOtpRequestEmailMutation } from '../auth/auth-web.api'
 import { AuthWebOtpEntry } from '../auth/auth-web-otp.component'
-import { DEFAULT_STRINGS, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
@@ -166,14 +167,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in addEmailError && addEmailError.localizedMessage) {
-          msg = addEmailError.localizedMessage
-        } else if ('error' in addEmailError) {
-          msg = addEmailError.error
-        }
-
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(addEmailError))
         setShowLottieError(true)
       }
     }
@@ -185,16 +179,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
         setShowLottieError(false)
         setIsEmailAvailable(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if (
-          'localizedMessage' in checkAvailabilityError &&
-          checkAvailabilityError.localizedMessage
-        ) {
-          msg = checkAvailabilityError.localizedMessage
-        } else if ('error' in checkAvailabilityError) {
-          msg = checkAvailabilityError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(checkAvailabilityError))
         setShowLottieError(true)
         setIsEmailAvailable(false)
       }
@@ -206,13 +191,7 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
       if (!sendOtpError) {
         setShowLottieError(false)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in sendOtpError && sendOtpError.localizedMessage) {
-          msg = sendOtpError.localizedMessage
-        } else if ('error' in sendOtpError) {
-          msg = sendOtpError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(sendOtpError))
         setShowLottieError(true)
       }
     }

@@ -15,7 +15,8 @@ import { CancelLottie } from '@dx3/web-libs/ui/lottie/cancel.lottie'
 import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
-import { DEFAULT_STRINGS, useI18n, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { useDeletePhoneProfileMutation } from './phone-web.api'
@@ -68,13 +69,7 @@ export const DeletePhoneDialog: React.FC<DeletePhoneDialogProps> = (props): Reac
         setBodyMessage(strings.PHONE_DELETED)
       } else {
         setShowLottieError(true)
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in deletePhoneError && deletePhoneError.localizedMessage) {
-          msg = deletePhoneError.localizedMessage
-        } else if ('error' in deletePhoneError) {
-          msg = deletePhoneError.error
-        }
-        setBodyMessage(msg)
+        setBodyMessage(getErrorStringFromApiResponse(deletePhoneError))
       }
     }
   }, [isLoadingDeletePhone, deletePhoneError, deletePhoneUninitialized])

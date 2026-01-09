@@ -27,7 +27,8 @@ import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
-import { DEFAULT_STRINGS, useI18n, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import {
@@ -94,13 +95,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in sendToUserError && sendToUserError.localizedMessage) {
-          msg = sendToUserError.localizedMessage
-        } else if ('error' in sendToUserError) {
-          msg = sendToUserError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(sendToUserError))
         setShowLottieError(true)
       }
     }
@@ -112,13 +107,7 @@ export const NotificationSendDialog: React.FC<NotificationSendPropsType> = (
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in sendToAllError && sendToAllError.localizedMessage) {
-          msg = sendToAllError.localizedMessage
-        } else if ('error' in sendToAllError) {
-          msg = sendToAllError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(sendToAllError))
         setShowLottieError(true)
       }
     }

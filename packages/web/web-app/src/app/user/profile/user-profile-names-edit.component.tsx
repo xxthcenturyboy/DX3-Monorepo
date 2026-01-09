@@ -18,7 +18,8 @@ import { toast } from 'react-toastify'
 
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
-import { DEFAULT_STRINGS, useStrings } from '../../i18n'
+import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
+import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { useUpdateUserMutation } from './user-profile-web.api'
@@ -76,13 +77,7 @@ export const UserProfileEditNames: React.FC = () => {
       }
 
       if (updateUserError) {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in updateUserError && updateUserError.localizedMessage) {
-          msg = updateUserError.localizedMessage
-        } else if ('error' in updateUserError) {
-          msg = updateUserError.error
-        }
-        toast.error(msg)
+        toast.error(getErrorStringFromApiResponse(updateUserError))
       }
 
       dispatch(uiActions.awaitDialogOpenSet(false))

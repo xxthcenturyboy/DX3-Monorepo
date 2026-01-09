@@ -17,7 +17,8 @@ import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { WebConfigService } from '../../config/config-web.service'
-import { DEFAULT_STRINGS, useString, useStrings } from '../../i18n'
+import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
+import { useString, useStrings } from '../../i18n'
 import { useSendNotificationAppUpdateMutation } from '../../notifications/notification-web.api'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
@@ -109,13 +110,7 @@ export const UserAdminList: React.FC = () => {
         setIsFetching(false)
       }
       if (userListError) {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in userListError && userListError.localizedMessage) {
-          msg = userListError.localizedMessage
-        } else if ('error' in userListError) {
-          msg = userListError.error
-        }
-        dispatch(uiActions.apiDialogSet(msg))
+        dispatch(uiActions.apiDialogSet(getErrorStringFromApiResponse(userListError)))
         setIsFetching(false)
       }
     }

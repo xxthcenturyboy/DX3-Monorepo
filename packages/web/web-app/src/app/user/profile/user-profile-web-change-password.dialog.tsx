@@ -24,7 +24,8 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { useCheckPasswordStrengthMutation } from '../../auth/auth-web.api'
 import { AuthWebRequestOtp } from '../../auth/auth-web-request-otp.component'
-import { DEFAULT_STRINGS, useStrings } from '../../i18n'
+import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
+import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { useLazyGetProfileQuery, useUpdatePasswordMutation } from './user-profile-web.api'
@@ -114,13 +115,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
       }
 
       if (updatePasswordlError) {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in updatePasswordlError && updatePasswordlError.localizedMessage) {
-          msg = updatePasswordlError.localizedMessage
-        } else if ('error' in updatePasswordlError) {
-          msg = updatePasswordlError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(updatePasswordlError))
         setShowLottieError(true)
       }
     }
@@ -160,13 +155,7 @@ export const UserProfileChangePasswordDialog: React.FC<UserProfileChangePassword
           )
         }
       } else {
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in checkStrengthError && checkStrengthError.localizedMessage) {
-          msg = checkStrengthError.localizedMessage
-        } else if ('error' in checkStrengthError) {
-          msg = checkStrengthError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(checkStrengthError))
         setShowLottieError(true)
         setIsPasswordStrong(false)
       }

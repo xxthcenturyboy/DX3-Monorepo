@@ -8,7 +8,8 @@ import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { loginBootstrap } from '../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../config/config-web.service'
-import { DEFAULT_STRINGS, useString, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useString, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
@@ -52,20 +53,13 @@ export const WebLogin: React.FC = () => {
 
   React.useEffect(() => {
     if (loginError) {
-      console.log(loginError)
       if (loginError.code && loginError.code === '429') {
         navigate(ROUTES.LIMITED)
         toast.error(strings.TIMEOUT_TURBO)
         return
       }
 
-      let msg = DEFAULT_STRINGS.COULD_NOT_LOG_YOU_IN
-      if ('localizedMessage' in loginError && loginError.localizedMessage) {
-        msg = loginError.localizedMessage
-      } else if ('error' in loginError) {
-        msg = loginError.error
-      }
-      toast.warn(msg)
+      toast.warn(getErrorStringFromApiResponse(loginError))
       dispatch(userProfileActions.profileInvalidated())
     }
   }, [loginError])

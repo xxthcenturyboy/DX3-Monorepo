@@ -8,7 +8,8 @@ import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { loginBootstrap } from '../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../config/config-web.service'
-import { DEFAULT_STRINGS, useString, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useString, useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
@@ -48,13 +49,7 @@ export const WebSignup: React.FC = () => {
         navigate(ROUTES.LIMITED)
       }
 
-      let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-      if ('localizedMessage' in signupError && signupError.localizedMessage) {
-        msg = signupError.localizedMessage
-      } else if ('error' in signupError) {
-        msg = signupError.error
-      }
-      toast.error(msg)
+      toast.error(getErrorStringFromApiResponse(signupError))
       dispatch(userProfileActions.profileInvalidated())
 
       return

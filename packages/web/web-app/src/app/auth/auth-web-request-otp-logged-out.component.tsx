@@ -20,7 +20,8 @@ import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
-import { DEFAULT_STRINGS, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useStrings } from '../i18n'
 import { PhoneNumberInput } from '../phone/phone-input/phone-web-input.component'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
 import { useOtpRequestEmailMutation, useOtpRequestPhoneMutation } from './auth-web.api'
@@ -71,24 +72,12 @@ export const AuthWebRequestOtpLoggedOut: React.FC<AuthWebRequestOtpLoggedOutProp
           return
         }
 
-        if (sendOtpEmailError && 'error' in sendOtpEmailError) {
-          let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-          if ('localizedMessage' in sendOtpEmailError && sendOtpEmailError.localizedMessage) {
-            msg = sendOtpEmailError.localizedMessage
-          } else if ('error' in sendOtpEmailError) {
-            msg = sendOtpEmailError.error
-          }
-          setErrorMessage(msg)
+        if (sendOtpEmailError) {
+          setErrorMessage(getErrorStringFromApiResponse(sendOtpEmailError))
         }
 
-        if (sendOtpPhoneError && 'error' in sendOtpPhoneError) {
-          let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-          if ('localizedMessage' in sendOtpPhoneError && sendOtpPhoneError.localizedMessage) {
-            msg = sendOtpPhoneError.localizedMessage
-          } else if ('error' in sendOtpPhoneError) {
-            msg = sendOtpPhoneError.error
-          }
-          setErrorMessage(msg)
+        if (sendOtpPhoneError) {
+          setErrorMessage(getErrorStringFromApiResponse(sendOtpPhoneError))
         }
       }
     }, [isLoadingSendOtpEmail, isLoadingSendOtpPhone, sendOtpEmailError, sendOtpPhoneError])

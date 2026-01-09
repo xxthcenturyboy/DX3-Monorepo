@@ -4,6 +4,8 @@
  * Service for resolving API error codes to localized messages.
  */
 
+import type { SerializedError } from '@reduxjs/toolkit'
+
 import {
   ERROR_CODE_TO_I18N_KEY,
   type ErrorCodeType,
@@ -14,11 +16,24 @@ import {
 import { DEFAULT_STRINGS } from '../../i18n'
 import { selectTranslations } from '../../i18n/i18n.selectors'
 import type { InterpolationParams, StringKeyName } from '../../i18n/i18n.types'
+import type { CustomResponseErrorType } from '../rtk-query'
 
 /**
  * Default fallback error message.
  */
-const DEFAULT_ERROR_MESSAGE = 'An error occurred. Please try again.'
+const DEFAULT_ERROR_MESSAGE = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+
+export const getErrorStringFromApiResponse = (res?: CustomResponseErrorType | SerializedError) => {
+  if (res) {
+    if ('localizedMessage' in res && res.localizedMessage) {
+      return res.localizedMessage
+    } else if ('error' in res) {
+      return res.error
+    }
+  }
+
+  return DEFAULT_ERROR_MESSAGE
+}
 
 /**
  * Lazy import store to avoid circular dependency issues.

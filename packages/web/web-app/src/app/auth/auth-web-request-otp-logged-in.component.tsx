@@ -9,7 +9,8 @@ import { logger } from '@dx3/web-libs/logger'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
-import { DEFAULT_STRINGS, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { showDevOtpCode } from '../ui/ui-web-otp-dev.toast'
 import { selectUserEmails, selectUserPhones } from '../user/profile/user-profile-web.selectors'
@@ -51,13 +52,7 @@ export const AuthWebRequestOtpLoggedIn: React.FC<AuthWebRequestOtpLoggedInPropsT
           return
         }
 
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in sendOtpIdError && sendOtpIdError.localizedMessage) {
-          msg = sendOtpIdError.localizedMessage
-        } else if ('error' in sendOtpIdError) {
-          msg = sendOtpIdError.error
-        }
-        setErrorMessage(msg)
+        setErrorMessage(getErrorStringFromApiResponse(sendOtpIdError))
       }
     }, [isLoadingSendOtpId, sendOtpIdError])
 

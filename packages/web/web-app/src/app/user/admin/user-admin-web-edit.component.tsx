@@ -27,8 +27,9 @@ import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useApiError } from '../../data/errors'
+import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
 import type { CustomResponseErrorType } from '../../data/rtk-query'
-import { DEFAULT_STRINGS, useI18n, useStrings } from '../../i18n'
+import { useI18n, useStrings } from '../../i18n'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -152,17 +153,7 @@ export const UserAdminEdit: React.FC = () => {
       if (!privilegeError && privilegeResponse) {
         dispatch(privilegeSetActions.setPrivileges(privilegeResponse))
       }
-      let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-      if (
-        privilegeError &&
-        'localizedMessage' in privilegeError &&
-        privilegeError.localizedMessage
-      ) {
-        msg = privilegeError.localizedMessage
-      } else if (privilegeError && 'error' in privilegeError) {
-        msg = privilegeError.error
-      }
-      dispatch(uiActions.apiDialogSet(msg))
+      dispatch(uiActions.apiDialogSet(getErrorStringFromApiResponse(privilegeError)))
     }
   }, [isLoadingPrivilegeSet, privilegeError, privilegeResponse])
 
@@ -173,11 +164,7 @@ export const UserAdminEdit: React.FC = () => {
       }
 
       if (userError) {
-        const msg = getErrorMessage(
-          userError?.code || null,
-          (userError as CustomResponseErrorType)?.localizedMessage,
-        )
-        'error' in userError && dispatch(uiActions.apiDialogSet(msg))
+        dispatch(uiActions.apiDialogSet(getErrorStringFromApiResponse(userError)))
       }
     }
   }, [fetchUserSuccess, userError])

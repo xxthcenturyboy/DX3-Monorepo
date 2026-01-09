@@ -15,7 +15,8 @@ import { CancelLottie } from '@dx3/web-libs/ui/lottie/cancel.lottie'
 import { QuestionMarkLottie } from '@dx3/web-libs/ui/lottie/question-mark.lottie'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
-import { DEFAULT_STRINGS, useI18n, useStrings } from '../i18n'
+import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
+import { useI18n, useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../ui/store/ui-web.selector'
 import { useDeleteEmailProfileMutation } from './email-web.api'
@@ -68,13 +69,7 @@ export const DeleteEmailDialog: React.FC<DeleteEmailDialogProps> = (props): Reac
         setBodyMessage(strings.EMAIL_DELETED)
       } else {
         setShowLottieError(true)
-        let msg = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
-        if ('localizedMessage' in deleteEmailError && deleteEmailError.localizedMessage) {
-          msg = deleteEmailError.localizedMessage
-        } else if ('error' in deleteEmailError) {
-          msg = deleteEmailError.error
-        }
-        setBodyMessage(msg)
+        setBodyMessage(getErrorStringFromApiResponse(deleteEmailError))
       }
     }
   }, [isLoadingDeleteEmail, deleteEmailError, deleteEmailUninitialized])
