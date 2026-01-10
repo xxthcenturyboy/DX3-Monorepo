@@ -1,6 +1,8 @@
 import type { UpdatePrivilegeSetPayloadType } from '@dx3/models-shared'
+import { ERROR_CODES } from '@dx3/models-shared'
 
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
+import { createApiErrorMessage } from '../utils'
 import { UserPrivilegeSetModel } from './user-privilege-api.postgres-model'
 import { UserPrivilegeSetCache } from './user-privilege-api.redis-cache'
 
@@ -50,15 +52,17 @@ export class UserPrivilegeService {
 
       return privilegeSets
     } catch (err) {
-      const message = err.message || 'Error getting privilege sets.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message || 'Error getting privilege sets'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async updatePrivilegeSet(id: string, payload: UpdatePrivilegeSetPayloadType) {
     if (!id) {
-      throw new Error('No id provided.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No id supplied'),
+      )
     }
 
     const { description, name, order } = payload
@@ -86,9 +90,9 @@ export class UserPrivilegeService {
 
       return set
     } catch (err) {
-      const message = err.message || 'Error updating privilege set.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message || 'Error updating privilege set'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 }

@@ -11,12 +11,7 @@ export const ShortlinkController = {
       const { id } = req.params as { id: string }
       const service = new ShortlinkService()
       const result = await service.getShortlinkTarget(id)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'No target for this url.', req, type: 'Failed getTarget' })
-      sendBadRequest(req, res, 'No target for this url.')
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getTarget' })
       sendBadRequest(req, res, err.message)

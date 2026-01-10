@@ -10,11 +10,7 @@ export const PrivilegeSetController = {
     try {
       const service = new UserPrivilegeService()
       const result = await service.getAllPrivilegeSets()
-      if (Array.isArray(result)) {
-        return sendOK(req, res, result)
-      }
-
-      sendBadRequest(req, res, `No privilege sets found.`)
+      return sendOK(req, res, result)
     } catch (err) {
       sendBadRequest(req, res, err.message)
     }
@@ -26,16 +22,7 @@ export const PrivilegeSetController = {
       const { id } = req.params as { id: string }
       const service = new UserPrivilegeService()
       const result = await service.updatePrivilegeSet(id, req.body as UpdatePrivilegeSetPayloadType)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({
-        message: 'Privilege set could not be updated.',
-        req,
-        type: 'Failed updatePrivilegeSet',
-      })
-      sendBadRequest(req, res, `Privilege set could not be updated.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updatePrivilegeSet' })
       sendBadRequest(req, res, err.message)
