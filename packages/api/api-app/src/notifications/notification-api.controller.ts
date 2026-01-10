@@ -3,6 +3,7 @@ import { NIL as NIL_UUID } from 'uuid'
 
 import { userHasRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
 import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
+import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { NotificationService } from '@dx3/api-libs/notifications/notification-api.service'
 import {
   // NOTIFICATION_LEVELS,
@@ -12,15 +13,19 @@ import {
 
 export const NotificationController = {
   createAppNotification: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'createAppNotification' })
     try {
       const service = new NotificationService()
       const result = await service.createAndSendAppUpdate()
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed createAppNotification' })
       sendBadRequest(req, res, err.message)
     }
   },
+
   createNotification: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'createNotification' })
     try {
       const service = new NotificationService()
       const { level, message, route, suppressPush, title, userId } =
@@ -35,11 +40,13 @@ export const NotificationController = {
       )
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed createNotification' })
       sendBadRequest(req, res, err.message)
     }
   },
 
   createNotificationToAll: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'createNotificationToAll' })
     try {
       const service = new NotificationService()
       const { level, message, route, suppressPush, title } =
@@ -53,6 +60,7 @@ export const NotificationController = {
       )
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed createNotificationToAll' })
       sendBadRequest(req, res, err.message)
     }
   },
@@ -80,28 +88,33 @@ export const NotificationController = {
   },
 
   markAllAsRead: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'markAllAsRead' })
     try {
       const service = new NotificationService()
       const { userId } = req.params as { userId: string }
       const result = await service.markAllAsRead(userId)
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed markAllAsRead' })
       sendBadRequest(req, res, err.message)
     }
   },
 
   markAllAsViewed: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'markAllAsViewed' })
     try {
       const service = new NotificationService()
       const { userId } = req.params as { userId: string }
       const result = await service.markViewed(userId)
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed markAllAsViewed' })
       sendBadRequest(req, res, err.message)
     }
   },
 
   markAllDismissed: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'markAllDismissed' })
     try {
       const service = new NotificationService()
       const { userId } = req.params as { userId: string }
@@ -113,11 +126,17 @@ export const NotificationController = {
       }
       sendOK(req, res, { success: true })
     } catch (err) {
+      logRequest({
+        message: (err as Error)?.message,
+        req,
+        type: 'Failed dismarkAllDismissedconnectDevice',
+      })
       sendBadRequest(req, res, err.message)
     }
   },
 
   markAsDismissed: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'markAsDismissed' })
     try {
       const service = new NotificationService()
       const { id, userId } = req.params as { id: string; userId: string }
@@ -129,28 +148,33 @@ export const NotificationController = {
       }
       sendOK(req, res, { success: true })
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed markAsDismissed' })
       sendBadRequest(req, res, err.message)
     }
   },
 
   markAsRead: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'markAsRead' })
     try {
       const service = new NotificationService()
       const { id } = req.params as { id: string }
       const result = await service.markAsRead(id)
       sendOK(req, res, result)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed markAsRead' })
       sendBadRequest(req, res, err.message)
     }
   },
 
   testSocket: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'testSocket' })
     try {
       const service = new NotificationService()
       const { userId } = req.params as { userId: string }
       await service.testSockets(userId)
       sendOK(req, res, 'OK')
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed testSocket' })
       sendBadRequest(req, res, err.message)
     }
   },

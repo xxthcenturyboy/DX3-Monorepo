@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
 import { send400, sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
+import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MediaApiService } from '@dx3/api-libs/media/media-api.service'
 import {
   MEDIA_SUB_TYPES,
@@ -14,6 +15,7 @@ export const MediaApiController = {
   getMedia: async (req: Request, res: Response, _next: NextFunction) => {
     const { id, size } = req.params as { id: string; size: string }
 
+    logRequest({ req, type: 'getMedia' })
     try {
       const service = new MediaApiService()
       const key = await service.getContentKey(id, size)
@@ -22,12 +24,14 @@ export const MediaApiController = {
       }
       await service.getUserContent(key, res)
     } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed getMedia' })
       sendBadRequest(req, res, (err as Error).message)
     }
   },
 
   uploadUserContent: async (req: Request, res: Response, _next: NextFunction) => {
     const { err: uploadErr, fields, files, uploadId } = req.uploads
+    logRequest({ req, type: 'uploadUserContent' })
     const service = new MediaApiService()
 
     const results: Partial<MediaUploadResponseType>[] = []

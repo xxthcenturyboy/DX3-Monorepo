@@ -10,6 +10,8 @@
   "ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT": "Are you sure you want to log out?",
   "ARRAY_BUFFERS": "Array Buffers",
   "AUTH_FAILED": "Authentication failed. Please try again.",
+  "AUTH_INCOMPLETE_BIOMETRIC": "Biometric data is incomplete",
+  "AUTH_INVALID_BIOMETRIC": "Biometric data is invalid",
   "AUTH_INVALID_CREDENTIALS": "Invalid username or password.",
   "AUTH_OTP_EXPIRED": "Your verification code has expired. Please request a new one.",
   "AUTH_OTP_INVALID": "Invalid verification code. Please try again.",

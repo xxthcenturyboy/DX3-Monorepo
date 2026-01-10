@@ -72,6 +72,8 @@ export type StringKeys = {
   ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT: string
   ARRAY_BUFFERS: string
   AUTH_FAILED: string
+  AUTH_INCOMPLETE_BIOMETRIC: string
+  AUTH_INVALID_BIOMETRIC: string
   AUTH_INVALID_CREDENTIALS: string
   AUTH_OTP_EXPIRED: string
   AUTH_OTP_INVALID: string

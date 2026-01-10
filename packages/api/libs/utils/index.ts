@@ -1,6 +1,6 @@
 // export { DISPOSABLE_EMAIL_DOMAINS } from './lib/email/disposable-email-providers';
 // export { INVALID_EMAIL_NAMES } from './lib/email/email-validation.const';
-export { EmailUtil } from './lib/email/email.util'
+export { EmailUtil, type EmailUtilType } from './lib/email/email.util'
 export {
   createApiError,
   createApiErrorMessage,
@@ -9,7 +9,7 @@ export {
 } from './lib/error/api-error.utils'
 export {
   PhoneUtil,
-  PhoneUtilType,
+  type PhoneUtilType,
 } from './lib/phone/phone.util'
 export { ProfanityFilter } from './lib/profanity/profane.util'
 export { stream2buffer } from './lib/stream-to-buffer.util'
