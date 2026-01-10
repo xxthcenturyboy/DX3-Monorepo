@@ -1,7 +1,7 @@
 import zxcvbn from 'zxcvbn-typescript'
 
 import {
-  // ERROR_CODES,
+  ERROR_CODES,
   PHONE_DEFAULT_REGION_CODE,
   USER_LOOKUPS,
   type UserLookupQueryType,
@@ -9,15 +9,15 @@ import {
 } from '@dx3/models-shared'
 
 import { isDebug, isProd } from '../config/config-api.service'
-import { EmailModel } from '../email/email-api.postgres-model'
+import { EmailModel, type EmailModelType } from '../email/email-api.postgres-model'
 import { EmailService } from '../email/email-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { MailSendgrid } from '../mail/mail-api-sendgrid'
-import { PhoneModel } from '../phone/phone-api.postgres-model'
+import { PhoneModel, type PhoneModelType } from '../phone/phone-api.postgres-model'
 import { PhoneService } from '../phone/phone-api.service'
 import { UserModel } from '../user/user-api.postgres-model'
 import { EmailUtil, PhoneUtil } from '../utils'
-// import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
+import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { OtpCodeCache } from './otp/otp-code.redis-cache'
 import { TokenService } from './tokens/token.service'
 
@@ -32,7 +32,9 @@ export class AuthService {
 
   public async checkPasswordStrength(password: string) {
     if (!password) {
-      throw new Error('No value supplied.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     try {
@@ -42,9 +44,9 @@ export class AuthService {
         score: result.score,
       }
     } catch (err) {
-      const message = `Error in checkPasswordStrength: ${(err as Error).message}`
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = `Error in checkPasswordStrength: ${(err as Error).message}`
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -52,7 +54,9 @@ export class AuthService {
     const { region, type, value } = query
 
     if (!type || !value) {
-      throw new Error('Incorrect query parameters.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Incorrect parameters'),
+      )
     }
 
     const result: UserLookupResponseType = { available: false }
@@ -72,9 +76,9 @@ export class AuthService {
 
       return result
     } catch (err) {
-      const message = `Error in auth lookup handler: ${(err as Error).message}`
-      this.logger.logError(message)
-      return result
+      const msg = `Error in auth lookup handler: ${(err as Error).message}`
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -92,15 +96,54 @@ export class AuthService {
         return updated
       }
     } catch (err) {
-      this.logger.logError((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
 
     return false
   }
 
+  public async sentOtpById(
+    id: string,
+    type: 'PHONE' | 'EMAIL',
+  ): Promise<{ code: string } | undefined> {
+    if (type === 'PHONE') {
+      let phoneRecord: PhoneModelType | null = null
+      try {
+        phoneRecord = await PhoneModel.findByPk(id)
+        if (!phoneRecord) {
+          throw new Error('No phone with that id')
+        }
+      } catch (err) {
+        const msg = (err as Error).message
+        this.logger.logError(msg)
+        throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+      }
+
+      return await this.sendOtpToPhone(phoneRecord.phoneFormatted, phoneRecord.countryCode)
+    }
+
+    if (type === 'EMAIL') {
+      let emailRecord: EmailModelType | null = null
+      try {
+        emailRecord = await EmailModel.findByPk(id)
+        if (!emailRecord) {
+          throw new Error('No email with that id')
+        }
+      } catch (err) {
+        const msg = (err as Error).message || 'Error sending Otp to email'
+        this.logger.logError(msg)
+        throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+      }
+
+      return await this.sendOtpToEmail(emailRecord.email)
+    }
+  }
+
   public async sendOtpToEmail(email: string, strict?: boolean): Promise<{ code: string }> {
     if (!email) {
-      throw new Error('No email sent.')
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No email sent'))
     }
 
     let otpCode: string = ''
@@ -121,15 +164,17 @@ export class AuthService {
           const sgMessageId = await mail.sendOtp(emailUtil.formattedEmail(), otpCode)
           await EmailModel.updateMessageInfoValidate(emailUtil.formattedEmail(), sgMessageId)
         } catch (err) {
-          this.logger.logError((err as Error).message)
+          const msg = (err as Error).message
+          this.logger.logError(msg)
+          throw new Error(msg)
         }
       }
 
       return isProd() ? { code: '' } : { code: otpCode }
     } catch (err) {
-      const message = (err as Error).message || `Error sending Otp to email${email}`
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message || `Error sending Otp to email${email}`
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -139,7 +184,9 @@ export class AuthService {
     strict?: boolean,
   ): Promise<{ code: string }> {
     if (!phone) {
-      throw new Error('No phone sent.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     let otpCode: string = ''
@@ -164,50 +211,17 @@ export class AuthService {
 
       return isProd() ? { code: '' } : { code: otpCode }
     } catch (err) {
-      const message = (err as Error).message || `Error sending Otp to phone${phone}`
-      this.logger.logError(message)
-      throw new Error(message)
-    }
-  }
-
-  public async sentOtpById(
-    id: string,
-    type: 'PHONE' | 'EMAIL',
-  ): Promise<{ code: string } | undefined> {
-    if (type === 'PHONE') {
-      try {
-        const phoneRecord = await PhoneModel.findByPk(id)
-        if (!phoneRecord) {
-          throw new Error('No phone with that id')
-        }
-
-        return await this.sendOtpToPhone(phoneRecord.phoneFormatted, phoneRecord.countryCode)
-      } catch (err) {
-        const message = (err as Error).message || 'Error sending Otp to phone'
-        this.logger.logError(message)
-        throw new Error(message)
-      }
-    }
-
-    if (type === 'EMAIL') {
-      try {
-        const emailRecord = await EmailModel.findByPk(id)
-        if (!emailRecord) {
-          throw new Error('No email with that id')
-        }
-
-        return await this.sendOtpToEmail(emailRecord.email)
-      } catch (err) {
-        const message = (err as Error).message || 'Error sending Otp to email'
-        this.logger.logError(message)
-        throw new Error(message)
-      }
+      const msg = (err as Error).message || `Error sending Otp to phone${phone}`
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async validateEmail(token: string) {
     if (!token) {
-      throw new Error('No token to validate.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     try {
@@ -215,9 +229,9 @@ export class AuthService {
 
       return email.toJSON()
     } catch (err) {
-      const message = (err as Error).message || 'Could not verify email'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 }

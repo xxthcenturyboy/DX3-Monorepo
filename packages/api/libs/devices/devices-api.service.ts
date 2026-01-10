@@ -1,16 +1,16 @@
 import { randomUUID } from 'node:crypto'
 
 import type { DeviceAuthType, DeviceType } from '@dx3/models-shared'
+import { ERROR_CODES } from '@dx3/models-shared'
 
 import { SecurityAlertSerivice } from '../auth/alerts/security-alert.service'
-import { isDev } from '../config/config-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
+import { createApiErrorMessage } from '../utils'
 import { DeviceModel } from './device-api.postgres-model'
 import { FACIAL_AUTH_STATE } from './devices-api.consts'
 
 export class DevicesService {
-  private LOCAL = isDev()
   logger: ApiLoggingClassType
 
   constructor() {
@@ -212,14 +212,20 @@ export class DevicesService {
         return addedDevice
       }
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async disconnectDevice(deviceId: string) {
     if (!deviceId) {
-      throw new Error('DisconnectDevice: Not enough data to execute.')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.GENERIC_VALIDATION_FAILED,
+          'DisconnectDevice: Not enough data to execute.',
+        ),
+      )
     }
 
     try {
@@ -229,14 +235,17 @@ export class DevicesService {
       }
       return { message: 'Device disconnected.' }
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async rejectDevice(token: string) {
     if (!token) {
-      throw new Error('Reject Device: Token is required')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Token is required'),
+      )
     }
 
     try {
@@ -266,14 +275,20 @@ export class DevicesService {
 
       return previousDevice
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async updateFcmToken(userId: string, fcmToken: string) {
     if (!fcmToken) {
-      throw new Error('Update FCM Token: Insufficient data to complete request.')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.GENERIC_VALIDATION_FAILED,
+          'Update FCM Token: Insufficient data to complete request',
+        ),
+      )
     }
 
     try {
@@ -304,14 +319,20 @@ export class DevicesService {
 
       return connectedDevice
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async updatePublicKey(uniqueDeviceId: string, biometricPublicKey: string) {
     if (!uniqueDeviceId || !biometricPublicKey) {
-      throw new Error('Update Public Key: Insufficient data to complete request.')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.GENERIC_VALIDATION_FAILED,
+          'Update Public Key: Insufficient data to complete request.',
+        ),
+      )
     }
 
     try {
@@ -331,11 +352,11 @@ export class DevicesService {
 
       return existingDevice
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
-
 }
 
 export type DevicesServiceType = typeof DevicesService.prototype

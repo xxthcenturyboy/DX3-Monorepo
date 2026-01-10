@@ -220,7 +220,9 @@ export class AuthLoginService {
     const { biometric, code, region, password, value } = payload
 
     if (!value) {
-      throw new Error('No data sent.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     let user: UserModelType | null = null
@@ -281,9 +283,7 @@ export class AuthLoginService {
       await user.getPhones()
       const userProfile = await getUserProfileState(user, true)
       if (!userProfile) {
-        throw Error(
-          createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, `Failed to build user profile.`),
-        )
+        throw Error(`Failed to build user profile.`)
       }
 
       return userProfile

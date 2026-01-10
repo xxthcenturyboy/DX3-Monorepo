@@ -181,7 +181,9 @@ export class AuthSignupService {
     const { code, device, region, value } = payload
 
     if (!value) {
-      throw new Error('Bad data sent.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     let user: UserModelType | undefined
@@ -254,9 +256,7 @@ export class AuthSignupService {
       await user.getPhones()
       const userProfile = await getUserProfileState(user, true)
       if (!userProfile) {
-        throw Error(
-          createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, `Failed to build user profile.`),
-        )
+        throw Error(`Failed to build user profile.`)
       }
 
       return userProfile
