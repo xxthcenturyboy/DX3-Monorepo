@@ -78,6 +78,8 @@ export type StringKeys = {
   AUTH_OTP_EXPIRED: string
   AUTH_OTP_INVALID: string
   AUTH_SESSION_EXPIRED: string
+  AUTH_SIGNUP_BAD_PHONE_TYPE: string
+  AUTH_SIGNUP_FAILED: string
   AUTH_TOKEN_INVALID: string
   AUTH_UNAUTHORIZED: string
   AVATAR: string

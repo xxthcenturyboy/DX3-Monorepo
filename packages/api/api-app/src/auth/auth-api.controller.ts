@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express'
 
 import { AuthService } from '@dx3/api-libs/auth/auth-api.service'
+import { AuthLoginService } from '@dx3/api-libs/auth/auth-login.service'
+import { AuthSignupService } from '@dx3/api-libs/auth/auth-signup.service'
 import { TokenService } from '@dx3/api-libs/auth/tokens/token.service'
 import { CookeiService } from '@dx3/api-libs/cookies/cookie.service'
 import { DevicesService } from '@dx3/api-libs/devices/devices-api.service'
@@ -47,8 +49,8 @@ export const AuthController = {
   createAccount: async (req: Request, res: Response) => {
     logRequest({ req, type: 'createAccount' })
     try {
-      const service = new AuthService()
-      const profile = (await service.createAccount(
+      const service = new AuthSignupService()
+      const profile = (await service.signup(
         req.body as AccountCreationPayloadType,
         // req.session
       )) as UserProfileStateType
@@ -61,7 +63,6 @@ export const AuthController = {
           tokens.refreshToken,
           tokens.refreshTokenExp,
         )
-        await UserModel.updateRefreshToken(profile.id, tokens.refreshToken, true)
       }
 
       sendOK(req, res, {
@@ -77,7 +78,7 @@ export const AuthController = {
   login: async (req: Request, res: Response) => {
     logRequest({ req, type: 'login' })
     try {
-      const service = new AuthService()
+      const service = new AuthLoginService()
       const profile = (await service.login(req.body as LoginPayloadType)) as UserProfileStateType
 
       const tokens = TokenService.generateTokens(profile.id)

@@ -16,6 +16,8 @@
   "AUTH_OTP_EXPIRED": "Your verification code has expired. Please request a new one.",
   "AUTH_OTP_INVALID": "Invalid verification code. Please try again.",
   "AUTH_SESSION_EXPIRED": "Your session has expired. Please log in again.",
+  "AUTH_SIGNUP_BAD_PHONE_TYPE": "This phone cannot be used to create an account.",
+  "AUTH_SIGNUP_FAILED": "Signup failed. Please try again.",
   "AUTH_TOKEN_INVALID": "Your session is invalid. Please log in again.",
   "AUTH_UNAUTHORIZED": "You are not authorized to perform this action.",
   "AVATAR": "Avatar",
