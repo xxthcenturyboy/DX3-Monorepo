@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { dxHashAnyToString } from '@dx3/encryption/src'
 import {
+  ERROR_CODES,
   type ImageResizeMediaType,
   MEDIA_SUB_TYPES,
   MEDIA_TYPE_BY_MIME_TYPE_MAP,
@@ -24,7 +25,7 @@ import {
 } from '../config/config-api.consts'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { S3Service, type S3ServiceType } from '../s3'
-import { stream2buffer } from '../utils'
+import { createApiErrorMessage, stream2buffer } from '../utils'
 import { MediaModel } from './media-api.postgres-model'
 import {
   MediaApiImageManipulationService,
@@ -154,12 +155,14 @@ export class MediaApiService {
   public async userContentUpload(data: UploadMediaHandlerParams) {
     if (!data.mediaSubType || !data.filePath || !data.mimeType || !data.ownerId || !data.uploadId) {
       await this.clearUpload(data.uploadId)
-      throw new Error('102 Missing required data.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value supplied'),
+      )
     }
 
     if (!this.isFileTypeAllowed(data.mediaSubType, data.mimeType)) {
       await this.clearUpload(data.uploadId)
-      throw new Error('103 Incorrect file type.')
+      throw new Error(createApiErrorMessage(ERROR_CODES.MEDIA_INVALID_TYPE, 'Incorrect file type'))
     }
     const id = uuidv4()
     const ASSET_SUB_TYPE = data.mediaSubType.toLowerCase()
@@ -246,8 +249,9 @@ export class MediaApiService {
         status: 200,
       }
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error((err as Error).message)
+      const msg = (err as Error).message || 'File could not be uploaded.'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.MEDIA_UPLOAD_FAILED, msg))
     }
   }
 
@@ -260,16 +264,19 @@ export class MediaApiService {
 
       return media.files[variant].key
     } catch (err) {
-      this.logger.logError((err as Error).message)
-      throw new Error('105 Could not retrieve key.')
+      const msg = (err as Error).message || 'Could not retrieve key.'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async getUserContent(key: string, res: Response) {
     try {
       await this.s3Service.getObject(`${S3_APP_BUCKET_NAME}-${S3_BUCKETS.USER_CONTENT}`, key, res)
-    } catch (_err) {
-      throw new Error('105 Could not retrieve file.')
+    } catch (err) {
+      const msg = (err as Error).message || 'Could not get file.'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 }

@@ -24,12 +24,7 @@ export const EmailController = {
     try {
       const service = new EmailService()
       const result = await service.createEmail(req.body as CreateEmailPayloadType)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Email could not be created.', req, type: 'Failed createEmail' })
-      sendBadRequest(req, res, `Email could not be created.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed createEmail' })
       sendBadRequest(req, res, err.message)
@@ -42,12 +37,7 @@ export const EmailController = {
       const { id } = req.params as { id: string }
       const service = new EmailService()
       const result = await service.deleteEmail(id)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Email could not be deleted.', req, type: 'Failed deleteEmail' })
-      sendBadRequest(req, res, `Email could not be deleted.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed deleteEmail' })
       sendBadRequest(req, res, err.message)
@@ -60,16 +50,7 @@ export const EmailController = {
       const { id } = req.params as { id: string }
       const service = new EmailService()
       const result = await service.deleteEmail(id, req.user?.id)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({
-        message: 'Email could not be deleted.',
-        req,
-        type: 'Failed deleteEmailUserProfile',
-      })
-      sendBadRequest(req, res, `Email could not be deleted.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed deleteEmailUserProfile' })
       sendBadRequest(req, res, err.message)
@@ -82,12 +63,7 @@ export const EmailController = {
       const { id } = req.params as { id: string }
       const service = new EmailService()
       const result = await service.updateEmail(id, req.body as UpdateEmailPayloadType)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Email could not be updated.', req, type: 'Failed updateEmail' })
-      sendBadRequest(req, res, `Email could not be updated.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateEmail' })
       sendBadRequest(req, res, err.message)

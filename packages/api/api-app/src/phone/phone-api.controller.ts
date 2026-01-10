@@ -24,12 +24,7 @@ export const PhoneController = {
     try {
       const service = new PhoneService()
       const result = await service.createPhone(req.body as CreatePhonePayloadType)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Phone could not be created.', req, type: 'Failed createPhone' })
-      sendBadRequest(req, res, `Phone could not be created.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed createPhone' })
       sendBadRequest(req, res, err.message)
@@ -42,12 +37,7 @@ export const PhoneController = {
       const { id } = req.params as { id: string }
       const service = new PhoneService()
       const result = await service.deletePhone(id)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Phone could not be deleted.', req, type: 'Failed deletePhone' })
-      sendBadRequest(req, res, `Phone could not be deleted.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed deletePhone' })
       sendBadRequest(req, res, err.message)
@@ -60,16 +50,7 @@ export const PhoneController = {
       const { id } = req.params as { id: string }
       const service = new PhoneService()
       const result = await service.deletePhone(id, req.user?.id)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({
-        message: 'Phone could not be deleted.',
-        req,
-        type: 'Failed deletePhoneUserProfile',
-      })
-      sendBadRequest(req, res, `Phone could not be deleted.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed deletePhoneUserProfile' })
       sendBadRequest(req, res, err.message)
@@ -82,12 +63,7 @@ export const PhoneController = {
       const { id } = req.params as { id: string }
       const service = new PhoneService()
       const result = await service.updatePhone(id, req.body as UpdatePhonePayloadType)
-      if (result.id) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Phone could not be updated.', req, type: 'Failed updatePhone' })
-      sendBadRequest(req, res, `Phone could not be updated.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updatePhone' })
       sendBadRequest(req, res, err.message)
