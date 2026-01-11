@@ -49,6 +49,7 @@ export class ApiRoutes {
 
     if (this.app) {
       this.app.use('/api', [DxRateLimiters.standard(), versionMiddleware])
+      this.app.use('/*', endpointNotFound)
     }
   }
 }
