@@ -68,6 +68,8 @@ export {
   isValidErrorCode,
   parseApiError,
 } from './errors/error-shared.utils'
+// Headers
+export { HEADER_API_VERSION_PROP } from './headers/headers-shared.const'
 // HEALTHZ Types
 export type {
   HealthzHttpType,

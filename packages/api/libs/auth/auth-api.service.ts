@@ -166,7 +166,7 @@ export class AuthService {
         } catch (err) {
           const msg = (err as Error).message
           this.logger.logError(msg)
-          throw new Error(msg)
+          // throw new Error(msg)
         }
       }
 

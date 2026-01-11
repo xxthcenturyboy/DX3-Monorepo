@@ -4,6 +4,8 @@ import type {
   Handshake,
 } from 'socket.io/dist/socket'
 
+import { HEADER_API_VERSION_PROP } from '@dx3/models-shared'
+
 export class HeaderService {
   public static getTokenFromRequest(req: Request) {
     let token = ''
@@ -26,5 +28,18 @@ export class HeaderService {
     }
 
     return ''
+  }
+
+  public static getVersionFromRequest(req: Request) {
+    let version = 0
+    const versionHeaderValue = req.get(HEADER_API_VERSION_PROP)
+    if (versionHeaderValue) {
+      version = Number(versionHeaderValue)
+      if (version) {
+        return version
+      }
+    }
+
+    return version
   }
 }

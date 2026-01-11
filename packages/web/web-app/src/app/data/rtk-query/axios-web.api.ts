@@ -76,7 +76,7 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
         if (accessToken) {
           try {
             const response: AxiosResponse<{ accessToken: string }> = await axios.get(
-              `${API_URI}/v1/auth/refresh-token`,
+              `${API_URI}/auth/refresh-token`,
               {
                 withCredentials: true,
               },

@@ -8,7 +8,7 @@ import type {
 } from '@dx3/models-shared'
 
 import type { CustomResponseErrorType } from '../data/rtk-query/axios-web.types'
-import { apiWeb } from '../data/rtk-query/web.api'
+import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
 import { getAuthApiErrors } from './auth-web-api-errors'
 
 function transformAuthApiError(response: CustomResponseErrorType): CustomResponseErrorType {
@@ -24,36 +24,40 @@ function transformAuthApiError(response: CustomResponseErrorType): CustomRespons
   return response
 }
 
-export const apiWebAuth = apiWeb.injectEndpoints({
+const apiWebAuth = apiWeb.injectEndpoints({
   endpoints: (build) => ({
     checkPasswordStrength: build.mutation<IZXCVBNResult, { password: string }>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/password-strength',
+        url: 'auth/password-strength',
       }),
       transformErrorResponse: transformAuthApiError,
     }),
     createAccount: build.mutation<AuthSuccessResponseType, AccountCreationPayloadType>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/account',
+        url: 'auth/account',
       }),
       transformErrorResponse: transformAuthApiError,
     }),
     login: build.mutation<AuthSuccessResponseType, LoginPayloadType>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/login',
+        url: 'auth/login',
       }),
       transformErrorResponse: transformAuthApiError,
     }),
     logout: build.mutation<LogoutResponse, void>({
       query: () => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/logout',
+        url: 'auth/logout',
       }),
       transformErrorResponse: transformAuthApiError,
       transformResponse: (response: LogoutResponse) => {
@@ -63,24 +67,27 @@ export const apiWebAuth = apiWeb.injectEndpoints({
     otpRequestEmail: build.mutation<{ code?: string }, { email: string }>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/otp-code/send/email',
+        url: 'auth/otp-code/send/email',
       }),
       transformErrorResponse: transformAuthApiError,
     }),
     otpRequestId: build.mutation<{ code?: string }, { id: string; type: 'PHONE' | 'EMAIL' }>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/otp-code/send/id',
+        url: 'auth/otp-code/send/id',
       }),
       transformErrorResponse: transformAuthApiError,
     }),
     otpRequestPhone: build.mutation<{ code?: string }, { phone: string; regionCode?: string }>({
       query: (payload) => ({
         data: payload,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/auth/otp-code/send/phone',
+        url: 'auth/otp-code/send/phone',
       }),
       transformErrorResponse: transformAuthApiError,
     }),

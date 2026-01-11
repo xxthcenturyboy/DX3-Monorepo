@@ -158,7 +158,7 @@ beforeAll(async () => {
  * Use this in tests instead of creating new AuthUtil instances
  *
  * @example
- * const request = { url: '/api/v1/user/list', headers: getGlobalAuthHeaders(), ... };
+ * const request = { url: '/ap/user/list', headers: getGlobalAuthHeaders(), ... };
  */
 export function getGlobalAuthHeaders(): Record<string, string | string[]> {
   if (global.globalAuthError) {

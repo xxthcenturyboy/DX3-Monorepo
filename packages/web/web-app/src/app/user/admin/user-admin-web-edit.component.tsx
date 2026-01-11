@@ -153,7 +153,10 @@ export const UserAdminEdit: React.FC = () => {
       if (!privilegeError && privilegeResponse) {
         dispatch(privilegeSetActions.setPrivileges(privilegeResponse))
       }
-      dispatch(uiActions.apiDialogSet(getErrorStringFromApiResponse(privilegeError)))
+
+      if (privilegeError) {
+        dispatch(uiActions.apiDialogSet(getErrorStringFromApiResponse(privilegeError)))
+      }
     }
   }, [isLoadingPrivilegeSet, privilegeError, privilegeResponse])
 

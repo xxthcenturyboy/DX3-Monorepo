@@ -8,11 +8,18 @@ import { UploadMiddleware } from '@dx3/api-libs/media/media-api-file-upload.midd
 
 import { MediaApiController } from './media-api.controller'
 
-export class MediaApiV1Routes {
+export class MediaApiBaseRoutes {
   static configure() {
     const router = Router()
 
     router.get('/:id/:size', [ensureLoggedInMedia], MediaApiController.getMedia)
+
+    return router
+  }
+}
+export class MediaApiV1Routes {
+  static configure() {
+    const router = Router()
 
     router.post(
       '/upload-profile-image',
@@ -29,5 +36,3 @@ export class MediaApiV1Routes {
     return router
   }
 }
-
-export type MediaApiV1RoutesType = typeof MediaApiV1Routes.prototype

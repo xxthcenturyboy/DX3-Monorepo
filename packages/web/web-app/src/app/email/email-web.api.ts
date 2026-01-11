@@ -1,40 +1,45 @@
 import type { CreateEmailPayloadType, UpdateEmailPayloadType } from '@dx3/models-shared'
 
-import { apiWeb } from '../data/rtk-query/web.api'
+import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
 
 export const apiWebEmail = apiWeb.injectEndpoints({
   endpoints: (build) => ({
     addEmail: build.mutation<{ id: string }, CreateEmailPayloadType>({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/email',
+        url: 'email',
       }),
     }),
     checkEmailAvailability: build.mutation<{ isAvailable: boolean }, string>({
       query: (paylaod) => ({
         data: { email: paylaod },
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/email/validate',
+        url: 'email/validate',
       }),
     }),
     deleteEmail: build.mutation<{ id: string }, string>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'DELETE',
-        url: `v1/email/${encodeURIComponent(paylaod)}`,
+        url: `email/${encodeURIComponent(paylaod)}`,
       }),
     }),
     deleteEmailProfile: build.mutation<{ id: string }, string>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'DELETE',
-        url: `v1/email/user-profile/${encodeURIComponent(paylaod)}`,
+        url: `email/user-profile/${encodeURIComponent(paylaod)}`,
       }),
     }),
     updateEmail: build.mutation<{ id: string }, UpdateEmailPayloadType>({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'PUT',
-        url: `v1/email/${encodeURIComponent(paylaod.id)}`,
+        url: `email/${encodeURIComponent(paylaod.id)}`,
       }),
     }),
   }),

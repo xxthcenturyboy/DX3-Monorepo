@@ -97,7 +97,7 @@ async function performGlobalLogin(): Promise<AuthCache | null> {
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await axios.post('/api/v1/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         password: TEST_EXISTING_PASSWORD,
         value: TEST_EXISTING_USERNAME,
       })

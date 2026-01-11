@@ -32,7 +32,7 @@ export class AuthUtil {
     const request: AxiosRequestConfig = {
       data: payload,
       method: 'POST',
-      url: '/api/v1/auth/login',
+      url: '/api/auth/login',
     }
 
     try {
@@ -71,7 +71,7 @@ export class AuthUtil {
         value: email,
       },
       method: 'POST',
-      url: '/api/v1/auth/login',
+      url: '/api/auth/login',
     }
 
     try {

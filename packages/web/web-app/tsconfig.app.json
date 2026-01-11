@@ -15,5 +15,5 @@
     "jest.config.ts"
   ],
   "extends": "./tsconfig.json",
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx", "./types/mui.d.ts"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx", "./types/axios.d.ts", "./types/mui.d.ts"]
 }

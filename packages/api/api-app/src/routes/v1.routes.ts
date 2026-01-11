@@ -1,5 +1,7 @@
 import { Router } from 'express'
 
+import { endpointNotFound } from '@dx3/api-libs/http-response/http-responses'
+
 import { AuthRoutes } from '../auth/auth-api.routes'
 import { DevicesRoutes } from '../devices/devices-api.routes'
 import { EmailRoutes } from '../email/email-api.routes'
@@ -22,6 +24,7 @@ export class RoutesV1 {
     router.use('/privilege-set', UserPrivilegeRoutes.configure())
     router.use('/shortlink', ShortlinkRoutes.configure())
     router.use('/user', UserRoutes.configure())
+    router.all('/*', endpointNotFound)
 
     return router
   }

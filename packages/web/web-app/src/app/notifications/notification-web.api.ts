@@ -6,7 +6,7 @@ import type {
   // NOTIFICATION_WEB_SOCKET_NS
 } from '@dx3/models-shared'
 
-import { apiWeb } from '../data/rtk-query/web.api'
+import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
 // import { SocketWebConnection } from '@dx/data-access-socket-io-web';
 
 // export class NotificationSockets {
@@ -27,8 +27,9 @@ export const apiWebNotifications = apiWeb.injectEndpoints({
       { userId: string }
     >({
       query: (payload) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'GET',
-        url: `v1/notification/user/${payload.userId}`,
+        url: `notification/user/${payload.userId}`,
       }),
       // async onCacheEntryAdded(
       //   paylaod,
@@ -58,22 +59,25 @@ export const apiWebNotifications = apiWeb.injectEndpoints({
 
     markAllAsDismissed: build.mutation<{ success: boolean }, { userId: string }>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'PUT',
-        url: `v1/notification/dismiss-all/${paylaod.userId}`,
+        url: `notification/dismiss-all/${paylaod.userId}`,
       }),
     }),
 
     markAsDismissed: build.mutation<{ success: boolean }, { id: string; userId: string }>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'PUT',
-        url: `v1/notification/dismiss/${paylaod.id}/${paylaod.userId}`,
+        url: `notification/dismiss/${paylaod.id}/${paylaod.userId}`,
       }),
     }),
 
     sendNotificationAppUpdate: build.mutation<{ success: boolean }, void>({
       query: () => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: `v1/notification/app-update`,
+        url: `notification/app-update`,
       }),
     }),
 
@@ -83,23 +87,26 @@ export const apiWebNotifications = apiWeb.injectEndpoints({
     >({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: `v1/notification/all-users`,
+        url: `notification/all-users`,
       }),
     }),
 
     sendNotificationToUser: build.mutation<{ success: boolean }, NotificationCreationParamTypes>({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: `v1/notification/user`,
+        url: `notification/user`,
       }),
     }),
 
     testSockets: build.mutation<{ success: boolean }, { userId: string }>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: `v1/notification/test/${paylaod.userId}`,
+        url: `notification/test/${paylaod.userId}`,
       }),
     }),
   }),

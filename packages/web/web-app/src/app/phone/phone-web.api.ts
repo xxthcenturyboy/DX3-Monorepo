@@ -1,14 +1,15 @@
 import type { CreatePhonePayloadType, UpdatePhonePayloadType } from '@dx3/models-shared'
 
-import { apiWeb } from '../data/rtk-query/web.api'
+import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
 
 export const apiWebPhone = apiWeb.injectEndpoints({
   endpoints: (build) => ({
     addPhone: build.mutation<{ id: string; phoneFormatted: string }, CreatePhonePayloadType>({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/phone',
+        url: 'phone',
       }),
     }),
     checkPhoneAvailability: build.mutation<
@@ -17,27 +18,31 @@ export const apiWebPhone = apiWeb.injectEndpoints({
     >({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'POST',
-        url: 'v1/phone/validate',
+        url: 'phone/validate',
       }),
     }),
     deletePhone: build.mutation<{ id: string }, string>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'DELETE',
-        url: `v1/phone/${paylaod}`,
+        url: `phone/${paylaod}`,
       }),
     }),
     deletePhoneProfile: build.mutation<{ id: string }, string>({
       query: (paylaod) => ({
+        headers: getCustomHeaders({ version: 1 }),
         method: 'DELETE',
-        url: `v1/phone/user-profile/${paylaod}`,
+        url: `phone/user-profile/${paylaod}`,
       }),
     }),
     updatePhone: build.mutation<{ id: string }, UpdatePhonePayloadType>({
       query: (paylaod) => ({
         data: paylaod,
+        headers: getCustomHeaders({ version: 1 }),
         method: 'PUT',
-        url: `v1/phone/${paylaod.id}`,
+        url: `phone/${paylaod.id}`,
       }),
     }),
   }),

@@ -40,7 +40,7 @@ export const selectProfileFormatted = createSelector([getUserProfile], (profile)
   let profileImageUrl: string | undefined
 
   if (profile.profileImage) {
-    profileImageUrl = `${WebConfigService.getWebUrls().API_URL}/api/v1/media/${profile.profileImage}/${MEDIA_VARIANTS.THUMB}`
+    profileImageUrl = `${WebConfigService.getWebUrls().API_URL}/api/media/${profile.profileImage}/${MEDIA_VARIANTS.THUMB}`
   }
 
   return {
