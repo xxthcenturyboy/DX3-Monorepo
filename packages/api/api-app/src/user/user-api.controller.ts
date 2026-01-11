@@ -37,12 +37,7 @@ export const UserController = {
     try {
       const service = new UserService()
       const result = await service.createUser(req.body as CreateUserPayloadType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not create user', req, type: 'Failed createUser' })
-      sendBadRequest(req, res, `Could not create user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed createUser' })
       sendBadRequest(req, res, err.message)
@@ -55,12 +50,7 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.deleteUser(id)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not delete user.', req, type: 'Failed deleteUser' })
-      sendBadRequest(req, res, `Could not delete user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed deleteUser' })
       sendBadRequest(req, res, err.message)
@@ -73,12 +63,7 @@ export const UserController = {
       const { id } = req.params as GetUserQueryType
       const service = new UserService()
       const result = await service.getUser(id)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not get user.', req, type: 'Failed getUser' })
-      sendBadRequest(req, res, `Could not get user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getUser' })
       sendBadRequest(req, res, err.message)
@@ -92,12 +77,7 @@ export const UserController = {
       const userId = TokenService.getUserIdFromToken(authToken)
       const service = new UserService()
       const result = await service.getProfile(userId)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'No profile for this user.', req, type: 'Failed getUserProfile' })
-      sendBadRequest(req, res, `No profile for this user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getUserProfile' })
       sendBadRequest(req, res, err.message)
@@ -109,12 +89,7 @@ export const UserController = {
     try {
       const service = new UserService()
       const result = await service.getUserList(req.query as GetUsersListQueryType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not get user list.', req, type: 'Failed getUsersList' })
-      sendBadRequest(req, res, `Could not get user list.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getUsersList' })
       sendBadRequest(req, res, err.message)
@@ -128,12 +103,7 @@ export const UserController = {
       const userId = TokenService.getUserIdFromToken(authToken)
       const service = new UserService()
       const result = await service.sendOtpCode(userId)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Code could not be sent.', req, type: 'Failed sendOTPCode' })
-      sendBadRequest(req, res, `Code could not be sent.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed setOTPCode' })
       sendBadRequest(req, res, err.message)
@@ -145,12 +115,7 @@ export const UserController = {
     try {
       const service = new UserService()
       const result = await service.updatePassword(req.body as UpdatePasswordPayloadType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not update password.', req, type: 'Failed updatePassword' })
-      sendBadRequest(req, res, `Could not update password.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updatePassword' })
       sendBadRequest(req, res, err.message)
@@ -163,12 +128,7 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.updateRolesAndRestrictions(id, req.body as UpdateUserPayloadType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not update user.', req, type: 'Failed updateRolesRestrictions' })
-      sendBadRequest(req, res, `Could not update user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateRolesRestrictions' })
       sendBadRequest(req, res, err.message)
@@ -181,12 +141,7 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.updateUser(id, req.body as UpdateUserPayloadType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not update user.', req, type: 'Failed updateUser' })
-      sendBadRequest(req, res, `Could not update user.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateUser' })
       sendBadRequest(req, res, err.message)
@@ -199,12 +154,7 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.updateUserName(id, req.body as UpdateUsernamePayloadType)
-      if (result) {
-        return sendOK(req, res, result)
-      }
-
-      logRequest({ message: 'Could not update username', req, type: 'Failed updateUserName' })
-      sendBadRequest(req, res, `Could not update username.`)
+      return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateUserName' })
       sendBadRequest(req, res, err.message)

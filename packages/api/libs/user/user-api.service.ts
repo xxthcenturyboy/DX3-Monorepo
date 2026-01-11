@@ -28,6 +28,7 @@ import { OtpService } from '../auth/otp/otp.service'
 import { isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
 import { EmailModel } from '../email/email-api.postgres-model'
+import { EmailService } from '../email/email-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { MailSendgrid } from '../mail/mail-api-sendgrid'
 import { PHONE_MODEL_OPTIONS } from '../phone/phone-api.consts'
@@ -36,7 +37,7 @@ import { ShortLinkModel } from '../shortlink/shortlink-api.postgres-model'
 import { EmailUtil, PhoneUtil, ProfanityFilter } from '../utils'
 import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { USER_FIND_ATTRIBUTES, USER_SORT_FIELDS } from './user-api.consts'
-import { UserModel } from './user-api.postgres-model'
+import { UserModel, type UserModelType } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
 
 export class UserService {
@@ -112,7 +113,7 @@ export class UserService {
     if (!username || !email) {
       throw new Error(
         createApiErrorMessage(
-          ERROR_CODES.USER_CREATE_FAILED,
+          ERROR_CODES.GENERIC_VALIDATION_FAILED,
           'Not enough information to create a user.',
         ),
       )
@@ -120,21 +121,37 @@ export class UserService {
 
     const profanityFilter = new ProfanityFilter()
     if (profanityFilter.isProfane(username)) {
-      throw new Error('Profane usernames are not allowed.')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.USER_PROFANE_USERNAMES_NOT_ALLOWED,
+          'Profane usernames are not allowed.',
+        ),
+      )
     }
 
     const emailUtil = new EmailUtil(email)
-    if (!emailUtil.validate()) {
-      throw new Error('Invalid Email')
-    }
+    const emailService = new EmailService()
+    // will throw if email is invalid
+    await emailService.isEmailAvailableAndValid(email)
 
     let phoneValue: string
     let countryCodeValue: string = countryCode
     if (phone) {
       const phoneUtil = new PhoneUtil(phone, regionCode || PHONE_DEFAULT_REGION_CODE)
       if (!phoneUtil.isValid) {
-        throw new Error('Invalid Phone')
+        throw new Error(createApiErrorMessage(ERROR_CODES.PHONE_INVALID, 'Invalid Phone'))
       }
+
+      const phoneAvailable = await PhoneModel.isPhoneAvailable(
+        phoneUtil.nationalNumber,
+        phoneUtil.countryCode,
+      )
+      if (!phoneAvailable) {
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.PHONE_ALREADY_EXISTS, 'Phone already exists'),
+        )
+      }
+
       countryCodeValue = phoneUtil.countryCode
       phoneValue = phoneUtil.nationalNumber
     }
@@ -153,9 +170,7 @@ export class UserService {
       )
 
       if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.USER_CREATE_FAILED, 'User could not be created.'),
-        )
+        throw new Error('User could not be created.')
       }
 
       const mail = new MailSendgrid()
@@ -170,36 +185,46 @@ export class UserService {
           invited: !!inviteMessageId,
         }
       } catch (err) {
-        this.logger.logError(err.message)
-      }
-
-      return {
-        id: user.id,
-        invited: false,
+        const msg = `Email invite failed to send: ${(err as Error).message}`
+        this.logger.logError(msg)
+        throw new Error(msg)
       }
     } catch (err) {
-      const message = err.message || 'Could not create user.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async deleteUser(id: string) {
     if (!id) {
       throw new Error(
-        createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'No id provided for delete.'),
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No id provided for delete.'),
       )
     }
 
+    let user: UserModelType | null = null
+
     try {
-      const user = await UserModel.findByPk(id)
+      user = await UserModel.findOne({
+        attributes: USER_FIND_ATTRIBUTES,
+        include: [EMAIL_MODEL_OPTIONS, PHONE_MODEL_OPTIONS],
+        where: {
+          deletedAt: null,
+          id,
+        },
+      })
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
 
-      if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
-        )
-      }
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
+    }
 
+    try {
       user.setDataValue('deletedAt', new Date())
       await user.save()
 
@@ -207,9 +232,9 @@ export class UserService {
         userId: user.id,
       }
     } catch (err) {
-      const message = err.message || 'Could not delete user.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -219,57 +244,72 @@ export class UserService {
     }
 
     if (!userId) {
-      return profile
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No ID supplied'),
+      )
+    }
+
+    let user: UserModelType | null = null
+
+    try {
+      user = await UserModel.findByPk(userId)
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
+
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
     }
 
     try {
-      const user = await UserModel.findByPk(userId)
-
-      if (!user) {
-        return profile
-      }
-
       await user.getEmails()
       await user.getPhones()
       profile.profile = await getUserProfileState(user, true)
 
       return profile
     } catch (err) {
-      const message = err.message || 'Could not get user profile'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async getUser(id: string): Promise<GetUserResponseType> {
     if (!id) {
       throw new Error(
-        createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'No id provided for search.'),
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No id provided for search.'),
       )
     }
 
+    let user: UserModelType | null = null
+
     try {
-      const user = await UserModel.findOne({
+      user = await UserModel.findOne({
         attributes: USER_FIND_ATTRIBUTES,
         include: [EMAIL_MODEL_OPTIONS, PHONE_MODEL_OPTIONS],
         where: {
           deletedAt: null,
           id,
         },
-        // logging: this.DEBUG && console.debug,
       })
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
 
-      if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
-        )
-      }
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
+    }
 
+    try {
       return user.toJSON()
     } catch (err) {
-      const message = err.message || 'Could not get user.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -280,8 +320,10 @@ export class UserService {
 
     const search = this.getListSearchQuery(filterValue)
 
+    let users: { rows: UserModelType[]; count: number } = { count: 0, rows: [] }
+
     try {
-      const users = await UserModel.findAndCountAll({
+      users = await UserModel.findAndCountAll({
         include: [EMAIL_MODEL_OPTIONS, PHONE_MODEL_OPTIONS],
         ...search,
         attributes: USER_FIND_ATTRIBUTES,
@@ -291,11 +333,13 @@ export class UserService {
         subQuery: false,
         // logging: this.DEBUG && console.debug,
       })
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
 
-      if (!users) {
-        throw new Error('Search for users failed')
-      }
-
+    try {
       let count = 0
       const rows: UserType[] = []
       for (const user of users.rows) {
@@ -307,15 +351,17 @@ export class UserService {
       users.count = count
       return users
     } catch (err) {
-      const message = err.message || 'Could not get user list.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async isUsernameAvailable(usernameToCheck: string) {
     if (!usernameToCheck) {
-      throw new Error('Nothing to check.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Nothing provided to search.'),
+      )
     }
 
     const result = { available: false }
@@ -326,14 +372,20 @@ export class UserService {
 
     const profanityUtil = new ProfanityFilter()
     if (profanityUtil.isProfane(usernameToCheck)) {
-      throw new Error('Profanity is not allowed')
+      throw new Error(
+        createApiErrorMessage(
+          ERROR_CODES.USER_PROFANE_USERNAMES_NOT_ALLOWED,
+          'Profane usernames are not allowed.',
+        ),
+      )
     }
+
     try {
       result.available = await UserModel.isUsernameAvailable(usernameToCheck)
     } catch (err) {
-      const message = err.message || 'Error checking for username availability'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
 
     return result
@@ -388,16 +440,18 @@ export class UserService {
 
   public async sendOtpCode(userId: string): Promise<OtpResponseType> {
     if (!userId) {
-      throw new Error('Request is invalid.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value provided.'),
+      )
     }
 
     try {
       const code = await OtpService.generateOptCode(userId)
       return isProd() ? { code: '' } : { code }
     } catch (err) {
-      const message = err.message || 'Could not send code.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -405,11 +459,15 @@ export class UserService {
     const { id, password, passwordConfirm, otp, signature } = payload
 
     if (!id || !password || !passwordConfirm || !(otp || signature)) {
-      throw new Error('Request is invalid.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value provided.'),
+      )
     }
 
     if (password !== passwordConfirm) {
-      throw new Error('Passwords must match.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Passwords must match.'),
+      )
     }
 
     let validated = false
@@ -477,10 +535,9 @@ export class UserService {
 
       return result
     } catch (err) {
-      console.error(err)
-      const message = err.message || 'Could not update password.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -492,19 +549,25 @@ export class UserService {
 
     if (!id) {
       throw new Error(
-        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No value provided.'),
       )
     }
 
+    let user: UserModelType | null = null
+
     try {
-      const user = await UserModel.findByPk(id)
+      user = await UserModel.findByPk(id)
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
 
-      if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
-        )
-      }
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
+    }
 
+    try {
       if (restrictions !== undefined && Array.isArray(restrictions)) {
         user.setDataValue('restrictions', restrictions)
       }
@@ -518,9 +581,9 @@ export class UserService {
         userId: user.id,
       }
     } catch (err) {
-      const message = err.message || 'Could not update user.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -532,45 +595,51 @@ export class UserService {
 
     if (!id) {
       throw new Error(
-        createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, 'No id provided for update.'),
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No id provided for update.'),
       )
     }
 
+    let user: UserModelType | null = null
+
     try {
-      const user = await UserModel.findByPk(id)
+      user = await UserModel.findByPk(id)
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
 
-      if (!user) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'),
-        )
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
+    }
+
+    const profanityFilter = new ProfanityFilter()
+
+    if (firstName !== undefined && typeof firstName === 'string') {
+      if (profanityFilter.isProfane(firstName)) {
+        user.setDataValue('firstName', profanityFilter.cleanProfanity(firstName))
+      } else {
+        user.setDataValue('firstName', firstName)
       }
-
-      const profanityFilter = new ProfanityFilter()
-
-      if (firstName !== undefined && typeof firstName === 'string') {
-        if (profanityFilter.isProfane(firstName)) {
-          user.setDataValue('firstName', profanityFilter.cleanProfanity(firstName))
-        } else {
-          user.setDataValue('firstName', firstName)
-        }
+    }
+    if (lastName !== undefined && typeof lastName === 'string') {
+      if (profanityFilter.isProfane(lastName)) {
+        user.setDataValue('lastName', profanityFilter.cleanProfanity(lastName))
+      } else {
+        user.setDataValue('lastName', lastName)
       }
-      if (lastName !== undefined && typeof lastName === 'string') {
-        if (profanityFilter.isProfane(lastName)) {
-          user.setDataValue('lastName', profanityFilter.cleanProfanity(lastName))
-        } else {
-          user.setDataValue('lastName', lastName)
-        }
-      }
+    }
 
+    try {
       await user.save()
 
       return {
         userId: user.id,
       }
     } catch (err) {
-      const message = err.message || 'Could not update user.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -582,13 +651,13 @@ export class UserService {
 
     if (!id || !(otpCode || signature)) {
       const msg = `${!id ? 'No id provided' : 'No otp or signature provided'} for username update.`
-      throw new Error(createApiErrorMessage(ERROR_CODES.USER_UPDATE_FAILED, msg))
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, msg))
     }
 
     if (otpCode) {
       const isCodeValid = await OtpService.validateOptCode(id, otpCode)
       if (!isCodeValid) {
-        throw new Error('Invalid OTP code.')
+        throw new Error(createApiErrorMessage(ERROR_CODES.AUTH_OTP_INVALID, 'Invalid OTP code.'))
       }
     }
 
@@ -601,28 +670,36 @@ export class UserService {
       )
       if (!isSignatureValid) {
         throw new Error(
-          `Update Username: Device signature is invalid: ${biometricAuthPublicKey}, userid: ${id}`,
+          createApiErrorMessage(
+            ERROR_CODES.AUTH_INVALID_BIOMETRIC,
+            `Update username: Device signature is invalid: ${biometricAuthPublicKey}, userid: ${id}`,
+          ),
         )
       }
     }
 
     const isAvailable = await this.isUsernameAvailable(username)
     if (!isAvailable.available) {
-      throw new Error('Username is not available.')
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.USER_USERNAME_UNAVAILABLE, 'Username is not available.'),
+      )
     }
 
-    const profanityUtil = new ProfanityFilter()
-    if (profanityUtil.isProfane(username)) {
-      throw new Error('Profanity is not allowed')
+    let user: UserModelType | null = null
+
+    try {
+      user = await UserModel.findByPk(id)
+    } catch (err) {
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
+
+    if (!user) {
+      throw new Error(createApiErrorMessage(ERROR_CODES.USER_NOT_FOUND, 'User could not be found.'))
     }
 
     try {
-      const user = await UserModel.findByPk(id)
-
-      if (!user) {
-        throw new Error(`User could not be found with the id: ${id}`)
-      }
-
       user.setDataValue('username', username)
 
       await user.save()
@@ -631,9 +708,9 @@ export class UserService {
         userId: user.id,
       }
     } catch (err) {
-      const message = err.message || 'Could not update username.'
-      this.logger.logError(message)
-      throw new Error(message)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 }

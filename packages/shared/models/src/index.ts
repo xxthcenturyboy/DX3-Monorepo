@@ -102,7 +102,6 @@ export type {
   UploadMediaParams,
 } from './media/media-shared.types'
 export {
-  NOTIFICATION_ERRORS,
   NOTIFICATION_LEVELS,
   NOTIFICATION_WEB_SOCKET_NS,
 } from './notifications/notification-shared.consts'

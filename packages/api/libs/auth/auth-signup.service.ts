@@ -66,6 +66,7 @@ export class AuthSignupService {
     }
 
     const emailService = new EmailService()
+    // will throw if email is invalid
     const emailValidResult = await emailService.isEmailAvailableAndValid(email, true)
 
     if (emailValidResult === ERROR_CODES.EMAIL_ALREADY_EXISTS) {

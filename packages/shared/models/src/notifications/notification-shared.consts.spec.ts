@@ -1,31 +1,8 @@
 import {
-  NOTIFICATION_ERRORS,
   NOTIFICATION_LEVELS,
   NOTIFICATION_MOBILE_SOCKET_NS,
   NOTIFICATION_WEB_SOCKET_NS,
 } from './notification-shared.consts'
-
-describe('NOTIFICATION_ERRORS ', () => {
-  it('should exist when imported', () => {
-    // arrange
-    // act
-    // assert
-    expect(NOTIFICATION_ERRORS).toBeDefined()
-  })
-
-  it('should have correct value', () => {
-    // arrange
-    // act
-    // assert
-    expect(NOTIFICATION_ERRORS.MISSING_PARAMS).toEqual(
-      '601 Missing required notification parameters.',
-    )
-    expect(NOTIFICATION_ERRORS.MISSING_USER_ID).toEqual(
-      '602 User ID required for this notification.',
-    )
-    expect(NOTIFICATION_ERRORS.SERVER_ERROR).toEqual('603 Notification service error.')
-  })
-})
 
 describe('NOTIFICATION_LEVELS ', () => {
   it('should exist when imported', () => {

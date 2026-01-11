@@ -1,10 +1,11 @@
 import { NIL as NIL_UUID } from 'uuid'
 
-import { NOTIFICATION_ERRORS, NOTIFICATION_LEVELS } from '@dx3/models-shared'
+import { ERROR_CODES, NOTIFICATION_LEVELS } from '@dx3/models-shared'
 import { sleep } from '@dx3/utils-shared'
 
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { UserModel } from '../user/user-api.postgres-model'
+import { createApiErrorMessage } from '../utils'
 import { NotificationModel } from './notification-api.postgres-model'
 import { NotificationSocketApiService } from './notification-api.socket'
 // import admin from 'firebase-admin';
@@ -22,7 +23,9 @@ export class NotificationService {
     userId: string,
   ): Promise<{ system: NotificationModel[]; user: NotificationModel[] }> {
     if (!userId && typeof userId !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_USER_ID)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing userId'),
+      )
     }
 
     try {
@@ -33,8 +36,9 @@ export class NotificationService {
         user: userNotifications,
       }
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -52,8 +56,9 @@ export class NotificationService {
         user: notifications.user.length,
       }
     } catch (err) {
-      this.logger.logError(err)
-      return 0
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
@@ -66,7 +71,7 @@ export class NotificationService {
     try {
       const user = await UserModel.findByPk(userId)
       if (!user) {
-        throw 'No User!'
+        throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No user'))
       }
 
       const _badge = await this.getAppBadgeCount(userId)
@@ -113,7 +118,9 @@ export class NotificationService {
   ): Promise<NotificationModel> {
     try {
       if (!userId && !message) {
-        throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+        )
       }
 
       const notification = await NotificationModel.createNew({
@@ -131,8 +138,9 @@ export class NotificationService {
       }
       return notification
     } catch (err) {
-      this.logger.logError(`Notifications: ${err}`)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.NOTIFICATION_CREATE_FAILED, msg))
     }
   }
 
@@ -145,7 +153,9 @@ export class NotificationService {
   ): Promise<NotificationModel> {
     try {
       if (!message) {
-        throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+        throw new Error(
+          createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+        )
       }
 
       const notification = await NotificationModel.createNew({
@@ -163,8 +173,9 @@ export class NotificationService {
       }
       return notification
     } catch (err) {
-      this.logger.logError(`Notifications: ${err}`)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.NOTIFICATION_CREATE_FAILED, msg))
     }
   }
 
@@ -174,75 +185,91 @@ export class NotificationService {
         'The applicaiton has been updated. Refresh your browser to get the latest update.',
       )
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.NOTIFICATION_CREATE_FAILED, msg))
     }
   }
 
   public async markAllAsRead(userId: string): Promise<[number]> {
     if (!userId && typeof userId !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
     }
 
     try {
       const notif = await NotificationModel.markAllAsRead(userId)
       return notif
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async markViewed(userId: string): Promise<[number]> {
     if (!userId && typeof userId !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_USER_ID)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
     }
 
     try {
       return NotificationModel.markAsViewed(userId)
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async markAsRead(id: string): Promise<[number]> {
     if (!id && typeof id !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
     }
 
     try {
       return NotificationModel.markAsRead(id)
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async markAllDismissed(userId: string): Promise<[number]> {
     if (!userId && typeof userId !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
     }
 
     try {
       const notif = await NotificationModel.markAllDismissed(userId)
       return notif
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
   public async markAsDismissed(id: string): Promise<[number]> {
     if (!id && typeof id !== 'string') {
-      throw new Error(NOTIFICATION_ERRORS.MISSING_PARAMS)
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
     }
 
     try {
       return NotificationModel.markAsDismissed(id)
     } catch (err) {
-      this.logger.logError(err)
-      throw new Error(NOTIFICATION_ERRORS.SERVER_ERROR)
+      const msg = (err as Error).message
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
 
