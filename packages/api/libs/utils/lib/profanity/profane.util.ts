@@ -1,27 +1,29 @@
-import { Filter } from 'bad-words'
+import {
+  englishDataset,
+  englishRecommendedTransformers,
+  RegExpMatcher,
+  TextCensor,
+} from 'obscenity'
 
 import { ApiLoggingClass, type ApiLoggingClassType } from '../../../logger'
-import { CUSTOM_PROFANE_WORDS } from './custom-profane-words.const'
 
+// TODO: Add internationalization - Currently only using English
 export class ProfanityFilter {
-  filter: typeof Filter.prototype
+  filter: typeof RegExpMatcher.prototype
   logger: ApiLoggingClassType
 
   constructor() {
-    this.filter = new Filter()
-    this.filter.addWords(...CUSTOM_PROFANE_WORDS)
+    this.filter = new RegExpMatcher({
+      ...englishDataset.build(),
+      ...englishRecommendedTransformers,
+    })
     this.logger = ApiLoggingClass.instance
   }
 
   public isProfane(stringToCheck: string): boolean {
     if (stringToCheck) {
       try {
-        return this.filter.isProfane(stringToCheck)
-        // return this.filter.list.filter((word: string) => {
-        //   const wordRegEx = new RegExp(`${word.replace(/(\W)/g, '\\$1')}`, 'gi');
-        //   return !this.filter.exclude.includes((word.toLowerCase()))
-        //     && stringToCheck.search(wordRegEx) > -1;
-        // }).length > 0 || false;
+        return this.filter.hasMatch(stringToCheck)
       } catch (err) {
         this.logger.logError(err)
       }
@@ -33,7 +35,9 @@ export class ProfanityFilter {
   public cleanProfanity(stringToCheck: string): string {
     if (stringToCheck) {
       try {
-        return this.filter.clean(stringToCheck)
+        const censor = new TextCensor()
+        const matches = this.filter.getAllMatches(stringToCheck)
+        return censor.applyTo(stringToCheck, matches)
       } catch (err) {
         this.logger.logError(err)
       }
