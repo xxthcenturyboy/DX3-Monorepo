@@ -32,6 +32,7 @@ import {
   type MediaApiImageManipulationServiceType,
 } from './media-api-image-manipulation.service'
 
+// TODO: Add AI like AWS Rekog for image content moderation
 export class MediaApiService {
   imageManipulationService: MediaApiImageManipulationServiceType
   logger: ApiLoggingClassType
