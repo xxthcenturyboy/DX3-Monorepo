@@ -11,6 +11,7 @@
  * - 400-499: Email
  * - 500-599: Phone
  * - 600-699: Notifications
+ * - 700-799: Feature Flags
  * - 900-999: Generic/System
  */
 
