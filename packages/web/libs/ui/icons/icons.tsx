@@ -3,6 +3,7 @@ import Check from '@mui/icons-material/Check'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Dashboard from '@mui/icons-material/Dashboard'
+import Flag from '@mui/icons-material/Flag'
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety'
 import ManageAccounts from '@mui/icons-material/ManageAccounts'
 import MenuOpen from '@mui/icons-material/MenuOpen'
@@ -28,6 +29,9 @@ export const getIcon = (name: IconNames, color?: string): React.ReactElement | n
   }
   if (name === IconNames.DASHBOARD) {
     return <Dashboard style={{ color }} />
+  }
+  if (name === IconNames.FLAG) {
+    return <Flag style={{ color }} />
   }
   if (name === IconNames.HEALTHZ) {
     return <HealthAndSafety style={{ color }} />

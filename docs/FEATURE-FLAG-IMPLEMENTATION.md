@@ -88,6 +88,8 @@ packages/
 │   │       ├── feature-flag-api.postgres-model.spec.ts
 │   │       ├── feature-flag-api.service.ts
 │   │       ├── feature-flag-api.service.spec.ts
+│   │       ├── feature-flag-api.socket.ts
+│   │       ├── feature-flag-api.socket.spec.ts
 │   │       ├── feature-flag-api.types.ts
 │   │       └── index.ts
 │   └── api-app/
@@ -1305,50 +1307,102 @@ export type FeatureFlagSocketClientToServerEvents = {
 ```typescript
 // packages/api/libs/feature-flags/feature-flag-api.socket.ts
 
-import type { Server, Socket } from 'socket.io'
+import type { Namespace } from 'socket.io'
 
-import type {
-  FeatureFlagSocketClientToServerEvents,
-  FeatureFlagSocketServerToClientEvents,
+import {
+  FEATURE_FLAG_SOCKET_NS,
+  type FeatureFlagSocketClientToServerEvents,
+  type FeatureFlagSocketData,
+  type FeatureFlagSocketInterServerEvents,
+  type FeatureFlagSocketServerToClientEvents,
 } from '@dx3/models-shared'
 
-import { ApiLoggingClass } from '../logger'
-import { FeatureFlagService } from './feature-flag-api.service'
+import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
+import {
+  ensureLoggedInSocket,
+  getUserIdFromHandshake,
+  SocketApiConnection,
+  type SocketApiConnectionType,
+} from '../socket-io-api'
 
-export class FeatureFlagSocketHandler {
-  static setup(
-    io: Server<FeatureFlagSocketClientToServerEvents, FeatureFlagSocketServerToClientEvents>,
-  ) {
-    const featureFlagNs = io.of('/feature-flags')
+type FeatureFlagNamespaceType = Namespace<
+  FeatureFlagSocketClientToServerEvents,
+  FeatureFlagSocketServerToClientEvents,
+  FeatureFlagSocketInterServerEvents,
+  FeatureFlagSocketData
+>
 
-    featureFlagNs.on('connection', (socket) => {
-      ApiLoggingClass.instance.logInfo(`Feature flag socket connected: ${socket.id}`)
+const FEATURE_FLAG_UPDATES_ROOM = 'feature-flag-updates'
+
+export class FeatureFlagSocketApiService {
+  static #instance: FeatureFlagSocketApiServiceType
+  socket: SocketApiConnectionType
+  private logger: ApiLoggingClassType
+  public ns: FeatureFlagNamespaceType
+
+  constructor() {
+    this.logger = ApiLoggingClass.instance
+    this.socket = SocketApiConnection.instance
+    // @ts-expect-error - type is fine
+    this.ns = this.socket.io.of(FEATURE_FLAG_SOCKET_NS)
+    FeatureFlagSocketApiService.#instance = this
+  }
+
+  public static get instance() {
+    return FeatureFlagSocketApiService.#instance
+  }
+
+  public configureNamespace() {
+    // Set up auth middleware
+    this.ns.use((socket, next) => {
+      const isLoggedIn = ensureLoggedInSocket(socket.handshake)
+      if (isLoggedIn) {
+        next()
+      } else {
+        next(new Error('Not logged in'))
+      }
+    })
+
+    this.ns.on('connection', (socket) => {
+      const userId = getUserIdFromHandshake(socket.handshake)
+      this.logger.logInfo(`Feature flag socket connected: ${socket.id}, user: ${userId}`)
+
+      if (userId) {
+        socket.data.userId = userId
+      }
 
       socket.on('subscribeToFeatureFlags', () => {
-        socket.join('feature-flag-updates')
+        socket.join(FEATURE_FLAG_UPDATES_ROOM)
+        this.logger.logInfo(`Socket ${socket.id} subscribed to feature flag updates`)
       })
 
       socket.on('unsubscribeFromFeatureFlags', () => {
-        socket.leave('feature-flag-updates')
+        socket.leave(FEATURE_FLAG_UPDATES_ROOM)
+        this.logger.logInfo(`Socket ${socket.id} unsubscribed from feature flag updates`)
+      })
+
+      socket.on('disconnect', () => {
+        this.logger.logInfo(`Feature flag socket disconnected: ${socket.id}`)
       })
     })
   }
 
   /**
-   * Broadcast flag updates to all subscribed clients
-   * Call this from the controller after flag updates
+   * Broadcast that flags have been updated to all subscribed clients
+   * Clients will re-fetch their user-specific evaluations
    */
-  static async broadcastFlagUpdate(
-    io: Server,
-    userId?: string,
-  ): Promise<void> {
-    const featureFlagNs = io.of('/feature-flags')
-
-    // For user-specific updates, we'd need to evaluate per user
-    // For simplicity, broadcast to all and let client re-fetch
-    featureFlagNs.to('feature-flag-updates').emit('featureFlagsUpdated', [])
+  public broadcastFlagsUpdated(): void {
+    try {
+      // Send empty array - clients will re-fetch from API for user-specific evaluations
+      this.ns.to(FEATURE_FLAG_UPDATES_ROOM).emit('featureFlagsUpdated', [])
+      this.logger.logInfo('Broadcasted feature flags update notification')
+    } catch (err) {
+      this.logger.logError(`Error broadcasting feature flags update: ${(err as Error).message}`)
+    }
   }
 }
+
+export type FeatureFlagSocketApiServiceType = typeof FeatureFlagSocketApiService.prototype
 ```
 
 ### Web Socket Handler
@@ -1358,10 +1412,10 @@ export class FeatureFlagSocketHandler {
 
 import type { Socket } from 'socket.io-client'
 
-import type {
-  FeatureFlagEvaluatedType,
-  FeatureFlagSocketClientToServerEvents,
-  FeatureFlagSocketServerToClientEvents,
+import {
+  FEATURE_FLAG_SOCKET_NS,
+  type FeatureFlagSocketClientToServerEvents,
+  type FeatureFlagSocketServerToClientEvents,
 } from '@dx3/models-shared'
 
 import { SocketWebConnection } from '../data/socket-io/socket-web.connection'
@@ -1384,15 +1438,15 @@ export class FeatureFlagWebSockets {
     this.socket = await SocketWebConnection.createSocket<
       FeatureFlagSocketClientToServerEvents,
       FeatureFlagSocketServerToClientEvents
-    >('/feature-flags')
+    >(FEATURE_FLAG_SOCKET_NS)
     FeatureFlagWebSockets.#instance = this
 
     // Subscribe to feature flag updates
     this.socket.emit('subscribeToFeatureFlags')
 
     // Listen for flag updates and re-fetch
+    // Server broadcasts empty array as notification; client re-fetches for user-specific evaluations
     this.socket.on('featureFlagsUpdated', async () => {
-      // Re-fetch flags from API to get user-specific evaluations
       try {
         const result = await store.dispatch(
           featureFlagsApi.endpoints.getFeatureFlags.initiate(undefined, {
@@ -1404,20 +1458,6 @@ export class FeatureFlagWebSockets {
       } catch (error) {
         console.error('Failed to refresh feature flags:', error)
       }
-    })
-
-    // Handle single flag update (optimization for targeted updates)
-    this.socket.on('featureFlagUpdated', (flag: FeatureFlagEvaluatedType) => {
-      const currentFlags = store.getState().featureFlags.flags
-      store.dispatch(
-        featureFlagsActions.featureFlagsFetched([
-          ...Object.entries(currentFlags).map(([name, enabled]) => ({
-            enabled,
-            name: name as FeatureFlagEvaluatedType['name'],
-          })),
-          flag, // Override with updated flag
-        ]),
-      )
     })
   }
 
@@ -1436,14 +1476,56 @@ export class FeatureFlagWebSockets {
 export type FeatureFlagWebSocketsType = typeof FeatureFlagWebSockets.prototype
 ```
 
-### Initialize on Login
+### Initialize on Login / Cleanup on Logout
 
 ```typescript
-// In login bootstrap or auth success handler
-import { FeatureFlagWebSockets } from '../feature-flags/feature-flag-web.sockets'
+// packages/web/web-app/src/app/config/bootstrap/login-bootstrap.ts
+import { FeatureFlagWebSockets } from '../../feature-flags/feature-flag-web.sockets'
 
-// After successful login
-new FeatureFlagWebSockets()
+// In connectToSockets() function - after notification sockets
+if (!FeatureFlagWebSockets.instance) {
+  new FeatureFlagWebSockets()
+} else if (
+  FeatureFlagWebSockets.instance.socket &&
+  !FeatureFlagWebSockets.instance.socket.connected
+) {
+  FeatureFlagWebSockets.instance.socket.connect()
+}
+
+// packages/web/web-app/src/app/auth/auth-web-logout.button.tsx
+// On logout - disconnect sockets and clear state
+if (FeatureFlagWebSockets.instance) {
+  FeatureFlagWebSockets.instance.disconnect()
+}
+dispatch(featureFlagsActions.featureFlagsInvalidated())
+```
+
+### Socket Registration (API)
+
+```typescript
+// packages/api/api-app/src/data/sockets/dx-socket.class.ts
+
+import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature-flag-api.socket'
+
+// In DxSocketClass.startSockets() - after NotificationSocketApiService
+new FeatureFlagSocketApiService()
+
+if (FeatureFlagSocketApiService.instance) {
+  FeatureFlagSocketApiService.instance.configureNamespace()
+}
+```
+
+### Broadcasting from Controller
+
+```typescript
+// packages/api/api-app/src/feature-flags/feature-flag-api.controller.ts
+
+import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature-flag-api.socket'
+
+// After creating or updating a flag:
+if (FeatureFlagSocketApiService.instance) {
+  FeatureFlagSocketApiService.instance.broadcastFlagsUpdated()
+}
 ```
 
 ---

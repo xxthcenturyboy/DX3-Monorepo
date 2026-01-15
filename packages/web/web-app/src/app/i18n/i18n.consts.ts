@@ -75,6 +75,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: 'Enter the code sent to your {method}',
   EXTERNAL: 'External',
   FAIL: 'Fail',
+  FEATURE_FLAGS: 'Feature Flags',
   FILTER: 'Filter',
   FIRST_NAME: 'First Name',
   GENERIC: 'An error occurred. Please try again.',

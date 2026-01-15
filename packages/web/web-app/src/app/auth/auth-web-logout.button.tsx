@@ -12,6 +12,8 @@ import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { WebConfigService } from '../config/config-web.service'
+import { featureFlagsActions } from '../feature-flags/feature-flag-web.reducer'
+import { FeatureFlagWebSockets } from '../feature-flags/feature-flag-web.sockets'
 import { useStrings } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { StyledAccountMenuListItem } from '../ui/menus/app-menu-account.ui'
@@ -63,10 +65,16 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
                 const logoutResponse = await requestLogout().unwrap()
                 if (logoutResponse.loggedOut) {
                   dispatch(uiActions.toggleMenuSet(false))
+                  // Disconnect feature flag sockets
+                  if (FeatureFlagWebSockets.instance) {
+                    FeatureFlagWebSockets.instance.disconnect()
+                  }
                   sleep(500).then(() => {
                     setConfirmOpen(false)
                     dispatch(authActions.tokenRemoved())
                     dispatch(authActions.setLogoutResponse(true))
+                    // Clear feature flags state
+                    dispatch(featureFlagsActions.featureFlagsInvalidated())
                     navigate(ROUTES.AUTH.LOGIN)
                   })
                 }

@@ -38,6 +38,15 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
         },
         slots: { transition: isMobileWidth ? SlideTransition : ZoomTransition },
         sx: {
+          '& .MuiDialog-paper': {
+            borderBottomLeftRadius: isMobileWidth ? '0px' : '24px',
+            borderBottomRightRadius: isMobileWidth ? '0px' : '24px',
+            borderTopLeftRadius: isMobileWidth ? '16px' : '24px',
+            borderTopRightRadius: isMobileWidth ? '16px' : '24px',
+            bottom: isMobileWidth ? '0px' : 'auto',
+            height: isMobileWidth ? '96%' : 'auto',
+            position: isMobileWidth ? 'fixed' : 'relative',
+          },
           backdropFilter: open ? 'blur(5px)' : undefined,
         },
       }}

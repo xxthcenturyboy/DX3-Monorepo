@@ -1,6 +1,7 @@
 import { USER_ROLE } from '@dx3/models-shared'
 
 import { dashboardMenu } from '../../dashboard/dashboard.menu'
+import { featureFlagAdminMenu } from '../../feature-flags/admin/feature-flag-admin-web.menu'
 import { statsMenu } from '../../stats/stats.menu'
 import { userAdminMenu } from '../../user/admin/user-admin.menu'
 import { userProfileMenu } from '../../user/profile/user-profile.menu'
@@ -12,6 +13,7 @@ export class MenuConfigService {
     dashboardMenu(),
     userProfileMenu(),
     userAdminMenu(),
+    featureFlagAdminMenu(),
     statsMenu(),
   ]
 

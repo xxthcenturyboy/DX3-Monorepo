@@ -119,6 +119,7 @@ export type StringKeys = {
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: string
   EXTERNAL: string
   FAIL: string
+  FEATURE_FLAGS: string
   FILTER: string
   FIRST_NAME: string
   GENERIC: string

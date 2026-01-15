@@ -5,6 +5,7 @@ import { endpointNotFound } from '@dx3/api-libs/http-response/http-responses'
 import { AuthRoutes } from '../auth/auth-api.routes'
 import { DevicesRoutes } from '../devices/devices-api.routes'
 import { EmailRoutes } from '../email/email-api.routes'
+import { FeatureFlagRoutes } from '../feature-flags/feature-flag-api.routes'
 import { MediaApiV1Routes } from '../media/media-api.routes'
 import { NotificationRoutes } from '../notifications/notification-api.routes'
 import { PhoneRoutes } from '../phone/phone-api.routes'
@@ -18,6 +19,7 @@ export class RoutesV1 {
     router.use('/auth', AuthRoutes.configure())
     router.use('/device', DevicesRoutes.configure())
     router.use('/email', EmailRoutes.configure())
+    router.use('/feature-flag', FeatureFlagRoutes.configure())
     router.use('/media', MediaApiV1Routes.configure())
     router.use('/notification', NotificationRoutes.configure())
     router.use('/phone', PhoneRoutes.configure())

@@ -2,6 +2,9 @@ import type { UserProfileStateType } from '@dx3/models-shared'
 import { USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 
+import { fetchFeatureFlags } from '../../feature-flags/feature-flag-web.api'
+import { featureFlagsActions } from '../../feature-flags/feature-flag-web.reducer'
+import { FeatureFlagWebSockets } from '../../feature-flags/feature-flag-web.sockets'
 import { fetchNotifications } from '../../notifications/notification-web.api'
 import { notificationActions } from '../../notifications/notification-web.reducer'
 import { NotificationWebSockets } from '../../notifications/notification-web.sockets'
@@ -41,7 +44,20 @@ async function getNotifications(userId: string) {
   }
 }
 
+async function getFeatureFlags() {
+  try {
+    store.dispatch(featureFlagsActions.featureFlagsLoading())
+    const fetchResult = (await store.dispatch(fetchFeatureFlags.initiate())).data
+    if (fetchResult?.flags) {
+      store.dispatch(featureFlagsActions.featureFlagsFetched(fetchResult.flags))
+    }
+  } catch (err) {
+    logger.error(`Error fetching feature flags: ${(err as Error).message}`)
+  }
+}
+
 function connectToSockets() {
+  // Connect to notification sockets
   if (!NotificationWebSockets.instance) {
     new NotificationWebSockets()
   } else if (
@@ -50,10 +66,21 @@ function connectToSockets() {
   ) {
     NotificationWebSockets.instance.socket.connect()
   }
+
+  // Connect to feature flag sockets for real-time updates
+  if (!FeatureFlagWebSockets.instance) {
+    new FeatureFlagWebSockets()
+  } else if (
+    FeatureFlagWebSockets.instance.socket &&
+    !FeatureFlagWebSockets.instance.socket.connected
+  ) {
+    FeatureFlagWebSockets.instance.socket.connect()
+  }
 }
 
 export function loginBootstrap(userProfile: UserProfileStateType, mobileBreak: boolean) {
   setUpMenus(userProfile, mobileBreak)
   void getNotifications(userProfile?.id)
+  void getFeatureFlags()
   connectToSockets()
 }

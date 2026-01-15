@@ -7,7 +7,13 @@ import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.component'
 
 import { WebConfigService } from '../config/config-web.service'
+import { FEATURE_FLAG_ADMIN_ROUTES } from '../feature-flags/admin/feature-flag-admin-web.consts'
 import { store } from '../store/store-web.redux'
+
+const LazyFeatureFlagAdminList = lazy(async () => ({
+  default: (await import('../feature-flags/admin/feature-flag-admin-web-list.component'))
+    .FeatureFlagAdminList,
+}))
 
 const LazyStatsComponent = lazy(async () => ({
   default: (await import('../stats/stats-web-api-health.component')).StatsWebApiHealthComponent,
@@ -34,6 +40,10 @@ export class SudoWebRouterConfig {
     const config: RouteObject[] = [
       {
         children: [
+          {
+            element: <LazyFeatureFlagAdminList />,
+            path: FEATURE_FLAG_ADMIN_ROUTES.LIST,
+          },
           {
             element: <LazyStatsComponent />,
             path: ROUTES.SUDO.STATS.HEALTH,

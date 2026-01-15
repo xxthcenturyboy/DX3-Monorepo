@@ -1,6 +1,7 @@
 import type { Server } from 'node:http'
 
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
+import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature-flag-api.socket'
 import { NotificationSocketApiService } from '@dx3/api-libs/notifications/notification-api.socket'
 import { SocketApiConnection } from '@dx3/api-libs/socket-io-api'
 
@@ -25,15 +26,22 @@ export class DxSocketClass {
       }
 
       new NotificationSocketApiService()
+      new FeatureFlagSocketApiService()
 
       if (NotificationSocketApiService.instance) {
         NotificationSocketApiService.instance.configureNamespace()
-        logger.logInfo('Sockets started successfully')
-        return true
+      } else {
+        logger.logError('Notification sockets not instantiated.')
       }
 
-      logger.logError('Notification sockets not instantiated.')
-      return false
+      if (FeatureFlagSocketApiService.instance) {
+        FeatureFlagSocketApiService.instance.configureNamespace()
+      } else {
+        logger.logError('Feature flag sockets not instantiated.')
+      }
+
+      logger.logInfo('Sockets started successfully')
+      return true
     } catch (err) {
       logger.logError((err as Error).message, err)
       return false

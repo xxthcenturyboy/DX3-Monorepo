@@ -68,6 +68,30 @@ export {
   isValidErrorCode,
   parseApiError,
 } from './errors/error-shared.utils'
+// FEATURE FLAG Types
+export {
+  FEATURE_FLAG_NAMES,
+  FEATURE_FLAG_NAMES_ARRAY,
+  FEATURE_FLAG_SOCKET_NS,
+  FEATURE_FLAG_STATUS,
+  FEATURE_FLAG_STATUS_ARRAY,
+  FEATURE_FLAG_TARGET,
+  FEATURE_FLAG_TARGET_ARRAY,
+} from './feature-flags/feature-flag-shared.consts'
+export type {
+  FeatureFlagEvaluatedType,
+  FeatureFlagNameType,
+  FeatureFlagSocketClientToServerEvents,
+  FeatureFlagSocketData,
+  FeatureFlagSocketInterServerEvents,
+  FeatureFlagSocketServerToClientEvents,
+  FeatureFlagsResponseType,
+  FeatureFlagStatusType,
+  FeatureFlagTargetType,
+  FeatureFlagType,
+  GetFeatureFlagsListQueryType,
+  GetFeatureFlagsListResponseType,
+} from './feature-flags/feature-flag-shared.types'
 // Headers
 export { HEADER_API_VERSION_PROP } from './headers/headers-shared.const'
 // HEALTHZ Types

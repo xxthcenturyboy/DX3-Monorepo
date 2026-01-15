@@ -18,6 +18,12 @@ import { authPersistConfig, authReducer } from '../auth/auth-web.reducer'
 import type { AuthStateType } from '../auth/auth-web.types'
 import { dashboardReducer } from '../dashboard/dashboard-web.reducer'
 import { apiWeb } from '../data/rtk-query/web.api'
+import { featureFlagAdminReducer } from '../feature-flags/admin/feature-flag-admin-web.reducer'
+import {
+  featureFlagsPersistConfig,
+  featureFlagsReducer,
+} from '../feature-flags/feature-flag-web.reducer'
+import type { FeatureFlagsStateType } from '../feature-flags/feature-flag-web.types'
 import { homeReducer } from '../home/home-web.reducer'
 import { type I18nStateType, i18nPersistConfig, i18nReducer } from '../i18n'
 import { mediaPersistConfig, mediaReducer } from '../media/media-web.reducer'
@@ -42,6 +48,11 @@ const combinedPersistReducers = combineReducers({
   [apiWeb.reducerPath]: apiWeb.reducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
   dashboard: dashboardReducer,
+  featureFlags: persistReducer<FeatureFlagsStateType, any>(
+    featureFlagsPersistConfig,
+    featureFlagsReducer,
+  ) as typeof featureFlagsReducer,
+  featureFlagsAdmin: featureFlagAdminReducer,
   home: homeReducer,
   i18n: persistReducer<I18nStateType, any>(i18nPersistConfig, i18nReducer) as typeof i18nReducer,
   media: persistReducer<MediaStateType, any>(

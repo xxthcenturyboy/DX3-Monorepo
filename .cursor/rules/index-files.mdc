@@ -3,3 +3,4 @@ alwaysApply: true
 ---
 - Prefer specific named files and not put code in index files
 - Reserve index files only for barrell files.
+- Never use barrel files for web applications

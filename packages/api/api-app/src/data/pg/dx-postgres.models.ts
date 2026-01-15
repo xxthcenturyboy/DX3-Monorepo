@@ -2,6 +2,7 @@ import type { Model, ModelCtor } from 'sequelize-typescript'
 
 import { DeviceModel } from '@dx3/api-libs/devices/device-api.postgres-model'
 import { EmailModel } from '@dx3/api-libs/email/email-api.postgres-model'
+import { FeatureFlagModel } from '@dx3/api-libs/feature-flags/feature-flag-api.postgres-model'
 import { logTable } from '@dx3/api-libs/logger'
 import { MediaModel } from '@dx3/api-libs/media/media-api.postgres-model'
 import { NotificationModel } from '@dx3/api-libs/notifications/notification-api.postgres-model'
@@ -15,12 +16,13 @@ export function getPostgresModels(): ModelCtor[] {
 
   models.push(DeviceModel)
   models.push(EmailModel)
-  models.push(PhoneModel)
+  models.push(FeatureFlagModel)
   models.push(MediaModel)
   models.push(NotificationModel)
+  models.push(PhoneModel)
   models.push(ShortLinkModel)
-  models.push(UserPrivilegeSetModel)
   models.push(UserModel)
+  models.push(UserPrivilegeSetModel)
 
   return models
 }

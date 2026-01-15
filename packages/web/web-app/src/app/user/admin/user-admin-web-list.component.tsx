@@ -230,7 +230,7 @@ export const UserAdminList: React.FC = () => {
         container
         direction={'row'}
         justifyContent={'center'}
-        padding="12px 24px 6px"
+        padding="18px 24px 6px"
         spacing={0}
       >
         {/* Actions */}

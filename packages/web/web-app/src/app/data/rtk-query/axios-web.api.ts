@@ -24,6 +24,7 @@ import type {
   CustomResponseErrorType,
   RequestResponseType,
 } from './axios-web.types'
+import { getCustomHeaders } from './web.api'
 
 export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
   const URLS = WebConfigService.getWebUrls()
@@ -76,8 +77,9 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
         if (accessToken) {
           try {
             const response: AxiosResponse<{ accessToken: string }> = await axios.get(
-              `${API_URI}/auth/refresh-token`,
+              `${API_URI}auth/refresh-token`,
               {
+                headers: getCustomHeaders({ version: 1 }),
                 withCredentials: true,
               },
             )
