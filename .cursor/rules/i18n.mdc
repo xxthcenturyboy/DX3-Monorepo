@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+- All strings in the UI must be derived via i18n

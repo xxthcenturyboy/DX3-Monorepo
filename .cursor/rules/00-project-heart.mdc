@@ -1,0 +1,37 @@
+---
+alwaysApply: false
+---
+# Project Heart
+
+## Product Mission
+
+This product aims to serve as boilerplate from which to build many apps. It is meant to provide a solid foundation in the React, Node, Express, Redis, Postgres, and Expo stack so that all future development can simply start with design and features. It should be thoroughly tested and ready for deployment to kubernetes via AWS using a CI/CD pipeline.
+
+## Current Architecture Diagram
+
+```mermaid
+flowchart LR
+  Web[Web App (React)\npackages/web\n- Redux Toolkit\n- RTK Query] <--> Shared[Shared Models/Utils\npackages/shared\n- types/consts\n- parse-json utility]
+
+  Web -->|HTTP/WS| API[API (Express)\npackages/api\n- Controllers/Routes\n- Services\n- Sockets]
+  API <--> Cache[Redis Cache\n- hot data cache]
+  API -->|SQL| DB[Postgres Database\n- primary data store]
+```
+
+## Main Document Concept and Boundaries
+
+- This document defines the project's technical center of gravity: architecture, core patterns, and accepted conventions.
+- It does not replace feature specifications, PR descriptions, or code comments.
+- It should stay high level, stable, and actionable for new contributors.
+
+## Key Libraries and Patterns
+
+- Web: React, Redux Toolkit, Redux Persist, RTK Query, React Router, MUI
+- API: Express, Sequelize (sequelize-typescript), ioredis, Socket.IO
+- Shared: Types/consts/utilities under `packages/shared`
+- Patterns:
+  - Services handle business logic
+  - Controllers handle HTTP request/response
+  - Sockets use a namespace and room subscription model
+  - Server-side caching for hot data
+  - Web uses Redux selectors/hooks for access

@@ -1,0 +1,40 @@
+---
+alwaysApply: false
+---
+# Architecture Overview
+
+## High-Level Summary
+
+This monorepo is organized into three primary layers: web app, API, and shared libraries. The shared layer provides type-safe constants and utilities consumed by both the API and web app. The API owns business logic and persistence, while the web app handles UI and client-side state.
+
+## Key Layers
+
+- Web App (`packages/web/web-app`)
+  - React UI with Redux Toolkit state management
+  - RTK Query for API communication
+  - Socket.IO client for real-time updates
+
+- API (`packages/api`)
+  - Express-based HTTP layer
+  - Service classes for domain logic
+  - Sequelize models for persistence
+  - Redis cache for hot data
+  - Socket.IO server for real-time updates
+
+- Shared (`packages/shared`)
+  - Centralized types, constants, and utilities
+  - Shared error codes and feature flag definitions
+
+## Data Flow (Example)
+
+1. Web app requests evaluated flags via API
+2. API checks Redis cache, falls back to Postgres, and evaluates user context
+3. API returns evaluated flags to the web app
+4. Web app stores flags in Redux and uses selectors/hooks to read state
+5. Socket notifications prompt re-fetch of evaluated flags
+
+## Operational Boundaries
+
+- The API is the single source of truth for feature flag evaluation logic
+- The web app never evaluates flags beyond display logic
+- Shared layer defines all cross-cutting types and constants
