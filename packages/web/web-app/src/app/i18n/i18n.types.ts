@@ -65,6 +65,8 @@ export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
   ADMIN: string
+  ADMINS: string
+  ALL_USERS: string
   API_HEALTH: string
   APP_STATS: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
@@ -86,6 +88,7 @@ export type StringKeys = {
   APP_MENU: string
   BACK: string
   BETA: string
+  BETA_USERS: string
   CANCEL: string
   CANCELING: string
   CHANGE_PASSWORD: string
@@ -96,6 +99,7 @@ export type StringKeys = {
   CLOSE: string
   COMING_SOON: string
   CONFIRM: string
+  CREATE_FEATURE_FLAG: string
   CONFIRM_PASSWORD: string
   COULD_NOT_LOG_YOU_IN: string
   COULD_NOT_LOGOUT: string
@@ -105,6 +109,7 @@ export type StringKeys = {
   DASHBOARD_WELCOME: string
   DEFAULT: string
   DELETE: string
+  DESCRIPTION: string
   DOWN: string
   EDIT: string
   EMAIL: string
@@ -119,6 +124,7 @@ export type StringKeys = {
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: string
   EXTERNAL: string
   FAIL: string
+  FEATURE_FLAG_COMING_SOON: string
   FEATURE_FLAGS: string
   FILTER: string
   FIRST_NAME: string
@@ -167,6 +173,7 @@ export type StringKeys = {
   PAGE_TITLE_PROFILE: string
   PAGE_TITLE_USER_PROFILE: string
   PASSWORD: string
+  PERCENTAGE: string
   PERSONAL: string
   PHONE: string
   PHONE_ALREADY_EXISTS: string
@@ -185,6 +192,7 @@ export type StringKeys = {
   RESTRICTED: string
   RESTRICTIONS: string
   ROLES: string
+  ROLLOUT: string
   RSS: string
   SAVE: string
   SEND: string
@@ -205,6 +213,8 @@ export type StringKeys = {
   SUCCESS_DELETED: string
   SUCCESS_SAVED: string
   SUPER: string
+  SUPER_ADMINS: string
+  TARGET: string
   THIS_ACCOUNT_CANNOT_BE_EDITED: string
   TIMEOUT_TURBO: string
   TITLE: string

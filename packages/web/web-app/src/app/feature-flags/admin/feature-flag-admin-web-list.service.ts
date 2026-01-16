@@ -4,7 +4,7 @@ import { FEATURE_FLAG_STATUS, FEATURE_FLAG_TARGET, type FeatureFlagType } from '
 import { IconNames } from '@dx3/web-libs/ui/icons'
 import type { TableHeaderItem, TableMeta, TableRowType } from '@dx3/web-libs/ui/table/types'
 
-import { DEFAULT_STRINGS } from '../../i18n'
+import { DEFAULT_STRINGS } from '../../i18n/i18n.consts'
 import { store } from '../../store/store-web.redux'
 
 export class FeatureFlagAdminWebListService {
@@ -18,7 +18,7 @@ export class FeatureFlagAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: true,
-      title: 'Name',
+      title: FeatureFlagAdminWebListService.STRINGS.NAME,
       width: '20%',
     },
     {
@@ -28,7 +28,7 @@ export class FeatureFlagAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: false,
-      title: 'Description',
+      title: FeatureFlagAdminWebListService.STRINGS.DESCRIPTION,
       width: '30%',
     },
     {
@@ -38,7 +38,7 @@ export class FeatureFlagAdminWebListService {
       fieldType: 'string',
       headerAlign: 'center',
       sortable: true,
-      title: 'Status',
+      title: FeatureFlagAdminWebListService.STRINGS.STATUS,
       width: '15%',
     },
     {
@@ -48,7 +48,7 @@ export class FeatureFlagAdminWebListService {
       fieldType: 'string',
       headerAlign: 'left',
       sortable: true,
-      title: 'Target',
+      title: FeatureFlagAdminWebListService.STRINGS.TARGET,
       width: '15%',
     },
     {
@@ -120,19 +120,19 @@ export class FeatureFlagAdminWebListService {
       if (meta.fieldName === 'target') {
         switch (flag.target) {
           case FEATURE_FLAG_TARGET.ALL:
-            cellData = 'All Users'
+            cellData = FeatureFlagAdminWebListService.STRINGS.ALL_USERS
             break
           case FEATURE_FLAG_TARGET.ADMIN:
-            cellData = 'Admins'
+            cellData = FeatureFlagAdminWebListService.STRINGS.ADMINS
             break
           case FEATURE_FLAG_TARGET.SUPER_ADMIN:
-            cellData = 'Super Admins'
+            cellData = FeatureFlagAdminWebListService.STRINGS.SUPER_ADMINS
             break
           case FEATURE_FLAG_TARGET.BETA_USERS:
-            cellData = 'Beta Users'
+            cellData = FeatureFlagAdminWebListService.STRINGS.BETA_USERS
             break
           case FEATURE_FLAG_TARGET.PERCENTAGE:
-            cellData = `${flag.percentage}% Rollout`
+            cellData = `${flag.percentage}% ${FeatureFlagAdminWebListService.STRINGS.ROLLOUT}`
             break
           default:
             cellData = flag.target

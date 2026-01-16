@@ -34,6 +34,7 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
+import { useStrings } from '../../i18n/i18n.hooks'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { useCreateFeatureFlagMutation } from './feature-flag-admin-web.api'
@@ -57,6 +58,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
   const [status, setStatus] = useState<FeatureFlagStatusType>(FEATURE_FLAG_STATUS.DISABLED)
   const [target, setTarget] = useState<FeatureFlagTargetType>(FEATURE_FLAG_TARGET.ALL)
   const [percentage, setPercentage] = useState<number | ''>('')
+  const strings = useStrings(['CREATE_FEATURE_FLAG', 'CANCEL', 'CREATE', 'CLOSE'])
 
   const [
     createFlag,
@@ -235,7 +237,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
 
   return (
     <DialogWrapper maxWidth={500}>
-      <DialogTitle style={{ textAlign: 'center' }}>Create Feature Flag</DialogTitle>
+      <DialogTitle style={{ textAlign: 'center' }}>{strings.CREATE_FEATURE_FLAG}</DialogTitle>
 
       {!allSucceeded && !showError && renderFormContent()}
 
@@ -274,7 +276,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
             onClick={handleClose}
             variant="outlined"
           >
-            {showError ? 'Close' : 'Cancel'}
+            {showError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showError && (
             <Button
@@ -289,7 +291,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
                   size={16}
                 />
               ) : (
-                'Create'
+                strings.CREATE
               )}
             </Button>
           )}

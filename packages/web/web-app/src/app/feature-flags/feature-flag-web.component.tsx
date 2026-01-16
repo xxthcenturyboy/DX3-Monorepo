@@ -3,6 +3,7 @@ import type * as React from 'react'
 import type { FeatureFlagNameType } from '@dx3/models-shared'
 import { BetaFeatureComponent } from '@dx3/web-libs/ui/global/beta-feature-placeholder.component'
 
+import { useI18n } from '../i18n'
 import { useFeatureFlag } from './feature-flag-web.hooks'
 
 type FeatureFlagPropTypes = {
@@ -26,13 +27,14 @@ export const FeatureFlag: React.FC<FeatureFlagPropTypes> = ({
   showPlaceholder = false,
 }) => {
   const isEnabled = useFeatureFlag(flagName)
+  const { t } = useI18n()
 
   if (isEnabled) {
     return <>{children}</>
   }
 
   if (showPlaceholder) {
-    return <BetaFeatureComponent message={`Feature "${flagName}" coming soon!`} />
+    return <BetaFeatureComponent message={t('FEATURE_FLAG_COMING_SOON', { flagName })} />
   }
 
   return <>{fallback}</>

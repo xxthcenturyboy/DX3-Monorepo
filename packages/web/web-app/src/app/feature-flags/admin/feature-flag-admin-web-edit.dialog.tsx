@@ -32,6 +32,7 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
+import { useStrings } from '../../i18n/i18n.hooks'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { useUpdateFeatureFlagMutation } from './feature-flag-admin-web.api'
@@ -59,6 +60,16 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
     props.flag?.target || FEATURE_FLAG_TARGET.ALL,
   )
   const [percentage, setPercentage] = useState<number | ''>(props.flag?.percentage ?? '')
+  const strings = useStrings([
+    'DESCRIPTION',
+    'STATUS',
+    'TARGET',
+    'PERCENTAGE',
+    'EDIT',
+    'CANCEL',
+    'UPDATE',
+    'CLOSE',
+  ])
 
   const [
     updateFlag,
@@ -131,7 +142,7 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
         windowHeight={windowHeight}
       >
         <FeatureFlagForm
-          name="form-add-feature-flag"
+          name="form-edit-feature-flag"
           onSubmit={handleUpdate}
         >
           <FormControl
@@ -141,10 +152,10 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
               minWidth: 300,
             }}
           >
-            <InputLabel htmlFor="description">Description</InputLabel>
+            <InputLabel htmlFor="description">{strings.DESCRIPTION}</InputLabel>
             <OutlinedInput
               id="description"
-              label="Description"
+              label={strings.DESCRIPTION}
               multiline
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
@@ -156,9 +167,9 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
             fullWidth
             margin="normal"
           >
-            <InputLabel>Status</InputLabel>
+            <InputLabel>{strings.STATUS}</InputLabel>
             <Select
-              label="Status"
+              label={strings.STATUS}
               onChange={(e: SelectChangeEvent) =>
                 setStatus(e.target.value as FeatureFlagStatusType)
               }
@@ -179,9 +190,9 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
             fullWidth
             margin="normal"
           >
-            <InputLabel>Target</InputLabel>
+            <InputLabel>{strings.TARGET}</InputLabel>
             <Select
-              label="Target"
+              label={strings.TARGET}
               onChange={(e: SelectChangeEvent) =>
                 setTarget(e.target.value as FeatureFlagTargetType)
               }
@@ -204,11 +215,11 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
               fullWidth
               margin="normal"
             >
-              <InputLabel htmlFor="percentage">Percentage</InputLabel>
+              <InputLabel htmlFor="percentage">{strings.PERCENTAGE}</InputLabel>
               <OutlinedInput
                 id="percentage"
                 inputProps={{ max: 100, min: 0 }}
-                label="Percentage"
+                label={strings.PERCENTAGE}
                 onChange={(e) => setPercentage(e.target.value === '' ? '' : Number(e.target.value))}
                 type="number"
                 value={percentage}
@@ -224,7 +235,9 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
 
   return (
     <DialogWrapper maxWidth={500}>
-      <DialogTitle style={{ textAlign: 'center' }}>Edit: {props.flag.name}</DialogTitle>
+      <DialogTitle style={{ textAlign: 'center' }}>
+        {strings.EDIT}: {props.flag.name}
+      </DialogTitle>
 
       {!allSucceeded && !showError && renderFormContent()}
 
@@ -263,7 +276,7 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
             onClick={handleClose}
             variant="outlined"
           >
-            {showError ? 'Close' : 'Cancel'}
+            {showError ? strings.CLOSE : strings.CANCEL}
           </Button>
           {!showError && (
             <Button
@@ -278,7 +291,7 @@ export const FeatureFlagAdminEditDialog: React.FC<EditDialogPropsType> = (props)
                   size={16}
                 />
               ) : (
-                'Update'
+                strings.UPDATE
               )}
             </Button>
           )}
