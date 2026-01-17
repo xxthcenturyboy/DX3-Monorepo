@@ -220,7 +220,7 @@ export class UserModel extends Model<UserModel> {
     for (const email of this.emails) {
       emailData.push({
         default: email.default,
-        email: email.email,
+        email: email.emailObfuscated,
         id: email.id,
         isDeleted: email.isDeleted,
         isVerified: email.isVerified,
@@ -282,8 +282,9 @@ export class UserModel extends Model<UserModel> {
         isSent: phone.isSent,
         isVerified: phone.isVerified,
         label: phone.label,
-        phone: phone.phone,
-        phoneFormatted: phone.phoneFormatted,
+        phone: phone.phoneObfuscated,
+        phoneFormatted: phone.phoneObfuscated,
+        // phoneFormatted: phone.phoneFormatted,
         regionCode: phone.regionCode,
       })
     }

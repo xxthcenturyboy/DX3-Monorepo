@@ -30,6 +30,8 @@ export {
   convertpHyphensToUnderscores,
   hyphenatedToCamelCaseConcatenated,
   hyphenatedToTilteCaseConcatenated,
+  obfuscateEmail,
+  obfuscatePhone,
   sentenceToTitleCase,
   stringToTitleCase,
   stripHyphens,

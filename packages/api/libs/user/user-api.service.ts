@@ -21,18 +21,17 @@ import {
   type UpdateUsernamePayloadType,
   type UpdateUserPayloadType,
   type UpdateUserResponseType,
-  type UserType,
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
 import { isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
-import { EmailModel } from '../email/email-api.postgres-model'
+import { EmailModel, type EmailModelType } from '../email/email-api.postgres-model'
 import { EmailService } from '../email/email-api.service'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { MailSendgrid } from '../mail/mail-api-sendgrid'
 import { PHONE_MODEL_OPTIONS } from '../phone/phone-api.consts'
-import { PhoneModel } from '../phone/phone-api.postgres-model'
+import { PhoneModel, type PhoneModelType } from '../phone/phone-api.postgres-model'
 import { ShortLinkModel } from '../shortlink/shortlink-api.postgres-model'
 import { EmailUtil, PhoneUtil, ProfanityFilter } from '../utils'
 import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
@@ -95,6 +94,31 @@ export class UserService {
         deletedAt: null,
       },
     }
+  }
+
+  private hidePiiFromUser(user: UserModelType): UserModelType {
+    user.emails = user.emails.map((email) => {
+      const { emailObfuscated, ...rest } = email
+      email = { ...rest, email: emailObfuscated } as EmailModelType
+      return email
+    })
+    user.phones = user.phones.map((phone) => {
+      const { phoneObfuscated, ...rest } = phone
+      phone = { ...rest, phone: phoneObfuscated } as PhoneModelType
+      return phone
+    })
+
+    return user
+  }
+
+  private shouldHidePii(loggedInUser: UserModelType | null, userId: string): boolean {
+    if (!loggedInUser) return false
+
+    if (!userId) {
+      return !loggedInUser.isSuperAdmin
+    }
+
+    return loggedInUser.id !== userId && !loggedInUser.isSuperAdmin
   }
 
   public async createUser(payload: CreateUserPayloadType): Promise<CreateUserResponseType> {
@@ -276,14 +300,23 @@ export class UserService {
     }
   }
 
-  public async getUser(id: string): Promise<GetUserResponseType> {
+  public async getUser(id: string, loggedInUserId: string): Promise<GetUserResponseType> {
     if (!id) {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'No id provided for search.'),
       )
     }
 
+    let loggedInUser: UserModelType | null = null
     let user: UserModelType | null = null
+
+    try {
+      if (loggedInUserId) {
+        loggedInUser = await UserModel.findByPk(loggedInUserId)
+      }
+    } catch (err) {
+      this.logger.logError((err as Error).message)
+    }
 
     try {
       user = await UserModel.findOne({
@@ -305,7 +338,11 @@ export class UserService {
     }
 
     try {
-      return user.toJSON()
+      const userJson = user.toJSON()
+      if (this.shouldHidePii(loggedInUser, id)) {
+        return this.hidePiiFromUser(userJson)
+      }
+      return userJson
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)
@@ -341,12 +378,12 @@ export class UserService {
 
     try {
       let count = 0
-      const rows: UserType[] = []
+      const rows: UserModelType[] = []
       for (const user of users.rows) {
-        rows.push(user.toJSON())
+        const userJson = user.toJSON()
+        rows.push(this.hidePiiFromUser(userJson))
         count += 1
       }
-      // @ts-expect-error - type mismatch - fix
       users.rows = rows
       users.count = count
       return users

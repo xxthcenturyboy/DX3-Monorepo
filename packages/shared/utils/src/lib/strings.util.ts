@@ -18,6 +18,28 @@ export function hyphenatedToTilteCaseConcatenated(str: string): string {
     .join('')
 }
 
+export function obfuscateEmail(email: string): string {
+  if (!email || !email.includes('@')) {
+    return email
+  }
+  const masked = '*'.repeat(8)
+  const [local, domain] = email.split('@')
+  if (local.length <= 2) {
+    return `${local}${masked}@${domain}`
+  }
+  const start = local.slice(0, 2)
+  return `${start}${masked}@${domain}`
+}
+
+export function obfuscatePhone(phone: string): string {
+  if (!phone || phone.length <= 4) {
+    return phone
+  }
+  const masked = '*'.repeat(8)
+  const last4 = phone.slice(-4)
+  return `${masked}${last4}`
+}
+
 export function sentenceToTitleCase(str: string): string {
   return str
     .toLowerCase()

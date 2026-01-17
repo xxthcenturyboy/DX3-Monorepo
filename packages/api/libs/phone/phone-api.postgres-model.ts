@@ -12,7 +12,7 @@ import {
 } from 'sequelize-typescript'
 
 import { PHONE_DEFAULT_REGION_CODE } from '@dx3/models-shared'
-import { getTimeFromUuid } from '@dx3/utils-shared'
+import { getTimeFromUuid, obfuscatePhone } from '@dx3/utils-shared'
 
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
 import { PhoneUtil } from '../utils/lib/phone/phone.util'
@@ -97,6 +97,11 @@ export class PhoneModel extends Model<PhoneModel> {
   get phoneFormatted(): string {
     const phoneUtil = new PhoneUtil(this.getDataValue('phone'), this.getDataValue('regionCode'))
     return phoneUtil.normalizedPhone
+  }
+
+  @Column(new DataType.VIRTUAL(DataType.STRING, ['phone']))
+  get phoneObfuscated(): string {
+    return obfuscatePhone(this.getDataValue('phone'))
   }
 
   @Column(new DataType.VIRTUAL(DataType.BOOLEAN, ['verifiedAt', 'deletedAt']))

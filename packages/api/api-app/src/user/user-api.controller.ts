@@ -61,8 +61,10 @@ export const UserController = {
     logRequest({ req, type: 'getUser' })
     try {
       const { id } = req.params as GetUserQueryType
+      const authToken = HeaderService.getTokenFromRequest(req)
+      const loggedInUserId = TokenService.getUserIdFromToken(authToken)
       const service = new UserService()
-      const result = await service.getUser(id)
+      const result = await service.getUser(id, loggedInUserId)
       return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getUser' })

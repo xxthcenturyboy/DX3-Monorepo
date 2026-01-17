@@ -15,6 +15,8 @@ import {
   Unique,
 } from 'sequelize-typescript'
 
+import { obfuscateEmail } from '@dx3/utils-shared'
+
 import { UserModel, type UserModelType } from '../user/user-api.postgres-model'
 import { EMAIL_POSTGRES_DB_NAME } from './email-api.consts'
 
@@ -100,6 +102,11 @@ export class EmailModel extends Model<EmailModel> {
   @Column(new DataType.VIRTUAL(DataType.BOOLEAN, ['deletedAt']))
   get isDeleted(): boolean {
     return !!this.getDataValue('deletedAt')
+  }
+
+  @Column(new DataType.VIRTUAL(DataType.STRING, ['email']))
+  get emailObfuscated(): string {
+    return obfuscateEmail(this.getDataValue('email'))
   }
 
   static async createOrFindOneByUserId(

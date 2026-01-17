@@ -10,7 +10,7 @@ export const PHONE_MODEL_OPTIONS: IncludeOptions = {
     'default',
     'isVerified',
     'label',
-    'phone',
+    'phoneObfuscated',
     'phoneFormatted',
     'verifiedAt',
     'deletedAt',

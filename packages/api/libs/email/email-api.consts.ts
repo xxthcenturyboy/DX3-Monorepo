@@ -5,7 +5,15 @@ export const EMAIL_POSTGRES_DB_NAME = 'email'
 
 export const EMAIL_MODEL_OPTIONS: IncludeOptions = {
   association: 'emails',
-  attributes: ['id', 'default', 'isVerified', 'label', 'email', 'verifiedAt', 'deletedAt'],
+  attributes: [
+    'id',
+    'default',
+    'emailObfuscated',
+    'isVerified',
+    'label',
+    'verifiedAt',
+    'deletedAt',
+  ],
   where: {
     deletedAt: null,
   },
