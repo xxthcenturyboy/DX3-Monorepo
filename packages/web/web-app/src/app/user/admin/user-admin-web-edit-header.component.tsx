@@ -54,6 +54,7 @@ export const UserAdminEditHeaderComponent: React.FC = () => {
           )}
         </>
       }
+      headerSubTitle={user ? user.createdAt : undefined}
       headerTitle={title}
       navigation={() => navigate(ROUTES.ADMIN.USER.LIST)}
     />

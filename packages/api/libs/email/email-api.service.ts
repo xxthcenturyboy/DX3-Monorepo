@@ -80,7 +80,7 @@ export class EmailService {
       userEmail.verifiedAt = new Date()
       await userEmail.save()
 
-      return { id: userEmail.id }
+      return { email: userEmail.emailObfuscated, id: userEmail.id }
     } catch (err) {
       const msg = (err as Error).message || 'Email could not be created.'
       this.logger.logError(msg)

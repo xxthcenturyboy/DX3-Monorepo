@@ -205,14 +205,14 @@ export const AddEmailDialog: React.FC<AddEmailPropsType> = (props): ReactElement
     ) {
       props.emailDataCallback({
         default: userEmails.length === 0 || isDefault,
-        email,
+        email: addEmailResponse.email,
         id: addEmailResponse.id,
         isDeleted: false,
         isVerified: true,
         label,
       })
     }
-  }, [addEmailSuccess, addEmailResponse?.id])
+  }, [addEmailSuccess])
 
   React.useEffect(() => {
     if (checkAvailabilitySuccess && sendOtpUninitialized) {

@@ -14,6 +14,7 @@ export const EMAIL_MODEL_OPTIONS: IncludeOptions = {
     'verifiedAt',
     'deletedAt',
   ],
+  required: false,
   where: {
     deletedAt: null,
   },

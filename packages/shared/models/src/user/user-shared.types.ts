@@ -3,6 +3,7 @@ import type { PhoneType } from '../phone/phone-shared.types'
 
 export type UserType = {
   id: string
+  createdAt: string
   firstName: string
   lastName: string
   fullName: string

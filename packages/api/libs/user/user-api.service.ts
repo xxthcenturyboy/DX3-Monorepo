@@ -24,7 +24,7 @@ import {
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isProd } from '../config/config-api.service'
+import { isDebug, isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
 import { EmailModel, type EmailModelType } from '../email/email-api.postgres-model'
 import { EmailService } from '../email/email-api.service'
@@ -40,6 +40,7 @@ import { UserModel, type UserModelType } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
 
 export class UserService {
+  private DEBUG = isDebug()
   private logger: ApiLoggingClassType
 
   constructor() {
@@ -375,14 +376,14 @@ export class UserService {
 
     try {
       users = await UserModel.findAndCountAll({
-        include: [EMAIL_MODEL_OPTIONS, PHONE_MODEL_OPTIONS],
         ...search,
         attributes: USER_FIND_ATTRIBUTES,
+        distinct: true,
+        include: [EMAIL_MODEL_OPTIONS, PHONE_MODEL_OPTIONS],
         limit: limit ? Number(limit) : DEFAULT_LIMIT,
+        // logging: this.DEBUG && console.debug,
         offset: offset ? Number(offset) : DEFAULT_OFFSET,
         order: orderArgs,
-        subQuery: false,
-        // logging: this.DEBUG && console.debug,
       })
     } catch (err) {
       const msg = (err as Error).message

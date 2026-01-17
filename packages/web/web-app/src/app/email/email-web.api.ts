@@ -4,7 +4,7 @@ import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
 
 export const apiWebEmail = apiWeb.injectEndpoints({
   endpoints: (build) => ({
-    addEmail: build.mutation<{ id: string }, CreateEmailPayloadType>({
+    addEmail: build.mutation<{ id: string; email: string }, CreateEmailPayloadType>({
       query: (paylaod) => ({
         data: paylaod,
         headers: getCustomHeaders({ version: 1 }),

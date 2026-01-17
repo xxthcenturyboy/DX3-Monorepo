@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import parsePhoneNumber from 'libphonenumber-js'
 import { createSelector } from 'reselect'
 
@@ -22,6 +23,7 @@ export const selectUserFormatted = createSelector([getUser], (user) => {
     }
     return {
       ...user,
+      createdAt: dayjs(user.createdAt).format('MMM D, YYYY h:mm A'),
       phones: nextPhones,
     }
   }

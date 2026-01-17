@@ -361,7 +361,7 @@ export const UserAdminEdit: React.FC = () => {
                   <Typography fontWeight={700}>{strings.NAME}</Typography>
                 </Grid>
                 <Grid>
-                  <Typography variant="body1">{user?.fullName}</Typography>
+                  <Typography variant="body1">{user?.fullName || strings.NO_DATA}</Typography>
                 </Grid>
               </>
             )}
@@ -690,7 +690,7 @@ export const UserAdminEdit: React.FC = () => {
   return (
     <ContentWrapper
       contentHeight={'calc(100vh - 80px)'}
-      contentTopOffset={SM_BREAK ? '61px' : '61px'}
+      contentTopOffset={SM_BREAK ? '82px' : '82px'}
       spacerDiv={true}
     >
       <UserAdminEditHeaderComponent />
@@ -699,7 +699,7 @@ export const UserAdminEdit: React.FC = () => {
         width={'100%'}
       >
         <Paper elevation={2}>
-          {/** Phones Emails Roles Restrictions */}
+          {/** Username, Name, Phones, Emails, Roles, and Restrictions */}
           <Grid
             container
             direction={MD_BREAK ? 'column' : 'row'}

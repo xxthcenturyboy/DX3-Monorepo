@@ -15,6 +15,7 @@ export const USER_SORT_FIELDS = [
 
 export const USER_FIND_ATTRIBUTES = [
   'id',
+  'createdAt',
   'firstName',
   'lastName',
   'fullName',

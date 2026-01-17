@@ -111,7 +111,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
         wrap="nowrap"
       >
         <Grid
-          paddingBottom={headerContent ? '12px' : '0px'}
+          // paddingBottom={headerContent ? '12px' : '0px'}
           size={{
             md: headerColumnsBreaks?.left?.md || 6,
             sm: headerColumnsBreaks?.left?.sm || 6,

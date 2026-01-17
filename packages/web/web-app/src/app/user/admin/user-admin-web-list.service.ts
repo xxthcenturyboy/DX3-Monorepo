@@ -180,7 +180,7 @@ export class UserAdminWebListService {
 
       if (cellData === undefined) {
         // @ts-expect-error - error lame
-        cellData = user[meta.fieldName]
+        cellData = user[meta.fieldName] || '-'
       }
       row.columns.push({
         align: meta.align,
