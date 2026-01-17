@@ -74,6 +74,7 @@ export const UserAdminEdit: React.FC = () => {
     'DEFAULT',
     'EMAILS',
     'NAME',
+    'NO_DATA',
     'OK',
     'PHONES',
     'RESTRICTIONS',
@@ -81,6 +82,7 @@ export const UserAdminEdit: React.FC = () => {
     'SEND_NOTIFICATION',
     'USER_TITLE',
     'USER_UPDATED',
+    'USERNAME',
     'VERIFIED',
     'YOU_CANNOT_EDIT_ROLES',
   ])
@@ -290,6 +292,44 @@ export const UserAdminEdit: React.FC = () => {
         padding={MD_BREAK ? '10px' : '10px 24px'}
         width={MD_BREAK ? '100%' : '50%'}
       >
+        {/** USERNAME */}
+        <Grid
+          container
+          margin="0 0 20px"
+        >
+          <Grid width={'100%'}>
+            {isLoadingUser && (
+              <Skeleton
+                animation="wave"
+                style={{
+                  height: '56px',
+                  width: '100%',
+                }}
+                variant="text"
+              />
+            )}
+            {!isLoadingUser && (
+              <>
+                <Grid
+                  sx={(theme) => {
+                    return {
+                      backgroundColor: theme.palette.primary.light,
+                      color: theme.palette.common.white,
+                      padding: MD_BREAK ? '4px 0' : '4px 4px 4px 8px',
+                      textAlign: MD_BREAK ? 'center' : 'left',
+                    }
+                  }}
+                >
+                  <Typography fontWeight={700}>{strings.USERNAME}</Typography>
+                </Grid>
+                <Grid>
+                  <Typography variant="body1">{user?.username || strings.NO_DATA}</Typography>
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </Grid>
+
         {/** NAME */}
         <Grid
           container
@@ -449,9 +489,7 @@ export const UserAdminEdit: React.FC = () => {
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        <Typography variant="body1">
-                          {phone.uiFormatted || phone.phoneFormatted}
-                        </Typography>
+                        <Typography variant="body1">{phone.uiFormatted}</Typography>
                       </Grid>
                       {MD_BREAK && (
                         <>

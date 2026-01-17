@@ -14,7 +14,7 @@ export const selectUserFormatted = createSelector([getUser], (user) => {
   if (user) {
     const nextPhones: PhoneType[] = []
     for (const phone of user.phones) {
-      const formatted = parsePhoneNumber(phone.phoneFormatted)
+      const formatted = parsePhoneNumber(phone.phone)
       nextPhones.push({
         ...phone,
         uiFormatted: formatted?.formatNational(),
@@ -34,7 +34,7 @@ export const selectUsersFormatted = createSelector([getUsers], (users) => {
   for (const user of users) {
     const nextPhones: PhoneType[] = []
     for (const phone of user.phones) {
-      const formatted = parsePhoneNumber(phone.phoneFormatted)
+      const formatted = parsePhoneNumber(phone.phone)
       nextPhones.push({
         ...phone,
         uiFormatted: formatted?.formatNational(),

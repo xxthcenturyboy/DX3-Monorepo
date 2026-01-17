@@ -186,11 +186,10 @@ export const AddPhoneDialog: React.FC<AddPhoneDialogProps> = (props): ReactEleme
         isSent: true,
         isVerified: true,
         label,
-        phone,
-        phoneFormatted: addPhoneResponse.phoneFormatted,
+        phone: addPhoneResponse.phone,
       })
     }
-  }, [addPhoneSuccess, addPhoneResponse?.id, addPhoneResponse?.phoneFormatted])
+  }, [addPhoneSuccess])
 
   React.useEffect(() => {
     if (checkAvailabilitySuccess && sendOtpUninitialized) {

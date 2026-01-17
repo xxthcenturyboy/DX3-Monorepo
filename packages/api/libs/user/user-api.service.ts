@@ -103,7 +103,8 @@ export class UserService {
       return email
     })
     user.phones = user.phones.map((phone) => {
-      const { phoneObfuscated, ...rest } = phone
+      // biome-ignore lint/correctness/noUnusedVariables: we're pulling this out to remove from object
+      const { phoneFormatted, phoneObfuscated, ...rest } = phone
       phone = { ...rest, phone: phoneObfuscated } as PhoneModelType
       return phone
     })
@@ -111,14 +112,27 @@ export class UserService {
     return user
   }
 
-  private shouldHidePii(loggedInUser: UserModelType | null, userId: string): boolean {
-    if (!loggedInUser) return false
+  private formatPii(user: UserModelType): UserModelType {
+    user.emails = user.emails.map((emailData) => {
+      // biome-ignore lint/correctness/noUnusedVariables: we're pulling this out to remove from object
+      const { email, emailObfuscated, ...rest } = emailData
+      emailData = { ...rest, email } as EmailModelType
+      return emailData
+    })
+    user.phones = user.phones.map((phoneData) => {
+      // biome-ignore lint/correctness/noUnusedVariables: we're pulling this out to remove from object
+      const { phoneFormatted, phoneObfuscated, ...rest } = phoneData
+      phoneData = { ...rest, phone: phoneFormatted } as PhoneModelType
+      return phoneData
+    })
 
-    if (!userId) {
-      return !loggedInUser.isSuperAdmin
-    }
+    return user
+  }
 
-    return loggedInUser.id !== userId && !loggedInUser.isSuperAdmin
+  private shouldHidePii(loggedInUser: UserModelType | null): boolean {
+    if (!loggedInUser) return true
+
+    return !loggedInUser.isSuperAdmin
   }
 
   public async createUser(payload: CreateUserPayloadType): Promise<CreateUserResponseType> {
@@ -339,10 +353,10 @@ export class UserService {
 
     try {
       const userJson = user.toJSON()
-      if (this.shouldHidePii(loggedInUser, id)) {
+      if (this.shouldHidePii(loggedInUser)) {
         return this.hidePiiFromUser(userJson)
       }
-      return userJson
+      return this.formatPii(userJson)
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)

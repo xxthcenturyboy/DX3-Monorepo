@@ -30,7 +30,7 @@ export const selectUserPhones = createSelector([getUserProfile], (profile) => {
 export const selectProfileFormatted = createSelector([getUserProfile], (profile) => {
   const nextPhones: PhoneType[] = []
   for (const phone of profile.phones) {
-    const formatted = parsePhoneNumber(phone.phoneFormatted)
+    const formatted = parsePhoneNumber(phone.phone)
     nextPhones.push({
       ...phone,
       uiFormatted: formatted?.formatNational(),

@@ -103,7 +103,7 @@ export class PhoneService {
       userPhone.verifiedAt = new Date()
       await userPhone.save()
 
-      return { id: userPhone.id, phoneFormatted: phoneUtil.normalizedPhone }
+      return { id: userPhone.id, phone: userPhone.phoneObfuscated }
     } catch (err) {
       const msg = (err as Error).message || 'PHone could not be created.'
       this.logger.logError(msg)

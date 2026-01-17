@@ -173,15 +173,13 @@ export class UserModel extends Model<UserModel> {
   @Column(new DataType.VIRTUAL(DataType.BOOLEAN, ['roles']))
   get isAdmin(): boolean {
     const roles = this.getDataValue('roles')
-    return Array.isArray(roles) ? roles.some((role) => role === USER_ROLE.ADMIN) || false : false
+    return Array.isArray(roles) ? roles.some((role) => role === USER_ROLE.ADMIN) : false
   }
 
   @Column(new DataType.VIRTUAL(DataType.BOOLEAN, ['roles']))
   get isSuperAdmin(): boolean {
     const roles = this.getDataValue('roles')
-    return Array.isArray(roles)
-      ? roles.some((role) => role === USER_ROLE.SUPER_ADMIN) || false
-      : false
+    return Array.isArray(roles) ? roles.some((role) => role === USER_ROLE.SUPER_ADMIN) : false
   }
 
   @Column(new DataType.VIRTUAL(DataType.STRING, ['firstName', 'lastName']))
@@ -283,8 +281,6 @@ export class UserModel extends Model<UserModel> {
         isVerified: phone.isVerified,
         label: phone.label,
         phone: phone.phoneObfuscated,
-        phoneFormatted: phone.phoneObfuscated,
-        // phoneFormatted: phone.phoneFormatted,
         regionCode: phone.regionCode,
       })
     }
