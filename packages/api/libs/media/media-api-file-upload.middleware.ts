@@ -95,8 +95,8 @@ export const UploadMiddleware = {
       if (fileName && contentType) {
         try {
           const s3Client = S3Service.getS3Client({
-            accessKeyId: env.S3_ACCESS_KEY_ID,
-            secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+            accessKeyId: env.AWS_ACCESS_KEY,
+            secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
           })
 
           const upload = new Upload({

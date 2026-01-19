@@ -68,9 +68,9 @@ export const OTP_SALT = getRequiredEnvVar('OTP_SALT', 'dev-only-otp-salt')
 export const SENDGRID_API_KEY = getRequiredEnvVar('SENDGRID_API_KEY', 'SG.dev-only-key')
 
 // OPTIONAL - Safe to have defaults
+export const AWS_ACCESS_KEY = getOptionalEnvVar('AWS_ACCESS_KEY_ID', '')
+export const AWS_SECRET_ACCESS_KEY = getOptionalEnvVar('AWS_SECRET_ACCESS_KEY', '')
 export const POSTGRES_URI = getOptionalEnvVar('POSTGRES_URI', '')
-export const S3_ACCESS_KEY_ID = getOptionalEnvVar('AWS_S3_ACCESS_KEY_ID', '')
 export const S3_APP_BUCKET_NAME = `${APP_PREFIX}-bucket`
-export const S3_SECRET_ACCESS_KEY = getOptionalEnvVar('AWS_S3_SECRET_ACCESS_KEY', '')
 export const SENDGRID_URL = getOptionalEnvVar('SENDGRID_URL', 'http://localhost:7000')
 export const UPLOAD_MAX_FILE_SIZE = getOptionalEnvVar('UPLOAD_MAX_FILE_SIZE', '50')
