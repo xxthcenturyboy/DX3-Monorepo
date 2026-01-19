@@ -31,6 +31,15 @@ export class ApiRoutes {
     this.baseRouter.all('/*', endpointNotFound)
     this.v1Router.use('/', RoutesV1.configure())
 
+    const fingerprintMiddleware = (req: Request, _res: Response, next: NextFunction) => {
+      const fingerprint = HeaderService.getFingerprintFromRequest(req)
+      if (fingerprint) {
+        req.fingerprint = fingerprint
+      }
+
+      next()
+    }
+
     const versionMiddleware = (req: Request, res: Response, next: NextFunction) => {
       try {
         const version = HeaderService.getVersionFromRequest(req)
@@ -48,8 +57,8 @@ export class ApiRoutes {
     }
 
     if (this.app) {
-      this.app.use('/api', [DxRateLimiters.standard(), versionMiddleware])
-      this.app.use('/*', endpointNotFound)
+      this.app.use('/api', [DxRateLimiters.standard(), fingerprintMiddleware, versionMiddleware])
+      this.app.use('/*', [DxRateLimiters.strict(), fingerprintMiddleware], endpointNotFound)
     }
   }
 }

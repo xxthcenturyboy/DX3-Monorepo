@@ -5,6 +5,8 @@
  * This function is called once during app startup.
  */
 
+import { FingerprintWebService } from '@dx3/web-libs/utils/fingerprint-web.service'
+
 import { i18nActions, i18nService } from '../../i18n'
 import { store } from '../../store/store-web.redux'
 
@@ -14,6 +16,7 @@ import { store } from '../../store/store-web.redux'
  */
 export async function appBootstrap(): Promise<void> {
   await initializeI18n()
+  new FingerprintWebService()
 }
 
 /**

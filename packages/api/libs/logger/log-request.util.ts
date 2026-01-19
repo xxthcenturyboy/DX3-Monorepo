@@ -1,7 +1,6 @@
-import type { Request } from 'express'
-
 import { ApiLoggingClass } from './logger-api.class'
 import { safeStringify } from './sanitize-log.util'
+import type { Request } from 'express'
 
 function _getUserId(req: Request) {
   if (req.user) {
@@ -9,6 +8,15 @@ function _getUserId(req: Request) {
   }
 
   return 'logged-out'
+}
+
+
+function _getFingerprint(req: Request) {
+  if (req.fingerprint) {
+    return `fingerprint: ${req.fingerprint}`
+  }
+
+  return null
 }
 
 function _getRequestData(req: Request) {
@@ -62,6 +70,7 @@ function _getRequestData(req: Request) {
 
 export function logRequest(data: { message?: string; req: Request; type: string }) {
   const { message, req, type } = data
+  const fingerprint = _getFingerprint(req)
   const userId = _getUserId(req)
   const requestData = _getRequestData(req)
 
@@ -71,6 +80,10 @@ export function logRequest(data: { message?: string; req: Request; type: string 
     userId,
     requestData,
   ]
+
+  if (fingerprint) {
+    segments.push(fingerprint)
+  }
 
   if (message) {
     segments.push(`msg: ${message}`)

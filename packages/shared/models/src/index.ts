@@ -93,7 +93,7 @@ export type {
   GetFeatureFlagsListResponseType,
 } from './feature-flags/feature-flag-shared.types'
 // Headers
-export { HEADER_API_VERSION_PROP } from './headers/headers-shared.const'
+export { HEADER_API_VERSION_PROP, HEADER_CLIENT_FINGERPRINT_PROP } from './headers/headers-shared.const'
 // HEALTHZ Types
 export type {
   HealthzHttpType,

@@ -4,7 +4,7 @@ import type {
   Handshake,
 } from 'socket.io/dist/socket'
 
-import { HEADER_API_VERSION_PROP } from '@dx3/models-shared'
+import { HEADER_API_VERSION_PROP, HEADER_CLIENT_FINGERPRINT_PROP } from '@dx3/models-shared'
 
 export class HeaderService {
   public static getTokenFromRequest(req: Request) {
@@ -16,6 +16,15 @@ export class HeaderService {
     }
 
     return token
+  }
+
+  public static getFingerprintFromRequest(req: Request): string | null {
+    const fingerprintHeaderValue = req.get(HEADER_CLIENT_FINGERPRINT_PROP)
+    if (fingerprintHeaderValue) {
+      return fingerprintHeaderValue
+    }
+
+    return null
   }
 
   public static getTokenFromHandshake(handshake: Handshake) {

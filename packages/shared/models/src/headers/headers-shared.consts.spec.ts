@@ -1,4 +1,4 @@
-import { HEADER_API_VERSION_PROP } from './headers-shared.const'
+import { HEADER_API_VERSION_PROP, HEADER_CLIENT_FINGERPRINT_PROP } from './headers-shared.const'
 
 describe('HEADER_API_VERSION_PROP ', () => {
   it('should exist when imported', () => {

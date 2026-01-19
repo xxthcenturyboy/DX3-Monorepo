@@ -32,6 +32,5 @@ export class WebLoggingClass {
   }
 }
 
-// TODO: determine log level @ run / build via env
 export const logger = new WebLoggingClass({ level: 'log' })
 export type WebLoggingClassType = typeof WebLoggingClass.prototype

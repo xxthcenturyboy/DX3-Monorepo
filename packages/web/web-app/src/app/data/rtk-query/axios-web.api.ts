@@ -1,17 +1,10 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query/react'
-import axios, { type AxiosError, type AxiosResponse } from 'axios'
+import axios, { type AxiosError, AxiosHeaders, type AxiosResponse } from 'axios'
 import { toast } from 'react-toastify'
 
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { store } from '@dx/store-web';
+import { HEADER_CLIENT_FINGERPRINT_PROP } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
+import { FingerprintWebService } from '@dx3/web-libs/utils/fingerprint-web.service'
 
 import { authActions } from '../../auth/auth-web.reducer'
 import { WebConfigService } from '../../config/config-web.service'
@@ -25,6 +18,16 @@ import type {
   RequestResponseType,
 } from './axios-web.types'
 import { getCustomHeaders } from './web.api'
+
+// import { Navigate } from 'react-router';
+
+// import { Navigate } from 'react-router';
+
+// import { Navigate } from 'react-router';
+
+// import { Navigate } from 'react-router';
+
+// import { store } from '@dx/store-web';
 
 export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
   const URLS = WebConfigService.getWebUrls()
@@ -45,6 +48,15 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
       const accessToken = store.getState().auth.token
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`
+      }
+
+      if (!config.headers) {
+        config.headers = new AxiosHeaders()
+      }
+
+      const fingerprint = await FingerprintWebService.instance.getFingerprint()
+      if (fingerprint) {
+        config.headers[HEADER_CLIENT_FINGERPRINT_PROP] = fingerprint
       }
 
       config.withCredentials = true
@@ -76,10 +88,16 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
         const accessToken = store.getState().auth.token
         if (accessToken) {
           try {
+            const fingerprint = await FingerprintWebService.instance.getFingerprint()
+            const refreshHeaders = getCustomHeaders({ version: 1 })
+            if (fingerprint) {
+              refreshHeaders.set(HEADER_CLIENT_FINGERPRINT_PROP, fingerprint)
+            }
+
             const response: AxiosResponse<{ accessToken: string }> = await axios.get(
               `${API_URI}auth/refresh-token`,
               {
-                headers: getCustomHeaders({ version: 1 }),
+                headers: refreshHeaders,
                 withCredentials: true,
               },
             )
