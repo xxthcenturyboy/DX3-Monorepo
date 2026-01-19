@@ -1,4 +1,7 @@
+import AddIcon from '@mui/icons-material/Add'
 import { Grid, useMediaQuery, useTheme } from '@mui/material'
+import Fab from '@mui/material/Fab'
+import Zoom from '@mui/material/Zoom'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -9,7 +12,7 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
-import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
+import { MODAL_ROOT_ELEM_ID, TIMEOUT_DUR_500 } from '@dx3/web-libs/ui/ui.consts'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
 import { useString } from '../../i18n'
@@ -32,6 +35,7 @@ export const FeatureFlagAdminList: React.FC = () => {
   const dispatch = useAppDispatch()
   const location = useLocation()
   const theme = useTheme()
+  const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const pageTitle = useString('FEATURE_FLAGS')
 
@@ -211,6 +215,28 @@ export const FeatureFlagAdminList: React.FC = () => {
 
       {createDialog}
       {editDialog}
+      <Zoom
+        in={MD_BREAK}
+        style={{
+          transitionDelay: `${MD_BREAK ? TIMEOUT_DUR_500 : 0}ms`,
+        }}
+        timeout={TIMEOUT_DUR_500}
+        unmountOnExit
+      >
+        <Fab
+          aria-label="add feature flag"
+          color="secondary"
+          onClick={() => setCreateDialogOpen(true)}
+          size="large"
+          style={{
+            bottom: 24,
+            position: 'fixed',
+            right: 24,
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      </Zoom>
     </ContentWrapper>
   )
 }

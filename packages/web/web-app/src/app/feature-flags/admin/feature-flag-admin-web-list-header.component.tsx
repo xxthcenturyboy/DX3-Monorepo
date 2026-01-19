@@ -125,29 +125,17 @@ export const FeatureFlagAdminListHeaderComponent: React.FC<
             </span>
           </Grid>
           {/* Create Button */}
-          <Grid
-            sx={(theme) => {
-              if (SM_BREAK) {
-                return {
-                  position: 'absolute',
-                  right: '12px',
-                  top: '12px',
-                }
-              }
-
-              return {
-                marginLeft: '24px',
-              }
-            }}
-          >
-            <Button
-              color="primary"
-              onClick={props.onCreateClick}
-              variant="contained"
-            >
-              {strings.CREATE}
-            </Button>
-          </Grid>
+          {!MD_BREAK && (
+            <Grid sx={{ marginLeft: '12px' }}>
+              <Button
+                color="primary"
+                onClick={props.onCreateClick}
+                variant="contained"
+              >
+                {strings.CREATE}
+              </Button>
+            </Grid>
+          )}
         </Grid>
       }
       headerTitle={pageTitle}
