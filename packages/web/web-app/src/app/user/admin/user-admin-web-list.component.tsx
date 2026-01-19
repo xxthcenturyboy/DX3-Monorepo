@@ -1,4 +1,4 @@
-import { Button, Grid, useMediaQuery, useTheme } from '@mui/material'
+import { Button, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -7,7 +7,6 @@ import { toast } from 'react-toastify'
 
 import { type GetUsersListQueryType, USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
-import { CollapsiblePanel } from '@dx3/web-libs/ui/content/content-collapsible-panel'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
@@ -238,9 +237,19 @@ export const UserAdminList: React.FC = () => {
           mb={'24px'}
           size={12}
         >
-          <CollapsiblePanel
-            headerTitle="Actions"
-            panelId="panel-user-admin-actions"
+          <Paper
+            elevation={2}
+            square={false}
+            sx={(theme) => ({
+              alignItems: 'center',
+              backgroundColor:
+                theme.palette.mode === 'dark'
+                  ? theme.palette.background.paper
+                  : theme.palette.grey[100],
+              // boxShadow: theme.shadows[1],
+              padding: theme.spacing(3, 2, 3, 2),
+            })}
+            variant="outlined"
           >
             <Grid
               alignItems={'center'}
@@ -274,7 +283,7 @@ export const UserAdminList: React.FC = () => {
                 </Button>
               )}
             </Grid>
-          </CollapsiblePanel>
+          </Paper>
         </Grid>
       </Grid>
 
