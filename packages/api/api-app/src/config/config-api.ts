@@ -1,12 +1,10 @@
-import type { Sequelize } from 'sequelize-typescript'
-
 import type { ApiLoggingClassType } from '@dx3/api-libs/logger'
 import type { RedisConfigType, RedisServiceType } from '@dx3/api-libs/redis'
 import { APP_PREFIX, DEV_ENV_NAME } from '@dx3/models-shared'
-
 import { API_APP_NAME, SENDGRID_API_KEY, SENDGRID_URL } from './config-api.consts'
 import { getEnvironment, isDebug, isDev } from './config-api.service'
 import type { ApiConfigType } from './config-api.type'
+import type { Sequelize } from 'sequelize-typescript'
 
 export function getRedisConfig(): RedisConfigType {
   const env = getEnvironment()

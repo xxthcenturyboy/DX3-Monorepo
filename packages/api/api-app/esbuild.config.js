@@ -81,14 +81,35 @@ const buildOptions = {
   tsconfig: 'tsconfig.app.json',
 }
 
+function copyGeoIpDb() {
+  const sourcePath = path.resolve(
+    __dirname,
+    '..',
+    'libs/geoip/GeoLite2-City_20260116/GeoLite2-City.mmdb',
+  )
+
+  if (!fs.existsSync(sourcePath)) {
+    console.log('ℹ️ GeoIP database not found; skipping copy step.')
+    return
+  }
+
+  const destinationPath = path.resolve(outdir, 'geoip/GeoLite2-City.mmdb')
+  fs.mkdirSync(path.dirname(destinationPath), { recursive: true })
+  fs.copyFileSync(sourcePath, destinationPath)
+  console.log(`✅ GeoIP database copied to ${destinationPath}`)
+}
+
 context(buildOptions)
   .then((ctx) => {
     if (isWatching) {
       console.log('👀 Watching for changes...')
-      return ctx.watch()
+      return ctx.watch().then(() => copyGeoIpDb())
     } else {
       console.log('🚀 Building...')
-      return ctx.rebuild().then(() => ctx.dispose())
+      return ctx
+        .rebuild()
+        .then(() => copyGeoIpDb())
+        .then(() => ctx.dispose())
     }
   })
   .catch(() => process.exit(1))

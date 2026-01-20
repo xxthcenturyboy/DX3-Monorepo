@@ -1,6 +1,7 @@
+import type { Request } from 'express'
+
 import { ApiLoggingClass } from './logger-api.class'
 import { safeStringify } from './sanitize-log.util'
-import type { Request } from 'express'
 
 function _getUserId(req: Request) {
   if (req.user) {
@@ -10,13 +11,37 @@ function _getUserId(req: Request) {
   return 'logged-out'
 }
 
-
 function _getFingerprint(req: Request) {
   if (req.fingerprint) {
     return `fingerprint: ${req.fingerprint}`
   }
 
   return null
+}
+
+function _getGeoSummary(req: Request) {
+  const country = req.geo?.country?.iso_code
+  const region = req.geo?.subdivisions?.[0]?.iso_code
+  const city = req.geo?.city?.names?.en
+
+  if (!country && !region && !city) {
+    return null
+  }
+
+  const segments = []
+  if (country) {
+    segments.push(`country=${country}`)
+  }
+
+  if (region) {
+    segments.push(`region=${region}`)
+  }
+
+  if (city) {
+    segments.push(`city=${city}`)
+  }
+
+  return `geo: ${segments.join(', ')}`
 }
 
 function _getRequestData(req: Request) {
@@ -71,6 +96,7 @@ function _getRequestData(req: Request) {
 export function logRequest(data: { message?: string; req: Request; type: string }) {
   const { message, req, type } = data
   const fingerprint = _getFingerprint(req)
+  const geoSummary = _getGeoSummary(req)
   const userId = _getUserId(req)
   const requestData = _getRequestData(req)
 
@@ -83,6 +109,10 @@ export function logRequest(data: { message?: string; req: Request; type: string 
 
   if (fingerprint) {
     segments.push(fingerprint)
+  }
+
+  if (geoSummary) {
+    segments.push(geoSummary)
   }
 
   if (message) {

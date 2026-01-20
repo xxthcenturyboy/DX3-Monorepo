@@ -1,5 +1,6 @@
 import { type Express, type NextFunction, type Request, type Response, Router } from 'express'
 
+import { GeoIpService } from '@dx3/api-libs/geoip/geoip-api.service'
 import { HeaderService } from '@dx3/api-libs/headers/header.service'
 import { endpointNotFound, sendBadRequest } from '@dx3/api-libs/http-response/http-responses'
 import { LivezRoutes } from '@dx3/api-libs/livez/lives-api.routes'
@@ -31,6 +32,15 @@ export class ApiRoutes {
     this.baseRouter.all('/*', endpointNotFound)
     this.v1Router.use('/', RoutesV1.configure())
 
+    const geoIpMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
+      const geo = await GeoIpService.lookup(req.ip)
+      if (geo) {
+        req.geo = geo
+      }
+
+      next()
+    }
+
     const fingerprintMiddleware = (req: Request, _res: Response, next: NextFunction) => {
       const fingerprint = HeaderService.getFingerprintFromRequest(req)
       if (fingerprint) {
@@ -57,7 +67,12 @@ export class ApiRoutes {
     }
 
     if (this.app) {
-      this.app.use('/api', [DxRateLimiters.standard(), fingerprintMiddleware, versionMiddleware])
+      this.app.use('/api', [
+        DxRateLimiters.standard(),
+        geoIpMiddleware,
+        fingerprintMiddleware,
+        versionMiddleware,
+      ])
       this.app.use('/*', [DxRateLimiters.strict(), fingerprintMiddleware], endpointNotFound)
     }
   }

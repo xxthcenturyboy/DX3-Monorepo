@@ -1,3 +1,5 @@
+import path from 'node:path'
+
 import { APP_NAME, APP_PREFIX } from '@dx3/models-shared'
 
 import { allowsDevFallbacks, getEnvironment } from './config-api.service'
@@ -50,6 +52,15 @@ export const API_ROOT = __API_ROOT_DIR__
 export const ERROR_MSG_API =
   "Oops! Something went wrong. It's probably nothing you did and most likely our fault. If it happens many times, please contact support."
 
+function resolveMaxmindGeoIpPath(): string {
+  const envPath = getOptionalEnvVar('MAXMIND_GEOIP_DB_PATH', '')
+  if (envPath) {
+    return path.join(__dirname, envPath)
+  }
+
+  return ''
+}
+
 // REQUIRED SECRETS - Application will not start without these in production
 // Local development allows fallbacks for convenience
 export const CRYPT_KEY = getRequiredEnvVar(
@@ -70,6 +81,7 @@ export const SENDGRID_API_KEY = getRequiredEnvVar('SENDGRID_API_KEY', 'SG.dev-on
 // OPTIONAL - Safe to have defaults
 export const AWS_ACCESS_KEY = getOptionalEnvVar('AWS_ACCESS_KEY_ID', '')
 export const AWS_SECRET_ACCESS_KEY = getOptionalEnvVar('AWS_SECRET_ACCESS_KEY', '')
+export const MAXMIND_GEOIP_DB_PATH = resolveMaxmindGeoIpPath()
 export const POSTGRES_URI = getOptionalEnvVar('POSTGRES_URI', '')
 export const S3_APP_BUCKET_NAME = `${APP_PREFIX}-bucket`
 export const SENDGRID_URL = getOptionalEnvVar('SENDGRID_URL', 'http://localhost:7000')
