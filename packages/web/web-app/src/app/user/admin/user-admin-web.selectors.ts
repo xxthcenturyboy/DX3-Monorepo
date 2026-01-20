@@ -18,7 +18,7 @@ export const selectUserFormatted = createSelector([getUser], (user) => {
       const formatted = parsePhoneNumber(phone.phone)
       nextPhones.push({
         ...phone,
-        uiFormatted: formatted?.formatNational(),
+        uiFormatted: formatted?.formatNational() || phone.phone,
       })
     }
     return {
@@ -39,7 +39,7 @@ export const selectUsersFormatted = createSelector([getUsers], (users) => {
       const formatted = parsePhoneNumber(phone.phone)
       nextPhones.push({
         ...phone,
-        uiFormatted: formatted?.formatNational(),
+        uiFormatted: formatted?.formatNational() || phone.phone,
       })
     }
     nextUsers.push({

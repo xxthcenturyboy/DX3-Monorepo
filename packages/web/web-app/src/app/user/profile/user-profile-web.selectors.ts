@@ -33,7 +33,7 @@ export const selectProfileFormatted = createSelector([getUserProfile], (profile)
     const formatted = parsePhoneNumber(phone.phone)
     nextPhones.push({
       ...phone,
-      uiFormatted: formatted?.formatNational(),
+      uiFormatted: formatted?.formatNational() || phone.phone,
     })
   }
 
