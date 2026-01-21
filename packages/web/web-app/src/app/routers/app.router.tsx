@@ -8,8 +8,8 @@ import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component
 import { AuthWebRouterConfig } from '../auth/auth-web.router'
 import { WebConfigService } from '../config/config-web.service'
 import { Root } from '../root-web.component'
-import { AuthenticatedRouter } from '../routers/authenticated.router'
 import { store } from '../store/store-web.redux'
+import { AuthenticatedRouter } from './authenticated.router'
 import { PrivateWebRouterConfig } from './private.router'
 
 const LazyHomeComponent = lazy(async () => ({
