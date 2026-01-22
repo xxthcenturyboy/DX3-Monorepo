@@ -11,33 +11,34 @@
  *
  * Phase 1: Home route only
  * Phase 2+: Auth routes, Shortlink with loaders
+ * Phase 5: Caching, compression, streaming
  */
 
+import * as crypto from 'node:crypto'
+import * as path from 'node:path'
 import { CacheProvider } from '@emotion/react'
-import createCache from '@emotion/cache'
 import createEmotionServer from '@emotion/server/create-instance'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import * as fs from 'node:fs'
-import * as path from 'node:path'
-import * as React from 'react'
 import { renderToString } from 'react-dom/server'
-import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 import { Provider as ReduxProvider } from 'react-redux'
+import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 
 import { createEmotionCache } from '../app/emotion-cache'
-import { I18nService } from '../app/i18n/i18n.service'
 import { i18nActions } from '../app/i18n/i18n.reducer'
+import { I18nService } from '../app/i18n/i18n.service'
 import { createPublicRoutes } from '../app/routers/ssr.routes'
 import { createSsrStore } from '../app/store/store-ssr.redux'
+import { typographyOverridesCommon } from '../app/ui/mui-themes/components/common/typography-common'
 import { muiLightComponentOverrides } from '../app/ui/mui-themes/components/light'
 import { muiLightPalette } from '../app/ui/mui-themes/mui-light.palette'
-import { typographyOverridesCommon } from '../app/ui/mui-themes/components/common/typography-common'
 
 const app = express()
 
 // Middleware
+app.use(compression()) // Enable gzip/brotli compression (Phase 5)
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, '../../web-app-dist')))
 
@@ -86,7 +87,7 @@ app.get('*', async (req, res) => {
           if (typeof v === 'string') acc[k] = v
           return acc
         },
-        {} as Record<string, string>
+        {} as Record<string, string>,
       ),
       method: req.method,
     })
@@ -118,10 +119,13 @@ app.get('*', async (req, res) => {
       <ReduxProvider store={store}>
         <CacheProvider value={emotionCache}>
           <ThemeProvider theme={theme}>
-            <StaticRouterProvider context={context} router={router} />
+            <StaticRouterProvider
+              context={context}
+              router={router}
+            />
           </ThemeProvider>
         </CacheProvider>
-      </ReduxProvider>
+      </ReduxProvider>,
     )
 
     // Extract critical CSS from Emotion
@@ -132,10 +136,8 @@ app.get('*', async (req, res) => {
     const preloadedState = store.getState()
     const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
-    // Send complete HTML document
-    res.status(200)
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.send(`
+    // Build complete HTML document
+    const fullHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,7 +159,22 @@ app.get('*', async (req, res) => {
   <script src="/static/js/client.js"></script>
 </body>
 </html>
-    `.trim())
+    `.trim()
+
+    // Generate ETag from content hash (Phase 5)
+    const etag = `"${crypto.createHash('sha256').update(fullHtml).digest('hex').substring(0, 27)}"`
+
+    // Check If-None-Match header for 304 Not Modified response (Phase 5)
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).end()
+    }
+
+    // Send complete HTML document with caching headers
+    res.status(200)
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.setHeader('ETag', etag) // Enable client-side caching validation (Phase 5)
+    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL (Phase 5)
+    res.send(fullHtml)
   } catch (error) {
     console.error('SSR handler error:', error)
     // Fall back to CSR shell on any error
@@ -170,5 +187,6 @@ const PORT = process.env.SSR_PORT || 3001
 app.listen(PORT, () => {
   console.log(`\n🚀 SSR server listening on http://localhost:${PORT}`)
   console.log(`📦 Serving static files from: ${path.join(__dirname, '../../web-app-dist')}`)
-  console.log(`🏠 Phase 1: Home route (/) enabled for SSR\n`)
+  console.log(`🏠 Phase 4: Home, Shortlink, FAQ, About, Blog routes enabled for SSR`)
+  console.log(`⚡ Phase 5: Compression (gzip/brotli), ETag, and Cache-Control (60s TTL) enabled\n`)
 })

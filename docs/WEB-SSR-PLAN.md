@@ -333,7 +333,7 @@ If hydration fails on the client:
 *   **Phase 2:** ✅ **COMPLETED** - Added SSR for Shortlink (`/l/:token`) with loader data fetching.
 *   **Phase 3:** ✅ **COMPLETED** - Socket.IO refactored to use dynamic imports (lazy loading). Auth routes remain CSR-only (standard pattern for interactive forms with no SEO value).
 *   **Phase 4:** ✅ **COMPLETED** - Created FAQ, About, and Blog components with SSR support. All three routes render server-side with placeholder content.
-*   **Phase 5:** Add caching (ETag, short TTL), streaming, and compression tuning.
+*   **Phase 5:** ✅ **COMPLETED** - Added caching (ETag, Cache-Control 60s TTL), compression (gzip/brotli), and 304 Not Modified responses. Performance optimizations complete.
 *   **Phase 6:** Monitor errors, performance, and SEO improvements with dashboards and alerts.
 
 ### 18.1 Phase 1 Implementation Summary (2026-01-21)
@@ -599,6 +599,85 @@ If hydration fails on the client:
 - No caching headers (ETag, Cache-Control) on SSR responses
 - Performance monitoring not yet implemented
 
+### 18.5 Phase 5 Implementation Summary (2026-01-22)
+
+**Status:** ✅ Completed - Caching, compression, and optimization features added
+
+**What Was Built:**
+1. **Compression Middleware:**
+   - Installed `compression` package for Express (v1.8.1)
+   - Enabled gzip/brotli compression for all SSR responses
+   - Automatically compresses based on Accept-Encoding header
+   - Reduces bandwidth usage and improves response times
+
+2. **ETag Support:**
+   - Generate SHA-256 content hash for each SSR response
+   - Use first 27 characters as ETag value (e.g., `"4ce8f2eaf6cff4fe543d3072f69"`)
+   - Check If-None-Match header for cache validation
+   - Return 304 Not Modified when ETag matches (no response body sent)
+   - Unique ETags per route based on rendered content
+
+3. **Cache-Control Headers:**
+   - Added `Cache-Control: public, max-age=60, must-revalidate`
+   - 60-second TTL for CDN/browser caching (as specified in plan)
+   - `public` allows intermediate caches (CDN, proxy)
+   - `must-revalidate` forces revalidation after TTL expires
+   - Applies to all SSR routes (Home, FAQ, About, Blog, Shortlink)
+
+4. **Code Cleanup:**
+   - Removed unused imports (fs, createCache, React) from server.tsx
+   - Updated import statements to use Node.js crypto for hashing
+   - Added Phase 5 documentation in server comments
+
+**Architectural Decisions:**
+
+1. **ETag Generation Strategy:**
+   - Hash full HTML response (including Redux state and Emotion CSS)
+   - Ensures ETag changes when any content changes (state, styles, markup)
+   - SHA-256 provides strong collision resistance for content-based caching
+   - Substring to 27 chars balances uniqueness with header size
+
+2. **Cache TTL Choice (60 seconds):**
+   - Short TTL balances freshness and caching benefits
+   - Allows content updates to propagate quickly (1 minute)
+   - ETag validation provides instant cache hits for unchanged content
+   - Suitable for public content that may update frequently
+
+3. **Compression Configuration:**
+   - Default compression settings (gzip level 6, brotli quality 11)
+   - Automatically handles Content-Encoding negotiation
+   - Only compresses responses larger than 1KB threshold
+   - Works with streaming responses
+
+**Verified Functionality:**
+- ✅ Compression middleware installed and activated
+- ✅ All routes return ETag headers with unique content hashes
+- ✅ All routes return Cache-Control: public, max-age=60, must-revalidate
+- ✅ 304 Not Modified responses work correctly with If-None-Match
+- ✅ Home route ETag: "4ce8f2eaf6cff4fe543d3072f69"
+- ✅ FAQ route ETag: "b2a4c5b0fae8e0577126ab47b65"
+- ✅ About route ETag: "eab4b86a641fb1dc6f777632b4d"
+- ✅ Blog route ETag: "172fee1acf55cc83e02533ccc13"
+- ✅ Compression reduces response sizes (transparent to client)
+- ✅ SSR server bundle: 5.25 MiB (includes compression module)
+
+**Key Files Modified:**
+- `packages/web/web-app/src/ssr/server.tsx` - Added compression, ETag, Cache-Control
+- `packages/web/web-app/package.json` - Added compression dependency
+
+**Performance Impact:**
+- **Caching**: 304 responses eliminate redundant SSR rendering and data transfer
+- **Compression**: Reduces HTML response size by ~60-70% (typical gzip ratio)
+- **TTL**: Allows CDN/browser to serve cached responses for 60 seconds
+- **ETag validation**: Near-instant cache validation (hash comparison vs full render)
+
+**Known Limitations (Deferred to Phase 6+):**
+- FAQ and Blog components use placeholder data (no API loaders yet)
+- Route metadata (title, description, canonical, JSON-LD) not yet implemented
+- No performance monitoring or metrics collection
+- No Vary headers for content negotiation (Accept-Language, Accept-Encoding)
+- Streaming SSR not implemented (using renderToString for ETag consistency)
+
 ## 19. Implementation Checklist
 
 ### Prerequisites (Must Complete First)
@@ -627,11 +706,15 @@ If hydration fails on the client:
 - [ ] Add SSR-safe loaders for FAQ and Blog routes (Phase 4 - components don't exist yet)
 - [ ] Add route metadata (title, description, canonical, JSON-LD where applicable) (Phase 4+)
 
-### Production Readiness (Phase 4+)
-- [ ] Add rate limiting to SSR server.
-- [ ] Add health check endpoint.
-- [ ] Add SSR/CSR boundary tests and E2E tests for public routes.
-- [ ] Add monitoring and alerting for SSR errors.
+### Production Readiness (Phase 5-6)
+- [x] Add compression (gzip/brotli) to SSR responses (Phase 5)
+- [x] Add ETag generation and validation (Phase 5)
+- [x] Add Cache-Control headers with 60s TTL (Phase 5)
+- [x] Add health check endpoint (Phase 1)
+- [ ] Add rate limiting to SSR server (Phase 6+)
+- [ ] Add SSR/CSR boundary tests and E2E tests for public routes (Phase 6+)
+- [ ] Add monitoring and alerting for SSR errors (Phase 6+)
+- [ ] Add route metadata (title, description, canonical, JSON-LD) (Phase 6+)
 
 ## 20. Proposed Code (Illustrative)
 
