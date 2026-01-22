@@ -16,6 +16,7 @@ export type UiStateType = {
   mobileNotiicationsOpen: boolean
   name: string
   notifications: number
+  publicMenuOpen: boolean
   theme: PaletteMode
   windowWidth: number
   windowHeight: number

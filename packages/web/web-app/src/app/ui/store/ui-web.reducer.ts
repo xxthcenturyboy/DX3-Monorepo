@@ -24,6 +24,7 @@ export const uiInitialState: UiStateType = {
   mobileNotiicationsOpen: false,
   name: APP_NAME,
   notifications: 0,
+  publicMenuOpen: false,
   theme: 'light',
   windowHeight: typeof window !== 'undefined' ? window.innerHeight : 1080,
   windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1920,
@@ -40,6 +41,7 @@ export const uiPersistConfig: PersistConfig<UiStateType> = {
     'logoUrl',
     'logoUrlSmall',
     'mobileNotiicationsOpen',
+    'publicMenuOpen',
   ],
   key: `${APP_PREFIX}:${UI_WEB_ENTITY_NAME}`,
   stateReconciler: autoMergeLevel1,
@@ -77,6 +79,9 @@ const uiSlice = createSlice({
     },
     toggleMobileNotificationsOpenSet(state, action: PayloadAction<boolean>) {
       state.mobileNotiicationsOpen = action.payload
+    },
+    togglePublicMenuSet(state, action: PayloadAction<boolean>) {
+      state.publicMenuOpen = action.payload
     },
     windowSizeSet(state, _action: PayloadAction<undefined>) {
       state.windowWidth = window?.innerWidth

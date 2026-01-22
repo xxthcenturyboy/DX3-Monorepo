@@ -6,10 +6,43 @@ This is the main web app
 
 ## Dev
 
-Run Web App
+Run Web App (CSR - Client-Side Rendering)
 ```Bash
 pnpm dev:web
 ```
+
+Run Web App (SSR - Server-Side Rendering)
+```Bash
+pnpm --filter @dx3/web-app dev:ssr
+```
+
+Run Web App (SSR with auto-rebuild on file changes)
+```Bash
+pnpm --filter @dx3/web-app dev:ssr:watch
+```
+
+### SSR vs CSR Development
+
+- **CSR (`pnpm dev:web`)**: Runs on port 3001, fast hot reload, best for development
+- **SSR (`pnpm dev:ssr`)**: Runs on port 3000, full server-side rendering, use to test SEO/performance
+
+### How to Verify SSR is Working
+
+1. **View Page Source** (CMD+Option+U on Mac, CTRL+U on Windows)
+   - Navigate to http://localhost:3000/faq
+   - View source - you should see the actual content rendered in HTML
+   - Compare with CSR version at http://localhost:3001 (only shows React shell)
+
+2. **Check Network Tab**
+   - DevTools → Network tab
+   - Click on the document request (first one)
+   - Response Preview should show fully rendered HTML
+
+3. **Disable JavaScript Test**
+   - DevTools → Settings → Disable JavaScript
+   - Refresh the page - SSR content should still be visible
+
+**SSR Routes**: /, /faq, /about, /blog, /s/:token
 
 ---
 

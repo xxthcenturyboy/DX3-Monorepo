@@ -16,6 +16,8 @@ export const DEFAULT_LOCALE: LocaleCode = 'en'
  * These are always available even if network requests fail.
  */
 export const DEFAULT_STRINGS: StringKeys = {
+  ABOUT: 'About',
+  ABOUT_PAGE_TITLE: 'About Us',
   ACCOUNT_MENU: 'Account Menu',
   ADD: 'Add',
   ADMIN: 'Admin',
@@ -45,6 +47,8 @@ export const DEFAULT_STRINGS: StringKeys = {
   BACK: 'Back',
   BETA: 'Beta',
   BETA_USERS: 'Beta Users',
+  BLOG: 'Blog',
+  BLOG_PAGE_TITLE: 'Blog',
   CANCEL: 'Cancel',
   CANCELING: 'Canceling',
   CHANGE_PASSWORD: 'Change Password',
@@ -80,6 +84,8 @@ export const DEFAULT_STRINGS: StringKeys = {
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: 'Enter the code sent to your {method}',
   EXTERNAL: 'External',
   FAIL: 'Fail',
+  FAQ: 'FAQ',
+  FAQ_PAGE_TITLE: 'Frequently Asked Questions',
   FEATURE_FLAG_COMING_SOON: 'Feature "{flagName}" coming soon!',
   FEATURE_FLAGS: 'Feature Flags',
   FILTER: 'Filter',
@@ -93,6 +99,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   GREETING: 'Hello, {name}!',
   HEAP_TOTAL: 'Heap Total',
   HEAP_USED: 'Heap Used',
+  HOME: 'Home',
   LABEL: 'Label',
   LAST_NAME: 'Last Name',
   LOADING: 'Loading...',
@@ -144,6 +151,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   PING: 'Ping',
   PROFILE: 'Profile',
   PROFILE_UPDATED: 'Profile updated.',
+  PUBLIC_PAGES: 'Public Pages',
   READ: 'Read',
   REFRESH: 'Refresh',
   RESTRICTED: 'Restricted',

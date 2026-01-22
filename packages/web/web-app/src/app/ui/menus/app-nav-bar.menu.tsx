@@ -32,6 +32,7 @@ import { NotificationsMenu } from '../../notifications/notifications.menu'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
 import { AccountMenu } from './app-menu-account.component'
+import { PublicMenuMobile } from './public-menu-mobile.component'
 
 const Logo = styled('img')`
   width: 36px;
@@ -52,8 +53,9 @@ export const AppNavBar: React.FC = () => {
   const logoUrl = useAppSelector((state) => state.ui.logoUrlSmall)
   const menuOpen = useAppSelector((state) => state.ui.menuOpen)
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
+  const publicMenuOpen = useAppSelector((state) => state.ui.publicMenuOpen)
   const ROUTES = WebConfigService.getWebRoutes()
-  const strings = useStrings(['LOGIN', 'SIGNUP'])
+  const strings = useStrings(['ABOUT', 'BLOG', 'FAQ', 'HOME', 'LOGIN', 'SIGNUP'])
   const theme = useTheme()
 
   React.useEffect(() => {
@@ -99,6 +101,10 @@ export const AppNavBar: React.FC = () => {
     dispatch(uiActions.toggleMobileNotificationsOpenSet(false))
   }
 
+  const handlePublicMenuToggle = () => {
+    dispatch(uiActions.togglePublicMenuSet(!publicMenuOpen))
+  }
+
   const getAuthButtonColor = (type: 'login' | 'signup'): ButtonOwnProps['color'] => {
     if (theme.palette.mode === 'dark') {
       if (pathname === ROUTES.AUTH.LOGIN && type === 'login') {
@@ -119,6 +125,27 @@ export const AppNavBar: React.FC = () => {
       }
 
       if (pathname === ROUTES.AUTH.SIGNUP && type === 'signup') {
+        return 'secondary'
+      }
+
+      return 'primary'
+    }
+
+    return 'inherit'
+  }
+
+  const getPublicNavButtonColor = (route: string): ButtonOwnProps['color'] => {
+    if (theme.palette.mode === 'dark') {
+      if (pathname === route) {
+        return 'primary'
+      }
+
+      // @ts-expect-error - causes error, but it's ok
+      return ''
+    }
+
+    if (theme.palette.mode === 'light') {
+      if (pathname === route) {
         return 'secondary'
       }
 
@@ -188,7 +215,7 @@ export const AppNavBar: React.FC = () => {
           >
             <Logo src={logoUrl} />
           </Icon>
-          {!mobileBreak ? (
+          {!mobileBreak && isAuthenticated && (
             <Typography
               className="toolbar-app-name"
               component="div"
@@ -199,7 +226,75 @@ export const AppNavBar: React.FC = () => {
             >
               {APP_NAME}
             </Typography>
-          ) : (
+          )}
+          {!mobileBreak && !isAuthenticated && (
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                flexGrow: 1,
+                gap: 1.5,
+                ml: 2,
+              }}
+            >
+              <Button
+                color={getPublicNavButtonColor(ROUTES.FAQ)}
+                onClick={() => navigate(ROUTES.FAQ)}
+                style={{
+                  boxShadow: 'none',
+                  padding: '6px 12px',
+                }}
+                variant="contained"
+              >
+                {strings.FAQ}
+              </Button>
+              <Button
+                color={getPublicNavButtonColor(ROUTES.ABOUT)}
+                onClick={() => navigate(ROUTES.ABOUT)}
+                style={{
+                  boxShadow: 'none',
+                  padding: '6px 12px',
+                }}
+                variant="contained"
+              >
+                {strings.ABOUT}
+              </Button>
+              <Button
+                color={getPublicNavButtonColor(ROUTES.BLOG)}
+                onClick={() => navigate(ROUTES.BLOG)}
+                style={{
+                  boxShadow: 'none',
+                  padding: '6px 12px',
+                }}
+                variant="contained"
+              >
+                {strings.BLOG}
+              </Button>
+            </Box>
+          )}
+          {mobileBreak && !isAuthenticated && (
+            <Box
+              sx={{
+                alignItems: 'center',
+                display: 'flex',
+                flexGrow: 1,
+              }}
+            >
+              <IconButton
+                aria-label="public menu"
+                color="inherit"
+                edge="start"
+                onClick={handlePublicMenuToggle}
+                size="large"
+                sx={{
+                  mr: 1,
+                }}
+              >
+                <Menu className="toolbar-icons" />
+              </IconButton>
+            </Box>
+          )}
+          {mobileBreak && isAuthenticated && (
             <div
               style={{
                 flexGrow: 1,
@@ -288,6 +383,7 @@ export const AppNavBar: React.FC = () => {
         anchorElement={anchorElementNotificationMenu}
         clickCloseMenu={handleNotificationMenu}
       />
+      {!isAuthenticated && <PublicMenuMobile />}
     </Box>
   )
 }

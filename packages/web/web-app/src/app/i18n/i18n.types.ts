@@ -62,6 +62,8 @@ export type StringKeyName = keyof StringKeys
  * Example: "Hello, {name}!" where name is passed as { name: 'Dan' }
  */
 export type StringKeys = {
+  ABOUT: string
+  ABOUT_PAGE_TITLE: string
   ACCOUNT_MENU: string
   ADD: string
   ADMIN: string
@@ -89,6 +91,8 @@ export type StringKeys = {
   BACK: string
   BETA: string
   BETA_USERS: string
+  BLOG: string
+  BLOG_PAGE_TITLE: string
   CANCEL: string
   CANCELING: string
   CHANGE_PASSWORD: string
@@ -124,6 +128,8 @@ export type StringKeys = {
   ENTER_THE_CODE_SENT_TO_YOUR_VAR: string
   EXTERNAL: string
   FAIL: string
+  FAQ: string
+  FAQ_PAGE_TITLE: string
   FEATURE_FLAG_COMING_SOON: string
   FEATURE_FLAGS: string
   FILTER: string
@@ -137,6 +143,7 @@ export type StringKeys = {
   GREETING: string
   HEAP_TOTAL: string
   HEAP_USED: string
+  HOME: string
   LABEL: string
   LAST_NAME: string
   LOADING: string
@@ -187,6 +194,7 @@ export type StringKeys = {
   PING: string
   PROFILE: string
   PROFILE_UPDATED: string
+  PUBLIC_PAGES: string
   READ: string
   REFRESH: string
   RESTRICTED: string

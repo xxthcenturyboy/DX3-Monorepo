@@ -20,6 +20,18 @@ const LazyShortlinkComponent = lazy(async () => ({
   default: (await import('../shortlink/shortlink-web.component')).ShortlinkComponent,
 }))
 
+const LazyFaqComponent = lazy(async () => ({
+  default: (await import('../faq/faq-web.component')).FaqComponent,
+}))
+
+const LazyAboutComponent = lazy(async () => ({
+  default: (await import('../about/about-web.component')).AboutComponent,
+}))
+
+const LazyBlogComponent = lazy(async () => ({
+  default: (await import('../blog/blog-web.component')).BlogComponent,
+}))
+
 export class AppRouter {
   public static getRouter() {
     const ROUTES = WebConfigService.getWebRoutes()
@@ -42,6 +54,18 @@ export class AppRouter {
           {
             element: <LazyShortlinkComponent />,
             path: `${ROUTES.SHORTLINK.MAIN}/:token`,
+          },
+          {
+            element: <LazyFaqComponent />,
+            path: ROUTES.FAQ,
+          },
+          {
+            element: <LazyAboutComponent />,
+            path: ROUTES.ABOUT,
+          },
+          {
+            element: <LazyBlogComponent />,
+            path: ROUTES.BLOG,
           },
           ...PrivateWebRouterConfig.getRouter(),
           {

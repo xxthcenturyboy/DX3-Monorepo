@@ -109,8 +109,12 @@ export class I18nService {
    */
   private async loadLocaleFromFs(locale: string): Promise<StringKeys> {
     // Dynamic import to avoid bundling fs in browser code
-    const fs = await import('node:fs/promises')
-    const path = await import('node:path')
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - Node.js modules only available in SSR context
+    const fs = await import(/* webpackIgnore: true */ 'node:fs/promises')
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore - Node.js modules only available in SSR context
+    const path = await import(/* webpackIgnore: true */ 'node:path')
 
     // In SSR, locale files are in web-app-dist/assets/locales/
     // The server.js is in web-app-dist/ssr/server.js
@@ -129,8 +133,12 @@ export class I18nService {
     try {
       if (isNode) {
         // Node.js environment (SSR) - load from filesystem
-        const fs = await import('node:fs/promises')
-        const path = await import('node:path')
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Node.js modules only available in SSR context
+        const fs = await import(/* webpackIgnore: true */ 'node:fs/promises')
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore - Node.js modules only available in SSR context
+        const path = await import(/* webpackIgnore: true */ 'node:path')
         const filePath = path.join(__dirname, '../assets/locales/manifest.json')
         const content = await fs.readFile(filePath, 'utf-8')
         this.manifest = JSON.parse(content) as LocalesManifest
