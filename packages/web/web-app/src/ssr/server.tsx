@@ -10,19 +10,19 @@
  * - Portable: Core SSR logic uses Web APIs (fetch, Request, Response)
  *
  * Phase 1: Home route only
- * Phase 2+: Auth routes, Shortlink with loaders
- * Phase 5: Caching, compression, streaming
+ * Phase 2: Shortlink with SSR loader
+ * Phase 3: Socket.IO refactor
+ * Phase 4: FAQ, About, Blog components
+ * Phase 5: Caching, compression, streaming SSR
  */
 
-import * as crypto from 'node:crypto'
 import * as path from 'node:path'
 import { CacheProvider } from '@emotion/react'
-import createEmotionServer from '@emotion/server/create-instance'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import { renderToString } from 'react-dom/server'
+import { renderToPipeableStream } from 'react-dom/server'
 import { Provider as ReduxProvider } from 'react-redux'
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 
@@ -40,7 +40,8 @@ const app = express()
 // Middleware
 app.use(compression()) // Enable gzip/brotli compression (Phase 5)
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, '../../web-app-dist')))
+// Serve static assets but not index.html (SSR handles all routes)
+app.use(express.static(path.join(__dirname, '../../web-app-dist'), { index: false }))
 
 // Health check for load balancers
 app.get('/health', (_req, res) => {
@@ -58,8 +59,6 @@ app.get('*', async (req, res) => {
     // Create request-scoped instances (prevent cross-request pollution)
     const store = createSsrStore()
     const emotionCache = createEmotionCache()
-    const { extractCriticalToChunks, constructStyleTagsFromChunks } =
-      createEmotionServer(emotionCache)
 
     // Load i18n translations for SSR
     const locale = req.headers['accept-language']?.split(',')[0]?.split('-')[0] || 'en'
@@ -114,40 +113,31 @@ app.get('*', async (req, res) => {
       typography: typographyOverridesCommon,
     })
 
-    // Render React app to string (Phase 1: simple approach)
-    const html = renderToString(
-      <ReduxProvider store={store}>
-        <CacheProvider value={emotionCache}>
-          <ThemeProvider theme={theme}>
-            <StaticRouterProvider
-              context={context}
-              router={router}
-            />
-          </ThemeProvider>
-        </CacheProvider>
-      </ReduxProvider>,
-    )
-
-    // Extract critical CSS from Emotion
-    const emotionChunks = extractCriticalToChunks(html)
-    const emotionCss = constructStyleTagsFromChunks(emotionChunks)
-
     // Serialize Redux state for client hydration
     const preloadedState = store.getState()
     const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
-    // Build complete HTML document
-    const fullHtml = `
-<!DOCTYPE html>
+    // NOTE: Emotion critical CSS extraction requires full HTML string, which conflicts
+    // with streaming. For streaming SSR, we accept that initial render may have FOUC
+    // until emotion hydrates on client. Future: consider extracting styles synchronously
+    // before streaming or using a different CSS-in-JS solution.
+
+    // Build HTML shell (head + opening body)
+    const htmlStart = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DX3</title>
-  ${emotionCss}
+  <style id="emotion-ssr-styles">
+    /* Emotion styles will be injected by client hydration */
+    /* Streaming SSR trades critical CSS extraction for faster TTFB */
+  </style>
 </head>
 <body>
-  <div id="root">${html}</div>
+  <div id="root">`
+
+    const htmlEnd = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
   </script>
@@ -158,23 +148,58 @@ app.get('*', async (req, res) => {
   <script src="/static/js/vendor.main.js"></script>
   <script src="/static/js/client.js"></script>
 </body>
-</html>
-    `.trim()
+</html>`
 
-    // Generate ETag from content hash (Phase 5)
-    const etag = `"${crypto.createHash('sha256').update(fullHtml).digest('hex').substring(0, 27)}"`
-
-    // Check If-None-Match header for 304 Not Modified response (Phase 5)
-    if (req.headers['if-none-match'] === etag) {
-      return res.status(304).end()
-    }
-
-    // Send complete HTML document with caching headers
-    res.status(200)
+    // Set response headers before streaming
+    res.statusCode = 200
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.setHeader('ETag', etag) // Enable client-side caching validation (Phase 5)
-    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL (Phase 5)
-    res.send(fullHtml)
+    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL
+    // Note: ETag not supported with streaming (requires full content upfront)
+
+    // Create React element to render
+    const reactApp = (
+      <ReduxProvider store={store}>
+        <CacheProvider value={emotionCache}>
+          <ThemeProvider theme={theme}>
+            <StaticRouterProvider
+              context={context}
+              router={router}
+            />
+          </ThemeProvider>
+        </CacheProvider>
+      </ReduxProvider>
+    )
+
+    // Stream the response using React's streaming API
+    const { pipe, abort } = renderToPipeableStream(reactApp, {
+      bootstrapScripts: [], // Scripts already in htmlEnd
+      onShellReady() {
+        // Shell is ready - start streaming immediately for best TTFB
+        res.write(htmlStart)
+        pipe(res)
+      },
+      onShellError(error) {
+        // Shell failed to render - fall back to CSR
+        console.error('SSR shell error:', error)
+        res.statusCode = 500
+        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        res.send('<html><body><div id="root"></div></body></html>')
+      },
+      onAllReady() {
+        // All content ready - write closing tags
+        res.write(htmlEnd)
+        res.end()
+      },
+      onError(error) {
+        // Non-fatal error during streaming
+        console.error('SSR streaming error:', error)
+      },
+    })
+
+    // Handle client disconnect
+    req.on('close', () => {
+      abort()
+    })
   } catch (error) {
     console.error('SSR handler error:', error)
     // Fall back to CSR shell on any error
@@ -187,6 +212,8 @@ const PORT = process.env.SSR_PORT || 3001
 app.listen(PORT, () => {
   console.log(`\n🚀 SSR server listening on http://localhost:${PORT}`)
   console.log(`📦 Serving static files from: ${path.join(__dirname, '../../web-app-dist')}`)
-  console.log(`🏠 Phase 4: Home, Shortlink, FAQ, About, Blog routes enabled for SSR`)
-  console.log(`⚡ Phase 5: Compression (gzip/brotli), ETag, and Cache-Control (60s TTL) enabled\n`)
+  console.log(`🏠 Routes: Home, Shortlink, FAQ, About, Blog (server-side rendered)`)
+  console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream`)
+  console.log(`🗜️  Compression: gzip/brotli enabled`)
+  console.log(`💾 Cache-Control: public, max-age=60s\n`)
 })
