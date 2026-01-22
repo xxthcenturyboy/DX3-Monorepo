@@ -72,7 +72,7 @@ describe('My API Tests', () => {
 
   test('should make authenticated request', async () => {
     const request = {
-      url: '/api/v1/protected-endpoint',
+      url: '/api/protected-endpoint',
       method: 'GET',
       headers: {
         ...authUtil.getHeaders(),

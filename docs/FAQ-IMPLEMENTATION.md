@@ -36,12 +36,12 @@ We need to create the following endpoints (REST or GraphQL resolvers). All route
 
 #### Public / General User Endpoints
 1.  **Get Public FAQs**
-    *   **Route:** `GET /api/v1/faqs/public`
+    *   **Route:** `GET /api/faqs/public`
     *   **Access:** Public (No Auth)
     *   **Logic:** Fetch records where `audience` = 'PUBLIC' AND `deletedAt` is NULL.
     *   **Caching:** Enable short cache headers (e.g., 60s) and ETag support.
 2.  **Get App FAQs**
-    *   **Route:** `GET /api/v1/faqs/app`
+    *   **Route:** `GET /api/faqs/app`
     *   **Access:** Authenticated Users
     *   **Logic:** Fetch records where `audience` = 'APP' AND `deletedAt` is NULL.
 
@@ -49,22 +49,22 @@ We need to create the following endpoints (REST or GraphQL resolvers). All route
 *Access restricted to `Admin` or `SuperAdmin` roles.*
 
 1.  **List All FAQs**
-    *   **Route:** `GET /api/v1/admin/faqs`
+    *   **Route:** `GET /api/admin/faqs`
     *   **Query:** `page`, `limit`, `audience`, `includeDeleted`
     *   **Logic:** Fetch all records (paginated). Include `deletedAt` status if "Trash" view is required, otherwise filter out soft-deleted items by default.
 2.  **Get FAQ Details**
-    *   **Route:** `GET /api/v1/admin/faqs/:id`
+    *   **Route:** `GET /api/admin/faqs/:id`
 3.  **Create FAQ**
-    *   **Route:** `POST /api/v1/admin/faqs`
+    *   **Route:** `POST /api/admin/faqs`
     *   **Body:** `{ question, answer, audience }`
 4.  **Update FAQ**
-    *   **Route:** `PUT /api/v1/admin/faqs/:id`
+    *   **Route:** `PUT /api/admin/faqs/:id`
 5.  **Reorder FAQs**
-    *   **Route:** `PATCH /api/v1/admin/faqs/order`
+    *   **Route:** `PATCH /api/admin/faqs/order`
     *   **Body:** `[{ id, order }]` (List of updated positions)
     *   **Rules:** Orders must be unique within the same `audience` scope; reject duplicates; validate all IDs exist; ignore soft-deleted items unless `includeDeleted` is explicitly enabled.
 6.  **Delete FAQ (Soft Delete)**
-    *   **Route:** `DELETE /api/v1/admin/faqs/:id`
+    *   **Route:** `DELETE /api/admin/faqs/:id`
     *   **Logic:** Set `deletedAt` to current timestamp.
 
 ### Markdown Security
