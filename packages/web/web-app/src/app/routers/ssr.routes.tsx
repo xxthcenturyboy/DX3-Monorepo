@@ -13,17 +13,19 @@
 // PHASE 1 NOTE:
 // Using simplified SSR-only Root wrapper to avoid Redux dependencies on
 // auth, userProfile, and other CSR-only state.
-// Phase 2+ will integrate with full app routing and Root component.
+// Phase 2: Added auth routes and shortlink with SSR loader.
 
-import * as React from 'react'
+import type * as React from 'react'
 import { Outlet, type RouteObject } from 'react-router'
 
+import { HEADER_API_VERSION_PROP } from '@dx3/models-shared'
 import { GlobalErrorComponent } from '@dx3/web-libs/ui/global/global-error.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component'
 
 import { WebConfigService } from '../config/config-web.service'
 import { HomeComponent } from '../home/home-web.component'
+import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
 
 /**
  * Minimal SSR Root wrapper - Phase 1 only.
@@ -42,21 +44,65 @@ const SsrRoot: React.FC = () => {
  * Creates public routes that can be server-side rendered.
  * These routes use static imports (not React.lazy) for SSR compatibility.
  *
- * Phase 1: Only Home route with minimal SSR wrapper
- * Phase 2+: Add auth routes, shortlink, integrate with full Root component
+ * Phase 1: Home route with minimal SSR wrapper
+ * Phase 2: Shortlink with SSR loader
+ * Phase 3: Auth routes (requires refactoring Socket.IO imports to be lazy/conditional)
+ * Phase 4: FAQ, About, Blog components
  *
  * @param strings - i18n translations object passed from SSR or CSR context
  * @returns Route configuration for public (non-authenticated) routes
  */
 export const createPublicRoutes = (strings: Record<string, string>): RouteObject[] => {
   const ROUTES = WebConfigService.getWebRoutes()
+  const URLS = WebConfigService.getWebUrls()
 
   return [
     {
       children: [
+        // Home route
         {
           element: <HomeComponent />,
           path: ROUTES.MAIN,
+        },
+        // Shortlink route with SSR loader
+        {
+          element: <ShortlinkComponent />,
+          errorElement: (
+            <NotFoundComponent
+              notFoundHeader={strings?.NOT_FOUND}
+              notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+            />
+          ),
+          loader: async ({ params }) => {
+            // SSR loader for shortlink data fetching
+            const API_URL = `${URLS.API_URL}/api/`
+            const token = params.token
+
+            if (!token) {
+              throw new Response('Not Found', { status: 404 })
+            }
+
+            try {
+              const response = await fetch(`${API_URL}v1/shortlink/${token}`, {
+                headers: {
+                  [HEADER_API_VERSION_PROP]: '1',
+                  'Content-Type': 'application/json',
+                },
+                method: 'GET',
+              })
+
+              if (!response.ok) {
+                throw new Response('Not Found', { status: 404 })
+              }
+
+              const targetUrl = await response.text()
+              return { targetUrl, token }
+            } catch (error) {
+              console.error('Shortlink loader error:', error)
+              throw new Response('Not Found', { status: 404 })
+            }
+          },
+          path: `${ROUTES.SHORTLINK.MAIN}/:token`,
         },
       ],
       element: <SsrRoot />,

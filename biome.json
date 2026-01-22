@@ -32,7 +32,7 @@
       "!**/node_modules",
       "!**/package.json",
       "!**/.expo",
-      "!**/web-build",
+      "!**/web-app-dist",
       "!**/cache",
       "!**/*.dump",
       "!**/*.txt",

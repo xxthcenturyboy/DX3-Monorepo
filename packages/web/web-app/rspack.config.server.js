@@ -7,7 +7,6 @@
  */
 
 const path = require('node:path')
-const Dotenv = require('dotenv-webpack')
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -18,6 +17,11 @@ module.exports = {
     server: './src/ssr/server.tsx',
   },
   // Externalize Node.js built-ins but bundle npm packages
+  externals: [
+    // Externalize Socket.IO client to prevent browser-specific code in SSR bundle
+    'socket.io-client',
+    'engine.io-client',
+  ],
   externalsPresets: {
     node: true, // Allows using Node built-ins like 'fs', 'path', 'crypto'
   },

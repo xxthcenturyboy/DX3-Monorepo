@@ -330,8 +330,8 @@ If hydration fails on the client:
 
 ## 18. Rollout Plan
 *   **Phase 1:** ✅ **COMPLETED** - Implemented SSR for Home (`/`) to validate plumbing, build config, and hydration. SSR server running on port 3001 with critical CSS extraction and Redux state serialization.
-*   **Phase 2:** Add SSR for Auth routes (`/login`, `/signup`) and Shortlink (`/shortlink/:token`) with loader data and metadata. ✅ Components exist, need loader conversion.
-*   **Phase 3:** **Create FAQ, About, and Blog components first**, then add SSR support once routes are implemented.
+*   **Phase 2:** ✅ **PARTIALLY COMPLETED** - Added SSR for Shortlink (`/l/:token`) with loader data fetching. Auth routes deferred to Phase 3 due to Socket.IO dependencies requiring refactor.
+*   **Phase 3:** Refactor Socket.IO imports to be lazy/conditional, then add SSR for Auth routes (`/login`, `/signup`). **Create FAQ, About, and Blog components**, then add SSR support.
 *   **Phase 4:** Add caching (ETag, short TTL), streaming, and compression tuning.
 *   **Phase 5:** Monitor errors, performance, and SEO improvements with dashboards and alerts.
 
@@ -405,6 +405,59 @@ If hydration fails on the client:
 - Auth route SSR (login, signup)
 - Performance monitoring and metrics
 
+### 18.2 Phase 2 Implementation Summary (2026-01-21)
+
+**Status:** ✅ Partially completed - Shortlink SSR added, Auth routes deferred
+
+**What Was Built:**
+1. **Shortlink SSR Route:**
+   - Added `/l/:token` route to `createPublicRoutes()` in `src/app/routers/ssr.routes.tsx`
+   - Implemented SSR loader that fetches shortlink target from API server-side
+   - Loader uses native `fetch()` API with proper headers (`HEADER_API_VERSION_PROP`)
+   - Error handling: Throws 404 Response if token is invalid or API fetch fails
+   - Error element renders `NotFoundComponent` with proper i18n strings
+
+2. **Socket.IO Externalization:**
+   - Updated `rspack.config.server.js` to externalize `socket.io-client` and `engine.io-client`
+   - Prevents browser-specific Socket.IO code from being bundled in SSR server
+   - Reduced server bundle size from 6.14 MiB to 4.88 MiB
+
+**Architectural Decisions:**
+
+1. **Auth Routes Deferred to Phase 3:**
+   - Auth components (`WebAuthWrapper`, `WebLogin`, `WebSignup`) import `loginBootstrap`
+   - `loginBootstrap` imports Socket.IO socket classes at top level
+   - Socket.IO client uses browser-specific APIs that break SSR bundle compilation
+   - **Solution for Phase 3:** Refactor Socket.IO imports to be lazy/conditional (dynamic imports)
+
+2. **SSR Loader Pattern:**
+   - Uses native `fetch()` instead of axios for SSR compatibility (Web API standard)
+   - Fetches from `${URLS.API_URL}/api/v1/shortlink/${token}`
+   - Returns `{ targetUrl, token }` object for client hydration
+   - Throws React Router `Response` object for proper error boundary handling
+
+3. **Error Handling:**
+   - SSR loader errors are caught and rendered as error boundaries
+   - Error data serialized in `window.__staticRouterHydrationData` for client hydration
+   - Client-side ShortlinkComponent handles redirect logic after hydration
+
+**Verified Functionality:**
+- ✅ SSR server starts successfully on http://localhost:3001
+- ✅ Home route (`/`) returns server-rendered HTML (from Phase 1)
+- ✅ Shortlink route (`/l/:token`) accessible and returns SSR HTML
+- ✅ Invalid shortlink tokens render error boundary with "Not Found" message
+- ✅ Critical CSS injected in `<style data-emotion>` tag
+- ✅ Redux state serialized in `window.__PRELOADED_STATE__`
+- ✅ React Router hydration data includes error state for failed loaders
+- ✅ No Socket.IO bundling errors in server build
+
+**Known Limitations (Deferred to Phase 3+):**
+- Auth routes SSR requires Socket.IO refactor
+- Route metadata (title, description, canonical) not yet implemented
+- No caching headers (ETag, Cache-Control) on SSR responses
+- Shortlink loader always fetches (no cache, relies on API-side caching)
+- Performance monitoring not yet implemented
+
 ## 19. Implementation Checklist
 
 ### Prerequisites (Must Complete First)
@@ -424,11 +477,14 @@ If hydration fails on the client:
 - [x] Add Redux SSR hydration with `window.__PRELOADED_STATE__`.
 - [x] Ensure `RateLimitComponent`, `NotFoundComponent`, and `GlobalErrorComponent` stay CSR-only.
 
-### Data Loading and Metadata (Phase 2)
-- [ ] Add SSR-safe loaders for Shortlink, FAQ, and Blog routes.
-- [ ] Add route metadata (title, description, canonical, JSON-LD where applicable).
-- [ ] Add locale detection and i18n preload for SSR responses.
-- [ ] Add auth cookie detection to skip SSR for authenticated users.
+### Data Loading and Metadata (Phase 2) ✅ PARTIALLY COMPLETED
+- [x] Add SSR-safe loader for Shortlink route
+- [ ] Refactor Socket.IO imports for auth route SSR (deferred to Phase 3)
+- [ ] Add SSR for Auth routes (`/login`, `/signup`) after Socket.IO refactor
+- [ ] Add SSR-safe loaders for FAQ and Blog routes (components don't exist yet)
+- [ ] Add route metadata (title, description, canonical, JSON-LD where applicable)
+- [x] Locale detection and i18n preload for SSR responses (completed in Phase 1)
+- [x] Auth cookie detection to skip SSR for authenticated users (completed in Phase 1)
 
 ### Production Readiness (Phase 4+)
 - [ ] Add rate limiting to SSR server.

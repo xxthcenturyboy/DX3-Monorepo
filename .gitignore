@@ -5,6 +5,7 @@
 
 # compiled output
 api-app-dist
+web-app-dist
 dist
 tmp
 
@@ -40,6 +41,9 @@ testem.log
 
 # E2E test auth cache
 .auth-cache.json
+
+# Claude Code
+.claude/
 
 # System Files
 .DS_Store
