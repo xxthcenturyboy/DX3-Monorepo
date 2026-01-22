@@ -1,10 +1,8 @@
 import { USER_ROLE } from '@dx3/models-shared'
 
+import { adminMenu } from '../../admin/admin.menu'
 import { dashboardMenu } from '../../dashboard/dashboard.menu'
-import { featureFlagAdminMenu } from '../../feature-flags/admin/feature-flag-admin-web.menu'
 import { publicMenu } from '../../public/public.menu'
-import { statsMenu } from '../../stats/stats.menu'
-import { userAdminMenu } from '../../user/admin/user-admin.menu'
 import { userProfileMenu } from '../../user/profile/user-profile.menu'
 import type { AppMenuItemType, AppMenuType } from './app-menu.types'
 
@@ -12,11 +10,9 @@ export class MenuConfigService {
   // Order to appear in sidebar menu
   CARDINAL_MENU_SET: AppMenuType[] = [
     dashboardMenu(),
-    userProfileMenu(),
     publicMenu(),
-    userAdminMenu(),
-    featureFlagAdminMenu(),
-    statsMenu(),
+    userProfileMenu(),
+    adminMenu(),
   ]
 
   private restrictSuperAdmin(menu: AppMenuType, includeBeta: boolean) {

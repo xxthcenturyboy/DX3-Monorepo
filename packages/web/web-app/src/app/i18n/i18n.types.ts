@@ -178,6 +178,7 @@ export type StringKeys = {
   PAGE_TITLE_DASHBOARD: string
   PAGE_TITLE_EDIT_USER: string
   PAGE_TITLE_PROFILE: string
+  PAGE_TITLE_SSR_HEALTH: string
   PAGE_TITLE_USER_PROFILE: string
   PASSWORD: string
   PERCENTAGE: string
@@ -215,6 +216,8 @@ export type StringKeys = {
   SET_AS_DEFAULT: string
   SIGNUP: string
   SIGNUP_FOR_AN_ACCOUNT: string
+  SSR_HEALTH: string
+  SSR_SERVER: string
   START_OVER: string
   STATUS: string
   SUBMIT: string
@@ -234,6 +237,7 @@ export type StringKeys = {
   TRY_WITH_ONE_TIME_CODE: string
   TRY_WITH_USERNAME_AND_PASSWORD: string
   TYPE: string
+  UPTIME: string
   UNAUTHORIZED: string
   UPDATE: string
   USER_ADMIN: string

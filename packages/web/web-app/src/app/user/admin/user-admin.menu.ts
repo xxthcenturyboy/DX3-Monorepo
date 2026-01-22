@@ -1,3 +1,6 @@
+// DEPRECATED: Consolidated into admin.menu.ts
+// This file can be removed after verifying admin menu works correctly
+
 import { USER_ROLE } from '@dx3/models-shared'
 import { IconNames } from '@dx3/web-libs/ui/icons'
 

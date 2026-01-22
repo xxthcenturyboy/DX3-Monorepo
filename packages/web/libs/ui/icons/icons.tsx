@@ -1,4 +1,5 @@
 import Accessibility from '@mui/icons-material/Accessibility'
+import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings'
 import Article from '@mui/icons-material/Article'
 import Check from '@mui/icons-material/Check'
 import CheckBox from '@mui/icons-material/CheckBox'
@@ -21,6 +22,9 @@ import { IconNames } from './enums'
 export const getIcon = (name: IconNames, color?: string): React.ReactElement | null => {
   if (name === IconNames.ACCESSIBLITY) {
     return <Accessibility style={{ color }} />
+  }
+  if (name === IconNames.ADMIN_PANEL_SETTINGS) {
+    return <AdminPanelSettings style={{ color }} />
   }
   if (name === IconNames.ARTICLE) {
     return <Article style={{ color }} />

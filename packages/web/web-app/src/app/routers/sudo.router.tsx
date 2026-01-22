@@ -19,6 +19,10 @@ const LazyStatsComponent = lazy(async () => ({
   default: (await import('../stats/stats-web-api-health.component')).StatsWebApiHealthComponent,
 }))
 
+const LazySsrHealthComponent = lazy(async () => ({
+  default: (await import('../stats/stats-web-ssr-health.component')).StatsWebSsrHealthComponent,
+}))
+
 export const SudoRouter = () => {
   const hasSuperAdminRole = store.getState ? store.getState().userProfile.sa : false
   const strings = store.getState()?.i18n?.translations
@@ -47,6 +51,10 @@ export class SudoWebRouterConfig {
           {
             element: <LazyStatsComponent />,
             path: ROUTES.SUDO.STATS.HEALTH,
+          },
+          {
+            element: <LazySsrHealthComponent />,
+            path: ROUTES.SUDO.STATS.SSR_HEALTH,
           },
           {
             element: (
