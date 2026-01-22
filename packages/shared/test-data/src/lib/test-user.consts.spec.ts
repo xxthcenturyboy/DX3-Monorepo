@@ -65,7 +65,9 @@ describe('Test User Constants (test-user.consts.ts)', () => {
       })
 
       it('should have TEST_SUPERADMIN_USERNAME default value when env not set', () => {
-        expect(TEST_SUPERADMIN_USERNAME).toBe(process.env.SEED_USER_SUPERADMIN_USERNAME ?? 'superadmin')
+        expect(TEST_SUPERADMIN_USERNAME).toBe(
+          process.env.SEED_USER_SUPERADMIN_USERNAME ?? 'superadmin',
+        )
       })
 
       it('should export TEST_SUPERADMIN_PASSWORD', () => {
@@ -74,7 +76,9 @@ describe('Test User Constants (test-user.consts.ts)', () => {
       })
 
       it('should have TEST_SUPERADMIN_PASSWORD default value when env not set', () => {
-        expect(TEST_SUPERADMIN_PASSWORD).toBe(process.env.SEED_USER_SUPERADMIN_PASSWORD ?? 'superadmin123')
+        expect(TEST_SUPERADMIN_PASSWORD).toBe(
+          process.env.SEED_USER_SUPERADMIN_PASSWORD ?? 'superadmin123',
+        )
       })
     })
 

@@ -131,7 +131,7 @@ describe('useApiError', () => {
       const message = result.current.getErrorMessage(
         ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
         undefined,
-        { max: 50 }
+        { max: 50 },
       )
 
       // assert

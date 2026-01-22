@@ -29,10 +29,7 @@ const selectI18nState = (state: RootState): I18nStateType => state.i18n
  * @param params - Optional interpolation parameters
  * @returns Memoized selector returning the translated string
  */
-export const makeSelectTranslation = (
-  key: StringKeyName,
-  params?: InterpolationParams
-) =>
+export const makeSelectTranslation = (key: StringKeyName, params?: InterpolationParams) =>
   createSelector([selectTranslations], (translations): string => {
     let value = translations[key]
 
@@ -64,40 +61,31 @@ export const makeSelectTranslation = (
  */
 export const selectCurrentLocale = createSelector(
   [selectI18nState],
-  (i18n): LocaleCode => i18n.currentLocale
+  (i18n): LocaleCode => i18n.currentLocale,
 )
 
 /**
  * Select any loading error.
  */
-export const selectError = createSelector(
-  [selectI18nState],
-  (i18n): string | null => i18n.error
-)
+export const selectError = createSelector([selectI18nState], (i18n): string | null => i18n.error)
 
 /**
  * Select whether i18n system is initialized.
  */
 export const selectIsInitialized = createSelector(
   [selectI18nState],
-  (i18n): boolean => i18n.isInitialized
+  (i18n): boolean => i18n.isInitialized,
 )
 
 /**
  * Select whether translations are loading.
  */
-export const selectIsLoading = createSelector(
-  [selectI18nState],
-  (i18n): boolean => i18n.isLoading
-)
+export const selectIsLoading = createSelector([selectI18nState], (i18n): boolean => i18n.isLoading)
 
 /**
  * Select active translations with fallback chain.
  * Priority: loaded translations → default translations → bundled defaults
  */
-export const selectTranslations = createSelector(
-  [selectI18nState],
-  (i18n): StringKeys => {
-    return i18n.translations ?? i18n.defaultTranslations ?? DEFAULT_STRINGS
-  }
-)
+export const selectTranslations = createSelector([selectI18nState], (i18n): StringKeys => {
+  return i18n.translations ?? i18n.defaultTranslations ?? DEFAULT_STRINGS
+})

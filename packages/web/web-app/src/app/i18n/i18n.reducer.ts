@@ -34,13 +34,7 @@ export const i18nInitialState: I18nStateType = {
  * Only persists the current locale preference, not the translations themselves.
  */
 export const i18nPersistConfig: PersistConfig<I18nStateType> = {
-  blacklist: [
-    'defaultTranslations',
-    'error',
-    'isInitialized',
-    'isLoading',
-    'translations',
-  ],
+  blacklist: ['defaultTranslations', 'error', 'isInitialized', 'isLoading', 'translations'],
   key: `${APP_PREFIX}:${I18N_ENTITY_NAME}`,
   stateReconciler: autoMergeLevel1,
   storage,

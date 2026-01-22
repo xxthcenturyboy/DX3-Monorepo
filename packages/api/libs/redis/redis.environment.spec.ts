@@ -27,9 +27,7 @@ describe('redis.environment', () => {
     })
 
     it('should throw if REDIS_URL is not set', () => {
-      expect(() => getRedisUrlForEnvironment()).toThrow(
-        'REDIS_URL environment variable is not set',
-      )
+      expect(() => getRedisUrlForEnvironment()).toThrow('REDIS_URL environment variable is not set')
     })
 
     it('should return URL as-is when running in container', () => {

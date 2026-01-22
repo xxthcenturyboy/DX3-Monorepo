@@ -5,8 +5,8 @@ import {
   hasAdminRole,
   hasSuperAdminRole,
 } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
-import { DxRateLimiters } from '../rate-limiters/rate-limiters.dx'
 
+import { DxRateLimiters } from '../rate-limiters/rate-limiters.dx'
 import { UserController } from './user-api.controller'
 
 export class UserRoutes {

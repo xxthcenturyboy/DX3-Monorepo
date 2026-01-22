@@ -103,7 +103,7 @@ export function useI18n(): UseI18nResult {
 
       return value
     },
-    [translations]
+    [translations],
   )
 
   /**
@@ -126,7 +126,7 @@ export function useI18n(): UseI18nResult {
         dispatch(i18nActions.setError(errorMessage))
       }
     },
-    [dispatch, locale]
+    [dispatch, locale],
   )
 
   return useMemo(
@@ -139,7 +139,7 @@ export function useI18n(): UseI18nResult {
       t,
       translations,
     }),
-    [changeLocale, error, isInitialized, isLoading, locale, t, translations]
+    [changeLocale, error, isInitialized, isLoading, locale, t, translations],
   )
 }
 
@@ -177,7 +177,7 @@ export function useTranslation(): TranslateFn {
 
       return value
     },
-    [translations]
+    [translations],
   )
 }
 
@@ -195,10 +195,7 @@ export function useTranslation(): TranslateFn {
  * const greeting = useString('GREETING', { name: 'Dan' })
  * ```
  */
-export function useString<K extends StringKeyName>(
-  key: K,
-  params?: InterpolationParams
-): string {
+export function useString<K extends StringKeyName>(key: K, params?: InterpolationParams): string {
   const t = useTranslation()
   return useMemo(() => t(key, params), [t, key, params])
 }
@@ -216,9 +213,7 @@ export function useString<K extends StringKeyName>(
  * // strings.LOGIN, strings.PASSWORD, strings.USERNAME
  * ```
  */
-export function useStrings<K extends StringKeyName>(
-  keys: K[]
-): Record<K, string> {
+export function useStrings<K extends StringKeyName>(keys: K[]): Record<K, string> {
   const t = useTranslation()
 
   return useMemo(() => {

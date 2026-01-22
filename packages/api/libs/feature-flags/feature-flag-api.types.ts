@@ -1,7 +1,4 @@
-import type {
-  FeatureFlagStatusType,
-  FeatureFlagTargetType,
-} from '@dx3/models-shared'
+import type { FeatureFlagStatusType, FeatureFlagTargetType } from '@dx3/models-shared'
 
 export type CreateFeatureFlagPayloadType = {
   description: string

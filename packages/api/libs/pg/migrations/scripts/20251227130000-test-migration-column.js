@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Migration: Add test_migration column to emails table
  *

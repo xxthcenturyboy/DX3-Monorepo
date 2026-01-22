@@ -5,9 +5,8 @@ import type { PersistConfig } from 'reduxjs-toolkit-persist/lib/types'
 
 import { APP_PREFIX, type FeatureFlagEvaluatedType } from '@dx3/models-shared'
 
-import type { FeatureFlagsStateType } from './feature-flag-web.types'
-
 import { FEATURE_FLAGS_ENTITY_NAME } from './feature-flag-web.consts'
+import type { FeatureFlagsStateType } from './feature-flag-web.types'
 
 export const featureFlagsInitialState: FeatureFlagsStateType = {
   flags: {},

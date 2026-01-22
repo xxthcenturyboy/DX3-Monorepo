@@ -15,7 +15,7 @@ import { CacheProvider } from '@emotion/react'
 import { StrictMode, Suspense } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-import { RouterProvider, createBrowserRouter } from 'react-router'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
 
 // Import global styles

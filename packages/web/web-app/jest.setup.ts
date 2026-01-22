@@ -5,7 +5,8 @@
  */
 
 // Polyfill TextEncoder/TextDecoder for React Router v7 compatibility
-import { TextEncoder, TextDecoder } from 'util'
+import { TextDecoder, TextEncoder } from 'util'
+
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 

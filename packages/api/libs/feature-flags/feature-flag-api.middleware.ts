@@ -25,7 +25,10 @@ export function requireFeatureFlag(flagName: FeatureFlagNameType) {
 
       next()
     } catch (error) {
-      ApiLoggingClass.instance.logError(`Feature flag middleware error: ${flagName}`, error as Error)
+      ApiLoggingClass.instance.logError(
+        `Feature flag middleware error: ${flagName}`,
+        error as Error,
+      )
       sendForbiddenWithCode(
         req,
         res,

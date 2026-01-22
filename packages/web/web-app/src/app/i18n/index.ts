@@ -12,17 +12,14 @@ export {
   INTERPOLATION_REGEX,
   LOCALES_BASE_PATH,
 } from './i18n.consts'
-
 export type { UseI18nResult } from './i18n.hooks'
 export { useI18n, useString, useStrings, useTranslation } from './i18n.hooks'
-
 export {
   i18nActions,
   i18nInitialState,
   i18nPersistConfig,
   i18nReducer,
 } from './i18n.reducer'
-
 export {
   makeSelectTranslation,
   selectCurrentLocale,
@@ -31,9 +28,7 @@ export {
   selectIsLoading,
   selectTranslations,
 } from './i18n.selectors'
-
 export { I18nService, i18nService } from './i18n.service'
-
 export type {
   I18nStateType,
   InterpolationParams,

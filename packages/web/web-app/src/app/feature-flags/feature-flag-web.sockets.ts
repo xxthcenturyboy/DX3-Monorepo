@@ -8,8 +8,8 @@ import {
 
 import { SocketWebConnection } from '../data/socket-io/socket-web.connection'
 import { store } from '../store/store-web.redux'
-import { featureFlagsActions } from './feature-flag-web.reducer'
 import { featureFlagsApi } from './feature-flag-web.api'
+import { featureFlagsActions } from './feature-flag-web.reducer'
 
 export class FeatureFlagWebSockets {
   static #instance: FeatureFlagWebSocketsType
@@ -36,11 +36,13 @@ export class FeatureFlagWebSockets {
     // Server broadcasts empty array as notification; client re-fetches for user-specific evaluations
     this.socket.on('featureFlagsUpdated', async () => {
       try {
-        const result = await store.dispatch(
-          featureFlagsApi.endpoints.getFeatureFlags.initiate(undefined, {
-            forceRefetch: true,
-          }),
-        ).unwrap()
+        const result = await store
+          .dispatch(
+            featureFlagsApi.endpoints.getFeatureFlags.initiate(undefined, {
+              forceRefetch: true,
+            }),
+          )
+          .unwrap()
 
         store.dispatch(featureFlagsActions.featureFlagsFetched(result.flags))
       } catch (error) {

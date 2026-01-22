@@ -7,8 +7,8 @@ import { ERROR_CODES, FEATURE_FLAG_NAMES } from '@dx3/models-shared'
 
 import { sendForbiddenWithCode } from '../http-response/http-responses'
 import { ApiLoggingClass } from '../logger'
-import { FeatureFlagService } from './feature-flag-api.service'
 import { requireFeatureFlag } from './feature-flag-api.middleware'
+import { FeatureFlagService } from './feature-flag-api.service'
 
 jest.mock('../http-response/http-responses')
 jest.mock('../logger', () => require('../testing/mocks/internal/logger.mock'))
