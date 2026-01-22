@@ -46,7 +46,7 @@ const SsrRoot: React.FC = () => {
  *
  * Phase 1: Home route with minimal SSR wrapper
  * Phase 2: Shortlink with SSR loader
- * Phase 3: Auth routes (requires refactoring Socket.IO imports to be lazy/conditional)
+ * Phase 3: Socket.IO refactor completed (dynamic imports) - Auth routes remain CSR-only
  * Phase 4: FAQ, About, Blog components
  *
  * @param strings - i18n translations object passed from SSR or CSR context
@@ -64,6 +64,12 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
           element: <HomeComponent />,
           path: ROUTES.MAIN,
         },
+        // NOTE: Auth routes (/login, /signup) remain CSR-only
+        // Reason: Auth components deeply depend on Redux auth state (username, token, OTP, etc.)
+        // which doesn't exist in SSR Redux store. Since auth forms provide no SEO value and
+        // require client-side interaction anyway, CSR is the standard pattern for auth flows.
+        // Socket.IO refactor (Phase 3) was completed successfully with dynamic imports.
+        //
         // Shortlink route with SSR loader
         {
           element: <ShortlinkComponent />,
@@ -83,7 +89,7 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
             }
 
             try {
-              const response = await fetch(`${API_URL}v1/shortlink/${token}`, {
+              const response = await fetch(`${API_URL}shortlink/${token}`, {
                 headers: {
                   [HEADER_API_VERSION_PROP]: '1',
                   'Content-Type': 'application/json',

@@ -4,10 +4,8 @@ import { logger } from '@dx3/web-libs/logger'
 
 import { fetchFeatureFlags } from '../../feature-flags/feature-flag-web.api'
 import { featureFlagsActions } from '../../feature-flags/feature-flag-web.reducer'
-import { FeatureFlagWebSockets } from '../../feature-flags/feature-flag-web.sockets'
 import { fetchNotifications } from '../../notifications/notification-web.api'
 import { notificationActions } from '../../notifications/notification-web.reducer'
-import { NotificationWebSockets } from '../../notifications/notification-web.sockets'
 import { store } from '../../store/store-web.redux'
 import type { AppMenuType } from '../../ui/menus/app-menu.types'
 import { MenuConfigService } from '../../ui/menus/menu-config.service'
@@ -56,25 +54,40 @@ async function getFeatureFlags() {
   }
 }
 
-function connectToSockets() {
-  // Connect to notification sockets
-  if (!NotificationWebSockets.instance) {
-    new NotificationWebSockets()
-  } else if (
-    NotificationWebSockets.instance.socket &&
-    !NotificationWebSockets.instance.socket.connected
-  ) {
-    NotificationWebSockets.instance.socket.connect()
+async function connectToSockets() {
+  // Only connect sockets in browser environment (not during SSR)
+  if (typeof window === 'undefined') {
+    return
   }
 
-  // Connect to feature flag sockets for real-time updates
-  if (!FeatureFlagWebSockets.instance) {
-    new FeatureFlagWebSockets()
-  } else if (
-    FeatureFlagWebSockets.instance.socket &&
-    !FeatureFlagWebSockets.instance.socket.connected
-  ) {
-    FeatureFlagWebSockets.instance.socket.connect()
+  try {
+    // Dynamically import Socket.IO classes to prevent SSR bundle errors
+    const [{ NotificationWebSockets }, { FeatureFlagWebSockets }] = await Promise.all([
+      import('../../notifications/notification-web.sockets'),
+      import('../../feature-flags/feature-flag-web.sockets'),
+    ])
+
+    // Connect to notification sockets
+    if (!NotificationWebSockets.instance) {
+      new NotificationWebSockets()
+    } else if (
+      NotificationWebSockets.instance.socket &&
+      !NotificationWebSockets.instance.socket.connected
+    ) {
+      NotificationWebSockets.instance.socket.connect()
+    }
+
+    // Connect to feature flag sockets for real-time updates
+    if (!FeatureFlagWebSockets.instance) {
+      new FeatureFlagWebSockets()
+    } else if (
+      FeatureFlagWebSockets.instance.socket &&
+      !FeatureFlagWebSockets.instance.socket.connected
+    ) {
+      FeatureFlagWebSockets.instance.socket.connect()
+    }
+  } catch (err) {
+    logger.error(`Error connecting to sockets: ${(err as Error).message}`)
   }
 }
 
@@ -82,5 +95,5 @@ export function loginBootstrap(userProfile: UserProfileStateType, mobileBreak: b
   setUpMenus(userProfile, mobileBreak)
   void getNotifications(userProfile?.id)
   void getFeatureFlags()
-  connectToSockets()
+  void connectToSockets()
 }
