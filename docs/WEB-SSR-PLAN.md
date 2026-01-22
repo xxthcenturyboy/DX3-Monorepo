@@ -329,30 +329,100 @@ If hydration fails on the client:
 *   **Graceful Degradation Tests:** Verify CSR fallback when SSR server is unavailable.
 
 ## 18. Rollout Plan
-*   **Phase 1:** Implement SSR for Home (`/`) only to validate plumbing, build config, and hydration. ✅ Component exists and ready.
+*   **Phase 1:** ✅ **COMPLETED** - Implemented SSR for Home (`/`) to validate plumbing, build config, and hydration. SSR server running on port 3001 with critical CSS extraction and Redux state serialization.
 *   **Phase 2:** Add SSR for Auth routes (`/login`, `/signup`) and Shortlink (`/shortlink/:token`) with loader data and metadata. ✅ Components exist, need loader conversion.
 *   **Phase 3:** **Create FAQ, About, and Blog components first**, then add SSR support once routes are implemented.
 *   **Phase 4:** Add caching (ETag, short TTL), streaming, and compression tuning.
 *   **Phase 5:** Monitor errors, performance, and SEO improvements with dashboards and alerts.
 
+### 18.1 Phase 1 Implementation Summary (2026-01-21)
+
+**Status:** ✅ Successfully completed and tested
+
+**What Was Built:**
+1. **SSR Infrastructure Files:**
+   - `src/app/routers/ssr.routes.tsx` - Route factory functions with string parameters (SSR-compatible pattern)
+   - `src/app/emotion-cache.ts` - Emotion cache factory for SSR and CSR consistency
+   - `src/app/store/store-ssr.redux.ts` - Minimal SSR store with only public-safe reducers (i18n, ui)
+   - `src/ssr/server.tsx` - Express SSR server with React Router v7 static APIs
+   - `src/client.tsx` - Client hydration entry point using `hydrateRoot`
+   - `rspack.config.server.js` - Server bundle config (Node.js target, 6.54 MiB)
+   - `rspack.config.client.js` - Client hydration bundle config (web target)
+
+2. **Browser API Compatibility Fixes:**
+   - `src/app/config/env.ts` - Added `typeof window !== 'undefined'` guard for window.WEB_APP_ENV
+   - `src/app/ui/store/ui-web.reducer.ts` - Added SSR-safe defaults for window dimensions (1920x1080)
+   - `src/app/root-web.component.tsx` - Guarded window.addEventListener/removeEventListener calls
+   - `src/app/ui/mui-themes/mui-theme.service.ts` - Added localStorage guard with 'light' default
+
+3. **Build Scripts Added:**
+   - `pnpm build:ssr` - Build both server and client bundles for production
+   - `pnpm build:ssr:server` / `pnpm build:ssr:client` - Individual bundle builds for development
+   - `pnpm dev:ssr` - Build and start SSR server
+   - `pnpm start:ssr` - Start SSR server (assumes bundles are built)
+
+**Key Architectural Decisions:**
+
+1. **Simplified SSR Root Wrapper:**
+   - Created minimal `SsrRoot` component instead of using full `Root` component
+   - Avoids Redux dependencies on auth, userProfile, privileges (intentionally excluded from SSR store)
+   - Phase 2+ will address full Root component integration
+
+2. **Minimal SSR Store:**
+   - Only includes `i18n` and `ui` reducers (public, safe to share)
+   - Excludes all persisted user data (auth, userProfile, media, stats, etc.)
+   - Client rehydrates persisted data after initial render using redux-persist
+
+3. **Emotion Cache Key:**
+   - Changed from 'dx3' to 'css' to satisfy Emotion validation (lowercase alphabetical only)
+   - Same key used on both server and client for proper hydration
+
+4. **Request-Scoped Architecture:**
+   - Fresh Redux store created per SSR request to prevent state leakage
+   - Fresh Emotion cache per request for critical CSS extraction
+   - i18n translations loaded from Accept-Language header (fallback: 'en')
+
+5. **Auth Cookie Detection:**
+   - Server checks for `dx3_session` cookie
+   - If present, serves static index.html for CSR (avoids SSR for authenticated users)
+   - Public users get SSR-rendered HTML
+
+**Verified Functionality:**
+- ✅ SSR server starts successfully on http://localhost:3001
+- ✅ Home route (`/`) returns server-rendered HTML with Home component
+- ✅ Critical CSS injected in `<style data-emotion>` tag
+- ✅ Redux state serialized in `window.__PRELOADED_STATE__` (i18n + ui reducers)
+- ✅ React Router hydration data in `window.__staticRouterHydrationData`
+- ✅ Client bundle scripts correctly referenced (runtime, vendor.react, vendor.mui, lib, vendor.main, client)
+- ✅ Static files served correctly from `/static/js/` (HTTP 200)
+
+**Known Limitations (Deferred to Phase 2+):**
+- Full `Root` component integration (requires addressing Redux dependencies)
+- Route loaders for data fetching (Shortlink, etc.)
+- Route metadata (title, description, canonical, JSON-LD)
+- Error handling and fallback to CSR on SSR failure
+- Hydration error boundary
+- Auth route SSR (login, signup)
+- Performance monitoring and metrics
+
 ## 19. Implementation Checklist
 
 ### Prerequisites (Must Complete First)
-- [ ] **Audit module-level store access** in AppRouter and other router configs
-- [ ] **Document current lazy loading pattern** and identify all `React.lazy()` usage
-- [ ] **Install missing dependencies**: `express`, `@emotion/server`, `cookie-parser`
-- [ ] **Create missing public components** (FAQ, About, Blog) OR defer to Phase 3+
+- [x] **Audit module-level store access** in AppRouter and other router configs
+- [x] **Document current lazy loading pattern** and identify all `React.lazy()` usage
+- [x] **Install missing dependencies**: `express`, `@emotion/server`, `cookie-parser`
+- [x] **Create missing public components** (FAQ, About, Blog) OR defer to Phase 3+
 
-### SSR Infrastructure (Phase 1)
-- [ ] Add `publicRoutes`, `privateRoutes`, and `clientOnlyRoutes` definitions in `ssr.routes.tsx`.
-- [ ] Refactor `AppRouter.getRouter()` to accept strings parameter instead of reading from store
-- [ ] Add rspack config for server bundle (`target: 'node'`).
-- [ ] Add rspack config for client bundle with asset manifest.
-- [ ] Add SSR entry (`server.tsx`) with React Router v7 static APIs.
-- [ ] Add CSR hydration entry (`client.tsx`) that reuses shared route definitions.
-- [ ] Add Emotion SSR setup with `CacheProvider` and critical CSS extraction.
-- [ ] Add Redux SSR hydration with `window.__PRELOADED_STATE__`.
-- [ ] Ensure `RateLimitComponent`, `NotFoundComponent`, and `GlobalErrorComponent` stay CSR-only.
+### SSR Infrastructure (Phase 1) ✅ COMPLETED
+- [x] Add `publicRoutes`, `privateRoutes`, and `clientOnlyRoutes` definitions in `ssr.routes.tsx`.
+- [x] Refactor `AppRouter.getRouter()` to accept strings parameter instead of reading from store
+- [x] Add rspack config for server bundle (`target: 'node'`).
+- [x] Add rspack config for client bundle with asset manifest.
+- [x] Add SSR entry (`server.tsx`) with React Router v7 static APIs.
+- [x] Add CSR hydration entry (`client.tsx`) that reuses shared route definitions.
+- [x] Add Emotion SSR setup with `CacheProvider` and critical CSS extraction.
+- [x] Add Redux SSR hydration with `window.__PRELOADED_STATE__`.
+- [x] Ensure `RateLimitComponent`, `NotFoundComponent`, and `GlobalErrorComponent` stay CSR-only.
 
 ### Data Loading and Metadata (Phase 2)
 - [ ] Add SSR-safe loaders for Shortlink, FAQ, and Blog routes.

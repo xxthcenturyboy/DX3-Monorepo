@@ -25,7 +25,10 @@ const webAppEnvVars: WebAppEnvType = {
   WEB_APP_URL: process.env.WEB_APP_URL || 'http://localhost:3000',
 }
 
-window.WEB_APP_ENV = webAppEnvVars
+// Only set window.WEB_APP_ENV if we're in a browser environment
+if (typeof window !== 'undefined') {
+  window.WEB_APP_ENV = webAppEnvVars
+}
 
 export const WEB_APP_ENV: WebAppEnvType = {
   ...webAppEnvVars,

@@ -25,8 +25,8 @@ export const uiInitialState: UiStateType = {
   name: APP_NAME,
   notifications: 0,
   theme: 'light',
-  windowHeight: window.innerHeight,
-  windowWidth: window.innerWidth,
+  windowHeight: typeof window !== 'undefined' ? window.innerHeight : 1080,
+  windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1920,
 }
 
 export const uiPersistConfig: PersistConfig<UiStateType> = {

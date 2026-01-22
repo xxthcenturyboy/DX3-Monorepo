@@ -115,7 +115,11 @@ export const Root: React.FC = () => {
     const handleResize = () => {
       dispatch(uiActions.windowSizeSet())
     }
-    window.addEventListener('resize', handleResize)
+
+    // SSR-safe: only add event listeners in browser environment
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize)
+    }
 
     if (!userProfile && canRedirect) {
       void fetchProfile()
@@ -127,7 +131,9 @@ export const Root: React.FC = () => {
     })
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize)
+      }
     }
   }, [canRedirect, userProfile])
 

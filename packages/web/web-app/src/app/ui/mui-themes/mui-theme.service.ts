@@ -9,6 +9,10 @@ import { muiDarkPalette } from './mui-dark.palette'
 import { muiLightPalette } from './mui-light.palette'
 
 function getThemeModeFromLocalStorage() {
+  // SSR-safe: default to 'light' if localStorage is not available
+  if (typeof localStorage === 'undefined') {
+    return 'light'
+  }
   const themeMode = localStorage.getItem(STORAGE_KEYS_UI.THEME_MODE)
   return themeMode === 'dark' ? 'dark' : 'light'
 }
