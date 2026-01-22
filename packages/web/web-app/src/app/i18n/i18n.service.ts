@@ -3,10 +3,16 @@
  *
  * Core service for loading and managing translations.
  * Handles async fetching of locale JSON files with fallback support.
+ * Supports both browser (fetch) and Node.js (fs) environments for SSR.
  */
 
 import { DEFAULT_LOCALE, DEFAULT_STRINGS, LOCALES_BASE_PATH } from './i18n.consts'
 import type { LocaleCode, LocalesManifest, StringKeys } from './i18n.types'
+
+/**
+ * Check if running in Node.js environment (SSR)
+ */
+const isNode = typeof process !== 'undefined' && process.versions?.node !== undefined
 
 /**
  * i18n Service class for managing translation loading.
@@ -65,13 +71,22 @@ export class I18nService {
     }
 
     try {
-      const response = await fetch(`${LOCALES_BASE_PATH}/${locale}.json`)
+      let translations: StringKeys
 
-      if (!response.ok) {
-        throw new Error(`Failed to load locale: ${locale} (${response.status})`)
+      if (isNode) {
+        // Node.js environment (SSR) - load from filesystem
+        translations = await this.loadLocaleFromFs(locale)
+      } else {
+        // Browser environment - use fetch
+        const response = await fetch(`${LOCALES_BASE_PATH}/${locale}.json`)
+
+        if (!response.ok) {
+          throw new Error(`Failed to load locale: ${locale} (${response.status})`)
+        }
+
+        translations = await response.json()
       }
 
-      const translations: StringKeys = await response.json()
       const mergedTranslations = this.mergeWithDefaults(translations)
       this.cache.set(locale, mergedTranslations)
 
@@ -89,19 +104,47 @@ export class I18nService {
     }
   }
 
+  /**
+   * Load locale from filesystem (Node.js/SSR only)
+   */
+  private async loadLocaleFromFs(locale: string): Promise<StringKeys> {
+    // Dynamic import to avoid bundling fs in browser code
+    const fs = await import('node:fs/promises')
+    const path = await import('node:path')
+
+    // In SSR, locale files are in web-app-dist/assets/locales/
+    // The server.js is in web-app-dist/ssr/server.js
+    // So we need to go up one level (to web-app-dist) and into assets/locales
+    const filePath = path.join(__dirname, '../assets/locales', `${locale}.json`)
+
+    const content = await fs.readFile(filePath, 'utf-8')
+    return JSON.parse(content) as StringKeys
+  }
+
   public async loadManifest(): Promise<LocalesManifest> {
     if (this.manifest) {
       return this.manifest
     }
 
     try {
-      const response = await fetch(`${LOCALES_BASE_PATH}/manifest.json`)
+      if (isNode) {
+        // Node.js environment (SSR) - load from filesystem
+        const fs = await import('node:fs/promises')
+        const path = await import('node:path')
+        const filePath = path.join(__dirname, '../assets/locales/manifest.json')
+        const content = await fs.readFile(filePath, 'utf-8')
+        this.manifest = JSON.parse(content) as LocalesManifest
+      } else {
+        // Browser environment - use fetch
+        const response = await fetch(`${LOCALES_BASE_PATH}/manifest.json`)
 
-      if (!response.ok) {
-        throw new Error(`Failed to load locales manifest (${response.status})`)
+        if (!response.ok) {
+          throw new Error(`Failed to load locales manifest (${response.status})`)
+        }
+
+        this.manifest = await response.json()
       }
 
-      this.manifest = await response.json()
       return this.manifest as LocalesManifest
     } catch (error) {
       console.error('[i18n] Error loading manifest:', error)
