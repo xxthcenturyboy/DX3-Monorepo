@@ -35,6 +35,8 @@ import { typographyOverridesCommon } from '../app/ui/mui-themes/components/commo
 import { muiLightComponentOverrides } from '../app/ui/mui-themes/components/light'
 import { muiLightPalette } from '../app/ui/mui-themes/mui-light.palette'
 
+import { metrics } from './metrics'
+
 const app = express()
 
 // Middleware
@@ -48,11 +50,35 @@ app.get('/health', (_req, res) => {
   res.status(200).send('OK')
 })
 
+// Metrics endpoint for monitoring
+app.get('/metrics', (_req, res) => {
+  const metricsData = metrics.getMetrics()
+  const memory = metrics.getMemoryUsage()
+  const uptime = metrics.getUptime()
+
+  res.status(200).json({
+    memory: {
+      heapUsed: Math.round(memory.heapUsed / 1024 / 1024), // MB
+      heapTotal: Math.round(memory.heapTotal / 1024 / 1024), // MB
+      rss: Math.round(memory.rss / 1024 / 1024), // MB
+    },
+    metrics: metricsData,
+    uptime: Math.round(uptime),
+  })
+})
+
 // SSR handler
 app.get('*', async (req, res) => {
+  const requestStartTime = Date.now()
+  const route = req.path
+
+  // Track request
+  metrics.increment('ssr.request', { route })
+
   try {
     // Skip SSR if auth cookie present (authenticated users get CSR)
     if (req.cookies?.dx3_session) {
+      metrics.increment('ssr.csr_fallback', { reason: 'authenticated', route })
       return res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
     }
 
@@ -62,12 +88,15 @@ app.get('*', async (req, res) => {
 
     // Load i18n translations for SSR
     const locale = req.headers['accept-language']?.split(',')[0]?.split('-')[0] || 'en'
+    const i18nStartTime = Date.now()
     try {
       const translations = await i18nService.loadLocale(locale)
+      metrics.histogram('ssr.i18n_load_time', Date.now() - i18nStartTime, { locale, route })
       store.dispatch(i18nActions.setTranslations(translations))
       store.dispatch(i18nActions.setCurrentLocale(locale as any))
       store.dispatch(i18nActions.setInitialized(true))
     } catch (error) {
+      metrics.increment('ssr.i18n_error', { locale, route })
       console.error('Failed to load i18n translations:', error)
       // Continue with default translations
       store.dispatch(i18nActions.setInitialized(true))
@@ -170,16 +199,26 @@ app.get('*', async (req, res) => {
       </ReduxProvider>
     )
 
+    // Track HTML size
+    let htmlSize = htmlStart.length + htmlEnd.length
+
     // Stream the response using React's streaming API
     const { pipe, abort } = renderToPipeableStream(reactApp, {
       bootstrapScripts: [], // Scripts already in htmlEnd
       onShellReady() {
         // Shell is ready - start streaming immediately for best TTFB
+        const shellTime = Date.now() - requestStartTime
+        metrics.histogram('ssr.shell_time', shellTime, { route })
+
         res.write(htmlStart)
         pipe(res)
       },
       onShellError(error) {
         // Shell failed to render - fall back to CSR
+        const shellTime = Date.now() - requestStartTime
+        metrics.increment('ssr.shell_error', { route })
+        metrics.histogram('ssr.shell_error_time', shellTime, { route })
+
         console.error('SSR shell error:', error)
         res.statusCode = 500
         res.setHeader('Content-Type', 'text/html; charset=utf-8')
@@ -187,20 +226,31 @@ app.get('*', async (req, res) => {
       },
       onAllReady() {
         // All content ready - write closing tags
+        const totalTime = Date.now() - requestStartTime
+        metrics.histogram('ssr.total_time', totalTime, { route })
+        metrics.histogram('ssr.html_size', htmlSize, { route })
+        metrics.increment('ssr.success', { route })
+
         res.write(htmlEnd)
         res.end()
       },
       onError(error) {
         // Non-fatal error during streaming
+        metrics.increment('ssr.stream_error', { route })
         console.error('SSR streaming error:', error)
       },
     })
 
     // Handle client disconnect
     req.on('close', () => {
+      metrics.increment('ssr.client_disconnect', { route })
       abort()
     })
   } catch (error) {
+    const totalTime = Date.now() - requestStartTime
+    metrics.increment('ssr.handler_error', { route })
+    metrics.histogram('ssr.error_time', totalTime, { route })
+
     console.error('SSR handler error:', error)
     // Fall back to CSR shell on any error
     res.status(500)
@@ -215,5 +265,39 @@ app.listen(PORT, () => {
   console.log(`🏠 Routes: Home, Shortlink, FAQ, About, Blog (server-side rendered)`)
   console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream`)
   console.log(`🗜️  Compression: gzip/brotli enabled`)
-  console.log(`💾 Cache-Control: public, max-age=60s\n`)
+  console.log(`💾 Cache-Control: public, max-age=60s`)
+  console.log(`📊 Metrics: Enabled (summary logged every 60s)\n`)
+
+  // Memory monitoring - track every 30 seconds
+  setInterval(() => {
+    const memory = metrics.getMemoryUsage()
+    metrics.gauge('ssr.memory.heap_used', memory.heapUsed)
+    metrics.gauge('ssr.memory.heap_total', memory.heapTotal)
+    metrics.gauge('ssr.memory.rss', memory.rss)
+    metrics.gauge('ssr.memory.external', memory.external)
+
+    // Warn if memory usage is high
+    const heapUsedMB = memory.heapUsed / 1024 / 1024
+    if (heapUsedMB > 500) {
+      console.warn(`⚠️  High memory usage: ${heapUsedMB.toFixed(1)}MB heap used`)
+    }
+  }, 30000)
+
+  // Log metrics summary every 60 seconds
+  setInterval(() => {
+    metrics.logSummary()
+  }, 60000)
+
+  // Also log on process signals for debugging
+  process.on('SIGINT', () => {
+    console.log('\n📊 Final metrics before shutdown:')
+    metrics.logSummary()
+    process.exit(0)
+  })
+
+  process.on('SIGTERM', () => {
+    console.log('\n📊 Final metrics before shutdown:')
+    metrics.logSummary()
+    process.exit(0)
+  })
 })
