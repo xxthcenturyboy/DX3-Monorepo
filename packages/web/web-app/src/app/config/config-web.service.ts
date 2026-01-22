@@ -21,11 +21,14 @@ export class WebConfigService {
 
   public static getWebRoutes() {
     return {
+      ABOUT: '/about',
       ADMIN: {
         USER: USER_ADMIN_ROUTES,
       },
       AUTH: AUTH_ROUTES,
+      BLOG: '/blog',
       DASHBOARD: DASHBOARD_ROUTES,
+      FAQ: '/faq',
       LIMITED: '/cyberia',
       MAIN: '/',
       NOT_FOUND: '/404',
@@ -40,7 +43,15 @@ export class WebConfigService {
   public static getNoRedirectRoutes() {
     const routes = WebConfigService.getWebRoutes()
     if (routes) {
-      return [routes.MAIN, routes.AUTH.LOGIN, routes.AUTH.SIGNUP, routes.SHORTLINK.MAIN]
+      return [
+        routes.ABOUT,
+        routes.AUTH.LOGIN,
+        routes.AUTH.SIGNUP,
+        routes.BLOG,
+        routes.FAQ,
+        routes.MAIN,
+        routes.SHORTLINK.MAIN,
+      ]
     }
 
     return []

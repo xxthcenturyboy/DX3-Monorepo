@@ -332,7 +332,7 @@ If hydration fails on the client:
 *   **Phase 1:** ✅ **COMPLETED** - Implemented SSR for Home (`/`) to validate plumbing, build config, and hydration. SSR server running on port 3001 with critical CSS extraction and Redux state serialization.
 *   **Phase 2:** ✅ **COMPLETED** - Added SSR for Shortlink (`/l/:token`) with loader data fetching.
 *   **Phase 3:** ✅ **COMPLETED** - Socket.IO refactored to use dynamic imports (lazy loading). Auth routes remain CSR-only (standard pattern for interactive forms with no SEO value).
-*   **Phase 4:** **Create FAQ, About, and Blog components**, then add SSR support once routes are implemented.
+*   **Phase 4:** ✅ **COMPLETED** - Created FAQ, About, and Blog components with SSR support. All three routes render server-side with placeholder content.
 *   **Phase 5:** Add caching (ETag, short TTL), streaming, and compression tuning.
 *   **Phase 6:** Monitor errors, performance, and SEO improvements with dashboards and alerts.
 
@@ -513,6 +513,90 @@ If hydration fails on the client:
 - Route metadata (title, description, canonical) not yet implemented
 - No caching headers (ETag, Cache-Control) on SSR responses
 - FAQ, About, Blog components don't exist yet (create before adding SSR)
+- Performance monitoring not yet implemented
+
+### 18.4 Phase 4 Implementation Summary (2026-01-22)
+
+**Status:** ✅ Completed - FAQ, About, and Blog components created with SSR support
+
+**What Was Built:**
+1. **Public Page Components:**
+   - Created `packages/web/web-app/src/app/faq/faq-web.component.tsx`
+     - FAQ accordion component with placeholder questions/answers
+     - Uses MUI Accordion for expandable FAQ items
+     - Includes document title management via `setDocumentTitle()`
+   - Created `packages/web/web-app/src/app/about/about-web.component.tsx`
+     - About page with mission, technology stack, and contact sections
+     - Uses `APP_NAME` and `APP_DESCRIPTION` from shared constants
+     - Responsive grid layout with MUI Container
+   - Created `packages/web/web-app/src/app/blog/blog-web.component.tsx`
+     - Blog listing component with placeholder posts
+     - Card-based layout for blog post previews
+     - Includes post title, date, and content excerpt
+
+2. **Route Configuration:**
+   - Updated `packages/web/web-app/src/app/config/config-web.service.ts`
+     - Added route constants: `ABOUT: '/about'`, `BLOG: '/blog'`, `FAQ: '/faq'`
+     - Updated `getNoRedirectRoutes()` to include new public routes (alphabetically sorted)
+   - Updated `packages/web/web-app/src/app/routers/ssr.routes.tsx`
+     - Added static imports for FAQ, About, and Blog components
+     - Added route definitions in `createPublicRoutes()` function
+     - Updated Phase 4 comment: "FAQ, About, Blog components added with SSR support"
+
+3. **Internationalization:**
+   - Updated `packages/web/web-app/src/assets/locales/en.json`
+     - Added `ABOUT: "About"`, `ABOUT_PAGE_TITLE: "About Us"`
+     - Added `BLOG: "Blog"`, `BLOG_PAGE_TITLE: "Blog"`
+     - Added `FAQ: "FAQ"`, `FAQ_PAGE_TITLE: "Frequently Asked Questions"`
+     - All strings placed in correct alphabetical order
+
+**Architectural Decisions:**
+
+1. **Placeholder Content Pattern:**
+   - FAQ, About, and Blog components use hardcoded placeholder data
+   - Future enhancement: Add SSR loaders to fetch data from API
+   - Placeholder content provides immediate SSR functionality while API endpoints are built
+
+2. **No Data Loaders (Phase 4):**
+   - Components render static placeholder content without API calls
+   - SSR works immediately without backend dependencies
+   - Future phases can add loaders for FAQ API and blog API endpoints
+
+3. **Consistent Component Patterns:**
+   - All components follow Home component structure
+   - Use Fade animation with `FADE_TIMEOUT_DUR` constant
+   - Document title management via `setDocumentTitle()` hook
+   - Responsive layouts with MUI Container and Grid
+
+**Verified Functionality:**
+- ✅ FAQ component created with accordion UI
+- ✅ About component created with mission and tech stack sections
+- ✅ Blog component created with card-based post listing
+- ✅ Route constants added to WebConfigService (alphabetically sorted)
+- ✅ SSR routes configuration updated with new components
+- ✅ i18n strings added (alphabetically sorted)
+- ✅ SSR server builds successfully (bundle size: 5.04 MiB)
+- ✅ `/faq` route returns HTTP 200 with SSR HTML
+- ✅ `/about` route returns HTTP 200 with SSR HTML
+- ✅ `/blog` route returns HTTP 200 with SSR HTML
+- ✅ FAQ page content verified: "What is DX3" present in SSR HTML
+- ✅ About page content verified: "Our Mission" present in SSR HTML
+- ✅ Blog page content verified: "Latest Updates" present in SSR HTML
+
+**Key Files Created:**
+- `packages/web/web-app/src/app/faq/faq-web.component.tsx` - FAQ page component
+- `packages/web/web-app/src/app/about/about-web.component.tsx` - About page component
+- `packages/web/web-app/src/app/blog/blog-web.component.tsx` - Blog page component
+
+**Key Files Modified:**
+- `packages/web/web-app/src/app/config/config-web.service.ts` - Added route constants
+- `packages/web/web-app/src/app/routers/ssr.routes.tsx` - Added FAQ/About/Blog routes
+- `packages/web/web-app/src/assets/locales/en.json` - Added i18n strings
+
+**Known Limitations (Deferred to Phase 5+):**
+- FAQ and Blog components use placeholder data (no API loaders yet)
+- Route metadata (title, description, canonical, JSON-LD) not yet implemented
+- No caching headers (ETag, Cache-Control) on SSR responses
 - Performance monitoring not yet implemented
 
 ## 19. Implementation Checklist

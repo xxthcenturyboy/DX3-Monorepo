@@ -23,7 +23,10 @@ import { GlobalErrorComponent } from '@dx3/web-libs/ui/global/global-error.compo
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component'
 
+import { AboutComponent } from '../about/about-web.component'
+import { BlogComponent } from '../blog/blog-web.component'
 import { WebConfigService } from '../config/config-web.service'
+import { FaqComponent } from '../faq/faq-web.component'
 import { HomeComponent } from '../home/home-web.component'
 import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
 
@@ -34,7 +37,7 @@ import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
  */
 const SsrRoot: React.FC = () => {
   return (
-    <div style={{ minHeight: '100vh', background: '#fff' }}>
+    <div style={{ background: '#fff', minHeight: '100vh' }}>
       <Outlet />
     </div>
   )
@@ -47,7 +50,7 @@ const SsrRoot: React.FC = () => {
  * Phase 1: Home route with minimal SSR wrapper
  * Phase 2: Shortlink with SSR loader
  * Phase 3: Socket.IO refactor completed (dynamic imports) - Auth routes remain CSR-only
- * Phase 4: FAQ, About, Blog components
+ * Phase 4: FAQ, About, Blog components added with SSR support
  *
  * @param strings - i18n translations object passed from SSR or CSR context
  * @returns Route configuration for public (non-authenticated) routes
@@ -109,6 +112,21 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
             }
           },
           path: `${ROUTES.SHORTLINK.MAIN}/:token`,
+        },
+        // FAQ route (Phase 4)
+        {
+          element: <FaqComponent />,
+          path: ROUTES.FAQ,
+        },
+        // About route (Phase 4)
+        {
+          element: <AboutComponent />,
+          path: ROUTES.ABOUT,
+        },
+        // Blog route (Phase 4)
+        {
+          element: <BlogComponent />,
+          path: ROUTES.BLOG,
         },
       ],
       element: <SsrRoot />,
