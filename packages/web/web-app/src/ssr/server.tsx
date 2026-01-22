@@ -28,7 +28,7 @@ import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'r
 
 import { createEmotionCache } from '../app/emotion-cache'
 import { i18nActions } from '../app/i18n/i18n.reducer'
-import { I18nService } from '../app/i18n/i18n.service'
+import { i18nService } from '../app/i18n/i18n.service'
 import { createPublicRoutes } from '../app/routers/ssr.routes'
 import { createSsrStore } from '../app/store/store-ssr.redux'
 import { typographyOverridesCommon } from '../app/ui/mui-themes/components/common/typography-common'
@@ -64,7 +64,7 @@ app.get('*', async (req, res) => {
     // Load i18n translations for SSR
     const locale = req.headers['accept-language']?.split(',')[0]?.split('-')[0] || 'en'
     try {
-      const translations = await I18nService.loadLocale(locale)
+      const translations = await i18nService.loadLocale(locale)
       store.dispatch(i18nActions.setTranslations(translations))
       store.dispatch(i18nActions.setCurrentLocale(locale as any))
       store.dispatch(i18nActions.setInitialized(true))

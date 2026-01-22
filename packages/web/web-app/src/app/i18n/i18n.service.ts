@@ -13,7 +13,7 @@ import type { LocaleCode, LocalesManifest, StringKeys } from './i18n.types'
  */
 export class I18nService {
   private static instance: I18nService
-  private cache: Map<LocaleCode, StringKeys> = new Map()
+  private cache: Map<string, StringKeys> = new Map()
   private manifest: LocalesManifest | null = null
 
   private constructor() {
@@ -53,12 +53,12 @@ export class I18nService {
     return DEFAULT_LOCALE
   }
 
-  public async isLocaleAvailable(locale: LocaleCode): Promise<boolean> {
+  public async isLocaleAvailable(locale: string): Promise<boolean> {
     const manifest = await this.loadManifest()
     return manifest.availableLocales.some((l) => l.code === locale)
   }
 
-  public async loadLocale(locale: LocaleCode): Promise<StringKeys> {
+  public async loadLocale(locale: string): Promise<StringKeys> {
     const cached = this.cache.get(locale)
     if (cached) {
       return cached
@@ -120,7 +120,7 @@ export class I18nService {
     }
   }
 
-  public async reloadLocale(locale: LocaleCode): Promise<StringKeys> {
+  public async reloadLocale(locale: string): Promise<StringKeys> {
     this.cache.delete(locale)
     return this.loadLocale(locale)
   }

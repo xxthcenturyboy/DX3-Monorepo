@@ -61,7 +61,6 @@ if (preloadedState) {
   delete window.__PRELOADED_STATE__
 }
 
-// @ts-expect-error - store won't exist until we create it here.
 window.store = store
 
 // Create Emotion cache for client
