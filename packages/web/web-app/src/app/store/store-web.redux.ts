@@ -90,7 +90,20 @@ const store = configureStore({
   reducer: combinedPersistReducers,
 })
 
-const persistor = persistStore(store)
+// Lazy persistor creation to avoid auto-rehydration during SSR
+let persistor: ReturnType<typeof persistStore> | null = null
+
+/**
+ * Get or create persistor instance.
+ * For SSR, this should be called AFTER applying preloaded state.
+ * For CSR, this can be called immediately.
+ */
+export function getPersistor() {
+  if (!persistor) {
+    persistor = persistStore(store)
+  }
+  return persistor
+}
 
 type AppStore = typeof store
 type RootState = ReturnType<AppStore['getState']>
@@ -102,4 +115,4 @@ const useAppStore = useStore.withTypes<AppStore>()
 
 export type { AppDispatch, AppStore, RootState }
 
-export { persistor, store, useAppDispatch, useAppSelector, useAppStore }
+export { store, useAppDispatch, useAppSelector, useAppStore }

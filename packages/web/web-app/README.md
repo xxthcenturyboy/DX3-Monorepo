@@ -23,15 +23,15 @@ pnpm --filter @dx3/web-app dev:ssr:watch
 
 ### SSR vs CSR Development
 
-- **CSR (`pnpm dev:web`)**: Runs on port 3001, fast hot reload, best for development
-- **SSR (`pnpm dev:ssr`)**: Runs on port 3000, full server-side rendering, use to test SEO/performance
+- **CSR (`pnpm dev:web`)**: Runs on port 3000, fast hot reload, best for development
+- **SSR (`pnpm dev:ssr`)**: Runs on port 3001, full server-side rendering, use to test SEO/performance
 
 ### How to Verify SSR is Working
 
 1. **View Page Source** (CMD+Option+U on Mac, CTRL+U on Windows)
-   - Navigate to http://localhost:3000/faq
+   - Navigate to http://localhost:3001/faq
    - View source - you should see the actual content rendered in HTML
-   - Compare with CSR version at http://localhost:3001 (only shows React shell)
+   - Compare with CSR version at http://localhost:3000 (only shows React shell)
 
 2. **Check Network Tab**
    - DevTools → Network tab

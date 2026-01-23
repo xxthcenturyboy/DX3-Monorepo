@@ -1,10 +1,9 @@
-import { Container, Fade, Grid, Typography } from '@mui/material'
+import { Container, Grid, Typography } from '@mui/material'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 
 import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import type { StringKeyName } from '../i18n'
 import { useStrings } from '../i18n'
@@ -28,11 +27,7 @@ export const AboutComponent: React.FC = () => {
   }, [strings])
 
   return (
-    <Fade
-      in={true}
-      timeout={FADE_TIMEOUT_DUR}
-    >
-      <Container
+    <Container
         maxWidth="md"
         sx={{
           paddingBottom: '40px',
@@ -85,6 +80,5 @@ export const AboutComponent: React.FC = () => {
           ))}
         </Grid>
       </Container>
-    </Fade>
   )
 }

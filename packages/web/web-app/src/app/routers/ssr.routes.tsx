@@ -15,7 +15,9 @@
 // auth, userProfile, and other CSR-only state.
 // Phase 2: Added auth routes and shortlink with SSR loader.
 
-import type * as React from 'react'
+import Box from '@mui/material/Box'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import * as React from 'react'
 import { Outlet, type RouteObject } from 'react-router'
 
 import { HEADER_API_VERSION_PROP } from '@dx3/models-shared'
@@ -29,17 +31,47 @@ import { WebConfigService } from '../config/config-web.service'
 import { FaqComponent } from '../faq/faq-web.component'
 import { HomeComponent } from '../home/home-web.component'
 import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
+import { useAppSelector } from '../store/store-web-redux.hooks'
+import { AppNavBarSsr } from '../ui/menus/app-nav-bar-ssr.menu'
+import { getTheme } from '../ui/mui-themes/mui-theme.service'
 
 /**
- * Minimal SSR Root wrapper - Phase 1 only.
- * Avoids Redux dependencies on auth, userProfile, etc.
- * Phase 2+ will integrate with the full Root component.
+ * SSR Root wrapper with layout (navbar + content).
+ * Simplified version without auth dependencies for public pages.
+ * Uses AppNavBarSsr (SSR-safe navbar without Redux/Socket.IO dependencies).
+ * Includes ThemeProvider to match client hydration structure.
  */
 const SsrRoot: React.FC = () => {
+  const topPixel = 64 // Height of navbar
+  const themeState = useAppSelector((state) => state?.ui?.theme || 'light')
+
+  // Create theme from Redux state (same as Root component)
+  const theme = React.useMemo(() => createTheme(getTheme()), [themeState])
+
   return (
-    <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Outlet />
-    </div>
+    <ThemeProvider theme={theme}>
+      <Box
+        flexGrow={1}
+        sx={{
+          backgroundColor: 'background.default',
+          height: '100vh',
+          minHeight: '100vh',
+          zIndex: 1,
+        }}
+      >
+        <AppNavBarSsr />
+        <Box
+          sx={{
+            height: `calc(100vh - ${topPixel}px)`,
+            overflow: 'auto',
+            position: 'relative',
+            top: `${topPixel}px`,
+          }}
+        >
+          <Outlet />
+        </Box>
+      </Box>
+    </ThemeProvider>
   )
 }
 

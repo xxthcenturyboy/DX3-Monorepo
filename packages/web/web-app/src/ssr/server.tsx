@@ -18,22 +18,24 @@
 
 import * as path from 'node:path'
 import { CacheProvider } from '@emotion/react'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import { renderToPipeableStream } from 'react-dom/server'
+import { StrictMode, Suspense } from 'react'
+import { renderToString } from 'react-dom/server'
 import { Provider as ReduxProvider } from 'react-redux'
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 
+import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
+import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
+
 import { createEmotionCache } from '../app/emotion-cache'
 import { i18nActions } from '../app/i18n/i18n.reducer'
+import { startSsrKeyTracking, stopSsrKeyTracking } from '../app/i18n/i18n-ssr-tracker'
 import { i18nService } from '../app/i18n/i18n.service'
 import { createPublicRoutes } from '../app/routers/ssr.routes'
 import { createSsrStore } from '../app/store/store-ssr.redux'
-import { typographyOverridesCommon } from '../app/ui/mui-themes/components/common/typography-common'
-import { muiLightComponentOverrides } from '../app/ui/mui-themes/components/light'
-import { muiLightPalette } from '../app/ui/mui-themes/mui-light.palette'
+import { ErrorBoundary } from '../app/ui/error-boundary/error-boundary.component'
 
 import { metrics } from './metrics'
 
@@ -135,21 +137,17 @@ app.get('*', async (req, res) => {
     // Create static router
     const router = createStaticRouter(staticHandler.dataRoutes, context)
 
-    // Create MUI theme (default to light for SSR)
-    const theme = createTheme({
-      components: muiLightComponentOverrides,
-      palette: muiLightPalette,
-      typography: typographyOverridesCommon,
-    })
-
-    // Serialize Redux state for client hydration
-    const preloadedState = store.getState()
-    const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
+    // Don't serialize state yet - we need to track which i18n keys are used first
 
     // NOTE: Emotion critical CSS extraction requires full HTML string, which conflicts
     // with streaming. For streaming SSR, we accept that initial render may have FOUC
     // until emotion hydrates on client. Future: consider extracting styles synchronously
     // before streaming or using a different CSS-in-JS solution.
+
+    // Helper to get string value for error boundary
+    const getStringValue = (key: string): string | undefined => {
+      return strings[key]
+    }
 
     // Build HTML shell (head + opening body)
     const htmlStart = `<!DOCTYPE html>
@@ -166,7 +164,82 @@ app.get('*', async (req, res) => {
 <body>
   <div id="root">`
 
-    const htmlEnd = `</div>
+    // Set response headers
+    res.statusCode = 200
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL
+
+    // Create React element to render - MUST match client.tsx hydration structure
+    // Note: ThemeProvider is inside SsrRoot component (in routes), not at top level
+    const reactApp = (
+      <StrictMode>
+        <ErrorBoundary
+          fallback={
+            <NotFoundComponent
+              notFoundHeader={getStringValue('NOT_FOUND')}
+              notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+            />
+          }
+        >
+          <ReduxProvider store={store}>
+            {/* Note: PersistGate skipped in SSR - no persisted data to rehydrate on server */}
+            <CacheProvider value={emotionCache}>
+              <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+                <StaticRouterProvider
+                  context={context}
+                  router={router}
+                />
+              </Suspense>
+            </CacheProvider>
+          </ReduxProvider>
+        </ErrorBoundary>
+      </StrictMode>
+    )
+
+    // Start tracking i18n key access for minimal state serialization
+    startSsrKeyTracking()
+
+    // Render React app to string (synchronous for non-Suspense apps)
+    const renderStartTime = Date.now()
+    let reactHtml: string
+    try {
+      reactHtml = renderToString(reactApp)
+      const renderTime = Date.now() - renderStartTime
+      metrics.histogram('ssr.render_time', renderTime, { route })
+    } catch (error) {
+      stopSsrKeyTracking() // Clean up tracker
+      metrics.increment('ssr.render_error', { route })
+      console.error('SSR render error:', error)
+      // Fall back to CSR shell on render error
+      return res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+    }
+
+    // Stop tracking and get the keys that were actually used
+    const usedI18nKeys = stopSsrKeyTracking()
+    console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
+
+    // Serialize Redux state with ONLY the i18n keys that were used
+    const fullTranslations = store.getState().i18n?.translations || {}
+    const minimalTranslations: Record<string, string> = {}
+    for (const key of usedI18nKeys) {
+      if (fullTranslations[key] !== undefined) {
+        minimalTranslations[key] = fullTranslations[key]
+      }
+    }
+
+    const preloadedState = {
+      ...store.getState(),
+      i18n: {
+        ...store.getState().i18n,
+        translations: minimalTranslations,
+        // Don't serialize defaultTranslations - it's already in client code as DEFAULT_STRINGS
+        defaultTranslations: {},
+      },
+    }
+    const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
+
+    // Update htmlEnd with the minimal state
+    const htmlEndWithState = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
   </script>
@@ -179,73 +252,18 @@ app.get('*', async (req, res) => {
 </body>
 </html>`
 
-    // Set response headers before streaming
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL
-    // Note: ETag not supported with streaming (requires full content upfront)
+    // Build complete HTML
+    const fullHtml = htmlStart + reactHtml + htmlEndWithState
+    const htmlSize = fullHtml.length
 
-    // Create React element to render
-    const reactApp = (
-      <ReduxProvider store={store}>
-        <CacheProvider value={emotionCache}>
-          <ThemeProvider theme={theme}>
-            <StaticRouterProvider
-              context={context}
-              router={router}
-            />
-          </ThemeProvider>
-        </CacheProvider>
-      </ReduxProvider>
-    )
+    // Send response
+    const totalTime = Date.now() - requestStartTime
+    metrics.histogram('ssr.total_time', totalTime, { route })
+    metrics.histogram('ssr.html_size', htmlSize, { route })
+    metrics.histogram('ssr.i18n_keys_used', usedI18nKeys.length, { route })
+    metrics.increment('ssr.success', { route })
 
-    // Track HTML size
-    let htmlSize = htmlStart.length + htmlEnd.length
-
-    // Stream the response using React's streaming API
-    const { pipe, abort } = renderToPipeableStream(reactApp, {
-      bootstrapScripts: [], // Scripts already in htmlEnd
-      onShellReady() {
-        // Shell is ready - start streaming immediately for best TTFB
-        const shellTime = Date.now() - requestStartTime
-        metrics.histogram('ssr.shell_time', shellTime, { route })
-
-        res.write(htmlStart)
-        pipe(res)
-      },
-      onShellError(error) {
-        // Shell failed to render - fall back to CSR
-        const shellTime = Date.now() - requestStartTime
-        metrics.increment('ssr.shell_error', { route })
-        metrics.histogram('ssr.shell_error_time', shellTime, { route })
-
-        console.error('SSR shell error:', error)
-        res.statusCode = 500
-        res.setHeader('Content-Type', 'text/html; charset=utf-8')
-        res.send('<html><body><div id="root"></div></body></html>')
-      },
-      onAllReady() {
-        // All content ready - write closing tags
-        const totalTime = Date.now() - requestStartTime
-        metrics.histogram('ssr.total_time', totalTime, { route })
-        metrics.histogram('ssr.html_size', htmlSize, { route })
-        metrics.increment('ssr.success', { route })
-
-        res.write(htmlEnd)
-        res.end()
-      },
-      onError(error) {
-        // Non-fatal error during streaming
-        metrics.increment('ssr.stream_error', { route })
-        console.error('SSR streaming error:', error)
-      },
-    })
-
-    // Handle client disconnect
-    req.on('close', () => {
-      metrics.increment('ssr.client_disconnect', { route })
-      abort()
-    })
+    res.send(fullHtml)
   } catch (error) {
     const totalTime = Date.now() - requestStartTime
     metrics.increment('ssr.handler_error', { route })

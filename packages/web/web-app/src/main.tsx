@@ -12,11 +12,14 @@ import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import type { StringKeyName } from './app/i18n'
 import { AppRouter } from './app/routers/app.router'
-import { persistor, store } from './app/store/store-web.redux'
+import { getPersistor, store } from './app/store/store-web.redux'
 import { ErrorBoundary } from './app/ui/error-boundary/error-boundary.component'
 
 // @ts-expect-error - store won't exist until we create it here.
 window.store = store
+
+// Create persistor for CSR (no SSR state to apply first)
+const persistor = getPersistor()
 
 const root = createRoot(document.getElementById('root') as HTMLElement)
 

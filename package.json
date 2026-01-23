@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev:web": "pnpm --filter @dx3/web-app dev",
+    "dev:web:ssr": "pnpm --filter @dx3/web-app dev:ssr",
     "dev:mobile": "pnpm --filter @dx3/mobile start",
     "build": "pnpm -r --filter './{packages/api/api-app,packages/shared,packages/mobile,packages/web/web-app}/**' build",
     "build:api-app": "pnpm -r --filter './packages/shared/**' --filter './packages/api/src/api-app' build",

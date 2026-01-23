@@ -4,6 +4,6 @@ export type {
   RootState,
 } from './store-web.redux'
 export {
-  persistor,
+  getPersistor,
   store,
 } from './store-web.redux'

@@ -26,9 +26,11 @@ import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import { createEmotionCache } from './app/emotion-cache'
 import type { StringKeyName } from './app/i18n'
+import { i18nActions } from './app/i18n/i18n.reducer'
 import { createClientOnlyRoutes, createPublicRoutes } from './app/routers/ssr.routes'
-import { persistor, store } from './app/store/store-web.redux'
+import { getPersistor, store } from './app/store/store-web.redux'
 import { ErrorBoundary } from './app/ui/error-boundary/error-boundary.component'
+import { uiActions } from './app/ui/store/ui-web.reducer'
 
 // Rehydrate Redux store from SSR preloaded state
 interface PreloadedState {
@@ -41,6 +43,11 @@ interface PreloadedState {
     isLoading?: boolean
     translations?: Record<string, string> | null
   }
+  ui?: {
+    theme?: string
+    [key: string]: any
+  }
+  [key: string]: any
 }
 
 declare global {
@@ -52,14 +59,31 @@ declare global {
 
 // Read preloaded state from SSR
 const preloadedState = window.__PRELOADED_STATE__
+const isSSR = !!preloadedState
 if (preloadedState) {
-  // Merge SSR state into store
-  // Note: redux-persist will override this with persisted data after rehydration
-  // For i18n, only currentLocale is persisted, so translations from SSR will be used
-  // until I18nService loads them again
-  console.log('Hydrating from SSR preloaded state:', preloadedState)
+  // Apply SSR state to store BEFORE starting redux-persist
+  // This prevents persist rehydration from overwriting SSR state
+  if (preloadedState.i18n) {
+    if (preloadedState.i18n.translations) {
+      store.dispatch(i18nActions.setTranslations(preloadedState.i18n.translations))
+    }
+    if (preloadedState.i18n.currentLocale) {
+      store.dispatch(i18nActions.setCurrentLocale(preloadedState.i18n.currentLocale as any))
+    }
+    if (preloadedState.i18n.isInitialized !== undefined) {
+      store.dispatch(i18nActions.setInitialized(preloadedState.i18n.isInitialized))
+    }
+  }
+  // Apply UI state (especially theme) to match server rendering
+  if (preloadedState.ui?.theme) {
+    store.dispatch(uiActions.themeModeSet(preloadedState.ui.theme as any))
+  }
   delete window.__PRELOADED_STATE__
 }
+
+// Create persistor after applying SSR state
+// This ensures SSR state isn't overwritten by localStorage rehydration
+const persistor = getPersistor()
 
 window.store = store
 
@@ -86,6 +110,16 @@ const router = createBrowserRouter([
   // ...PrivateWebRouterConfig.getRouter(),
 ])
 
+// Create app component tree
+// Note: PersistGate is skipped during SSR hydration to match server structure
+const AppContent = (
+  <CacheProvider value={emotionCache}>
+    <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  </CacheProvider>
+)
+
 // Hydrate the app
 hydrateRoot(
   document.getElementById('root') as HTMLElement,
@@ -99,16 +133,18 @@ hydrateRoot(
       }
     >
       <Provider store={store}>
-        <PersistGate
-          loading={<UiLoadingComponent pastDelay={true} />}
-          persistor={persistor}
-        >
-          <CacheProvider value={emotionCache}>
-            <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-              <RouterProvider router={router} />
-            </Suspense>
-          </CacheProvider>
-        </PersistGate>
+        {isSSR ? (
+          // SSR hydration: Skip PersistGate to match server structure
+          AppContent
+        ) : (
+          // CSR: Include PersistGate for redux-persist
+          <PersistGate
+            loading={<UiLoadingComponent pastDelay={true} />}
+            persistor={persistor}
+          >
+            {AppContent}
+          </PersistGate>
+        )}
       </Provider>
     </ErrorBoundary>
   </StrictMode>,

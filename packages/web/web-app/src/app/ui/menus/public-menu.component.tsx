@@ -1,7 +1,7 @@
 import ClearIcon from '@mui/icons-material/Clear'
 import { Divider, IconButton, List, ListItemButton, ListItemText } from '@mui/material'
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import { CloseViewItem } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
 
@@ -11,11 +11,12 @@ import { useAppDispatch } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
 
 type PublicMenuProps = {
+  closeMenu?: () => void
   mobileBreak?: boolean
 }
 
 export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
-  const { mobileBreak } = props
+  const { closeMenu, mobileBreak } = props
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -29,8 +30,22 @@ export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
   ]
 
   const handleNavigate = (path: string) => {
-    navigate(path)
-    dispatch(uiActions.togglePublicMenuSet(false))
+    if (closeMenu) {
+      // SSR mode with local state
+      closeMenu()
+    } else {
+      // CSR mode with Redux
+      navigate(path)
+      dispatch(uiActions.togglePublicMenuSet(false))
+    }
+  }
+
+  const handleClose = () => {
+    if (closeMenu) {
+      closeMenu()
+    } else {
+      dispatch(uiActions.togglePublicMenuSet(false))
+    }
   }
 
   return (
@@ -39,7 +54,7 @@ export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
         <CloseViewItem justifcation="flex-end">
           <IconButton
             color="default"
-            onClick={() => dispatch(uiActions.togglePublicMenuSet(false))}
+            onClick={handleClose}
             style={{
               padding: 0,
             }}
@@ -55,8 +70,10 @@ export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
       {publicLinks.map((link) => (
         <React.Fragment key={link.path}>
           <ListItemButton
+            component={Link}
             onClick={() => handleNavigate(link.path)}
             selected={pathname === link.path}
+            to={link.path}
           >
             <ListItemText primary={link.label} />
           </ListItemButton>

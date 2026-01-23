@@ -4,14 +4,11 @@ import {
   AccordionDetails,
   AccordionSummary,
   Container,
-  Fade,
   Typography,
 } from '@mui/material'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
-
-import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import type { StringKeyName } from '../i18n'
@@ -21,6 +18,8 @@ import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { FAQ_CONTENT } from './faq-web-content.consts'
 
 export const FaqComponent: React.FC = () => {
+  // SSR-safe: selector handles missing auth reducer in SSR store
+  // SSR always shows public FAQs only (authenticated users get CSR anyway)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
 
   // Show public FAQs for everyone, plus authenticated FAQs for logged-in users
@@ -69,59 +68,54 @@ export const FaqComponent: React.FC = () => {
         type="application/ld+json"
       />
 
-      <Fade
-        in={true}
-        timeout={FADE_TIMEOUT_DUR}
+      <Container
+        maxWidth="md"
+        sx={{
+          paddingBottom: '40px',
+          paddingTop: '40px',
+        }}
       >
-        <Container
-          maxWidth="md"
-          sx={{
-            paddingBottom: '40px',
-            paddingTop: '40px',
-          }}
+        <Typography
+          align="center"
+          color="primary"
+          gutterBottom
+          variant="h3"
         >
-          <Typography
-            align="center"
-            color="primary"
-            gutterBottom
-            variant="h3"
+          {strings.FAQ}
+        </Typography>
+        <Typography
+          align="center"
+          color="textSecondary"
+          paragraph
+          variant="h6"
+        >
+          {strings.FAQ_PAGE_TITLE}
+        </Typography>
+        {faqItems.map((faq) => (
+          <Accordion
+            key={faq.id}
+            sx={{ marginBottom: '8px' }}
           >
-            {strings.FAQ}
-          </Typography>
-          <Typography
-            align="center"
-            color="textSecondary"
-            paragraph
-            variant="h6"
-          >
-            {strings.FAQ_PAGE_TITLE}
-          </Typography>
-          {faqItems.map((faq) => (
-            <Accordion
-              key={faq.id}
-              sx={{ marginBottom: '8px' }}
+            <AccordionSummary
+              aria-controls={`faq-${faq.id}-content`}
+              expandIcon={<ExpandMoreIcon />}
+              id={`faq-${faq.id}-header`}
             >
-              <AccordionSummary
-                aria-controls={`faq-${faq.id}-content`}
-                expandIcon={<ExpandMoreIcon />}
-                id={`faq-${faq.id}-header`}
+              <Typography variant="h6">{strings[faq.questionKey]}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography
+                color="textSecondary"
+                component="div"
               >
-                <Typography variant="h6">{strings[faq.questionKey]}</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography
-                  color="textSecondary"
-                  component="div"
-                >
-                  <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-                    {strings[faq.answerKey] || ''}
-                  </ReactMarkdown>
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </Container>
-      </Fade>
+                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                  {strings[faq.answerKey] || ''}
+                </ReactMarkdown>
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </Container>
     </>
   )
 }

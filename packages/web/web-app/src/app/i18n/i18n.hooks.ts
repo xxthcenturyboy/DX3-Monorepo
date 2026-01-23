@@ -25,6 +25,7 @@ import type {
   StringKeys,
   TranslateFn,
 } from './i18n.types'
+import { trackSsrKeyAccess } from './i18n-ssr-tracker'
 
 /**
  * Return type for useI18n hook.
@@ -71,6 +72,9 @@ export function useI18n(): UseI18nResult {
    */
   const t: TranslateFn = useCallback(
     <K extends StringKeyName>(key: K, params?: InterpolationParams): string => {
+      // Track key access during SSR
+      trackSsrKeyAccess(key)
+
       // Get value from translations with fallback chain
       let value = translations[key]
 
@@ -158,6 +162,9 @@ export function useTranslation(): TranslateFn {
 
   return useCallback(
     <K extends StringKeyName>(key: K, params?: InterpolationParams): string => {
+      // Track key access during SSR
+      trackSsrKeyAccess(key)
+
       let value = translations[key]
 
       if (value === undefined || value === null) {
