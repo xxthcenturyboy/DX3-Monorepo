@@ -1,9 +1,10 @@
-import { Container, Grid, Typography } from '@mui/material'
+import { Container, Fade, Grid, Typography } from '@mui/material'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 
 import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import type { StringKeyName } from '../i18n'
 import { useStrings } from '../i18n'
@@ -12,6 +13,7 @@ import { ABOUT_CONTENT } from './about-web-content.consts'
 
 export const AboutComponent: React.FC = () => {
   const aboutSections = ABOUT_CONTENT.sections
+  const [fadeIn, setFadeIn] = React.useState(false)
 
   // Gather all required string keys from content structure
   const stringKeys = React.useMemo(() => {
@@ -26,8 +28,13 @@ export const AboutComponent: React.FC = () => {
     setDocumentTitle(strings.ABOUT_PAGE_TITLE || strings.ABOUT)
   }, [strings])
 
+  React.useEffect(() => {
+    setFadeIn(true)
+  }, [])
+
   return (
-    <Container
+    <Fade in={fadeIn} timeout={FADE_TIMEOUT_DUR}>
+      <Container
         maxWidth="md"
         sx={{
           paddingBottom: '40px',
@@ -80,5 +87,6 @@ export const AboutComponent: React.FC = () => {
           ))}
         </Grid>
       </Container>
+    </Fade>
   )
 }

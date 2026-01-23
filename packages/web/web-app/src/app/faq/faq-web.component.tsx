@@ -4,11 +4,14 @@ import {
   AccordionDetails,
   AccordionSummary,
   Container,
+  Fade,
   Typography,
 } from '@mui/material'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
+
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import type { StringKeyName } from '../i18n'
@@ -21,6 +24,11 @@ export const FaqComponent: React.FC = () => {
   // SSR-safe: selector handles missing auth reducer in SSR store
   // SSR always shows public FAQs only (authenticated users get CSR anyway)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const [fadeIn, setFadeIn] = React.useState(false)
+
+  React.useEffect(() => {
+    setFadeIn(true)
+  }, [])
 
   // Show public FAQs for everyone, plus authenticated FAQs for logged-in users
   const faqItems = React.useMemo(() => {
@@ -68,13 +76,14 @@ export const FaqComponent: React.FC = () => {
         type="application/ld+json"
       />
 
-      <Container
-        maxWidth="md"
-        sx={{
-          paddingBottom: '40px',
-          paddingTop: '40px',
-        }}
-      >
+      <Fade in={fadeIn} timeout={FADE_TIMEOUT_DUR}>
+        <Container
+          maxWidth="md"
+          sx={{
+            paddingBottom: '40px',
+            paddingTop: '40px',
+          }}
+        >
         <Typography
           align="center"
           color="primary"
@@ -115,7 +124,8 @@ export const FaqComponent: React.FC = () => {
             </AccordionDetails>
           </Accordion>
         ))}
-      </Container>
+        </Container>
+      </Fade>
     </>
   )
 }
