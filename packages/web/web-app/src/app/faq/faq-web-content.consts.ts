@@ -9,17 +9,17 @@ export const FAQ_CONTENT: FaqContentStructure = {
   authenticated: [
     {
       answerKey: 'FAQ_AUTH_ITEM_1_ANSWER',
-      id: '1',
+      id: 'auth-1',
       questionKey: 'FAQ_AUTH_ITEM_1_QUESTION',
     },
     {
       answerKey: 'FAQ_AUTH_ITEM_2_ANSWER',
-      id: '2',
+      id: 'auth-2',
       questionKey: 'FAQ_AUTH_ITEM_2_QUESTION',
     },
     {
       answerKey: 'FAQ_AUTH_ITEM_3_ANSWER',
-      id: '3',
+      id: 'auth-3',
       questionKey: 'FAQ_AUTH_ITEM_3_QUESTION',
     },
   ],
@@ -33,6 +33,21 @@ export const FAQ_CONTENT: FaqContentStructure = {
       answerKey: 'FAQ_ITEM_2_ANSWER',
       id: '2',
       questionKey: 'FAQ_ITEM_2_QUESTION',
+    },
+    {
+      answerKey: 'FAQ_ITEM_3_ANSWER',
+      id: '3',
+      questionKey: 'FAQ_ITEM_3_QUESTION',
+    },
+    {
+      answerKey: 'FAQ_ITEM_4_ANSWER',
+      id: '4',
+      questionKey: 'FAQ_ITEM_4_QUESTION',
+    },
+    {
+      answerKey: 'FAQ_ITEM_5_ANSWER',
+      id: '5',
+      questionKey: 'FAQ_ITEM_5_QUESTION',
     },
   ],
 }
