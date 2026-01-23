@@ -1,14 +1,27 @@
 import { Container, Fade, Grid, Typography } from '@mui/material'
 import * as React from 'react'
+import ReactMarkdown from 'react-markdown'
+import rehypeSanitize from 'rehype-sanitize'
 
 import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
+import type { StringKeyName } from '../i18n'
 import { useStrings } from '../i18n'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
+import { ABOUT_CONTENT } from './about-web-content.consts'
 
 export const AboutComponent: React.FC = () => {
-  const strings = useStrings(['ABOUT', 'ABOUT_PAGE_TITLE'])
+  const aboutSections = ABOUT_CONTENT.sections
+
+  // Gather all required string keys from content structure
+  const stringKeys = React.useMemo(() => {
+    const keys: StringKeyName[] = ['ABOUT', 'ABOUT_PAGE_TITLE']
+    const sectionKeys = aboutSections.flatMap((section) => [section.titleKey, section.contentKey])
+    return [...keys, ...sectionKeys]
+  }, [aboutSections])
+
+  const strings = useStrings(stringKeys)
 
   React.useEffect(() => {
     setDocumentTitle(strings.ABOUT_PAGE_TITLE || strings.ABOUT)
@@ -30,10 +43,7 @@ export const AboutComponent: React.FC = () => {
           container
           spacing={4}
         >
-          <Grid
-            item
-            xs={12}
-          >
+          <Grid size={{ xs: 12 }}>
             <Typography
               align="center"
               color="primary"
@@ -43,10 +53,7 @@ export const AboutComponent: React.FC = () => {
               {strings.ABOUT} {APP_NAME}
             </Typography>
           </Grid>
-          <Grid
-            item
-            xs={12}
-          >
+          <Grid size={{ xs: 12 }}>
             <Typography
               paragraph
               variant="h6"
@@ -54,60 +61,28 @@ export const AboutComponent: React.FC = () => {
               {APP_DESCRIPTION}
             </Typography>
           </Grid>
-          <Grid
-            item
-            xs={12}
-          >
-            <Typography
-              gutterBottom
-              variant="h5"
+          {aboutSections.map((section) => (
+            <Grid
+              key={section.id}
+              size={{ xs: 12 }}
             >
-              Our Mission
-            </Typography>
-            <Typography
-              color="textSecondary"
-              paragraph
-            >
-              We are committed to building powerful, scalable applications that help users achieve
-              their goals efficiently and effectively.
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-          >
-            <Typography
-              gutterBottom
-              variant="h5"
-            >
-              Technology Stack
-            </Typography>
-            <Typography
-              color="textSecondary"
-              paragraph
-            >
-              Built with modern web technologies including React, TypeScript, Node.js, and
-              PostgreSQL, {APP_NAME} provides a robust and reliable platform for your needs.
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-          >
-            <Typography
-              gutterBottom
-              variant="h5"
-            >
-              Get in Touch
-            </Typography>
-            <Typography
-              color="textSecondary"
-              paragraph
-            >
-              Have questions or feedback? We'd love to hear from you. Reach out through our support
-              channels.
-            </Typography>
-          </Grid>
+              <Typography
+                gutterBottom
+                variant="h5"
+              >
+                {strings[section.titleKey]}
+              </Typography>
+              <Typography
+                color="textSecondary"
+                component="div"
+                paragraph
+              >
+                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                  {strings[section.contentKey] || ''}
+                </ReactMarkdown>
+              </Typography>
+            </Grid>
+          ))}
         </Grid>
       </Container>
     </Fade>

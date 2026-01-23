@@ -64,6 +64,12 @@ export type StringKeyName = keyof StringKeys
 export type StringKeys = {
   ABOUT: string
   ABOUT_PAGE_TITLE: string
+  ABOUT_SECTION_CONTACT_CONTENT: string
+  ABOUT_SECTION_CONTACT_TITLE: string
+  ABOUT_SECTION_MISSION_CONTENT: string
+  ABOUT_SECTION_MISSION_TITLE: string
+  ABOUT_SECTION_TECH_CONTENT: string
+  ABOUT_SECTION_TECH_TITLE: string
   ACCOUNT_MENU: string
   ADD: string
   ADMIN: string
@@ -129,6 +135,22 @@ export type StringKeys = {
   EXTERNAL: string
   FAIL: string
   FAQ: string
+  FAQ_AUTH_ITEM_1_ANSWER: string
+  FAQ_AUTH_ITEM_1_QUESTION: string
+  FAQ_AUTH_ITEM_2_ANSWER: string
+  FAQ_AUTH_ITEM_2_QUESTION: string
+  FAQ_AUTH_ITEM_3_ANSWER: string
+  FAQ_AUTH_ITEM_3_QUESTION: string
+  FAQ_ITEM_1_ANSWER: string
+  FAQ_ITEM_1_QUESTION: string
+  FAQ_ITEM_2_ANSWER: string
+  FAQ_ITEM_2_QUESTION: string
+  FAQ_ITEM_3_ANSWER: string
+  FAQ_ITEM_3_QUESTION: string
+  FAQ_ITEM_4_ANSWER: string
+  FAQ_ITEM_4_QUESTION: string
+  FAQ_ITEM_5_ANSWER: string
+  FAQ_ITEM_5_QUESTION: string
   FAQ_PAGE_TITLE: string
   FEATURE_FLAG_COMING_SOON: string
   FEATURE_FLAGS: string
