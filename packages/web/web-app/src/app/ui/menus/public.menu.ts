@@ -15,14 +15,14 @@ export const publicMenu = (): AppMenuType => {
     id: 'menu-public',
     items: [
       {
-        icon: IconNames.HELP,
+        icon: IconNames.HELP_OUTLINE,
         id: 'menu-item-faq',
         routeKey: ROUTES.FAQ,
         title: strings.FAQ,
         type: 'ROUTE',
       },
       {
-        icon: IconNames.INFO,
+        icon: IconNames.INFO_OUTLINE,
         id: 'menu-item-about',
         routeKey: ROUTES.ABOUT,
         title: strings.ABOUT,

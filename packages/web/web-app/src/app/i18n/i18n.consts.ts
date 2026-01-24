@@ -18,11 +18,14 @@ export const DEFAULT_LOCALE: LocaleCode = 'en'
 export const DEFAULT_STRINGS: StringKeys = {
   ABOUT: 'About',
   ABOUT_PAGE_TITLE: 'About Us',
-  ABOUT_SECTION_CONTACT_CONTENT: "Have questions or feedback? We'd love to hear from you. Reach out through our support channels.",
+  ABOUT_SECTION_CONTACT_CONTENT:
+    "Have questions or feedback? We'd love to hear from you. Reach out through our support channels.",
   ABOUT_SECTION_CONTACT_TITLE: 'Get in Touch',
-  ABOUT_SECTION_MISSION_CONTENT: 'We are committed to building powerful, scalable applications that help users achieve their goals efficiently and effectively.',
+  ABOUT_SECTION_MISSION_CONTENT:
+    'We are committed to building powerful, scalable applications that help users achieve their goals efficiently and effectively.',
   ABOUT_SECTION_MISSION_TITLE: 'Our Mission',
-  ABOUT_SECTION_TECH_CONTENT: 'Built with modern web technologies including React, TypeScript, Node.js, and PostgreSQL, DX3 provides a robust and reliable platform for your needs.',
+  ABOUT_SECTION_TECH_CONTENT:
+    'Built with modern web technologies including React, TypeScript, Node.js, and PostgreSQL, DX3 provides a robust and reliable platform for your needs.',
   ABOUT_SECTION_TECH_TITLE: 'Technology Stack',
   ACCOUNT_MENU: 'Account Menu',
   ADD: 'Add',
@@ -91,21 +94,28 @@ export const DEFAULT_STRINGS: StringKeys = {
   EXTERNAL: 'External',
   FAIL: 'Fail',
   FAQ: 'FAQ',
-  FAQ_AUTH_ITEM_1_ANSWER: 'You can update your profile by going to Settings > Profile. You can change your name, email, phone number, and avatar.',
+  FAQ_AUTH_ITEM_1_ANSWER:
+    'You can update your profile by going to Settings > Profile. You can change your name, email, phone number, and avatar.',
   FAQ_AUTH_ITEM_1_QUESTION: 'How do I update my profile?',
-  FAQ_AUTH_ITEM_2_ANSWER: 'Go to Settings > Security to change your password. You will need to enter your current password and then your new password twice.',
+  FAQ_AUTH_ITEM_2_ANSWER:
+    'Go to Settings > Security to change your password. You will need to enter your current password and then your new password twice.',
   FAQ_AUTH_ITEM_2_QUESTION: 'How do I change my password?',
-  FAQ_AUTH_ITEM_3_ANSWER: 'You can add additional emails or phone numbers in Settings > Profile. Click "Add Email" or "Add Phone" and verify the new contact method.',
+  FAQ_AUTH_ITEM_3_ANSWER:
+    'You can add additional emails or phone numbers in Settings > Profile. Click "Add Email" or "Add Phone" and verify the new contact method.',
   FAQ_AUTH_ITEM_3_QUESTION: 'How do I add additional contact methods?',
-  FAQ_ITEM_1_ANSWER: 'DX3 is a **full-stack application platform** built with TypeScript, React, and Node.js. It provides:\n\n- Modern web technologies\n- Type-safe development\n- Scalable architecture\n- Real-time updates',
+  FAQ_ITEM_1_ANSWER:
+    'DX3 is a **full-stack application platform** built with TypeScript, React, and Node.js. It provides:\n\n- Modern web technologies\n- Type-safe development\n- Scalable architecture\n- Real-time updates',
   FAQ_ITEM_1_QUESTION: 'What is DX3?',
-  FAQ_ITEM_2_ANSWER: 'Simply sign up for an account and start exploring the features available in your dashboard.',
+  FAQ_ITEM_2_ANSWER:
+    'Simply sign up for an account and start exploring the features available in your dashboard.',
   FAQ_ITEM_2_QUESTION: 'How do I get started?',
-  FAQ_ITEM_3_ANSWER: 'You can contact our support team through the contact form or email us directly.',
+  FAQ_ITEM_3_ANSWER:
+    'You can contact our support team through the contact form or email us directly.',
   FAQ_ITEM_3_QUESTION: 'How can I contact support?',
   FAQ_ITEM_4_ANSWER: 'Yes! We have a mobile app available for both iOS and Android devices.',
   FAQ_ITEM_4_QUESTION: 'Is there a mobile app?',
-  FAQ_ITEM_5_ANSWER: 'We use industry-standard encryption, secure authentication, and regular security audits to protect your data.',
+  FAQ_ITEM_5_ANSWER:
+    'We use industry-standard encryption, secure authentication, and regular security audits to protect your data.',
   FAQ_ITEM_5_QUESTION: 'What security measures do you use?',
   FAQ_PAGE_TITLE: 'Frequently Asked Questions',
   FEATURE_FLAG_COMING_SOON: 'Feature "{flagName}" coming soon!',
@@ -216,9 +226,9 @@ export const DEFAULT_STRINGS: StringKeys = {
   TRY_WITH_ONE_TIME_CODE: 'Try with one-time code',
   TRY_WITH_USERNAME_AND_PASSWORD: 'Try with username and password',
   TYPE: 'Type',
-  UPTIME: 'Uptime',
   UNAUTHORIZED: 'You are not authorized to perform this action.',
   UPDATE: 'Update',
+  UPTIME: 'Uptime',
   USER_ADMIN: 'User Admin',
   USER_ALREADY_EXISTS: 'A user with this information already exists.',
   USER_CREATE_FAILED: 'Failed to create user. Please try again.',

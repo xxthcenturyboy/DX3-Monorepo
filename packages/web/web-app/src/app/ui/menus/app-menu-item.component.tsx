@@ -12,13 +12,15 @@ import { selectIsMobileWidth } from '../store/ui-web.selector'
 import type { AppMenuItemType } from './app-menu.types'
 
 type AppMenuItemItemProps = {
-  menuItem: AppMenuItemType
   isFirst: boolean
+  isMobileBreak?: boolean
   isSubItem: boolean
+  menuItem: AppMenuItemType
+  onNavigate?: () => void
 }
 
 export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
-  const { isFirst, isSubItem, menuItem } = props
+  const { isFirst, isMobileBreak, isSubItem, menuItem, onNavigate } = props
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const location = useLocation()
@@ -62,13 +64,24 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   }
 
   const goToRoute = (): void => {
+    // Use isMobileBreak prop if provided (for public menu), otherwise use computed menuBreak
+    const shouldCloseOnMobile = isMobileBreak !== undefined ? isMobileBreak : menuBreak
+
     if (route && isSelected() && isMobileWidth) {
-      dispatch(uiActions.toggleMenuSet(false))
+      if (onNavigate) {
+        onNavigate()
+      } else {
+        dispatch(uiActions.toggleMenuSet(false))
+      }
       return
     }
 
     if (route && !isSelected()) {
-      menuBreak && dispatch(uiActions.toggleMenuSet(false))
+      if (onNavigate && shouldCloseOnMobile) {
+        onNavigate()
+      } else {
+        menuBreak && dispatch(uiActions.toggleMenuSet(false))
+      }
       navigate(route)
     }
   }

@@ -1,14 +1,13 @@
 import ClearIcon from '@mui/icons-material/Clear'
-import { Divider, IconButton, List, ListItemButton, ListItemText } from '@mui/material'
+import { Divider, IconButton } from '@mui/material'
 import React from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
 
-import { CloseViewItem } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
+import { CloseViewItem, StyledList } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'
 
-import { WebConfigService } from '../../config/config-web.service'
-import { useStrings } from '../../i18n'
 import { useAppDispatch } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../store/ui-web.reducer'
+import { AppMenuItem } from './app-menu-item.component'
+import { publicMenu } from './public.menu'
 
 type PublicMenuProps = {
   closeMenu?: () => void
@@ -18,38 +17,22 @@ type PublicMenuProps = {
 export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
   const { closeMenu, mobileBreak } = props
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const { pathname } = useLocation()
-  const ROUTES = WebConfigService.getWebRoutes()
-  const strings = useStrings(['ABOUT', 'BLOG', 'FAQ'])
 
-  const publicLinks = [
-    { label: strings.FAQ, path: ROUTES.FAQ },
-    { label: strings.ABOUT, path: ROUTES.ABOUT },
-    { label: strings.BLOG, path: ROUTES.BLOG },
-  ]
+  // Get menu items from shared public menu definition
+  const menuItems = publicMenu().items
 
-  const handleNavigate = (path: string) => {
+  const handleClose = () => {
     if (closeMenu) {
       // SSR mode with local state
       closeMenu()
     } else {
       // CSR mode with Redux
-      navigate(path)
-      dispatch(uiActions.togglePublicMenuSet(false))
-    }
-  }
-
-  const handleClose = () => {
-    if (closeMenu) {
-      closeMenu()
-    } else {
       dispatch(uiActions.togglePublicMenuSet(false))
     }
   }
 
   return (
-    <List sx={{ pt: 0 }}>
+    <StyledList>
       {mobileBreak && (
         <CloseViewItem justifcation="flex-end">
           <IconButton
@@ -67,19 +50,18 @@ export const PublicMenu: React.FC<PublicMenuProps> = (props) => {
           </IconButton>
         </CloseViewItem>
       )}
-      {publicLinks.map((link) => (
-        <React.Fragment key={link.path}>
-          <ListItemButton
-            component={Link}
-            onClick={() => handleNavigate(link.path)}
-            selected={pathname === link.path}
-            to={link.path}
-          >
-            <ListItemText primary={link.label} />
-          </ListItemButton>
+      {menuItems.map((item, index) => (
+        <React.Fragment key={item.id}>
+          <AppMenuItem
+            isFirst={index === 0}
+            isMobileBreak={mobileBreak}
+            isSubItem={false}
+            menuItem={item}
+            onNavigate={handleClose}
+          />
           <Divider sx={{ m: 0 }} />
         </React.Fragment>
       ))}
-    </List>
+    </StyledList>
   )
 }

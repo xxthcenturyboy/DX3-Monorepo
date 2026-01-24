@@ -206,24 +206,9 @@ export const AppNavBarSsr: React.FC = () => {
           {mobileBreak && (
             <Box
               sx={{
-                alignItems: 'center',
-                display: 'flex',
                 flexGrow: 1,
               }}
-            >
-              <IconButton
-                aria-label="public menu"
-                color="inherit"
-                edge="start"
-                onClick={handlePublicMenuToggle}
-                size="large"
-                sx={{
-                  mr: 1,
-                }}
-              >
-                <Menu className="toolbar-icons" />
-              </IconButton>
-            </Box>
+            />
           )}
           <Slide
             direction="left"
@@ -259,6 +244,20 @@ export const AppNavBarSsr: React.FC = () => {
               </Button>
             </span>
           </Slide>
+          {mobileBreak && (
+            <IconButton
+              aria-label="public menu"
+              color="inherit"
+              edge="end"
+              onClick={handlePublicMenuToggle}
+              size="large"
+              sx={{
+                ml: 1,
+              }}
+            >
+              <Menu className="toolbar-icons" />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <DrawerMenuComponent

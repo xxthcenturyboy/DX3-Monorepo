@@ -7,9 +7,9 @@ import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Dashboard from '@mui/icons-material/Dashboard'
 import Flag from '@mui/icons-material/Flag'
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety'
-import Help from '@mui/icons-material/Help'
+import HelpOutline from '@mui/icons-material/HelpOutline'
 import Home from '@mui/icons-material/Home'
-import Info from '@mui/icons-material/Info'
+import InfoOutline from '@mui/icons-material/InfoOutline'
 import ManageAccounts from '@mui/icons-material/ManageAccounts'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import People from '@mui/icons-material/People'
@@ -47,14 +47,14 @@ export const getIcon = (name: IconNames, color?: string): React.ReactElement | n
   if (name === IconNames.HEALTHZ) {
     return <HealthAndSafety style={{ color }} />
   }
-  if (name === IconNames.HELP) {
-    return <Help style={{ color }} />
+  if (name === IconNames.HELP_OUTLINE) {
+    return <HelpOutline style={{ color }} />
   }
   if (name === IconNames.HOME) {
     return <Home style={{ color }} />
   }
-  if (name === IconNames.INFO) {
-    return <Info style={{ color }} />
+  if (name === IconNames.INFO_OUTLINE) {
+    return <InfoOutline style={{ color }} />
   }
   if (name === IconNames.MANAGE_ACCOUNTS) {
     return <ManageAccounts style={{ color }} />

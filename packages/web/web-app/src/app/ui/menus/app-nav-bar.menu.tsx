@@ -275,24 +275,9 @@ export const AppNavBar: React.FC = () => {
           {mobileBreak && !isAuthenticated && (
             <Box
               sx={{
-                alignItems: 'center',
-                display: 'flex',
                 flexGrow: 1,
               }}
-            >
-              <IconButton
-                aria-label="public menu"
-                color="inherit"
-                edge="start"
-                onClick={handlePublicMenuToggle}
-                size="large"
-                sx={{
-                  mr: 1,
-                }}
-              >
-                <Menu className="toolbar-icons" />
-              </IconButton>
-            </Box>
+            />
           )}
           {mobileBreak && isAuthenticated && (
             <div
@@ -373,6 +358,20 @@ export const AppNavBar: React.FC = () => {
               )}
             </span>
           </Slide>
+          {mobileBreak && !isAuthenticated && (
+            <IconButton
+              aria-label="public menu"
+              color="inherit"
+              edge="end"
+              onClick={handlePublicMenuToggle}
+              size="large"
+              sx={{
+                ml: 1,
+              }}
+            >
+              <Menu className="toolbar-icons" />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <AccountMenu
