@@ -33,7 +33,7 @@ import { HomeComponent } from '../home/home-web.component'
 import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { AppNavBarSsr } from '../ui/menus/app-nav-bar-ssr.menu'
-import { getTheme } from '../ui/mui-themes/mui-theme.service'
+import { getThemeForMode } from '../ui/mui-themes/mui-theme.service'
 
 /**
  * SSR Root wrapper with layout (navbar + content).
@@ -45,8 +45,11 @@ const SsrRoot: React.FC = () => {
   const topPixel = 64 // Height of navbar
   const themeState = useAppSelector((state) => state?.ui?.theme || 'light')
 
-  // Create theme from Redux state (same as Root component)
-  const theme = React.useMemo(() => createTheme(getTheme()), [themeState])
+  // Create theme from Redux state (SSR-safe, doesn't read localStorage)
+  const theme = React.useMemo(
+    () => createTheme(getThemeForMode(themeState as 'light' | 'dark')),
+    [themeState],
+  )
 
   return (
     <ThemeProvider theme={theme}>

@@ -17,8 +17,12 @@ function getThemeModeFromLocalStorage() {
   return themeMode === 'dark' ? 'dark' : 'light'
 }
 
-export function getTheme(): ThemeOptions {
-  const mode = getThemeModeFromLocalStorage()
+/**
+ * Get theme options for a specific mode.
+ * Use this for SSR where you have the mode from Redux state.
+ * @param mode - 'light' or 'dark'
+ */
+export function getThemeForMode(mode: 'light' | 'dark'): ThemeOptions {
   if (mode === 'light') {
     return {
       components: muiLightComponentOverrides,
@@ -32,4 +36,13 @@ export function getTheme(): ThemeOptions {
       typography: typographyOverridesCommon,
     }
   }
+}
+
+/**
+ * Get theme options using localStorage.
+ * Use this for CSR where theme mode is read from localStorage.
+ */
+export function getTheme(): ThemeOptions {
+  const mode = getThemeModeFromLocalStorage()
+  return getThemeForMode(mode)
 }

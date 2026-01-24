@@ -238,10 +238,14 @@ app.get('*', async (req, res) => {
     }
     const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
+    // Serialize router state for client hydration
+    const serializedRouterState = JSON.stringify(context).replace(/</g, '\\u003c')
+
     // Update htmlEnd with the minimal state
     const htmlEndWithState = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
+    window.__ROUTER_STATE__ = ${serializedRouterState};
   </script>
   <script src="/static/js/runtime.js"></script>
   <script src="/static/js/vendor.react.js"></script>

@@ -39,9 +39,9 @@ export const AppNavBarSsr: React.FC = () => {
   const strings = useStrings(['ABOUT', 'BLOG', 'FAQ', 'HOME', 'LOGIN', 'SIGNUP'])
   const theme = useTheme()
   const [publicMenuOpen, setPublicMenuOpen] = React.useState(false)
-  const [windowWidth, setWindowWidth] = React.useState(
-    typeof window !== 'undefined' ? window.innerWidth : 1920
-  )
+  // Always use 1920 as initial value for SSR/hydration consistency
+  // Real window width is set in useEffect after hydration
+  const [windowWidth, setWindowWidth] = React.useState(1920)
   const [mobileBreak, setMobileBreak] = React.useState(false)
 
   // Hardcoded logo URL for SSR (no Redux state)
@@ -52,6 +52,11 @@ export const AppNavBarSsr: React.FC = () => {
   }, [windowWidth])
 
   React.useEffect(() => {
+    // Set real window width after hydration
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth)
+    }
+
     const handleResize = () => {
       setWindowWidth(window.innerWidth)
     }

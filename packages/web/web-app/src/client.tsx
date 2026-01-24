@@ -53,12 +53,14 @@ interface PreloadedState {
 declare global {
   interface Window {
     __PRELOADED_STATE__?: PreloadedState
+    __ROUTER_STATE__?: any
     store: typeof store
   }
 }
 
-// Read preloaded state from SSR
+// Read preloaded state and router state from SSR
 const preloadedState = window.__PRELOADED_STATE__
+const routerState = window.__ROUTER_STATE__
 const isSSR = !!preloadedState
 if (preloadedState) {
   // Apply SSR state to store BEFORE starting redux-persist
@@ -79,11 +81,13 @@ if (preloadedState) {
     store.dispatch(uiActions.themeModeSet(preloadedState.ui.theme as any))
   }
   delete window.__PRELOADED_STATE__
+  delete window.__ROUTER_STATE__
 }
 
-// Create persistor after applying SSR state
-// This ensures SSR state isn't overwritten by localStorage rehydration
-const persistor = getPersistor()
+// Create persistor only for CSR, not during SSR hydration
+// For SSR: delay persistor creation until after hydration completes to avoid state changes during hydration
+// For CSR: create persistor immediately
+const persistor = isSSR ? null : getPersistor()
 
 window.store = store
 
@@ -102,13 +106,19 @@ const getStringValue = (value: StringKeyName): string | undefined => {
 
 // Create router using SSR-compatible route factories
 const strings = store.getState()?.i18n?.translations || {}
-const router = createBrowserRouter([
-  ...createPublicRoutes(strings),
-  ...createClientOnlyRoutes(strings),
-  // Phase 2+: Add auth routes and private routes
-  // ...AuthWebRouterConfig.getRouter(),
-  // ...PrivateWebRouterConfig.getRouter(),
-])
+const router = createBrowserRouter(
+  [
+    ...createPublicRoutes(strings),
+    ...createClientOnlyRoutes(strings),
+    // Phase 2+: Add auth routes and private routes
+    // ...AuthWebRouterConfig.getRouter(),
+    // ...PrivateWebRouterConfig.getRouter(),
+  ],
+  {
+    // Pass hydration data from SSR to avoid hydration mismatch
+    hydrationData: routerState || undefined,
+  },
+)
 
 // Create app component tree
 // Note: PersistGate is skipped during SSR hydration to match server structure
@@ -135,12 +145,13 @@ hydrateRoot(
       <Provider store={store}>
         {isSSR ? (
           // SSR hydration: Skip PersistGate to match server structure
+          // Persistor will be initialized after hydration completes
           AppContent
         ) : (
           // CSR: Include PersistGate for redux-persist
           <PersistGate
             loading={<UiLoadingComponent pastDelay={true} />}
-            persistor={persistor}
+            persistor={persistor!}
           >
             {AppContent}
           </PersistGate>
@@ -149,3 +160,19 @@ hydrateRoot(
     </ErrorBoundary>
   </StrictMode>,
 )
+
+// Post-hydration cleanup and initialization for SSR
+if (isSSR) {
+  // Use setTimeout to ensure this runs after hydration completes
+  setTimeout(() => {
+    // Remove server-side injected emotion styles
+    const ssrStyles = document.getElementById('emotion-ssr-styles')
+    if (ssrStyles) {
+      ssrStyles.remove()
+    }
+
+    // Now that hydration is complete, initialize redux-persist
+    // This allows localStorage rehydration without interfering with SSR hydration
+    getPersistor()
+  }, 0)
+}
