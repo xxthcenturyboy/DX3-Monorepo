@@ -30,13 +30,13 @@ import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import { createEmotionCache } from '../app/emotion-cache'
+import type { StringKeys } from '../app/i18n'
 import { i18nActions } from '../app/i18n/i18n.reducer'
-import { startSsrKeyTracking, stopSsrKeyTracking } from '../app/i18n/i18n-ssr-tracker'
 import { i18nService } from '../app/i18n/i18n.service'
+import { startSsrKeyTracking, stopSsrKeyTracking } from '../app/i18n/i18n-ssr-tracker'
 import { createPublicRoutes } from '../app/routers/ssr.routes'
 import { createSsrStore } from '../app/store/store-ssr.redux'
 import { ErrorBoundary } from '../app/ui/error-boundary/error-boundary.component'
-
 import { metrics } from './metrics'
 
 const app = express()
@@ -60,8 +60,8 @@ app.get('/metrics', (_req, res) => {
 
   res.status(200).json({
     memory: {
-      heapUsed: Math.round(memory.heapUsed / 1024 / 1024), // MB
       heapTotal: Math.round(memory.heapTotal / 1024 / 1024), // MB
+      heapUsed: Math.round(memory.heapUsed / 1024 / 1024), // MB
       rss: Math.round(memory.rss / 1024 / 1024), // MB
     },
     metrics: metricsData,
@@ -104,7 +104,7 @@ app.get('*', async (req, res) => {
       store.dispatch(i18nActions.setInitialized(true))
     }
 
-    const strings = store.getState()?.i18n?.translations || {}
+    const strings = store.getState()?.i18n?.translations || ({} as StringKeys)
 
     // Create public routes
     const publicRoutes = createPublicRoutes(strings)
@@ -145,7 +145,7 @@ app.get('*', async (req, res) => {
     // before streaming or using a different CSS-in-JS solution.
 
     // Helper to get string value for error boundary
-    const getStringValue = (key: string): string | undefined => {
+    const getStringValue = (key: keyof StringKeys): string | undefined => {
       return strings[key]
     }
 
@@ -219,7 +219,7 @@ app.get('*', async (req, res) => {
     console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
 
     // Serialize Redux state with ONLY the i18n keys that were used
-    const fullTranslations = store.getState().i18n?.translations || {}
+    const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
     const minimalTranslations: Record<string, string> = {}
     for (const key of usedI18nKeys) {
       if (fullTranslations[key] !== undefined) {
@@ -231,9 +231,9 @@ app.get('*', async (req, res) => {
       ...store.getState(),
       i18n: {
         ...store.getState().i18n,
-        translations: minimalTranslations,
         // Don't serialize defaultTranslations - it's already in client code as DEFAULT_STRINGS
         defaultTranslations: {},
+        translations: minimalTranslations,
       },
     }
     const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
@@ -285,7 +285,7 @@ app.listen(PORT, () => {
   console.log(`\n🚀 SSR server listening on http://localhost:${PORT}`)
   console.log(`📦 Serving static files from: ${path.join(__dirname, '../../web-app-dist')}`)
   console.log(`🏠 Routes: Home, Shortlink, FAQ, About, Blog (server-side rendered)`)
-  console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream`)
+  console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream - NOT IMPLEMENTED YET`)
   console.log(`🗜️  Compression: gzip/brotli enabled`)
   console.log(`💾 Cache-Control: public, max-age=60s`)
   console.log(`📊 Metrics: Enabled (summary logged every 60s)\n`)

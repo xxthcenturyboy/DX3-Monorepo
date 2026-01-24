@@ -1,12 +1,12 @@
 import { USER_ROLE } from '@dx3/models-shared'
 import { IconNames } from '@dx3/web-libs/ui/icons'
 
-import { FEATURE_FLAG_ADMIN_ROUTES } from '../feature-flags/admin/feature-flag-admin-web.consts'
-import { DEFAULT_STRINGS } from '../i18n'
-import { STATS_SUDO_ROUTES } from '../stats/stats-web.consts'
-import { store } from '../store/store-web.redux'
-import type { AppMenuType } from '../ui/menus/app-menu.types'
-import { USER_ADMIN_ROUTES } from '../user/admin/user-admin-web.consts'
+import { FEATURE_FLAG_ADMIN_ROUTES } from '../../feature-flags/admin/feature-flag-admin-web.consts'
+import { DEFAULT_STRINGS } from '../../i18n'
+import { STATS_SUDO_ROUTES } from '../../stats/stats-web.consts'
+import { store } from '../../store/store-web.redux'
+import { USER_ADMIN_ROUTES } from '../../user/admin/user-admin-web.consts'
+import type { AppMenuType } from './app-menu.types'
 
 export const adminMenu = (): AppMenuType => {
   const strings = store.getState()?.i18n?.translations || DEFAULT_STRINGS

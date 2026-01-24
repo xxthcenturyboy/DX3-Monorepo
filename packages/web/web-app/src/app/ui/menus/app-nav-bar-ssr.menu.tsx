@@ -9,13 +9,11 @@ import {
   Slide,
   styled,
   Toolbar,
-  Typography,
   useTheme,
 } from '@mui/material'
 import React from 'react'
 import { Link, useLocation } from 'react-router'
 
-import { APP_NAME } from '@dx3/models-shared'
 import { DrawerMenuComponent } from '@dx3/web-libs/ui/dialog/drawer-menu.component'
 import { DRAWER_WIDTH, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
@@ -142,7 +140,7 @@ export const AppNavBarSsr: React.FC = () => {
         <Toolbar>
           <Link
             aria-label="home"
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            style={{ alignItems: 'center', cursor: 'pointer', display: 'flex' }}
             to={ROUTES.MAIN}
           >
             <Icon
@@ -271,7 +269,10 @@ export const AppNavBarSsr: React.FC = () => {
         width={mobileBreak ? '100%' : `${DRAWER_WIDTH}px`}
         widthOuter={`${DRAWER_WIDTH}px`}
       >
-        <PublicMenu closeMenu={toggleMenuState} mobileBreak={mobileBreak} />
+        <PublicMenu
+          closeMenu={toggleMenuState}
+          mobileBreak={mobileBreak}
+        />
       </DrawerMenuComponent>
     </Box>
   )

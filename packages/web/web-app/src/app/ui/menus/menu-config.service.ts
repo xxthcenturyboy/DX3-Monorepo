@@ -1,19 +1,14 @@
 import { USER_ROLE } from '@dx3/models-shared'
 
-import { adminMenu } from '../../admin/admin.menu'
 import { dashboardMenu } from '../../dashboard/dashboard.menu'
-import { publicMenu } from '../../public/public.menu'
 import { userProfileMenu } from '../../user/profile/user-profile.menu'
+import { adminMenu } from './admin.menu'
 import type { AppMenuItemType, AppMenuType } from './app-menu.types'
+import { publicMenu } from './public.menu'
 
 export class MenuConfigService {
   // Order to appear in sidebar menu
-  CARDINAL_MENU_SET: AppMenuType[] = [
-    dashboardMenu(),
-    publicMenu(),
-    userProfileMenu(),
-    adminMenu(),
-  ]
+  CARDINAL_MENU_SET: AppMenuType[] = [dashboardMenu(), publicMenu(), userProfileMenu(), adminMenu()]
 
   private restrictSuperAdmin(menu: AppMenuType, includeBeta: boolean) {
     const items: AppMenuItemType[] = []
