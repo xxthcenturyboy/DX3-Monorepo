@@ -156,6 +156,14 @@ app.get('*', async (req, res) => {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DX3</title>
+  <style>
+    /* Critical CSS - applied immediately before external stylesheets load */
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+  </style>
   <style id="emotion-ssr-styles">
     /* Emotion styles will be injected by client hydration */
     /* Streaming SSR trades critical CSS extraction for faster TTFB */
