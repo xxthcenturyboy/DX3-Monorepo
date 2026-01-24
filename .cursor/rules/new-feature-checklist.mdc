@@ -35,6 +35,7 @@ Before starting any work, read and follow these existing rules:
 - Use `sendOK`, `sendBadRequest`, and consistent logging patterns
 - Add socket handlers under `packages/api/libs/<feature>` if needed
 - Use auth/role middleware for protected routes
+- APIs are versioned via header property, not on the route directly
 
 ## Cross-Cutting Checks
 
