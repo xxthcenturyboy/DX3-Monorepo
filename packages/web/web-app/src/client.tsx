@@ -25,7 +25,7 @@ import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import { createEmotionCache } from './app/emotion-cache'
-import type { StringKeyName } from './app/i18n'
+import type { StringKeyName, StringKeys } from './app/i18n'
 import { i18nActions } from './app/i18n/i18n.reducer'
 import { createClientOnlyRoutes, createPublicRoutes } from './app/routers/ssr.routes'
 import { getPersistor, store } from './app/store/store-web.redux'
@@ -41,7 +41,7 @@ interface PreloadedState {
     error?: string | null
     isInitialized?: boolean
     isLoading?: boolean
-    translations?: Record<string, string> | null
+    translations?: StringKeys | null
   }
   ui?: {
     theme?: string
