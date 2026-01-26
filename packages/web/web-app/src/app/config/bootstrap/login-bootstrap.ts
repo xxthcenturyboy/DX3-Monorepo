@@ -7,6 +7,8 @@ import { featureFlagsActions } from '../../feature-flags/feature-flag-web.reduce
 import { fetchNotifications } from '../../notifications/notification-web.api'
 import { notificationActions } from '../../notifications/notification-web.reducer'
 import { store } from '../../store/store-web.redux'
+import { supportActions } from '../../support/store/support-web.reducer'
+import { fetchSupportUnviewedCount } from '../../support/support-web.api'
 import type { AppMenuType } from '../../ui/menus/app-menu.types'
 import { MenuConfigService } from '../../ui/menus/menu-config.service'
 import { uiActions } from '../../ui/store/ui-web.reducer'
@@ -54,7 +56,7 @@ async function getFeatureFlags() {
   }
 }
 
-async function connectToSockets() {
+async function connectToSockets(isAdmin: boolean) {
   // Only connect sockets in browser environment (not during SSR)
   if (typeof window === 'undefined') {
     return
@@ -86,14 +88,45 @@ async function connectToSockets() {
     ) {
       FeatureFlagWebSockets.instance.socket.connect()
     }
+
+    // Connect to support sockets for admin notifications
+    if (isAdmin) {
+      const { SupportWebSockets } = await import('../../support/support-web.sockets')
+      if (!SupportWebSockets.instance) {
+        SupportWebSockets.connect()
+      } else if (
+        SupportWebSockets.instance.socket &&
+        !SupportWebSockets.instance.socket.connected
+      ) {
+        SupportWebSockets.instance.socket.connect()
+      }
+    }
   } catch (err) {
     logger.error(`Error connecting to sockets: ${(err as Error).message}`)
   }
 }
 
+async function getSupportUnviewedCount() {
+  try {
+    const fetchResult = (await store.dispatch(fetchSupportUnviewedCount.initiate())).data
+    if (fetchResult) {
+      store.dispatch(supportActions.setUnviewedCount(fetchResult.count))
+    }
+  } catch (err) {
+    logger.error(`Error fetching support unviewed count: ${(err as Error).message}`)
+  }
+}
+
 export function loginBootstrap(userProfile: UserProfileStateType, mobileBreak: boolean) {
+  const isAdmin = userProfile.a || userProfile.sa
+
   setUpMenus(userProfile, mobileBreak)
   void getNotifications(userProfile?.id)
   void getFeatureFlags()
-  void connectToSockets()
+  void connectToSockets(isAdmin)
+
+  // Fetch unviewed support request count for admins
+  if (isAdmin) {
+    void getSupportUnviewedCount()
+  }
 }

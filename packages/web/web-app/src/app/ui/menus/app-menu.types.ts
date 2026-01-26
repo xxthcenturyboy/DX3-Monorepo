@@ -1,7 +1,9 @@
 export type AppMenuItemType = {
+  badge?: boolean
+  badgeSelector?: string
   beta?: boolean
-  id: string
   icon?: string
+  id: string
   pathMatches?: string[]
   restriction?: string
   routeKey: string

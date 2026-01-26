@@ -19,7 +19,7 @@ export async function getUserProfileState(
     const profileImage = await MediaModel.findPrimaryProfile(id)
 
     const profile: UserProfileStateType = {
-      a: user.isAdmin,
+      a: user.isAdmin || user.isSuperAdmin,
       b: user.optInBeta,
       device: {
         hasBiometricSetup: connectedDevice?.hasBiometricSetup || false,

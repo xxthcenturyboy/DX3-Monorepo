@@ -279,8 +279,8 @@ export class AuthLoginService {
     }
 
     try {
-      await user.getEmails()
-      await user.getPhones()
+      // await user.getEmails()
+      // await user.getPhones()
       const userProfile = await getUserProfileState(user, true)
       if (!userProfile) {
         throw Error(`Failed to build user profile.`)

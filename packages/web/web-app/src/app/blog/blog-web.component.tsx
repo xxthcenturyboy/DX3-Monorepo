@@ -1,17 +1,28 @@
 import { Card, CardContent, Container, Fade, Grid, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 
+import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
+import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
+import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 
+dayjs.extend(localizedFormat)
+
 export const BlogComponent: React.FC = () => {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const [fadeIn, setFadeIn] = React.useState(false)
   const strings = useStrings(['BLOG', 'BLOG_PAGE_TITLE'])
 
   React.useEffect(() => {
+    setFadeIn(true)
     setDocumentTitle(strings.BLOG_PAGE_TITLE || strings.BLOG)
-  }, [strings])
+  }, [strings.BLOG, strings.BLOG_PAGE_TITLE])
 
   // Placeholder blog posts - will be replaced with API data in future
   const blogPosts = [
@@ -39,71 +50,67 @@ export const BlogComponent: React.FC = () => {
   ]
 
   return (
-    <Fade
-      in={true}
-      timeout={FADE_TIMEOUT_DUR}
+    <ContentWrapper
+      contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
+      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      spacerDiv={isAuthenticated}
     >
-      <Container
-        maxWidth="md"
-        sx={{
-          paddingBottom: '40px',
-          paddingTop: '40px',
-        }}
+      {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
+
+      <Fade
+        in={fadeIn}
+        timeout={FADE_TIMEOUT_DUR}
       >
-        <Typography
-          align="center"
-          color="primary"
-          gutterBottom
-          variant="h3"
+        <Container
+          maxWidth="md"
+          sx={{ paddingBottom: '40px', paddingTop: isAuthenticated ? undefined : '40px' }}
         >
-          {strings.BLOG}
-        </Typography>
-        <Typography
-          align="center"
-          color="textSecondary"
-          paragraph
-          variant="h6"
-        >
-          Latest Updates and Articles
-        </Typography>
-        <Grid
-          container
-          spacing={3}
-        >
-          {blogPosts.map((post) => (
-            <Grid
-              item
-              key={post.id}
-              xs={12}
-            >
-              <Card>
-                <CardContent>
-                  <Typography
-                    color="primary"
-                    gutterBottom
-                    variant="h5"
-                  >
-                    {post.title}
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    gutterBottom
-                    variant="caption"
-                  >
-                    {new Date(post.date).toLocaleDateString()}
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    variant="body1"
-                  >
-                    {post.content}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-    </Fade>
+          <Typography
+            align="center"
+            color="textSecondary"
+            paragraph
+            variant="h6"
+          >
+            Latest Updates and Articles
+          </Typography>
+          <Grid
+            container
+            spacing={3}
+          >
+            {blogPosts.map((post) => (
+              <Grid
+                key={post.id}
+                size={{ xs: 12 }}
+              >
+                <Card>
+                  <CardContent>
+                    <Typography
+                      color="primary"
+                      gutterBottom
+                      variant="h5"
+                    >
+                      {post.title}
+                    </Typography>
+                    <Typography
+                      color="textSecondary"
+                      gutterBottom
+                      variant="caption"
+                    >
+                      {dayjs(post.date).format('L')}
+                    </Typography>
+                    <Typography
+                      color="textSecondary"
+                      variant="body1"
+                    >
+                      {post.content}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Fade>
+    </ContentWrapper>
   )
 }

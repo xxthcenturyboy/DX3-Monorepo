@@ -62,3 +62,10 @@ export function stripHyphens(str: string): string {
 export function uppercase(val: string) {
   return val.toUpperCase()
 }
+
+export function truncateString (subject: string, length: number): string {
+  if (subject.length <= length) {
+    return subject
+  }
+  return `${subject.substring(0, length)}...`
+}

@@ -5,6 +5,7 @@ import { FEATURE_FLAG_ADMIN_ROUTES } from '../../feature-flags/admin/feature-fla
 import { DEFAULT_STRINGS } from '../../i18n'
 import { STATS_SUDO_ROUTES } from '../../stats/stats-web.consts'
 import { store } from '../../store/store-web.redux'
+import { SUPPORT_ADMIN_ROUTES } from '../../support/support-web.consts'
 import { USER_ADMIN_ROUTES } from '../../user/admin/user-admin-web.consts'
 import type { AppMenuType } from './app-menu.types'
 
@@ -49,6 +50,17 @@ export const adminMenu = (): AppMenuType => {
         restriction: USER_ROLE.SUPER_ADMIN,
         routeKey: FEATURE_FLAG_ADMIN_ROUTES.LIST,
         title: strings.FEATURE_FLAGS,
+        type: 'ROUTE',
+      },
+      {
+        badge: true,
+        badgeSelector: 'support',
+        icon: IconNames.SUPPORT_AGENT,
+        id: 'menu-item-admin-support-requests',
+        pathMatches: [SUPPORT_ADMIN_ROUTES.MAIN],
+        restriction: USER_ROLE.ADMIN,
+        routeKey: SUPPORT_ADMIN_ROUTES.LIST,
+        title: strings.SUPPORT_REQUESTS,
         type: 'ROUTE',
       },
       {

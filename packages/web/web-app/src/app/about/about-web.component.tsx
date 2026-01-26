@@ -4,14 +4,19 @@ import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
 
 import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
+import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
+import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
+import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import type { StringKeyName } from '../i18n'
 import { useStrings } from '../i18n'
+import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { ABOUT_CONTENT } from './about-web-content.consts'
 
 export const AboutComponent: React.FC = () => {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const aboutSections = ABOUT_CONTENT.sections
   const [fadeIn, setFadeIn] = React.useState(false)
 
@@ -26,67 +31,67 @@ export const AboutComponent: React.FC = () => {
 
   React.useEffect(() => {
     setDocumentTitle(strings.ABOUT_PAGE_TITLE || strings.ABOUT)
-  }, [strings])
+  }, [strings.ABOUT, strings.ABOUT_PAGE_TITLE])
 
   React.useEffect(() => {
     setFadeIn(true)
   }, [])
 
+  const headerTitle = `${strings.ABOUT} ${APP_NAME}`
+
   return (
-    <Fade in={fadeIn} timeout={FADE_TIMEOUT_DUR}>
-      <Container
-        maxWidth="md"
-        sx={{
-          paddingBottom: '40px',
-          paddingTop: '40px',
-        }}
+    <ContentWrapper
+      contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
+      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      spacerDiv={isAuthenticated}
+    >
+      {isAuthenticated && <ContentHeader headerTitle={headerTitle} />}
+
+      <Fade
+        in={fadeIn}
+        timeout={FADE_TIMEOUT_DUR}
       >
-        <Grid
-          container
-          spacing={4}
+        <Container
+          maxWidth="md"
+          sx={{ paddingBottom: '40px', paddingTop: isAuthenticated ? undefined : '40px' }}
         >
-          <Grid size={{ xs: 12 }}>
-            <Typography
-              align="center"
-              color="primary"
-              gutterBottom
-              variant="h3"
-            >
-              {strings.ABOUT} {APP_NAME}
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <Typography
-              paragraph
-              variant="h6"
-            >
-              {APP_DESCRIPTION}
-            </Typography>
-          </Grid>
-          {aboutSections.map((section) => (
-            <Grid
-              key={section.id}
-              size={{ xs: 12 }}
-            >
+          <Grid
+            container
+            spacing={4}
+          >
+            <Grid size={{ xs: 12 }}>
               <Typography
-                gutterBottom
-                variant="h5"
-              >
-                {strings[section.titleKey]}
-              </Typography>
-              <Typography
-                color="textSecondary"
-                component="div"
                 paragraph
+                variant="h6"
               >
-                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-                  {strings[section.contentKey] || ''}
-                </ReactMarkdown>
+                {APP_DESCRIPTION}
               </Typography>
             </Grid>
-          ))}
-        </Grid>
-      </Container>
-    </Fade>
+            {aboutSections.map((section) => (
+              <Grid
+                key={section.id}
+                size={{ xs: 12 }}
+              >
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                >
+                  {strings[section.titleKey]}
+                </Typography>
+                <Typography
+                  color="textSecondary"
+                  component="div"
+                  paragraph
+                >
+                  <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+                    {strings[section.contentKey] || ''}
+                  </ReactMarkdown>
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Fade>
+    </ContentWrapper>
   )
 }

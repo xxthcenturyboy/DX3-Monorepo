@@ -7,6 +7,7 @@ import { getIcon, type IconNames } from '@dx3/web-libs/ui/icons'
 import { MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
+import { selectSupportUnviewedCount } from '../../support/store/support-web.selector'
 import { uiActions } from '../store/ui-web.reducer'
 import { selectIsMobileWidth } from '../store/ui-web.selector'
 import type { AppMenuItemType } from './app-menu.types'
@@ -23,6 +24,7 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   const { isFirst, isMobileBreak, isSubItem, menuItem, onNavigate } = props
   const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
+  const supportUnviewedCount = useAppSelector((state) => selectSupportUnviewedCount(state))
   const location = useLocation()
   const { pathname } = location
   const [route, _] = useState(menuItem.routeKey)
@@ -31,6 +33,19 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
   const navigate = useNavigate()
   const match = useMatch(route)
   const theme = useTheme()
+
+  // Get badge count based on badge selector
+  const getBadgeCount = (): number => {
+    if (!menuItem.badge || !menuItem.badgeSelector) {
+      return 0
+    }
+    if (menuItem.badgeSelector === 'support') {
+      return supportUnviewedCount
+    }
+    return 0
+  }
+
+  const badgeCount = getBadgeCount()
 
   React.useEffect(() => {
     setMenuBreak(windowWidth < MEDIA_BREAK.MENU)
@@ -45,9 +60,6 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       return true
     }
 
-    // might be better - 01012026
-    // return pathname.startsWith(route);
-
     if ((isSubItem || !match) && Array.isArray(menuItem.pathMatches)) {
       for (const path of menuItem.pathMatches) {
         if (pathname.includes(path)) {
@@ -56,8 +68,9 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       }
     }
 
+    // Use startsWith for non-sub-items to prevent /support matching /admin/support
     if (!isSubItem) {
-      return pathname.includes(route)
+      return pathname.startsWith(route)
     }
 
     return false
@@ -128,6 +141,13 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
         <Badge
           badgeContent="BETA"
           color="info"
+        />
+      )}
+      {menuItem.badge && badgeCount > 0 && (
+        <Badge
+          badgeContent={badgeCount}
+          color="error"
+          max={99}
         />
       )}
     </ListItemButton>

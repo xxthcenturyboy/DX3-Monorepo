@@ -4,6 +4,7 @@ import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { NotificationSocketApiService } from '@dx3/api-libs/notifications/notification-api.socket'
 import { SocketApiConnection } from '@dx3/api-libs/socket-io-api'
+import { SupportSocketApiService } from '@dx3/api-libs/support'
 
 import { webUrl } from '../../config/config-api.service'
 
@@ -25,8 +26,15 @@ export class DxSocketClass {
         return false
       }
 
-      new NotificationSocketApiService()
       new FeatureFlagSocketApiService()
+      new NotificationSocketApiService()
+      new SupportSocketApiService()
+
+      if (FeatureFlagSocketApiService.instance) {
+        FeatureFlagSocketApiService.instance.configureNamespace()
+      } else {
+        logger.logError('Feature flag sockets not instantiated.')
+      }
 
       if (NotificationSocketApiService.instance) {
         NotificationSocketApiService.instance.configureNamespace()
@@ -34,10 +42,10 @@ export class DxSocketClass {
         logger.logError('Notification sockets not instantiated.')
       }
 
-      if (FeatureFlagSocketApiService.instance) {
-        FeatureFlagSocketApiService.instance.configureNamespace()
+      if (SupportSocketApiService.instance) {
+        SupportSocketApiService.instance.configureNamespace()
       } else {
-        logger.logError('Feature flag sockets not instantiated.')
+        logger.logError('Support sockets not instantiated.')
       }
 
       logger.logInfo('Sockets started successfully')

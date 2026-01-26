@@ -76,6 +76,7 @@ export type StringKeys = {
   ADMINS: string
   ALL_USERS: string
   API_HEALTH: string
+  APP_MENU: string
   APP_STATS: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_PHONE: string
@@ -93,7 +94,6 @@ export type StringKeys = {
   AUTH_TOKEN_INVALID: string
   AUTH_UNAUTHORIZED: string
   AVATAR: string
-  APP_MENU: string
   BACK: string
   BETA: string
   BETA_USERS: string
@@ -106,14 +106,16 @@ export type StringKeys = {
   CHECK_AVAILABLILITY: string
   CHECK_BACK_FOR_UPDATES: string
   CHOOSE_IMAGE: string
+  CLICK_TO_VIEW_USER: string
   CLOSE: string
   COMING_SOON: string
   CONFIRM: string
-  CREATE_FEATURE_FLAG: string
   CONFIRM_PASSWORD: string
+  CONTACT_US: string
   COULD_NOT_LOG_YOU_IN: string
   COULD_NOT_LOGOUT: string
   CREATE: string
+  CREATE_FEATURE_FLAG: string
   CREATE_PASSWORD: string
   DASHBOARD: string
   DASHBOARD_WELCOME: string
@@ -169,10 +171,10 @@ export type StringKeys = {
   LABEL: string
   LAST_NAME: string
   LOADING: string
-  LOG_OUT: string
-  LOGIN: string
   LOG_IN: string
   LOG_IN_TO_YOUR_ACCOUNT: string
+  LOG_OUT: string
+  LOGIN: string
   LOGOUT: string
   MEDIA_FILE_COUNT_EXCEEDED: string
   MEDIA_FILE_SIZE_EXCEEDED: string
@@ -247,6 +249,41 @@ export type StringKeys = {
   SUCCESS_SAVED: string
   SUPER: string
   SUPER_ADMINS: string
+  SUPPORT: string
+  SUPPORT_ASSIGN_REQUIRED: string
+  SUPPORT_BULK_CLOSE: string
+  SUPPORT_BULK_MARK_VIEWED: string
+  SUPPORT_CATEGORY: string
+  SUPPORT_CATEGORY_ISSUE: string
+  SUPPORT_CATEGORY_NEW_FEATURE: string
+  SUPPORT_CATEGORY_OTHER: string
+  SUPPORT_CATEGORY_QUESTION: string
+  SUPPORT_FILTER_ALL_CATEGORIES: string
+  SUPPORT_FILTER_ALL_REQUESTS: string
+  SUPPORT_FILTER_OPEN_ONLY: string
+  SUPPORT_MESSAGE: string
+  SUPPORT_NEW_REQUEST_TOAST: string
+  SUPPORT_NO_REQUESTS: string
+  SUPPORT_NO_USER_REQUESTS: string
+  SUPPORT_RATE_LIMIT_EXCEEDED: string
+  SUPPORT_REQUEST_REFERENCE: string
+  SUPPORT_REQUEST_SUBMITTED: string
+  SUPPORT_REQUEST_SUBMITTED_SUCCESS: string
+  SUPPORT_REQUEST_NOT_FOUND: string
+  SUPPORT_REQUEST_UPDATED: string
+  SUPPORT_REQUESTS: string
+  SUPPORT_RETURN_TO_DASHBOARD: string
+  SUPPORT_SEARCH_PLACEHOLDER: string
+  SUPPORT_SELECT_CATEGORY: string
+  SUPPORT_STATUS_CLOSED: string
+  SUPPORT_STATUS_IN_PROGRESS: string
+  SUPPORT_STATUS_NEW: string
+  SUPPORT_STATUS_OPEN: string
+  SUPPORT_STATUS_RESOLVED: string
+  SUPPORT_SUBJECT: string
+  SUPPORT_SUBMIT_ANOTHER: string
+  SUPPORT_TOO_MANY_OPEN_REQUESTS: string
+  USER_ACCOUNT_NOT_SECURED: string
   TARGET: string
   THIS_ACCOUNT_CANNOT_BE_EDITED: string
   TIMEOUT_TURBO: string
@@ -259,9 +296,10 @@ export type StringKeys = {
   TRY_WITH_ONE_TIME_CODE: string
   TRY_WITH_USERNAME_AND_PASSWORD: string
   TYPE: string
-  UPTIME: string
   UNAUTHORIZED: string
   UPDATE: string
+  UPDATE_STATUS: string
+  UPTIME: string
   USER_ADMIN: string
   USER_ALREADY_EXISTS: string
   USER_CREATE_FAILED: string
@@ -269,8 +307,8 @@ export type StringKeys = {
   USER_PROFANE_USERNAMES_NOT_ALLOWED: string
   USER_STATS: string
   USER_TITLE: string
-  USER_UPDATED: string
   USER_UPDATE_FAILED: string
+  USER_UPDATED: string
   USER_USERNAME_UNAVAILABLE: string
   USERNAME: string
   USERNAME_IS_AVAILABLE: string
@@ -283,8 +321,8 @@ export type StringKeys = {
   WELCOME_BACK: string
   WORK: string
   WRITE: string
-  YOU_CANNOT_EDIT_ROLES: string
   YOU_ARE_NOT_AUTHORIZED_TO_VIEW_THIS_FEATURE: string
+  YOU_CANNOT_EDIT_ROLES: string
   YOU_HAVE_MADE_TOO_MANY_REQUESTS: string
   YOU_NEED_TO_ADD_A_PRIMARY_EMAIL: string
 }

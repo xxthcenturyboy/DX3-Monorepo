@@ -35,6 +35,7 @@ export {
   sentenceToTitleCase,
   stringToTitleCase,
   stripHyphens,
+  truncateString,
   uppercase,
 } from './lib/strings.util'
 export type {

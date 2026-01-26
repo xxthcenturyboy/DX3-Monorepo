@@ -9,6 +9,8 @@ import {
   Grid,
   Paper,
   Skeleton,
+  Tab,
+  Tabs,
   Typography,
   useMediaQuery,
   useTheme,
@@ -32,6 +34,7 @@ import type { CustomResponseErrorType } from '../../data/rtk-query'
 import { useI18n, useStrings } from '../../i18n'
 import { NotificationSendDialog } from '../../notifications/notification-web-send.dialog'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
+import { UserSupportRequestsTabComponent } from '../../support/admin/user-support-requests-tab.component'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
@@ -62,6 +65,7 @@ export const UserAdminEdit: React.FC = () => {
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [restrictions, setRestrictions] = useState<UserRestriction[]>([])
   const [roles, setRoles] = useState<UserRoleUi[]>([])
+  const [activeTab, setActiveTab] = useState(0)
   const dispatch = useAppDispatch()
   const { id } = useParams<{ id: string }>()
   const { getErrorMessage } = useApiError()
@@ -80,6 +84,7 @@ export const UserAdminEdit: React.FC = () => {
     'RESTRICTIONS',
     'ROLES',
     'SEND_NOTIFICATION',
+    'SUPPORT_REQUESTS',
     'USER_TITLE',
     'USER_UPDATED',
     'USERNAME',
@@ -723,6 +728,21 @@ export const UserAdminEdit: React.FC = () => {
             {renderActionArea()}
           </Grid>
         </Paper>
+
+        {/** Tabs Section */}
+        {id && (
+          <Paper elevation={2} sx={{ marginTop: '24px' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs
+                onChange={(_e, newValue) => setActiveTab(newValue)}
+                value={activeTab}
+              >
+                <Tab label={strings.SUPPORT_REQUESTS} />
+              </Tabs>
+            </Box>
+            {activeTab === 0 && <UserSupportRequestsTabComponent userId={id} />}
+          </Paper>
+        )}
       </Box>
       {alertRoleModal}
     </ContentWrapper>

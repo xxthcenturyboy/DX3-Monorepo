@@ -10,6 +10,7 @@ import { MediaApiV1Routes } from '../media/media-api.routes'
 import { NotificationRoutes } from '../notifications/notification-api.routes'
 import { PhoneRoutes } from '../phone/phone-api.routes'
 import { ShortlinkRoutes } from '../shortlink/shortlink-api.routes'
+import { SupportRoutes } from '../support/support-api.routes'
 import { UserRoutes } from '../user/user-api.routes'
 import { UserPrivilegeRoutes } from '../user-privilege/user-privilege-api.routes'
 
@@ -25,6 +26,7 @@ export class RoutesV1 {
     router.use('/phone', PhoneRoutes.configure())
     router.use('/privilege-set', UserPrivilegeRoutes.configure())
     router.use('/shortlink', ShortlinkRoutes.configure())
+    router.use('/support', SupportRoutes.configure())
     router.use('/user', UserRoutes.configure())
     router.all('/*', endpointNotFound)
 

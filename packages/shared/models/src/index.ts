@@ -162,6 +162,33 @@ export type {
   ServerToClientEvents,
   SocketData,
 } from './socket-io/socket-shared.types'
+// SUPPORT Types
+export {
+  SUPPORT_CATEGORY,
+  SUPPORT_CATEGORY_ARRAY,
+  SUPPORT_OPEN_STATUSES,
+  SUPPORT_STATUS,
+  SUPPORT_STATUS_ARRAY,
+  SUPPORT_STATUS_COLORS,
+  SUPPORT_VALIDATION,
+  SUPPORT_WEB_SOCKET_NS,
+} from './support/support-shared.consts'
+export type {
+  CreateSupportRequestPayloadType,
+  GetSupportRequestsListQueryType,
+  GetSupportRequestsListResponseType,
+  SupportCategoryType,
+  SupportMessageType,
+  SupportRequestType,
+  SupportRequestWithUserType,
+  SupportSocketClientToServerEvents,
+  SupportSocketData,
+  SupportSocketInterServerEvents,
+  SupportSocketServerToClientEvents,
+  SupportStatusType,
+  SupportUnviewedCountResponseType,
+  UpdateSupportRequestStatusPayloadType,
+} from './support/support-shared.types'
 // STATS Types
 export type { StatsStateType } from './stats/stats-model-web.types'
 // USER Types

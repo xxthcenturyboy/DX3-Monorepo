@@ -8,11 +8,16 @@ import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.comp
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { WebConfigService } from '../config/config-web.service'
 import { store, useAppSelector } from '../store/store-web.redux'
+import { SUPPORT_ROUTES } from '../support/support-web.consts'
 import { AdminWebRouterConfig } from './admin.router'
 import { SudoWebRouterConfig } from './sudo.router'
 
 const LazyDashboardComponent = lazy(async () => ({
   default: (await import('../dashboard/dashboard-web.component')).Dashboard,
+}))
+
+const LazySupportComponent = lazy(async () => ({
+  default: (await import('../support/support-web.component')).SupportComponent,
 }))
 
 const LazyUserProfileComponent = lazy(async () => ({
@@ -44,6 +49,11 @@ export class PrivateWebRouterConfig {
             element: <LazyDashboardComponent />,
             errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
             path: ROUTES.DASHBOARD.MAIN,
+          },
+          {
+            element: <LazySupportComponent />,
+            errorElement: <GlobalErrorComponent buttonText={strings?.BACK} />,
+            path: SUPPORT_ROUTES.MAIN,
           },
           {
             element: <LazyUserProfileComponent />,

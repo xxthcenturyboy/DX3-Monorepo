@@ -30,6 +30,12 @@ import { mediaPersistConfig, mediaReducer } from '../media/media-web.reducer'
 import type { MediaStateType } from '../media/media-web.types'
 import { notificationReducer } from '../notifications/notification-web.reducer'
 import { statsPersistConfig, statsReducer } from '../stats/stats-web.reducer'
+import {
+  supportAdminPersistConfig,
+  supportAdminReducer,
+  type SupportAdminStateType,
+} from '../support/store/support-admin-web.reducer'
+import { supportReducer } from '../support/store/support-web.reducer'
 import { uiPersistConfig, uiReducer } from '../ui/store/ui-web.reducer'
 import type { UiStateType } from '../ui/ui-web.types'
 import { userAdminPersistConfig, userAdminReducer } from '../user/admin/user-admin-web.reducer'
@@ -68,6 +74,11 @@ const combinedPersistReducers = combineReducers({
     statsPersistConfig,
     statsReducer,
   ) as typeof statsReducer,
+  support: supportReducer,
+  supportAdmin: persistReducer<SupportAdminStateType, any>(
+    supportAdminPersistConfig,
+    supportAdminReducer,
+  ) as typeof supportAdminReducer,
   ui: persistReducer<UiStateType, any>(uiPersistConfig, uiReducer) as typeof uiReducer,
   userAdmin: persistReducer<UserAdminStateType, any>(
     userAdminPersistConfig,

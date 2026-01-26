@@ -6,17 +6,26 @@ import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.comp
 
 import { WebConfigService } from '../config/config-web.service'
 import { store } from '../store/store-web.redux'
+import { SUPPORT_ADMIN_ROUTES } from '../support/support-web.consts'
+
+const LazySupportAdminDetailComponent = lazy(async () => ({
+  default: (await import('../support/admin/support-admin-detail.component')).SupportAdminDetailComponent,
+}))
+
+const LazySupportAdminListComponent = lazy(async () => ({
+  default: (await import('../support/admin/support-admin-list.component')).SupportAdminListComponent,
+}))
 
 const LazyUserAdminComponent = lazy(async () => ({
   default: (await import('../user/admin/user-admin-web.component')).UserAdminMain,
 }))
 
-const LazyUserAdminListComponent = lazy(async () => ({
-  default: (await import('../user/admin/user-admin-web-list.component')).UserAdminList,
-}))
-
 const LazyUserAdminEditComponent = lazy(async () => ({
   default: (await import('../user/admin/user-admin-web-edit.component')).UserAdminEdit,
+}))
+
+const LazyUserAdminListComponent = lazy(async () => ({
+  default: (await import('../user/admin/user-admin-web-list.component')).UserAdminList,
 }))
 
 export const AdminRouter = () => {
@@ -47,16 +56,24 @@ export class AdminWebRouterConfig {
       {
         children: [
           {
+            element: <LazySupportAdminListComponent />,
+            path: SUPPORT_ADMIN_ROUTES.LIST,
+          },
+          {
+            element: <LazySupportAdminDetailComponent />,
+            path: `${SUPPORT_ADMIN_ROUTES.DETAIL}/:id`,
+          },
+          {
             element: <LazyUserAdminComponent />,
             path: ROUTES.ADMIN.USER.MAIN,
           },
           {
-            element: <LazyUserAdminListComponent />,
-            path: ROUTES.ADMIN.USER.LIST,
-          },
-          {
             element: <LazyUserAdminEditComponent />,
             path: `${ROUTES.ADMIN.USER.DETAIL}/:id`,
+          },
+          {
+            element: <LazyUserAdminListComponent />,
+            path: ROUTES.ADMIN.USER.LIST,
           },
         ],
         element: <AdminRouter />,

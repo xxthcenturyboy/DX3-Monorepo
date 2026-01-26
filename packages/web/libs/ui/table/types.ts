@@ -3,7 +3,7 @@ import type { PrimitiveTypes, SortDirType } from '@dx3/utils-shared'
 import type { IconNames } from '../icons'
 
 export type CellAlignment = 'left' | 'center' | 'right' | 'justify' | 'inherit'
-export type ComponentType = 'text' | 'icon' | 'checkbox' | 'none'
+export type ComponentType = 'text' | 'icon' | 'component' | 'none'
 
 export type TableComponentProps = {
   borderRadius?: string

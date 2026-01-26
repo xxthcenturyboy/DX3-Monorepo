@@ -1,14 +1,23 @@
 import { USER_ROLE } from '@dx3/models-shared'
 
 import { dashboardMenu } from '../../dashboard/dashboard.menu'
+import { supportMenu } from '../../support/support-web.menu'
 import { userProfileMenu } from '../../user/profile/user-profile.menu'
 import { adminMenu } from './admin.menu'
 import type { AppMenuItemType, AppMenuType } from './app-menu.types'
-import { publicMenu } from './public.menu'
+import { publicMenuAuthenticated } from './public.menu'
 
 export class MenuConfigService {
-  // Order to appear in sidebar menu
-  CARDINAL_MENU_SET: AppMenuType[] = [dashboardMenu(), publicMenu(), userProfileMenu(), adminMenu()]
+  // Order to appear in sidebar menu (for authenticated users)
+  // FAQ is moved to Support page, so we use publicMenuAuthenticated which excludes FAQ
+  // Support appears as the last item before admin menu
+  CARDINAL_MENU_SET: AppMenuType[] = [
+    dashboardMenu(),
+    publicMenuAuthenticated(),
+    userProfileMenu(),
+    supportMenu(),
+    adminMenu(),
+  ]
 
   private restrictSuperAdmin(menu: AppMenuType, includeBeta: boolean) {
     const items: AppMenuItemType[] = []

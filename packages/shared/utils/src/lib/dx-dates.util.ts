@@ -48,6 +48,23 @@ export class DxDateUtilClass {
   public static getMilisecondsDays(days: number) {
     return days * 24 * 60 * 60 * 1000
   }
+
+  public static formatRelativeTime (date: Date | string) {
+    const then = dayjs(date)
+    const diffMins = dayjs().diff(then, 'minute')
+    const diffHours = dayjs().diff(then, 'hour')
+    const diffDays = dayjs().diff(then, 'day')
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    return then.format('L')
+  }
+
+  public static formatAbsoluteTime (date: Date | string) {
+    return dayjs(date).format('L LT')
+  }
 }
 
 export type DxDateUtilClassType = typeof DxDateUtilClass.prototype

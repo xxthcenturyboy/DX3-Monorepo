@@ -39,3 +39,21 @@ export function ensureLoggedInSocket(handshake: Handshake) {
     return false
   }
 }
+
+export async function getUserRolesFromHandshake(handshake: Handshake): Promise<string[]> {
+  try {
+    const userId = getUserIdFromHandshake(handshake)
+    if (!userId) {
+      return []
+    }
+
+    // Import here to avoid circular dependency
+    const { UserModel } = await import('../../user/user-api.postgres-model')
+    const user = await UserModel.findByPk(userId, { attributes: ['roles'] })
+    return user?.roles || []
+  } catch (err) {
+    const msg = err.message || err
+    ApiLoggingClass.instance.logError(`Failed to get roles from handshake: ${msg}`)
+    return []
+  }
+}

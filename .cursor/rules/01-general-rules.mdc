@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+- Use dayjs for dates over Javascript's Date constructor

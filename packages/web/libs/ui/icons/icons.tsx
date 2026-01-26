@@ -10,11 +10,14 @@ import HealthAndSafety from '@mui/icons-material/HealthAndSafety'
 import HelpOutline from '@mui/icons-material/HelpOutline'
 import Home from '@mui/icons-material/Home'
 import InfoOutline from '@mui/icons-material/InfoOutline'
+import MailOutline from '@mui/icons-material/MailOutline'
 import ManageAccounts from '@mui/icons-material/ManageAccounts'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import People from '@mui/icons-material/People'
 import PeopleOutline from '@mui/icons-material/PeopleOutline'
 import QueryStats from '@mui/icons-material/QueryStats'
+import Support from '@mui/icons-material/Support'
+import SupportAgent from '@mui/icons-material/SupportAgent'
 import type React from 'react'
 
 import { IconNames } from './enums'
@@ -56,6 +59,9 @@ export const getIcon = (name: IconNames, color?: string): React.ReactElement | n
   if (name === IconNames.INFO_OUTLINE) {
     return <InfoOutline style={{ color }} />
   }
+  if (name === IconNames.MAIL_OUTLINE) {
+    return <MailOutline style={{ color }} />
+  }
   if (name === IconNames.MANAGE_ACCOUNTS) {
     return <ManageAccounts style={{ color }} />
   }
@@ -70,6 +76,12 @@ export const getIcon = (name: IconNames, color?: string): React.ReactElement | n
   }
   if (name === IconNames.STATS) {
     return <QueryStats style={{ color }} />
+  }
+  if (name === IconNames.SUPPORT) {
+    return <Support style={{ color }} />
+  }
+  if (name === IconNames.SUPPORT_AGENT) {
+    return <SupportAgent style={{ color }} />
   }
 
   return null

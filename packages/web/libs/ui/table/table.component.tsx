@@ -148,7 +148,7 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
           : cell.originalStringValue
       case 'icon':
         return renderIcon(cell.icon as IconNames, cell.color)
-      case 'checkbox':
+      case 'component':
         return cell.data as React.ReactElement
     }
   }
