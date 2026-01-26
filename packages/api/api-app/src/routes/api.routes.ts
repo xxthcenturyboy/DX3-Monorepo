@@ -25,13 +25,6 @@ export class ApiRoutes {
   }
 
   public loadRoutes() {
-    this.baseRouter.use('/healthz', HealthzRoutes.configure())
-    this.baseRouter.use('/livez', DxRateLimiters.strict(), LivezRoutes.configure())
-    this.baseRouter.use('/media', MediaApiBaseRoutes.configure())
-    this.baseRouter.use('/.well-known', DxRateLimiters.veryStrict(), WellKnownRoutes.configure())
-    this.baseRouter.all('/*', endpointNotFound)
-    this.v1Router.use('/', RoutesV1.configure())
-
     const geoIpMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
       const geo = await GeoIpService.lookup(req.ip)
       if (geo) {
@@ -66,6 +59,18 @@ export class ApiRoutes {
       }
     }
 
+    this.baseRouter.use('/healthz', HealthzRoutes.configure())
+    this.baseRouter.use('/livez', DxRateLimiters.strict(), LivezRoutes.configure())
+    this.baseRouter.use(
+      '/media',
+      geoIpMiddleware,
+      fingerprintMiddleware,
+      MediaApiBaseRoutes.configure(),
+    )
+    this.baseRouter.use('/.well-known', DxRateLimiters.veryStrict(), WellKnownRoutes.configure())
+    this.baseRouter.all('/*', geoIpMiddleware, fingerprintMiddleware, endpointNotFound)
+    this.v1Router.use('/', geoIpMiddleware, fingerprintMiddleware, RoutesV1.configure())
+
     if (this.app) {
       this.app.use('/api', [
         DxRateLimiters.standard(),
@@ -73,7 +78,11 @@ export class ApiRoutes {
         fingerprintMiddleware,
         versionMiddleware,
       ])
-      this.app.use('/*', [DxRateLimiters.strict(), fingerprintMiddleware], endpointNotFound)
+      this.app.use(
+        '/*',
+        [DxRateLimiters.strict(), geoIpMiddleware, fingerprintMiddleware],
+        endpointNotFound,
+      )
     }
   }
 }

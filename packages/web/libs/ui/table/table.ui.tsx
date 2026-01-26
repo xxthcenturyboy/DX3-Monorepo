@@ -1,5 +1,5 @@
 import { TableCell, TableRow, TableSortLabel, tableCellClasses } from '@mui/material'
-import { styled } from '@mui/material/styles'
+import { alpha, styled } from '@mui/material/styles'
 
 export const StyledTableCell = styled(TableCell)<{
   thememode: string
@@ -42,8 +42,8 @@ export const StyledTableRow = styled(TableRow)<{
     backgroundColor:
       loading !== 'true'
         ? theme.palette.mode === 'dark'
-          ? `${theme.palette.primary.light} !important`
-          : `${theme.palette.secondary.dark} !important`
+          ? `${alpha(theme.palette.primary.light, 0.15)} !important`
+          : `${alpha(theme.palette.secondary.main, 0.1)} !important`
         : 'initial',
   },
   // hide last border

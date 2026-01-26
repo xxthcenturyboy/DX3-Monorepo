@@ -26,6 +26,7 @@ import {
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableHeaderItem, TableRowType } from '@dx3/web-libs/ui/table/types'
+import { DRAWER_WIDTH, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
 import { useStrings } from '../../i18n'
@@ -35,12 +36,15 @@ import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { supportAdminActions } from '../store/support-admin-web.reducer'
 import {
   selectAllRowsSelected,
+  selectHasUnviewedSelected,
   selectSupportRequestWithUserRowData,
 } from '../store/support-admin-web.selector'
+import { supportActions } from '../store/support-web.reducer'
 import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS } from '../support.consts'
 import {
   useBulkUpdateSupportStatusMutation,
   useLazyGetSupportRequestListQuery,
+  useLazyGetSupportUnviewedCountQuery,
   useMarkAllSupportAsViewedMutation,
 } from '../support-web.api'
 import { SUPPORT_ADMIN_ROUTES } from '../support-web.consts'
@@ -52,6 +56,10 @@ export const SupportAdminListComponent: React.FC = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
+  const windowWidth = useAppSelector((state) => state.ui?.windowWidth || 0)
+  const menuOpen = useAppSelector((state) => state.ui?.menuOpen || false)
+  const isMobileBar = windowWidth < MEDIA_BREAK.MOBILE
+  const isDesktopWithMenu = windowWidth >= MEDIA_BREAK.MENU && menuOpen
   const [isFetching, setIsFetching] = React.useState(true)
   const [isInitialized, setIsInitialized] = React.useState(true)
   // Get state from Redux with fallback defaults for first load
@@ -64,6 +72,7 @@ export const SupportAdminListComponent: React.FC = () => {
   const statusFilter = useAppSelector((state) => state.supportAdmin?.statusFilter)
   const selectedIds = useAppSelector((state) => state.supportAdmin?.selectedIds || [])
   const allSelected = useAppSelector((state) => selectAllRowsSelected(state))
+  const hasUnviewedSelected = useAppSelector((state) => selectHasUnviewedSelected(state))
   const supportListHeaders = SupportAdminWebListService.getListHeaders()
   const supportRequestRowData = useAppSelector((state) =>
     selectSupportRequestWithUserRowData(state),
@@ -139,6 +148,7 @@ export const SupportAdminListComponent: React.FC = () => {
 
   const [markAllViewed] = useMarkAllSupportAsViewedMutation()
   const [bulkUpdateStatus] = useBulkUpdateSupportStatusMutation()
+  const [fetchUnviewedCount] = useLazyGetSupportUnviewedCountQuery()
 
   const fetchSupportRequests = async (overrides?: {
     category?: SupportCategoryType | ''
@@ -221,6 +231,11 @@ export const SupportAdminListComponent: React.FC = () => {
     await markAllViewed()
     dispatch(supportAdminActions.setSelectedIds([]))
     void fetchSupportRequests()
+    // Refetch the unviewed count and update the badge
+    const result = await fetchUnviewedCount()
+    if (result.data?.count !== undefined) {
+      dispatch(supportActions.setUnviewedCount(result.data.count))
+    }
   }
 
   const handleBulkClose = async () => {
@@ -364,22 +379,30 @@ export const SupportAdminListComponent: React.FC = () => {
               color: 'white',
               display: 'flex',
               gap: 2,
-              left: '50%',
+              justifyContent: isMobileBar ? 'center' : undefined,
+              left: isMobileBar
+                ? '16px'
+                : isDesktopWithMenu
+                  ? `calc(50% + ${DRAWER_WIDTH / 2}px)`
+                  : '50%',
               padding: '12px 24px',
               position: 'fixed',
-              transform: 'translateX(-50%)',
+              right: isMobileBar ? '16px' : undefined,
+              transform: isMobileBar ? 'none' : 'translateX(-50%)',
               zIndex: 1000,
             }}
           >
             <Typography variant="body2">{selectedIds.length} selected</Typography>
-            <Button
-              color="inherit"
-              onClick={handleBulkMarkViewed}
-              size="small"
-              variant="outlined"
-            >
-              {strings.SUPPORT_BULK_MARK_VIEWED}
-            </Button>
+            {hasUnviewedSelected && (
+              <Button
+                color="inherit"
+                onClick={handleBulkMarkViewed}
+                size="small"
+                variant="outlined"
+              >
+                {strings.SUPPORT_BULK_MARK_VIEWED}
+              </Button>
+            )}
             <Button
               color="inherit"
               onClick={handleBulkClose}

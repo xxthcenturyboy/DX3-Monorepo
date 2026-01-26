@@ -1,7 +1,9 @@
 import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
+dayjs.extend(localizedFormat)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -49,7 +51,7 @@ export class DxDateUtilClass {
     return days * 24 * 60 * 60 * 1000
   }
 
-  public static formatRelativeTime (date: Date | string) {
+  public static formatRelativeTime(date: Date | string) {
     const then = dayjs(date)
     const diffMins = dayjs().diff(then, 'minute')
     const diffHours = dayjs().diff(then, 'hour')
@@ -62,7 +64,7 @@ export class DxDateUtilClass {
     return then.format('L')
   }
 
-  public static formatAbsoluteTime (date: Date | string) {
+  public static formatAbsoluteTime(date: Date | string) {
     return dayjs(date).format('L LT')
   }
 }

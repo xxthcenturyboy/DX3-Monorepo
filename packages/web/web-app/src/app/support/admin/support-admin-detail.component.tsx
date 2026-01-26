@@ -35,6 +35,7 @@ import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { supportAdminActions } from '../store/support-admin-web.reducer'
+import { supportActions } from '../store/support-web.reducer'
 import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS } from '../support.consts'
 import type { StatusChipColor } from '../support.types'
 import {
@@ -90,7 +91,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
     setDocumentTitle(strings.SUPPORT_REQUESTS)
   }, [strings.SUPPORT_REQUESTS])
 
-  // Mark as viewed when loading and update list store
+  // Mark as viewed when loading and update stores
   React.useEffect(() => {
     if (request && !request.viewedByAdmin && id) {
       markAsViewed(id)
@@ -98,6 +99,8 @@ export const SupportAdminDetailComponent: React.FC = () => {
         .then(() => {
           // Update the list store so when we navigate back, the record shows as viewed
           dispatch(supportAdminActions.updateRequestViewed(id))
+          // Update the badge count
+          dispatch(supportActions.markRequestViewed(id))
         })
         .catch(() => {
           // Silent fail - not critical
@@ -222,7 +225,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
   return (
     <ContentWrapper
       contentHeight="calc(100vh - 80px)"
-      contentTopOffset={SM_BREAK ? '124px' : '74px'}
+      contentTopOffset={SM_BREAK ? '58px' : '74px'}
     >
       <ContentHeader
         headerTitle={headerTitle}
@@ -292,6 +295,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
                 sx={{
                   backgroundColor: theme.palette.action.hover,
                   padding: '16px',
+                  width: SM_BREAK ? '100%' : 'auto',
                 }}
               >
                 <Box

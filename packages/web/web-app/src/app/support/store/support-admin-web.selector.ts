@@ -20,10 +20,10 @@ const getUserTabSupportRequests = (
   state.supportAdmin.userTab?.supportRequests || []
 
 export const selectSupportRequestWithUserRowData = createSelector(
-  [getSupportRequestsWithUser],
-  (supportRequests) => {
+  [getSupportRequestsWithUser, getSelectedIds],
+  (supportRequests, selectedIds) => {
     const service = new SupportAdminWebListService()
-    return service.getRows(supportRequests)
+    return service.getRows(supportRequests, selectedIds)
   },
 )
 
@@ -34,6 +34,18 @@ export const selectAllRowsSelected = createSelector(
       return false
     }
     return count === ids?.length
+  },
+)
+
+export const selectHasUnviewedSelected = createSelector(
+  [getSupportRequestsWithUser, getSelectedIds],
+  (supportRequests, selectedIds) => {
+    if (!selectedIds || selectedIds.length === 0) {
+      return false
+    }
+    return supportRequests.some(
+      (request) => selectedIds.includes(request.id) && !request.viewedByAdmin,
+    )
   },
 )
 

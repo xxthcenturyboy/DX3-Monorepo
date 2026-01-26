@@ -98,7 +98,7 @@ export class SupportAdminWebListService {
     return data
   }
 
-  private getRowData(data: SupportRequestWithUserType): TableRowType {
+  private getRowData(data: SupportRequestWithUserType, selectedIds: string[]): TableRowType {
     const row: TableRowType = {
       columns: [],
       id: data.id,
@@ -110,21 +110,21 @@ export class SupportAdminWebListService {
       let color: string | undefined
 
       if (meta.fieldName === 'checkbox') {
-        const isSelected = store.getState().supportAdmin.selectedIds.includes(data.id)
+        const isSelected = selectedIds.includes(data.id)
         cellData = (
           <Checkbox
             checked={isSelected}
             onChange={(e) => {
-              const selectedIds = store.getState().supportAdmin.selectedIds.slice()
+              const currentSelectedIds = store.getState().supportAdmin.selectedIds.slice()
               if (e.target.checked) {
-                selectedIds.push(data.id)
+                currentSelectedIds.push(data.id)
               } else {
-                const index = selectedIds.indexOf(data.id)
+                const index = currentSelectedIds.indexOf(data.id)
                 if (index > -1) {
-                  selectedIds.splice(index, 1)
+                  currentSelectedIds.splice(index, 1)
                 }
               }
-              store.dispatch(supportAdminActions.setSelectedIds(selectedIds))
+              store.dispatch(supportAdminActions.setSelectedIds(currentSelectedIds))
             }}
             onClick={(e) => e.stopPropagation()}
             size="small"
@@ -195,10 +195,10 @@ export class SupportAdminWebListService {
     return row
   }
 
-  public getRows(supportData: SupportRequestWithUserType[]): TableRowType[] {
+  public getRows(supportData: SupportRequestWithUserType[], selectedIds: string[] = []): TableRowType[] {
     const rows: TableRowType[] = []
     for (const sd of supportData) {
-      const data = this.getRowData(sd)
+      const data = this.getRowData(sd, selectedIds)
       rows.push(data)
     }
 
