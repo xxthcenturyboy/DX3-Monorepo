@@ -1,11 +1,13 @@
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
-import { Box, ListItemButton, ListItemIcon, ListItemText, useTheme } from '@mui/material'
+import { Badge, Box, ListItemButton, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
 import { getIcon, type IconNames } from '@dx3/web-libs/ui/icons'
 
+import { useAppSelector } from '../../store/store-web-redux.hooks'
+import { selectSupportUnviewedCount } from '../../support/store/support-web.selector'
 import type { AppMenuType } from './app-menu.types'
 
 type AppMenuGroupProps = {
@@ -21,6 +23,20 @@ export const AppMenuGroup: React.FC<AppMenuGroupProps> = (props) => {
   const theme = useTheme()
   const location = useLocation()
   const { pathname } = location
+  const supportUnviewedCount = useAppSelector((state) => selectSupportUnviewedCount(state))
+
+  // Get badge count based on badge selector - only show when collapsed
+  const getBadgeCount = (): number => {
+    if (!menu.badge || !menu.badgeSelector || open) {
+      return 0
+    }
+    if (menu.badgeSelector === 'support') {
+      return supportUnviewedCount
+    }
+    return 0
+  }
+
+  const badgeCount = getBadgeCount()
 
   const isSubItemActive = () => {
     const subItemRouteKeys = Array.from(menu.items, (item) => item.routeKey)
@@ -97,10 +113,17 @@ export const AppMenuGroup: React.FC<AppMenuGroupProps> = (props) => {
           }}
           sx={{ my: 0 }}
         />
+        {badgeCount > 0 && (
+          <Badge
+            badgeContent={badgeCount}
+            color="error"
+            max={99}
+            sx={{ marginRight: 2 }}
+          />
+        )}
         <KeyboardArrowDown
           sx={{
             mr: -1,
-            // opacity: 0,
             transform: open ? 'rotate(-180deg)' : 'rotate(0)',
             transition: '0.2s',
           }}

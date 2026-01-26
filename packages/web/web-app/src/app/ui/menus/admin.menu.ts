@@ -13,6 +13,8 @@ export const adminMenu = (): AppMenuType => {
   const strings = store.getState()?.i18n?.translations || DEFAULT_STRINGS
 
   return {
+    badge: true,
+    badgeSelector: 'support',
     collapsible: true,
     description: '',
     icon: IconNames.ADMIN_PANEL_SETTINGS,

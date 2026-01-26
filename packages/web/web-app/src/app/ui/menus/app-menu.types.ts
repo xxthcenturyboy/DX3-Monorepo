@@ -13,10 +13,12 @@ export type AppMenuItemType = {
 }
 
 export type AppMenuType = {
-  id: string
+  badge?: boolean
+  badgeSelector?: string
   collapsible: boolean
   description: string
   icon?: string
+  id: string
   items: AppMenuItemType[]
   stringsKeyDescription?: string
   stringsKeyTitle?: string
