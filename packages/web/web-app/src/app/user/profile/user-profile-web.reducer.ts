@@ -5,6 +5,7 @@ import type { PersistConfig } from 'reduxjs-toolkit-persist/lib/types'
 
 import {
   APP_PREFIX,
+  DEFAULT_TIMEZONE,
   type EmailType,
   type PhoneType,
   type UserProfileStateType,
@@ -32,6 +33,7 @@ export const userProfileInitialState: UserProfileStateType = {
   restrictions: [],
   role: [],
   sa: false,
+  timezone: DEFAULT_TIMEZONE,
   username: '',
 }
 

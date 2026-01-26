@@ -643,7 +643,7 @@ export class UserService {
     id: string,
     payload: UpdateUserPayloadType,
   ): Promise<UpdateUserResponseType> {
-    const { firstName, lastName } = payload
+    const { firstName, lastName, timezone } = payload
 
     if (!id) {
       throw new Error(
@@ -680,6 +680,9 @@ export class UserService {
       } else {
         user.setDataValue('lastName', lastName)
       }
+    }
+    if (timezone !== undefined && typeof timezone === 'string') {
+      user.setDataValue('timezone', timezone)
     }
 
     try {

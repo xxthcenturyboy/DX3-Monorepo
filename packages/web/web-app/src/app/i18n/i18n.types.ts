@@ -287,6 +287,10 @@ export type StringKeys = {
   TARGET: string
   THIS_ACCOUNT_CANNOT_BE_EDITED: string
   TIMEOUT_TURBO: string
+  TIMEZONE: string
+  TIMEZONE_DESCRIPTION: string
+  TIMEZONE_SELECT: string
+  TIMEZONE_SYSTEM: string
   TITLE: string
   TOGGLE_DARK_MODE: string
   TOOLTIP_DELETE_EMAIL: string

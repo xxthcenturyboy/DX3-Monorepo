@@ -55,8 +55,8 @@ export class AuthSignupService {
     }
   }
 
-  private async emailCodeSignup(data: { code: string; email: string }) {
-    const { code, email } = data
+  private async emailCodeSignup(data: { code: string; email: string; timezone?: string }) {
+    const { code, email, timezone } = data
     let user: UserModelType | null = null
 
     const otpCache = new OtpCodeCache()
@@ -87,7 +87,7 @@ export class AuthSignupService {
     }
 
     try {
-      user = await UserModel.registerAndCreateFromEmail(email, true)
+      user = await UserModel.registerAndCreateFromEmail(email, true, timezone)
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)
@@ -97,15 +97,15 @@ export class AuthSignupService {
     return user
   }
 
-  private async emailMagicLinkSignup(data: { email: string }) {
-    const { email } = data
+  private async emailMagicLinkSignup(data: { email: string; timezone?: string }) {
+    const { email, timezone } = data
     let user: UserModelType | null = null
 
     const emailService = new EmailService()
     await emailService.isEmailAvailableAndValid(email)
 
     try {
-      user = await UserModel.registerAndCreateFromEmail(email, true)
+      user = await UserModel.registerAndCreateFromEmail(email, true, timezone)
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)
@@ -134,8 +134,9 @@ export class AuthSignupService {
     countryCode: string
     nationalNumber: string
     region: string
+    timezone?: string
   }) {
-    const { code, countryCode, nationalNumber, region } = data
+    const { code, countryCode, nationalNumber, region, timezone } = data
 
     let user: UserModelType | null = null
 
@@ -168,6 +169,7 @@ export class AuthSignupService {
         nationalNumber,
         countryCode,
         region || PHONE_DEFAULT_REGION_CODE,
+        timezone,
       )
     } catch (err) {
       const msg = (err as Error).message
@@ -178,7 +180,7 @@ export class AuthSignupService {
     return user
   }
 
-  public async signup(payload: AccountCreationPayloadType) {
+  public async signup(payload: AccountCreationPayloadType, timezone?: string) {
     const { code, device, region, value } = payload
 
     if (!value) {
@@ -208,15 +210,16 @@ export class AuthSignupService {
         countryCode: phoneUtil.countryCode,
         nationalNumber: phoneUtil.nationalNumber,
         region,
+        timezone,
       })
     }
 
     if (signupType === 'emailcode') {
-      user = await this.emailCodeSignup({ code, email: emailUtil.formattedEmail() })
+      user = await this.emailCodeSignup({ code, email: emailUtil.formattedEmail(), timezone })
     }
 
     if (signupType === 'emailmagiclink') {
-      user = await this.emailMagicLinkSignup({ email: emailUtil.formattedEmail() })
+      user = await this.emailMagicLinkSignup({ email: emailUtil.formattedEmail(), timezone })
     }
 
     if (!user) {

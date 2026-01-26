@@ -9,6 +9,7 @@ import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
 import { createApiErrorMessage } from '@dx3/api-libs/utils'
 import {
   type CreateSupportRequestPayloadType,
+  DEFAULT_TIMEZONE,
   ERROR_CODES,
   type GetSupportRequestsListQueryType,
   type UpdateSupportRequestStatusPayloadType,
@@ -57,8 +58,10 @@ export const SupportController = {
       }
 
       const payload = req.body as CreateSupportRequestPayloadType
+      // Get timezone from user's stored preference, GeoIP lookup, or default
+      const userTimezone = user.timezone || req.geo?.location?.time_zone || DEFAULT_TIMEZONE
       const service = new SupportService()
-      const result = await service.createRequest(userId, payload)
+      const result = await service.createRequest(userId, payload, userTimezone)
 
       // Send socket notification to admins
       if (SupportSocketApiService.instance) {

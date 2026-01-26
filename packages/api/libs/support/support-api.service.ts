@@ -1,5 +1,6 @@
 import {
   type CreateSupportRequestPayloadType,
+  DEFAULT_TIMEZONE,
   ERROR_CODES,
   type GetSupportRequestsListQueryType,
   type GetSupportRequestsListResponseType,
@@ -29,6 +30,7 @@ export class SupportService {
   public async createRequest(
     userId: string,
     payload: CreateSupportRequestPayloadType,
+    userTimezone?: string,
   ): Promise<SupportRequestType> {
     try {
       // Validate payload
@@ -50,6 +52,7 @@ export class SupportService {
         message: payload.message,
         subject: payload.subject,
         userId,
+        userTimezone: userTimezone || DEFAULT_TIMEZONE,
       })
 
       return this.mapModelToType(request)
@@ -269,6 +272,7 @@ export class SupportService {
       subject: model.subject,
       updatedAt: model.updatedAt,
       userId: model.userId,
+      userTimezone: model.userTimezone || DEFAULT_TIMEZONE,
       viewedAt: model.viewedAt,
       viewedByAdmin: model.viewedByAdmin,
     }
@@ -301,6 +305,7 @@ export class SupportService {
       userFullName: fullName,
       userId: model.userId,
       username: user?.username || null,
+      userTimezone: model.userTimezone || DEFAULT_TIMEZONE,
       viewedAt: model.viewedAt,
       viewedByAdmin: model.viewedByAdmin,
     }

@@ -35,7 +35,8 @@ export type UserProfileDeviceType = {
 }
 
 export type UserProfileStateType = {
-  id: string
+  a: boolean
+  b: boolean
   device: UserProfileDeviceType
   emails: EmailType[]
   firstName: string
@@ -43,14 +44,14 @@ export type UserProfileStateType = {
   hasSecuredAccount: boolean
   hasVerifiedEmail: boolean
   hasVerifiedPhone: boolean
-  a: boolean
-  sa: boolean
+  id: string
   lastName: string
-  b: boolean
   phones: PhoneType[]
   profileImage: string | null
   restrictions: string[]
   role: string[]
+  sa: boolean
+  timezone: string
   username: string
 }
 
@@ -99,11 +100,12 @@ export type GetUserQueryType = {
 export type GetUserResponseType = UserType
 
 export type UpdateUserPayloadType = {
-  id: string
   firstName?: string
+  id: string
   lastName?: string
-  roles?: string[]
   restrictions?: string[]
+  roles?: string[]
+  timezone?: string
 }
 
 export type UpdateUsernamePayloadType = {

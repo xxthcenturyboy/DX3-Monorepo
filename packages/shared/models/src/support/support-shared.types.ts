@@ -24,6 +24,7 @@ export type SupportRequestType = {
   subject: string
   updatedAt: Date
   userId: string
+  userTimezone: string
   viewedAt: Date | null
   viewedByAdmin: boolean
 }

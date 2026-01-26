@@ -18,6 +18,7 @@ import {
 import { dxGenerateRandomValue, dxHashString, dxVerifyHash } from '@dx3/encryption'
 import {
   ACCOUNT_RESTRICTIONS,
+  DEFAULT_TIMEZONE,
   type EmailType,
   type PhoneType,
   USER_ROLE,
@@ -164,6 +165,11 @@ export class UserModel extends Model<UserModel> {
 
   @Column({ field: 'refresh_tokens', type: DataType.ARRAY(DataType.STRING(512)) })
   refreshTokens: string[] | null
+
+  @Default(DEFAULT_TIMEZONE)
+  @AllowNull(false)
+  @Column({ field: 'timezone', type: DataType.STRING(64) })
+  timezone: string
 
   @Default(fn('now'))
   @AllowNull(false)
@@ -405,12 +411,14 @@ export class UserModel extends Model<UserModel> {
   static async registerAndCreateFromEmail(
     email: string,
     shouldValidate: boolean,
+    timezone?: string,
   ): Promise<UserModelType> {
     const token = dxGenerateRandomValue()
     const tokenExp = DxDateUtilClass.getTimestamp(2, 'days', 'ADD')
 
     const user = await UserModel.create({
       roles: [USER_ROLE.USER],
+      timezone: timezone || DEFAULT_TIMEZONE,
       token,
       tokenExp,
     })
@@ -424,9 +432,11 @@ export class UserModel extends Model<UserModel> {
     phone: string,
     countryCode: string,
     regionCode: string,
+    timezone?: string,
   ): Promise<UserModelType> {
     const user = await UserModel.create({
       roles: [USER_ROLE.USER],
+      timezone: timezone || DEFAULT_TIMEZONE,
     })
 
     await PhoneModel.createOrFindOneByUserId(user.id, phone, countryCode, regionCode, true)

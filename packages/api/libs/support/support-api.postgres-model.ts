@@ -16,6 +16,7 @@ import {
 import {
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
+  DEFAULT_TIMEZONE,
   type GetSupportRequestsListQueryType,
   // SUPPORT_CATEGORY,
   SUPPORT_CATEGORY_ARRAY,
@@ -111,6 +112,11 @@ export class SupportRequestModel extends Model<SupportRequestModel> {
   @Column({ field: 'resolved_at', type: DataType.DATE })
   resolvedAt: Date | null
 
+  @Default(DEFAULT_TIMEZONE)
+  @AllowNull(false)
+  @Column({ field: 'user_timezone', type: DataType.STRING(64) })
+  userTimezone: string
+
   @CreatedAt
   @Default(fn('now'))
   @AllowNull(false)
@@ -131,6 +137,7 @@ export class SupportRequestModel extends Model<SupportRequestModel> {
     message: string
     subject: string
     userId: string
+    userTimezone?: string
   }): Promise<SupportRequestModel> {
     return SupportRequestModel.create({
       category: params.category,
@@ -138,6 +145,7 @@ export class SupportRequestModel extends Model<SupportRequestModel> {
       status: SUPPORT_STATUS.OPEN,
       subject: params.subject,
       userId: params.userId,
+      userTimezone: params.userTimezone || DEFAULT_TIMEZONE,
       viewedByAdmin: false,
     })
   }
@@ -241,6 +249,7 @@ export class SupportRequestModel extends Model<SupportRequestModel> {
       userFullName: row.user?.fullName || null,
       userId: row.userId,
       username: row.user?.username || null,
+      userTimezone: row.userTimezone || DEFAULT_TIMEZONE,
       viewedAt: row.viewedAt,
       viewedByAdmin: row.viewedByAdmin,
     }))

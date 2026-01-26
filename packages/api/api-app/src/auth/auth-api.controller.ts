@@ -14,10 +14,11 @@ import {
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
-import type {
-  AccountCreationPayloadType,
-  LoginPayloadType,
-  UserLookupQueryType,
+import {
+  type AccountCreationPayloadType,
+  DEFAULT_TIMEZONE,
+  type LoginPayloadType,
+  type UserLookupQueryType,
   UserProfileStateType,
 } from '@dx3/models-shared'
 import { AUTH_TOKEN_NAMES } from '@dx3/models-shared'
@@ -50,9 +51,10 @@ export const AuthController = {
     logRequest({ req, type: 'createAccount' })
     try {
       const service = new AuthSignupService()
+      const timezone = req.geo?.location?.time_zone || DEFAULT_TIMEZONE
       const profile = (await service.signup(
         req.body as AccountCreationPayloadType,
-        // req.session
+        timezone,
       )) as UserProfileStateType
 
       const tokens = TokenService.generateTokens(profile.id)

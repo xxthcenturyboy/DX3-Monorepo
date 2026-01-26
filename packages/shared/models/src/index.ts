@@ -193,7 +193,7 @@ export type {
 export type { StatsStateType } from './stats/stats-model-web.types'
 // USER Types
 export { isUsernameValid } from './user/isUsernameValid'
-export { USERNAME_MIN_LENGTH } from './user/user-shared.consts'
+export { DEFAULT_TIMEZONE, USERNAME_MIN_LENGTH } from './user/user-shared.consts'
 export type {
   CreateUserPayloadType,
   CreateUserResponseType,

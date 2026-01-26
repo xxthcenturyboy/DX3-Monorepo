@@ -1,4 +1,4 @@
-import type { UserProfileStateType } from '@dx3/models-shared'
+import { DEFAULT_TIMEZONE, type UserProfileStateType } from '@dx3/models-shared'
 
 import { ApiLoggingClass } from '../logger'
 import { MediaModel } from '../media/media-api.postgres-model'
@@ -38,6 +38,7 @@ export async function getUserProfileState(
       restrictions: user.restrictions || [],
       role: user.roles,
       sa: user.isSuperAdmin,
+      timezone: user.timezone || DEFAULT_TIMEZONE,
       username: user.username,
     }
 
