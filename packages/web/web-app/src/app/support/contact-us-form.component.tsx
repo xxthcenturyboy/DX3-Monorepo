@@ -271,7 +271,7 @@ export const ContactUsFormComponent: React.FC = () => {
           <Button
             color="primary"
             onClick={handleSubmitAnother}
-            variant="contained"
+            variant="text"
           >
             {strings.SUPPORT_SUBMIT_ANOTHER}
           </Button>
