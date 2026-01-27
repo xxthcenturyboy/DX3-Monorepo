@@ -27,7 +27,7 @@ import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { useApiError } from '../data/errors'
 import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
-import { useStrings } from '../i18n'
+import { useI18n } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { uiActions } from '../ui/store/ui-web.reducer'
 import { CATEGORY_LABEL_KEYS } from './support.consts'
@@ -52,25 +52,7 @@ export const ContactUsFormComponent: React.FC = () => {
     subject?: string
   }>({})
 
-  const strings = useStrings([
-    'CANCEL',
-    'CONTACT_US',
-    'SUBMIT',
-    'SUPPORT_CATEGORY',
-    'SUPPORT_CATEGORY_ISSUE',
-    'SUPPORT_CATEGORY_NEW_FEATURE',
-    'SUPPORT_CATEGORY_OTHER',
-    'SUPPORT_CATEGORY_QUESTION',
-    'SUPPORT_MESSAGE',
-    'SUPPORT_RATE_LIMIT_EXCEEDED',
-    'SUPPORT_REQUEST_SUBMITTED',
-    'SUPPORT_REQUEST_SUBMITTED_SUCCESS',
-    'SUPPORT_SELECT_CATEGORY',
-    'SUPPORT_SUBJECT',
-    'SUPPORT_SUBMIT_ANOTHER',
-    'SUPPORT_TOO_MANY_OPEN_REQUESTS',
-    'USER_ACCOUNT_NOT_SECURED',
-  ])
+  const { t, translations: strings } = useI18n()
 
   const [createRequest, { error: createError, isLoading: isCreating, isSuccess: createSuccess }] =
     useCreateSupportRequestMutation()
@@ -98,24 +80,28 @@ export const ContactUsFormComponent: React.FC = () => {
     const newErrors: typeof errors = {}
 
     if (!category) {
-      newErrors.category = strings.SUPPORT_SELECT_CATEGORY
+      newErrors.category = t('SUPPORT_SELECT_CATEGORY')
     }
 
     if (!subject.trim()) {
-      newErrors.subject = 'Subject is required'
+      newErrors.subject = t('VALIDATION_SUBJECT_REQUIRED')
     } else if (subject.length > SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH) {
-      newErrors.subject = `Subject must be ${SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH} characters or less`
+      newErrors.subject = t('VALIDATION_SUBJECT_MAX_LENGTH', {
+        max: SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH,
+      })
     }
 
     if (!message.trim()) {
-      newErrors.message = 'Message is required'
+      newErrors.message = t('VALIDATION_MESSAGE_REQUIRED')
     } else if (message.length > SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH) {
-      newErrors.message = `Message must be ${SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH} characters or less`
+      newErrors.message = t('VALIDATION_MESSAGE_MAX_LENGTH', {
+        max: SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH,
+      })
     }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }, [category, message, subject, strings.SUPPORT_SELECT_CATEGORY])
+  }, [category, message, subject, t])
 
   const handleSubmit = React.useCallback(
     async (e: React.FormEvent) => {
@@ -352,7 +338,9 @@ export const ContactUsFormComponent: React.FC = () => {
               disabled={!hasSecuredAccount}
               error={!!errors.subject}
               fullWidth
-              helperText={errors.subject || `${subjectCharsRemaining} characters remaining`}
+              helperText={
+                errors.subject || t('CHARACTERS_REMAINING', { count: subjectCharsRemaining })
+              }
               label={strings.SUPPORT_SUBJECT}
               onChange={(e) => {
                 setSubject(e.target.value)
@@ -368,7 +356,9 @@ export const ContactUsFormComponent: React.FC = () => {
               disabled={!hasSecuredAccount}
               error={!!errors.message}
               fullWidth
-              helperText={errors.message || `${messageCharsRemaining} characters remaining`}
+              helperText={
+                errors.message || t('CHARACTERS_REMAINING', { count: messageCharsRemaining })
+              }
               label={strings.SUPPORT_MESSAGE}
               minRows={6}
               multiline

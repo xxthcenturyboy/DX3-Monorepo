@@ -29,7 +29,7 @@ import type { TableHeaderItem, TableRowType } from '@dx3/web-libs/ui/table/types
 import { DRAWER_WIDTH, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
-import { useStrings } from '../../i18n'
+import { useI18n } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
@@ -47,7 +47,7 @@ import {
   useLazyGetSupportUnviewedCountQuery,
   useMarkAllSupportAsViewedMutation,
 } from '../support-web.api'
-import { SUPPORT_ADMIN_ROUTES } from '../support-web.consts'
+import { SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import { SupportAdminWebListService } from './support-admin-list.service'
 import { SupportAdminListHeaderComponent } from './support-admin-list-header.component'
 
@@ -80,25 +80,7 @@ export const SupportAdminListComponent: React.FC = () => {
   const supportRequestsCount = useAppSelector(
     (state) => state.supportAdmin?.supportRequestsWithUserCount,
   )
-  const strings = useStrings([
-    'FILTER',
-    'STATUS',
-    'SUPPORT_BULK_CLOSE',
-    'SUPPORT_BULK_MARK_VIEWED',
-    'SUPPORT_CATEGORY',
-    'SUPPORT_CATEGORY_ISSUE',
-    'SUPPORT_CATEGORY_NEW_FEATURE',
-    'SUPPORT_CATEGORY_OTHER',
-    'SUPPORT_CATEGORY_QUESTION',
-    'SUPPORT_FILTER_ALL_CATEGORIES',
-    'SUPPORT_FILTER_ALL_REQUESTS',
-    'SUPPORT_NO_REQUESTS',
-    'SUPPORT_REQUESTS',
-    'SUPPORT_STATUS_CLOSED',
-    'SUPPORT_STATUS_IN_PROGRESS',
-    'SUPPORT_STATUS_OPEN',
-    'SUPPORT_STATUS_RESOLVED',
-  ])
+  const { t, translations: strings } = useI18n()
   const [
     fetchSupportRequestList,
     {
@@ -392,7 +374,9 @@ export const SupportAdminListComponent: React.FC = () => {
               zIndex: 1000,
             }}
           >
-            <Typography variant="body2">{selectedIds.length} selected</Typography>
+            <Typography variant="body2">
+              {t('ITEMS_SELECTED', { count: selectedIds.length })}
+            </Typography>
             {hasUnviewedSelected && (
               <Button
                 color="inherit"

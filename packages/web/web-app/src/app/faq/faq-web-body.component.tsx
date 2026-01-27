@@ -25,14 +25,12 @@ export type FaqWebBodyProps = {
 
 /**
  * Reusable FAQ body component that renders the accordion list of FAQs.
- * Memoized to prevent expensive ReactMarkdown re-renders.
  */
-export const FaqWebBodyComponent: React.FC<FaqWebBodyProps> = React.memo(
-  function FaqWebBodyComponent({
-    includeAuthenticated = false,
-    subtitle,
-    title,
-  }) {
+export const FaqWebBodyComponent: React.FC<FaqWebBodyProps> = ({
+  includeAuthenticated = false,
+  subtitle,
+  title,
+}) => {
     // Determine which FAQ items to show
     const faqItems = React.useMemo(() => {
       return includeAuthenticated
@@ -69,7 +67,6 @@ export const FaqWebBodyComponent: React.FC<FaqWebBodyProps> = React.memo(
         {displaySubtitle && (
           <Typography
             color="textSecondary"
-            paragraph
             sx={{ marginBottom: '24px' }}
             variant="body1"
           >
@@ -103,5 +100,4 @@ export const FaqWebBodyComponent: React.FC<FaqWebBodyProps> = React.memo(
         ))}
       </Box>
     )
-  },
-)
+  }

@@ -10,13 +10,15 @@ import {
 } from '@mui/material'
 import type * as React from 'react'
 import { useRef, useState } from 'react'
-import { useFocus } from '@dx3/web-libs/ui/hooks/use-focus.hook'
-import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
+
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
+import { useFocus } from '@dx3/web-libs/ui/hooks/use-focus.hook'
 import { debounce } from '@dx3/web-libs/utils/debounce'
-import { supportAdminActions } from '../store/support-admin-web.reducer'
+
 import { useStrings } from '../../i18n'
+import { useAppDispatch, useAppSelector } from '../../store/store-web.redux'
 import { DEBOUNCE } from '../../ui/ui-web.consts'
+import { supportAdminActions } from '../store/support-admin-web.reducer'
 
 type SupportAdminListHeaderComponentProps = {
   fetchRequests: (overrides?: { filterValue?: string }) => void
@@ -27,13 +29,17 @@ export const SupportAdminListHeaderComponent: React.FC<SupportAdminListHeaderCom
 ) => {
   const [searchInputRef, _setSearchInputRef] = useFocus()
   const [filterVal, setFilterVal] = useState(
-    useAppSelector((state) => state.supportAdmin?.filterValue ) || '',
+    useAppSelector((state) => state.supportAdmin?.filterValue) || '',
   )
   const dispatch = useAppDispatch()
   const theme = useTheme()
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const strings = useStrings(['SUPPORT_REQUESTS', 'SUPPORT_SEARCH_PLACEHOLDER', 'TOOLTIP_REFRESH_LIST'])
+  const strings = useStrings([
+    'SUPPORT_REQUESTS',
+    'SUPPORT_SEARCH_PLACEHOLDER',
+    'TOOLTIP_REFRESH_LIST',
+  ])
 
   const debounceFetch = useRef(
     debounce((value: string) => {

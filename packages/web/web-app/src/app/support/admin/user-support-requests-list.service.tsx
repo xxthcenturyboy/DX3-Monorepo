@@ -19,59 +19,63 @@ export class UserSupportRequestListService {
   public static STRINGS = store.getState()?.i18n?.translations || DEFAULT_STRINGS
   public static dispatch = store.dispatch(supportAdminActions.statusFilterSet(''))
 
-  public static USER_SUPPORT_LIST_META: TableMeta<unknown>[] = [
-    {
-      align: 'left',
-      componentType: 'component',
-      fieldName: 'createdAt',
-      fieldType: null,
-      headerAlign: 'left',
-      sortable: true,
-      title: 'Date',
-      width: '8%',
-    },
-    {
-      align: 'left',
-      componentType: 'component',
-      fieldName: 'category',
-      fieldType: null,
-      headerAlign: 'left',
-      sortable: true,
-      title: 'Category',
-      width: '8%',
-    },
-    {
-      align: 'left',
-      componentType: 'component',
-      fieldName: 'subject',
-      fieldType: null,
-      headerAlign: 'left',
-      sortable: true,
-      title: 'Subject',
-      width: '40%',
-    },
-    {
-      align: 'left',
-      componentType: 'component',
-      fieldName: 'status',
-      fieldType: null,
-      headerAlign: 'left',
-      sortable: true,
-      title: 'Status',
-      width: '10%',
-    },
-  ]
+  public static getUserSupportListMeta(): TableMeta<unknown>[] {
+    const strings = store.getState()?.i18n?.translations || DEFAULT_STRINGS
+    return [
+      {
+        align: 'left',
+        componentType: 'component',
+        fieldName: 'createdAt',
+        fieldType: null,
+        headerAlign: 'left',
+        sortable: true,
+        title: strings.DATE,
+        width: '8%',
+      },
+      {
+        align: 'left',
+        componentType: 'component',
+        fieldName: 'category',
+        fieldType: null,
+        headerAlign: 'left',
+        sortable: true,
+        title: strings.SUPPORT_CATEGORY,
+        width: '8%',
+      },
+      {
+        align: 'left',
+        componentType: 'component',
+        fieldName: 'subject',
+        fieldType: null,
+        headerAlign: 'left',
+        sortable: true,
+        title: strings.SUPPORT_SUBJECT,
+        width: '40%',
+      },
+      {
+        align: 'left',
+        componentType: 'component',
+        fieldName: 'status',
+        fieldType: null,
+        headerAlign: 'left',
+        sortable: true,
+        title: strings.STATUS,
+        width: '10%',
+      },
+    ]
+  }
 
   public static getListHeaders(): TableHeaderItem[] {
     const data: TableHeaderItem[] = []
+    const meta = UserSupportRequestListService.getUserSupportListMeta()
 
-    for (const meta of UserSupportRequestListService.USER_SUPPORT_LIST_META) {
+    for (const m of meta) {
       data.push({
-        align: meta.headerAlign,
-        fieldName: meta.fieldName,
-        sortable: meta.sortable,
-        title: meta.title,
-        width: meta.width,
+        align: m.headerAlign,
+        fieldName: m.fieldName,
+        sortable: m.sortable,
+        title: m.title,
+        width: m.width,
       })
     }
 
@@ -84,7 +88,8 @@ export class UserSupportRequestListService {
       id: data.id,
     }
 
-    for (const meta of UserSupportRequestListService.USER_SUPPORT_LIST_META) {
+    const listMeta = UserSupportRequestListService.getUserSupportListMeta()
+    for (const meta of listMeta) {
       let cellData: any
       let icon: any
       let color: string | undefined

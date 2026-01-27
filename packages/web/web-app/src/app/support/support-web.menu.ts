@@ -3,7 +3,7 @@ import { IconNames } from '@dx3/web-libs/ui/icons'
 import { DEFAULT_STRINGS } from '../i18n'
 import { store } from '../store/store-web.redux'
 import type { AppMenuType } from '../ui/menus/app-menu.types'
-import { SUPPORT_ROUTES } from './support-web.consts'
+import { SUPPORT_ROUTES } from './support.consts'
 
 /**
  * Support menu for authenticated users

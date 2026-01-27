@@ -6,14 +6,16 @@ import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.comp
 
 import { WebConfigService } from '../config/config-web.service'
 import { store } from '../store/store-web.redux'
-import { SUPPORT_ADMIN_ROUTES } from '../support/support-web.consts'
+import { SUPPORT_ADMIN_ROUTES } from '../support/support.consts'
 
 const LazySupportAdminDetailComponent = lazy(async () => ({
-  default: (await import('../support/admin/support-admin-detail.component')).SupportAdminDetailComponent,
+  default: (await import('../support/admin/support-admin-detail.component'))
+    .SupportAdminDetailComponent,
 }))
 
 const LazySupportAdminListComponent = lazy(async () => ({
-  default: (await import('../support/admin/support-admin-list.component')).SupportAdminListComponent,
+  default: (await import('../support/admin/support-admin-list.component'))
+    .SupportAdminListComponent,
 }))
 
 const LazyUserAdminComponent = lazy(async () => ({

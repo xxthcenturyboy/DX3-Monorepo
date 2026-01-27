@@ -19,12 +19,13 @@ import { BeatLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 
 import {
+  SUPPORT_STATUS,
   SUPPORT_STATUS_ARRAY,
   SUPPORT_STATUS_COLORS,
   type SupportCategoryType,
   type SupportStatusType,
 } from '@dx3/models-shared'
-import { DxDateUtilClass } from '@dx3/utils-shared'
+import { DxDateUtilClass, truncateString } from '@dx3/utils-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { NotFoundLottie } from '@dx3/web-libs/ui/lottie/not-found.lottie'
@@ -36,14 +37,13 @@ import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hook
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import { supportAdminActions } from '../store/support-admin-web.reducer'
 import { supportActions } from '../store/support-web.reducer'
-import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS } from '../support.consts'
+import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS, SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import type { StatusChipColor } from '../support.types'
 import {
   useGetSupportRequestByIdQuery,
   useMarkSupportAsViewedMutation,
   useUpdateSupportRequestStatusMutation,
 } from '../support-web.api'
-import { SUPPORT_ADMIN_ROUTES } from '../support-web.consts'
 
 export const SupportAdminDetailComponent: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -73,6 +73,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
     'SUPPORT_STATUS_OPEN',
     'SUPPORT_STATUS_RESOLVED',
     'SUPPORT_SUBJECT',
+    'SUPPORT_UPDATE_STATUS_FAILED',
     'UPDATE_STATUS',
   ])
 
@@ -123,12 +124,16 @@ export const SupportAdminDetailComponent: React.FC = () => {
     if (!id || !request || newStatus === request.status || isUpdating) return
 
     try {
-      // Auto-assign current user if unassigned
+      // Build payload with status
       const payload: { assignedTo?: string; status: SupportStatusType } = {
         status: newStatus,
       }
 
-      if (!request.assignedTo && currentUserId) {
+      // For IN_PROGRESS, always include assignedTo (existing or auto-assign current user)
+      if (newStatus === SUPPORT_STATUS.IN_PROGRESS) {
+        payload.assignedTo = request.assignedTo || currentUserId
+      } else if (!request.assignedTo && currentUserId) {
+        // Auto-assign current user if unassigned for other status changes
         payload.assignedTo = currentUserId
       }
 
@@ -140,7 +145,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
       // Refetch to update UI with new status
       refetch()
     } catch {
-      toast.error('Failed to update status')
+      toast.error(strings.SUPPORT_UPDATE_STATUS_FAILED)
     }
   }
 
@@ -155,11 +160,6 @@ export const SupportAdminDetailComponent: React.FC = () => {
   const getStatusChipColor = (status: SupportStatusType): StatusChipColor => {
     return (SUPPORT_STATUS_COLORS[status] as StatusChipColor) || 'default'
   }
-
-  // Build header title with subject
-  const headerTitle = request
-    ? `${strings.SUPPORT_REQUESTS} - ${request.subject.length > 50 ? `${request.subject.substring(0, 50)}...` : request.subject}`
-    : strings.SUPPORT_REQUESTS
 
   if (isLoading) {
     return (
@@ -228,7 +228,7 @@ export const SupportAdminDetailComponent: React.FC = () => {
       contentTopOffset={SM_BREAK ? '58px' : '74px'}
     >
       <ContentHeader
-        headerTitle={headerTitle}
+        headerTitle={truncateString(request?.subject || '', 50) || strings.SUPPORT_REQUESTS}
         navigation={handleBack}
         tooltip={strings.BACK}
       />

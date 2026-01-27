@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 
-import { SUPPORT_ADMIN_ROUTES } from '../support-web.consts'
+import { SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import { SupportAdminDetailComponent } from './support-admin-detail.component'
 import { SupportAdminListComponent } from './support-admin-list.component'
 

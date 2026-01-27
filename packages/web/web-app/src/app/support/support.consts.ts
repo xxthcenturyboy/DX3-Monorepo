@@ -20,3 +20,13 @@ export const STATUS_LABEL_KEYS: Record<SupportStatusType, StringKeyName> = {
   [SUPPORT_STATUS.OPEN]: 'SUPPORT_STATUS_OPEN',
   [SUPPORT_STATUS.RESOLVED]: 'SUPPORT_STATUS_RESOLVED',
 }
+
+export const SUPPORT_ROUTES = {
+  MAIN: '/support',
+} as const
+
+export const SUPPORT_ADMIN_ROUTES = {
+  DETAIL: '/admin/support',
+  LIST: '/admin/support/list',
+  MAIN: '/admin/support',
+} as const

@@ -78,6 +78,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   CREATE_PASSWORD: 'Create Password',
   DASHBOARD: 'Dashboard',
   DASHBOARD_WELCOME: 'Have a look around.',
+  DATE: 'Date',
   DEFAULT: 'Default',
   DELETE: 'Delete',
   DESCRIPTION: 'Description',
@@ -100,7 +101,7 @@ export const DEFAULT_STRINGS: StringKeys = {
     'You can update your profile by going to Settings > Profile. You can change your name, email, phone number, and avatar.',
   FAQ_AUTH_ITEM_1_QUESTION: 'How do I update my profile?',
   FAQ_AUTH_ITEM_2_ANSWER:
-    'Go to Settings > Security to change your password. You will need to enter your current password and then your new password twice.',
+    'Go to Settings > Security to change your password. You will need to enter your new password twice and will be asked to validate via one of your previous validated contact methods.',
   FAQ_AUTH_ITEM_2_QUESTION: 'How do I change my password?',
   FAQ_AUTH_ITEM_3_ANSWER:
     'You can add additional emails or phone numbers in Settings > Profile. Click "Add Email" or "Add Phone" and verify the new contact method.',
@@ -134,6 +135,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   HEAP_TOTAL: 'Heap Total',
   HEAP_USED: 'Heap Used',
   HOME: 'Home',
+  ITEMS_SELECTED: '{count} selected',
   LABEL: 'Label',
   LAST_NAME: 'Last Name',
   LOADING: 'Loading...',
@@ -245,13 +247,13 @@ export const DEFAULT_STRINGS: StringKeys = {
   SUPPORT_SELECT_CATEGORY: 'Select a category',
   SUPPORT_STATUS_CLOSED: 'Closed',
   SUPPORT_STATUS_IN_PROGRESS: 'In Progress',
-  SUPPORT_STATUS_NEW: 'New',
   SUPPORT_STATUS_OPEN: 'Open',
   SUPPORT_STATUS_RESOLVED: 'Resolved',
   SUPPORT_SUBJECT: 'Subject',
   SUPPORT_SUBMIT_ANOTHER: 'Submit Another Request',
   SUPPORT_TOO_MANY_OPEN_REQUESTS:
     'You have too many open requests. Please wait for some to be resolved.',
+  SUPPORT_UPDATE_STATUS_FAILED: 'Failed to update status',
   TARGET: 'Target',
   THIS_ACCOUNT_CANNOT_BE_EDITED: 'This account cannot be edited',
   TIMEOUT_TURBO: 'Timeout, Turbo',
@@ -272,6 +274,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   UPDATE: 'Update',
   UPDATE_STATUS: 'Update Status',
   UPTIME: 'Uptime',
+  USER: 'User',
   USER_ACCOUNT_NOT_SECURED:
     'You must secure your account before submitting support requests. Please verify your email or phone number.',
   USER_ADMIN: 'User Admin',
@@ -289,6 +292,10 @@ export const DEFAULT_STRINGS: StringKeys = {
   USERNAME_IS_UNAVAILABLE: 'This username is unavailable.',
   USERNAME_REQUIREMENT:
     'Must be {count} characters long and contain only letters, numbers, and underscores.',
+  VALIDATION_MESSAGE_MAX_LENGTH: 'Message must be {max} characters or less',
+  VALIDATION_MESSAGE_REQUIRED: 'Message is required',
+  VALIDATION_SUBJECT_MAX_LENGTH: 'Subject must be {max} characters or less',
+  VALIDATION_SUBJECT_REQUIRED: 'Subject is required',
   VERIFIED: 'Verified',
   VERIFY: 'Verify',
   VERSION: 'Version',

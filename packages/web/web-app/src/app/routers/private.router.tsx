@@ -8,7 +8,7 @@ import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.comp
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { WebConfigService } from '../config/config-web.service'
 import { store, useAppSelector } from '../store/store-web.redux'
-import { SUPPORT_ROUTES } from '../support/support-web.consts'
+import { SUPPORT_ROUTES } from '../support/support.consts'
 import { AdminWebRouterConfig } from './admin.router'
 import { SudoWebRouterConfig } from './sudo.router'
 

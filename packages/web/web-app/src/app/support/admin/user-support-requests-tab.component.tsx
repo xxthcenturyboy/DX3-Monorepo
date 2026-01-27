@@ -13,7 +13,7 @@ import { uiActions } from '../../ui/store/ui-web.reducer'
 import { supportAdminActions } from '../store/support-admin-web.reducer'
 import { selectUserTabSupportRequestRowData } from '../store/support-admin-web.selector'
 import { useLazyGetSupportRequestListQuery } from '../support-web.api'
-import { SUPPORT_ADMIN_ROUTES } from '../support-web.consts'
+import { SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import { UserSupportRequestListService } from './user-support-requests-list.service'
 
 type UserSupportRequestsTabProps = {

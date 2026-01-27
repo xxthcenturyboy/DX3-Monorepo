@@ -119,6 +119,7 @@ export type StringKeys = {
   CREATE_PASSWORD: string
   DASHBOARD: string
   DASHBOARD_WELCOME: string
+  DATE: string
   DEFAULT: string
   DELETE: string
   DESCRIPTION: string
@@ -168,6 +169,7 @@ export type StringKeys = {
   HEAP_TOTAL: string
   HEAP_USED: string
   HOME: string
+  ITEMS_SELECTED: string
   LABEL: string
   LAST_NAME: string
   LOADING: string
@@ -277,12 +279,12 @@ export type StringKeys = {
   SUPPORT_SELECT_CATEGORY: string
   SUPPORT_STATUS_CLOSED: string
   SUPPORT_STATUS_IN_PROGRESS: string
-  SUPPORT_STATUS_NEW: string
   SUPPORT_STATUS_OPEN: string
   SUPPORT_STATUS_RESOLVED: string
   SUPPORT_SUBJECT: string
   SUPPORT_SUBMIT_ANOTHER: string
   SUPPORT_TOO_MANY_OPEN_REQUESTS: string
+  SUPPORT_UPDATE_STATUS_FAILED: string
   USER_ACCOUNT_NOT_SECURED: string
   TARGET: string
   THIS_ACCOUNT_CANNOT_BE_EDITED: string
@@ -304,6 +306,7 @@ export type StringKeys = {
   UPDATE: string
   UPDATE_STATUS: string
   UPTIME: string
+  USER: string
   USER_ADMIN: string
   USER_ALREADY_EXISTS: string
   USER_CREATE_FAILED: string
@@ -318,6 +321,10 @@ export type StringKeys = {
   USERNAME_IS_AVAILABLE: string
   USERNAME_IS_UNAVAILABLE: string
   USERNAME_REQUIREMENT: string
+  VALIDATION_MESSAGE_MAX_LENGTH: string
+  VALIDATION_MESSAGE_REQUIRED: string
+  VALIDATION_SUBJECT_MAX_LENGTH: string
+  VALIDATION_SUBJECT_REQUIRED: string
   VERIFIED: string
   VERIFY: string
   VERSION: string
