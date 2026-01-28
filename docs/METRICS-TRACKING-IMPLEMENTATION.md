@@ -94,6 +94,16 @@ This approach provides immediate visibility into user traffic while maintaining 
 
 This section documents key decisions made during requirements interview and technical planning.
 
+### Coding Standards Reminders
+
+When implementing this plan, remember these workspace rules:
+
+- **Use `dayjs`** for all date operations (not JavaScript's `Date` constructor)
+- **All UI strings via i18n** - no hardcoded text in components
+- **Alphabetical ordering** for object properties, types, and imports
+- **Barrel files (`index.ts`)** are allowed in API libs but NOT in web applications
+- **Use types** instead of interfaces for TypeScript types
+
 ### Dashboard Approach
 
 **Initial Implementation:**
@@ -571,26 +581,19 @@ Add to `packages/shared/models/src/logging/logging-shared.consts.ts`:
 
 ```typescript
 export const METRIC_EVENT_TYPE = {
-  // User lifecycle
-  METRIC_SIGNUP: 'METRIC_SIGNUP',
+  METRIC_ACCOUNT_DELETED: 'METRIC_ACCOUNT_DELETED',
+  METRIC_DEVICE_REGISTERED: 'METRIC_DEVICE_REGISTERED',
+  METRIC_EMAIL_VERIFIED: 'METRIC_EMAIL_VERIFIED',
+  METRIC_FEATURE_USED: 'METRIC_FEATURE_USED',
   METRIC_LOGIN: 'METRIC_LOGIN',
   METRIC_LOGOUT: 'METRIC_LOGOUT',
-  METRIC_ACCOUNT_DELETED: 'METRIC_ACCOUNT_DELETED',
-
-  // Verification milestones
-  METRIC_EMAIL_VERIFIED: 'METRIC_EMAIL_VERIFIED',
-  METRIC_PHONE_VERIFIED: 'METRIC_PHONE_VERIFIED',
-  METRIC_PROFILE_COMPLETED: 'METRIC_PROFILE_COMPLETED',
-
-  // Feature usage
   METRIC_MEDIA_UPLOADED: 'METRIC_MEDIA_UPLOADED',
   METRIC_NOTIFICATION_SENT: 'METRIC_NOTIFICATION_SENT',
-  METRIC_DEVICE_REGISTERED: 'METRIC_DEVICE_REGISTERED',
-  METRIC_SUPPORT_REQUEST: 'METRIC_SUPPORT_REQUEST',
-
-  // Engagement
+  METRIC_PHONE_VERIFIED: 'METRIC_PHONE_VERIFIED',
+  METRIC_PROFILE_COMPLETED: 'METRIC_PROFILE_COMPLETED',
   METRIC_SESSION_START: 'METRIC_SESSION_START',
-  METRIC_FEATURE_USED: 'METRIC_FEATURE_USED',
+  METRIC_SIGNUP: 'METRIC_SIGNUP',
+  METRIC_SUPPORT_REQUEST: 'METRIC_SUPPORT_REQUEST',
 } as const
 
 export const METRIC_EVENT_TYPE_ARRAY = Object.values(METRIC_EVENT_TYPE)
@@ -1165,9 +1168,21 @@ router.use('/metrics', metricsRoutes)  // All /api/v1/metrics/* routes
 **File:** `packages/api/api-app/src/metrics/metrics-api.controller.ts` (NEW)
 
 ```typescript
+import dayjs from 'dayjs'
 import type { Request, Response } from 'express'
+
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
-import { sendOK } from '@dx3/api-libs/response'
+import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response'
+
+/**
+ * Parse date range string (7d, 30d, 90d) into start/end dayjs objects
+ */
+function parseDateRange(range: string): { endDate: dayjs.Dayjs; startDate: dayjs.Dayjs } {
+  const days = parseInt(range.replace('d', ''), 10) || 30
+  const endDate = dayjs()
+  const startDate = dayjs().subtract(days, 'day')
+  return { endDate, startDate }
+}
 
 export const MetricsController = {
   /**
@@ -1186,9 +1201,49 @@ export const MetricsController = {
    */
   getDAU: async (req: Request, res: Response) => {
     const service = new MetricsService()
-    const date = req.query.date ? new Date(req.query.date as string) : new Date()
-    const dau = await service.getDAU(date)
-    return sendOK(req, res, { dau, date })
+    const dateParam = req.query.date as string | undefined
+    const date = dateParam ? dayjs(dateParam) : dayjs()
+
+    if (!date.isValid()) {
+      return sendBadRequest(req, res, 'Invalid date format. Use YYYY-MM-DD.')
+    }
+
+    const dau = await service.getDAU(date.toDate())
+    return sendOK(req, res, { date: date.format('YYYY-MM-DD'), dau })
+  },
+
+  /**
+   * GET /api/v1/metrics/wau?date=2026-01-28
+   * Get Weekly Active Users ending on specific date
+   */
+  getWAU: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const dateParam = req.query.date as string | undefined
+    const date = dateParam ? dayjs(dateParam) : dayjs()
+
+    if (!date.isValid()) {
+      return sendBadRequest(req, res, 'Invalid date format. Use YYYY-MM-DD.')
+    }
+
+    const wau = await service.getWAU(date.toDate())
+    return sendOK(req, res, { date: date.format('YYYY-MM-DD'), wau })
+  },
+
+  /**
+   * GET /api/v1/metrics/mau?date=2026-01-28
+   * Get Monthly Active Users ending on specific date
+   */
+  getMAU: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const dateParam = req.query.date as string | undefined
+    const date = dateParam ? dayjs(dateParam) : dayjs()
+
+    if (!date.isValid()) {
+      return sendBadRequest(req, res, 'Invalid date format. Use YYYY-MM-DD.')
+    }
+
+    const mau = await service.getMAU(date.toDate())
+    return sendOK(req, res, { date: date.format('YYYY-MM-DD'), mau })
   },
 
   /**
@@ -1197,16 +1252,11 @@ export const MetricsController = {
    */
   getGrowthTrend: async (req: Request, res: Response) => {
     const service = new MetricsService()
-    const range = req.query.range as string || '30d'
-
-    // Parse range (7d, 30d, 90d)
-    const days = parseInt(range.replace('d', ''), 10)
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - days)
+    const range = (req.query.range as string) || '30d'
+    const { endDate, startDate } = parseDateRange(range)
 
     // Query metrics_daily aggregate for trend
-    const result = await service.loggingService.queryRaw(`
+    const result = await service.queryRaw<{ date: string; users: number }>(`
       SELECT
         bucket::date as date,
         unique_users as users
@@ -1215,7 +1265,7 @@ export const MetricsController = {
         AND bucket >= $1
         AND bucket <= $2
       ORDER BY bucket ASC
-    `, [startDate, endDate])
+    `, [startDate.toDate(), endDate.toDate()])
 
     return sendOK(req, res, { data: result.rows, range })
   },
@@ -1226,15 +1276,40 @@ export const MetricsController = {
    */
   getSignups: async (req: Request, res: Response) => {
     const service = new MetricsService()
-    const range = req.query.range as string || '7d'
+    const range = (req.query.range as string) || '7d'
+    const { endDate, startDate } = parseDateRange(range)
 
-    const days = parseInt(range.replace('d', ''), 10)
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - days)
-
-    const breakdown = await service.getSignupsByMethod(startDate, endDate)
+    const breakdown = await service.getSignupsByMethod(startDate.toDate(), endDate.toDate())
     return sendOK(req, res, { ...breakdown, range })
+  },
+
+  /**
+   * GET /api/v1/metrics/signups/trend?range=30d
+   * Get daily signup trend over date range
+   */
+  getSignupsTrend: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const range = (req.query.range as string) || '30d'
+    const { endDate, startDate } = parseDateRange(range)
+
+    const result = await service.queryRaw<{
+      count: number
+      date: string
+      method: string
+    }>(`
+      SELECT
+        bucket::date as date,
+        method,
+        SUM(total_count) as count
+      FROM metrics_daily
+      WHERE event_type = 'METRIC_SIGNUP'
+        AND bucket >= $1
+        AND bucket <= $2
+      GROUP BY bucket, method
+      ORDER BY bucket ASC
+    `, [startDate.toDate(), endDate.toDate()])
+
+    return sendOK(req, res, { data: result.rows, range })
   },
 
   /**
@@ -1243,14 +1318,10 @@ export const MetricsController = {
    */
   getGeography: async (req: Request, res: Response) => {
     const service = new MetricsService()
-    const range = req.query.range as string || '30d'
+    const range = (req.query.range as string) || '30d'
+    const { endDate, startDate } = parseDateRange(range)
 
-    const days = parseInt(range.replace('d', ''), 10)
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - days)
-
-    const result = await service.loggingService.queryRaw<{
+    const result = await service.queryRaw<{
       count: string
       country: string
     }>(`
@@ -1265,12 +1336,18 @@ export const MetricsController = {
       GROUP BY geo_country
       ORDER BY count DESC
       LIMIT 10
-    `, [startDate, endDate])
+    `, [startDate.toDate(), endDate.toDate()])
 
-    return sendOK(req, res, { data: result.rows, range })
+    // Calculate percentages
+    const total = result.rows.reduce((sum, row) => sum + parseInt(row.count, 10), 0)
+    const data = result.rows.map((row) => ({
+      country: row.country,
+      count: parseInt(row.count, 10),
+      percentage: total > 0 ? Math.round((parseInt(row.count, 10) / total) * 100) : 0,
+    }))
+
+    return sendOK(req, res, { data, range, total })
   },
-
-  // Additional endpoints...
 }
 ```
 
@@ -1317,11 +1394,25 @@ export const adminMenu = (): AppMenuType => {
 {
   "DAILY_ACTIVE_USERS": "Daily Active Users",
   "GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution",
+  "LAST_7_DAYS": "Last 7 Days",
+  "LAST_24H": "Last 24h",
+  "LAST_30_DAYS": "Last 30 Days",
+  "LAST_30D": "Last 30d",
+  "LAST_7D": "Last 7d",
+  "LAST_90_DAYS": "Last 90 Days",
   "METRICS_ADMIN": "Metrics Administrator",
   "METRICS_ADMIN_DESCRIPTION": "Access to business metrics, analytics, and growth dashboards",
   "METRICS_DASHBOARD": "Metrics Dashboard",
+  "METRICS_ERROR_DESCRIPTION": "The metrics database is currently unavailable. Please try again later.",
+  "METRICS_ERROR_TITLE": "Unable to load metrics",
+  "METRICS_NO_DATA_DESCRIPTION": "Start collecting data by recording signup and login events",
+  "METRICS_NO_DATA_TITLE": "No metrics data available yet",
   "MONTHLY_ACTIVE_USERS": "Monthly Active Users",
+  "REFRESH": "Refresh",
+  "RETRY": "Retry",
   "SIGNUP_BREAKDOWN": "Signup Breakdown",
+  "SIGNUP_METHOD": "Signup Method",
+  "SIGNUPS": "Signups",
   "USER_GROWTH": "User Growth",
   "WEEKLY_ACTIVE_USERS": "Weekly Active Users"
 }
@@ -1405,21 +1496,24 @@ The custom metrics dashboard is a native React component integrated into the adm
 **File:** `packages/web/web-app/src/app/metrics/admin/dashboard/metrics-admin-dashboard.component.tsx`
 
 ```typescript
+import { Refresh as RefreshIcon } from '@mui/icons-material'
 import { Box, Button, Card, CardContent, Grid, MenuItem, Select, Typography } from '@mui/material'
-import { RefreshIcon } from '@mui/icons-material'
-import { useEffect, useState } from 'react'
-import { useGetMetricsSummaryQuery, useGetGrowthTrendQuery } from '../metrics-admin-web.api'
-import { MetricCard } from './metric-card.component'
-import { GrowthChart } from './growth-chart.component'
-import { SignupBreakdownChart } from './signup-breakdown-chart.component'
+import { useState } from 'react'
+
+import { useTranslation } from '../../../../i18n/use-translation.hook'
+import { useGetGrowthTrendQuery, useGetMetricsSummaryQuery } from '../metrics-admin-web.api'
 import { GeographyTable } from './geography-table.component'
+import { GrowthChart } from './growth-chart.component'
+import { MetricCard } from './metric-card.component'
+import { SignupBreakdownChart } from './signup-breakdown-chart.component'
 
 export const MetricsAdminDashboard = () => {
+  const { t } = useTranslation()
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d')
   const [refreshKey, setRefreshKey] = useState(0)
 
   // Fetch metrics data
-  const { data: summary, isLoading: summaryLoading, error: summaryError } =
+  const { data: summary, error: summaryError, isLoading: summaryLoading } =
     useGetMetricsSummaryQuery(refreshKey)
 
   const { data: growth, isLoading: growthLoading } =
@@ -1432,12 +1526,12 @@ export const MetricsAdminDashboard = () => {
   // Empty state
   if (!summaryLoading && !summary?.dau && !summary?.signupsLast24h) {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          No metrics data available yet
+      <Box sx={{ py: 8, textAlign: 'center' }}>
+        <Typography color="text.secondary" gutterBottom variant="h6">
+          {t('METRICS_NO_DATA_TITLE')}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Start collecting data by recording signup and login events
+        <Typography color="text.secondary" variant="body2">
+          {t('METRICS_NO_DATA_DESCRIPTION')}
         </Typography>
       </Box>
     )
@@ -1446,15 +1540,15 @@ export const MetricsAdminDashboard = () => {
   // Error state (TimescaleDB unavailable)
   if (summaryError) {
     return (
-      <Box sx={{ textAlign: 'center', py: 8 }}>
-        <Typography variant="h6" color="error" gutterBottom>
-          Unable to load metrics
+      <Box sx={{ py: 8, textAlign: 'center' }}>
+        <Typography color="error" gutterBottom variant="h6">
+          {t('METRICS_ERROR_TITLE')}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          The metrics database is currently unavailable. Please try again later.
+        <Typography color="text.secondary" variant="body2">
+          {t('METRICS_ERROR_DESCRIPTION')}
         </Typography>
         <Button onClick={handleRefresh} sx={{ mt: 2 }}>
-          Retry
+          {t('RETRY')}
         </Button>
       </Box>
     )
@@ -1463,21 +1557,24 @@ export const MetricsAdminDashboard = () => {
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Metrics Dashboard</Typography>
+      <Box sx={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant="h4">{t('METRICS_DASHBOARD')}</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <Select value={dateRange} onChange={(e) => setDateRange(e.target.value as any)}>
-            <MenuItem value="7d">Last 7 Days</MenuItem>
-            <MenuItem value="30d">Last 30 Days</MenuItem>
-            <MenuItem value="90d">Last 90 Days</MenuItem>
+          <Select
+            onChange={(e) => setDateRange(e.target.value as '7d' | '30d' | '90d')}
+            value={dateRange}
+          >
+            <MenuItem value="7d">{t('LAST_7_DAYS')}</MenuItem>
+            <MenuItem value="30d">{t('LAST_30_DAYS')}</MenuItem>
+            <MenuItem value="90d">{t('LAST_90_DAYS')}</MenuItem>
           </Select>
           <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={handleRefresh}
             disabled={summaryLoading || growthLoading}
+            onClick={handleRefresh}
+            startIcon={<RefreshIcon />}
+            variant="outlined"
           >
-            Refresh
+            {t('REFRESH')}
           </Button>
         </Box>
       </Box>
@@ -1485,30 +1582,30 @@ export const MetricsAdminDashboard = () => {
       {/* User Growth Section */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>User Growth</Typography>
+          <Typography gutterBottom variant="h6">{t('USER_GROWTH')}</Typography>
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={4}>
+            <Grid item sm={4} xs={12}>
               <MetricCard
-                title="Daily Active Users"
-                value={summary?.dau || 0}
+                loading={summaryLoading}
+                title={t('DAILY_ACTIVE_USERS')}
                 trend={calculateTrend(summary?.dau, summary?.previousDau)}
-                loading={summaryLoading}
+                value={summary?.dau || 0}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item sm={4} xs={12}>
               <MetricCard
-                title="Weekly Active Users"
-                value={summary?.wau || 0}
+                loading={summaryLoading}
+                title={t('WEEKLY_ACTIVE_USERS')}
                 trend={calculateTrend(summary?.wau, summary?.previousWau)}
-                loading={summaryLoading}
+                value={summary?.wau || 0}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item sm={4} xs={12}>
               <MetricCard
-                title="Monthly Active Users"
-                value={summary?.mau || 0}
-                trend={calculateTrend(summary?.mau, summary?.previousMau)}
                 loading={summaryLoading}
+                title={t('MONTHLY_ACTIVE_USERS')}
+                trend={calculateTrend(summary?.mau, summary?.previousMau)}
+                value={summary?.mau || 0}
               />
             </Grid>
           </Grid>
@@ -1518,43 +1615,43 @@ export const MetricsAdminDashboard = () => {
 
       {/* Signups Section */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item md={6} xs={12}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Signups</Typography>
+              <Typography gutterBottom variant="h6">{t('SIGNUPS')}</Typography>
               <Grid container spacing={2}>
                 <Grid item xs={4}>
                   <MetricCard
-                    title="Last 24h"
+                    compact
+                    loading={summaryLoading}
+                    title={t('LAST_24H')}
                     value={summary?.signupsLast24h || 0}
-                    compact
-                    loading={summaryLoading}
                   />
                 </Grid>
                 <Grid item xs={4}>
                   <MetricCard
-                    title="Last 7d"
+                    compact
+                    loading={summaryLoading}
+                    title={t('LAST_7D')}
                     value={summary?.signupsLast7d || 0}
-                    compact
-                    loading={summaryLoading}
                   />
                 </Grid>
                 <Grid item xs={4}>
                   <MetricCard
-                    title="Last 30d"
-                    value={summary?.signupsLast30d || 0}
                     compact
                     loading={summaryLoading}
+                    title={t('LAST_30D')}
+                    value={summary?.signupsLast30d || 0}
                   />
                 </Grid>
               </Grid>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item md={6} xs={12}>
           <Card>
             <CardContent>
-              <Typography variant="h6" gutterBottom>Signup Method</Typography>
+              <Typography gutterBottom variant="h6">{t('SIGNUP_METHOD')}</Typography>
               <SignupBreakdownChart range={dateRange} />
             </CardContent>
           </Card>
@@ -1564,7 +1661,7 @@ export const MetricsAdminDashboard = () => {
       {/* Geography Section */}
       <Card>
         <CardContent>
-          <Typography variant="h6" gutterBottom>Geographic Distribution</Typography>
+          <Typography gutterBottom variant="h6">{t('GEOGRAPHIC_DISTRIBUTION')}</Typography>
           <GeographyTable range={dateRange} />
         </CardContent>
       </Card>
@@ -2071,7 +2168,7 @@ When the mobile app matures:
   - [ ] `getSignupCount()`, `getSignupsByMethod()` query methods
   - [ ] `getDashboardMetrics()` comprehensive method
 - [ ] Create `packages/api/libs/metrics/metrics-api.service.spec.ts`
-- [ ] Create `packages/api/libs/metrics/index.ts` (barrel export)
+- [ ] Create `packages/api/libs/metrics/index.ts` (barrel export for API libs only - NOT for web app)
 - [ ] Add continuous aggregates to TimescaleDB schema:
   - [ ] metrics_daily (bucket, event_type, method, signup_source, geo_country, counts)
   - [ ] metrics_weekly (bucket, event_type, counts)
@@ -2312,6 +2409,7 @@ When the mobile app matures:
 
 ---
 
-*Document Version: 2.0*
+*Document Version: 2.1*
 *Created: January 27, 2026*
 *Updated: January 28, 2026 - Added comprehensive implementation decisions, RBAC, custom dashboard, and detailed checklist*
+*Updated: January 28, 2026 - Fixed dayjs usage, i18n strings, alphabetical ordering, and barrel file policy per workspace rules*

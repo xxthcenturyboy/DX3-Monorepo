@@ -68,6 +68,12 @@ This section documents key decisions made during requirements interview and tech
 - ✅ No Redis buffering or background workers (keep it simple)
 - ✅ Acceptable to drop logs under extreme load (rare scenario)
 
+**Alert Threshold Tracking:**
+- ✅ **In-Memory Map**: Track failure counts per IP/fingerprint in memory
+- ✅ **Single-Instance Limitation**: Thresholds reset on server restart; counts not shared across API instances
+- ✅ **Acceptable Trade-off**: Simplicity over perfect accuracy; critical alerts may fire slightly later in multi-instance deployments
+- ✅ **Future Option**: Can migrate to Redis if multi-instance accuracy becomes critical
+
 **Rate Limiting Integration:**
 - ✅ **Audit Only**: Logs are for analytics/auditing, NOT for rate limit decisions
 - ✅ Keep existing Redis-based rate limiting unchanged
@@ -135,6 +141,12 @@ This section documents key decisions made during requirements interview and tech
 - ✅ Leverage existing RBAC infrastructure
 - ✅ Reuse existing role management UI in user admin section
 - ✅ Create new `hasLoggingAdminRole` middleware for API routes
+
+**Type Assumption - UserProfile.role:**
+- ✅ **Assumption**: `userProfile.role` is an array of strings (`string[]`)
+- ✅ **Verify Before Implementation**: Check `UserProfileStateType` in `packages/shared/models/`
+- ✅ **If Currently Single String**: Will need to migrate type and update dependent code
+- ✅ **Menu Service**: Must be updated to accept `string[]` for role filtering
 
 ### Implementation Phasing
 
@@ -807,16 +819,19 @@ export async function hasLoggingAdminRole(
 
 ```typescript
 import { Router } from 'express'
+
 import { hasLoggingAdminRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
+
 import { LoggingController } from './logging-api.controller'
 
 const router = Router()
 
 // All logging endpoints require LOGGING_ADMIN role (or SUPER_ADMIN)
-router.get('/summary', hasLoggingAdminRole, LoggingController.getSummary)
 router.get('/failed-auth', hasLoggingAdminRole, LoggingController.getFailedAuth)
-router.get('/list', hasLoggingAdminRole, LoggingController.getLogsList)
+router.get('/health', hasLoggingAdminRole, LoggingController.getHealth)
 router.get('/hourly', hasLoggingAdminRole, LoggingController.getHourlySummary)
+router.get('/list', hasLoggingAdminRole, LoggingController.getLogsList)
+router.get('/summary', hasLoggingAdminRole, LoggingController.getSummary)
 router.post('/export', hasLoggingAdminRole, LoggingController.exportLogs)
 
 export { router as loggingRoutes }
@@ -931,36 +946,44 @@ function setUpMenus(userProfile: UserProfileStateType, mobileBreak: boolean) {
 
 **File:** `packages/web/web-app/src/app/routers/logging-admin.router.tsx` (NEW)
 
+> **Note:** Uses `useSelector` hook instead of `store.getState()` to ensure proper React re-renders when role state changes.
+
 ```typescript
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
+import { useSelector } from 'react-redux'
 import { Navigate, Route, Routes } from 'react-router'
-import { UiLoadingComponent } from '../ui/loading/loading.component'
-import { UnauthorizedComponent } from '../ui/unauthorized/unauthorized.component'
-import { store } from '../store/store.util'
+
 import { USER_ROLE } from '@dx3/models-shared'
 
+import type { RootState } from '../store/store.types'
+import { UiLoadingComponent } from '../ui/loading/loading.component'
+import { UnauthorizedComponent } from '../ui/unauthorized/unauthorized.component'
+
 const LoggingDashboard = lazy(() => import('../logging/admin/dashboard/logging-admin-dashboard.component'))
-const LoggingList = lazy(() => import('../logging/admin/list/logging-admin-list.component'))
 const LoggingFailedAuth = lazy(() => import('../logging/admin/failed-auth/logging-admin-failed-auth.component'))
+const LoggingList = lazy(() => import('../logging/admin/list/logging-admin-list.component'))
 
 export const LoggingAdminRouter = () => {
-  const hasLoggingAdminRole = (): boolean => {
-    const userRoles = store.getState().userProfile.role
+  const userRoles = useSelector((state: RootState) => state.userProfile.role)
+
+  const hasLoggingAdminRole = useMemo(() => {
     // SUPER_ADMIN or LOGGING_ADMIN can access
     return userRoles.includes(USER_ROLE.SUPER_ADMIN) || userRoles.includes(USER_ROLE.LOGGING_ADMIN)
+  }, [userRoles])
+
+  if (!hasLoggingAdminRole) {
+    return <UnauthorizedComponent message="You do not have permission to access system logs." />
   }
 
-  return hasLoggingAdminRole() ? (
+  return (
     <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
       <Routes>
         <Route path="dashboard" element={<LoggingDashboard />} />
-        <Route path="list" element={<LoggingList />} />
         <Route path="failed-auth" element={<LoggingFailedAuth />} />
+        <Route path="list" element={<LoggingList />} />
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Routes>
     </Suspense>
-  ) : (
-    <UnauthorizedComponent message="You do not have permission to access system logs." />
   )
 }
 ```
@@ -990,17 +1013,28 @@ const routes = [
 
 **File:** `packages/web/web-app/assets/locales/en.json`
 
+> **Note:** Merge these keys into the existing `en.json` file. Keys are shown alphabetically as required by codebase conventions.
+
 ```json
 {
+  "... existing keys ...": "...",
+  "ERROR_OCCURRED": "An error occurred",
   "EXPORT_LOGS": "Export Logs",
   "FAILED_AUTH_ATTEMPTS": "Failed Auth Attempts",
   "FAILED_AUTH_LOOKUP": "Failed Auth Lookup",
+  "LOG_DETAILS": "Log Details",
   "LOG_SUMMARY": "Log Summary",
   "LOGGING_ADMIN": "Logging Administrator",
   "LOGGING_ADMIN_DESCRIPTION": "Access to system logs, analytics, and security monitoring",
+  "LOGGING_CONNECTED": "Logging database connected",
   "LOGGING_DASHBOARD": "Logging Dashboard",
+  "LOGGING_DATABASE_UNAVAILABLE": "Logging database unavailable",
+  "LOGGING_LAST_QUERY": "Last successful query",
   "SYSTEM_LOGS": "System Logs",
-  "VIEW_LOGS": "View Logs"
+  "TRY_AGAIN": "Try Again",
+  "UNKNOWN_ERROR": "An unknown error occurred",
+  "VIEW_LOGS": "View Logs",
+  "... existing keys ...": "..."
 }
 ```
 
@@ -1011,9 +1045,17 @@ const routes = [
 ```typescript
 export const LOGGING_ADMIN_ROUTES = {
   DASHBOARD: '/admin/logs/dashboard',
-  EXPORT: '/admin/logs/export',
   FAILED_AUTH: '/admin/logs/failed-auth',
   LIST: '/admin/logs/list',
+} as const
+
+export const LOGGING_API_ENDPOINTS = {
+  EXPORT: '/api/v1/logs/export',
+  FAILED_AUTH: '/api/v1/logs/failed-auth',
+  HEALTH: '/api/v1/logs/health',
+  HOURLY: '/api/v1/logs/hourly',
+  LIST: '/api/v1/logs/list',
+  SUMMARY: '/api/v1/logs/summary',
 } as const
 ```
 
@@ -1137,9 +1179,107 @@ When TimescaleDB unavailable:
 - Keep navigation functional
 - Show cached data if available
 
+### Error Boundary
+
+Wrap logging admin components with an error boundary to catch rendering errors gracefully:
+
+**File:** `packages/web/web-app/src/app/logging/admin/logging-admin-error-boundary.component.tsx` (NEW)
+
+```typescript
+import { Component, type ErrorInfo, type ReactNode } from 'react'
+
+import { Alert, AlertTitle, Box, Button, Typography } from '@mui/material'
+
+import { strings } from '@dx3/web-libs/i18n'
+
+type Props = {
+  children: ReactNode
+}
+
+type State = {
+  error: Error | null
+  hasError: boolean
+}
+
+export class LoggingAdminErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = { error: null, hasError: false }
+  }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { error, hasError: true }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error('LoggingAdmin Error:', error, errorInfo)
+  }
+
+  handleRetry = (): void => {
+    this.setState({ error: null, hasError: false })
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ m: 3 }}>
+          <Alert severity="error">
+            <AlertTitle>{strings.ERROR_OCCURRED}</AlertTitle>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              {this.state.error?.message || strings.UNKNOWN_ERROR}
+            </Typography>
+            <Button variant="outlined" size="small" onClick={this.handleRetry}>
+              {strings.TRY_AGAIN}
+            </Button>
+          </Alert>
+        </Box>
+      )
+    }
+
+    return this.props.children
+  }
+}
+```
+
+**Usage in Router:**
+
+```typescript
+import { LoggingAdminErrorBoundary } from '../logging/admin/logging-admin-error-boundary.component'
+
+export const LoggingAdminRouter = () => {
+  // ... role check ...
+
+  return (
+    <LoggingAdminErrorBoundary>
+      <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+        <Routes>
+          {/* ... routes ... */}
+        </Routes>
+      </Suspense>
+    </LoggingAdminErrorBoundary>
+  )
+}
+```
+
 ---
 
 ## Real-Time Notifications (Socket.IO)
+
+### Architecture
+
+```
+Socket.IO Server
+└── Namespace: /admin-logs          (Dedicated namespace for logging features)
+    └── Room: logging-alerts        (Room for alert subscriptions within namespace)
+        ├── Event: auth_failure_warning
+        ├── Event: auth_failure_critical
+        ├── Event: rate_limit_alert
+        └── Event: security_alert
+```
+
+**Namespace vs Room:**
+- **Namespace (`/admin-logs`)**: Separate communication channel; only authenticated LOGGING_ADMIN users can connect
+- **Room (`logging-alerts`)**: Subscription group within the namespace; clients auto-join on connection
 
 ### Threshold-Based Alert Escalation
 
@@ -1151,11 +1291,30 @@ When TimescaleDB unavailable:
 | Warning | 3-9 in 5min | `auth_failure_warning` | 🟡 Yellow banner |
 | Critical | 10+ in 5min | `auth_failure_critical` | 🔴 Red banner + sound |
 
-**Namespace:** `/admin-logs`
+### Threshold Tracking Implementation
 
-**Room:** `logging-alerts`
+**Approach:** In-memory Map with sliding window
 
-**Events:** `auth_failure_warning`, `auth_failure_critical`, `rate_limit_alert`, `security_alert`
+```typescript
+type FailureTracker = Map<string, { count: number; firstSeen: number }>
+
+// Key format: `${ipAddress}:${fingerprint}`
+// Window: 5 minutes (300000ms)
+// Reset on server restart (acceptable for simplicity)
+```
+
+**Limitation:** In multi-instance deployments, each instance tracks independently. This means:
+- Threshold triggers may be delayed (e.g., 10 failures split across 2 instances = 5 each)
+- Acceptable trade-off for simplicity; can migrate to Redis if accuracy becomes critical
+
+### Events
+
+| Event | Payload | When |
+|-------|---------|------|
+| `auth_failure_warning` | `{ count, fingerprint, ipAddress, timestamp }` | 3-9 failures in 5min window |
+| `auth_failure_critical` | `{ count, fingerprint, ipAddress, timestamp }` | 10+ failures in 5min window |
+| `rate_limit_alert` | `{ endpoint, ipAddress, timestamp }` | Rate limit triggered |
+| `security_alert` | `{ alertType, details, timestamp }` | Custom security events |
 
 ---
 
@@ -1239,11 +1398,13 @@ packages/
 │           │   │   └── admin/
 │           │   │       ├── dashboard/
 │           │   │       │   └── logging-admin-dashboard.component.tsx
-│           │   │       ├── list/
-│           │   │       │   └── logging-admin-list.component.tsx
 │           │   │       ├── failed-auth/
 │           │   │       │   └── logging-admin-failed-auth.component.tsx
+│           │   │       ├── list/
+│           │   │       │   └── logging-admin-list.component.tsx
+│           │   │       ├── logging-admin-error-boundary.component.tsx  # NEW
 │           │   │       ├── logging-admin-web.api.ts
+│           │   │       ├── logging-admin-web.hooks.ts                  # NEW: useLoggingAlerts, useLoggingHealth
 │           │   │       ├── logging-admin-web.routes.ts
 │           │   │       ├── logging-admin-web.slice.ts
 │           │   │       └── logging-admin-web.types.ts
@@ -1253,7 +1414,7 @@ packages/
 │           │
 │           └── assets/
 │               └── locales/
-│                   └── en.json                   # Add i18n strings
+│                   └── en.json                   # Add i18n strings (merge with existing)
 
 _devops/
 └── scripts/
@@ -1375,6 +1536,27 @@ export type GetLogsListQueryType = {
   startDate?: Date
   success?: boolean
   userId?: string
+}
+
+export type GetLogsListResponseType = {
+  rows: LogRecordType[]
+  total: number
+}
+
+export type LoggingHealthResponseType = {
+  connected: boolean
+  lastChecked: Date
+  message: string
+  version?: string
+}
+
+export type LoggingSummaryResponseType = {
+  authFailures: number
+  rateLimitHits: number
+  successfulLogins: number
+  totalRequests: number
+  uniqueIps: number
+  uniqueUsers: number
 }
 ```
 
@@ -1671,8 +1853,12 @@ import type { Request } from 'express'
 
 import {
   LOG_EVENT_TYPE,
+  type GetLogsListQueryType,
+  type GetLogsListResponseType,
   type LogEventSubtype,
   type LogEventType,
+  type LoggingHealthResponseType,
+  type LoggingSummaryResponseType,
   type LogRecordType,
   type LogsHourlySummaryType,
 } from '@dx3/models-shared'
@@ -1889,9 +2075,111 @@ export class LoggingService {
   }
 
   /**
+   * Get paginated list of logs with filters
+   */
+  async getLogsList(query: GetLogsListQueryType): Promise<GetLogsListResponseType> {
+    if (!this.isEnabled) return { rows: [], total: 0 }
+
+    const {
+      endDate,
+      eventType,
+      fingerprint,
+      ipAddress,
+      limit = 50,
+      offset = 0,
+      orderBy = 'createdAt',
+      sortDir = 'DESC',
+      startDate,
+      success,
+      userId,
+    } = query
+
+    const conditions: string[] = []
+    const params: unknown[] = []
+    let paramIndex = 1
+
+    // Build WHERE conditions
+    if (startDate) {
+      conditions.push(`created_at >= $${paramIndex++}`)
+      params.push(startDate)
+    }
+    if (endDate) {
+      conditions.push(`created_at <= $${paramIndex++}`)
+      params.push(endDate)
+    }
+    if (eventType) {
+      conditions.push(`event_type = $${paramIndex++}`)
+      params.push(eventType)
+    }
+    if (userId) {
+      conditions.push(`user_id = $${paramIndex++}`)
+      params.push(userId)
+    }
+    if (ipAddress) {
+      conditions.push(`ip_address = $${paramIndex++}`)
+      params.push(ipAddress)
+    }
+    if (fingerprint) {
+      conditions.push(`fingerprint = $${paramIndex++}`)
+      params.push(fingerprint)
+    }
+    if (success !== undefined) {
+      conditions.push(`success = $${paramIndex++}`)
+      params.push(success)
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
+
+    // Map orderBy to column name
+    const orderByMap: Record<string, string> = {
+      createdAt: 'created_at',
+      eventType: 'event_type',
+      ipAddress: 'ip_address',
+    }
+    const orderColumn = orderByMap[orderBy] || 'created_at'
+
+    // Get total count
+    const countResult = await TimescaleDbConnection.query<{ count: string }>(
+      `SELECT COUNT(*) as count FROM logs ${whereClause}`,
+      params
+    )
+    const total = parseInt(countResult.rows[0].count, 10)
+
+    // Get paginated rows
+    const dataParams = [...params, limit, offset]
+    const result = await TimescaleDbConnection.query<LogRecordType>(`
+      SELECT
+        id,
+        created_at as "createdAt",
+        event_type as "eventType",
+        event_subtype as "eventSubtype",
+        user_id as "userId",
+        fingerprint,
+        device_id as "deviceId",
+        ip_address as "ipAddress",
+        user_agent as "userAgent",
+        http_method as "httpMethod",
+        request_path as "requestPath",
+        response_status_code as "responseStatusCode",
+        response_time_ms as "responseTimeMs",
+        geo_country as "geoCountry",
+        geo_city as "geoCity",
+        success,
+        message,
+        error_code as "errorCode"
+      FROM logs
+      ${whereClause}
+      ORDER BY ${orderColumn} ${sortDir}
+      LIMIT $${paramIndex++} OFFSET $${paramIndex++}
+    `, dataParams)
+
+    return { rows: result.rows, total }
+  }
+
+  /**
    * Get hourly summary from continuous aggregate
    */
-  async getHourlySummary(hoursAgo: number = 24): Promise<LogsHourlySummaryType[]> {
+  async getHourlySummary(hoursAgo: number = 24, limit: number = 100): Promise<LogsHourlySummaryType[]> {
     if (!this.isEnabled) return []
 
     const result = await TimescaleDbConnection.query<LogsHourlySummaryType>(`
@@ -1908,7 +2196,8 @@ export class LoggingService {
       FROM logs_hourly
       WHERE bucket >= NOW() - INTERVAL '${hoursAgo} hours'
       ORDER BY bucket DESC
-    `)
+      LIMIT $1
+    `, [limit])
 
     return result.rows
   }
@@ -1916,14 +2205,7 @@ export class LoggingService {
   /**
    * Get summary for dashboard
    */
-  async getSummary(hoursAgo: number = 24): Promise<{
-    authFailures: number
-    rateLimitHits: number
-    successfulLogins: number
-    totalRequests: number
-    uniqueIps: number
-    uniqueUsers: number
-  }> {
+  async getSummary(hoursAgo: number = 24): Promise<LoggingSummaryResponseType> {
     if (!this.isEnabled) {
       return {
         authFailures: 0,
@@ -1962,6 +2244,49 @@ export class LoggingService {
       totalRequests: parseInt(row.total_requests, 10),
       uniqueIps: parseInt(row.unique_ips, 10),
       uniqueUsers: parseInt(row.unique_users, 10),
+    }
+  }
+
+  /**
+   * Health check for TimescaleDB connection
+   * Used for monitoring and graceful degradation in UI
+   */
+  async getHealth(): Promise<LoggingHealthResponseType> {
+    const lastChecked = new Date()
+
+    if (!this.isEnabled) {
+      return {
+        connected: false,
+        lastChecked,
+        message: 'TimescaleDB not configured',
+      }
+    }
+
+    try {
+      const result = await TimescaleDbConnection.query<{ extversion: string }>(
+        "SELECT extversion FROM pg_extension WHERE extname = 'timescaledb'"
+      )
+
+      if (result.rows.length === 0) {
+        return {
+          connected: false,
+          lastChecked,
+          message: 'TimescaleDB extension not installed',
+        }
+      }
+
+      return {
+        connected: true,
+        lastChecked,
+        message: 'Connected',
+        version: result.rows[0].extversion,
+      }
+    } catch (err) {
+      return {
+        connected: false,
+        lastChecked,
+        message: (err as Error).message,
+      }
     }
   }
 }
@@ -2383,11 +2708,12 @@ $$ LANGUAGE plpgsql;
 - [ ] Verify aggregates are being populated
 
 ### Phase 5: RBAC Implementation
+- [ ] **Verify `UserProfileStateType.role` is `string[]`** (if not, plan migration)
 - [ ] Add `LOGGING_ADMIN` to `USER_ROLE` constant in shared models
 - [ ] Update privilege sets seed data with `LOGGING_ADMIN` entry
 - [ ] Run database seeder: `make db-seed`
 - [ ] Create `hasLoggingAdminRole` middleware in API
-- [ ] Add i18n strings for logging UI (SYSTEM_LOGS, LOGGING_ADMIN, etc.)
+- [ ] Add i18n strings for logging UI (SYSTEM_LOGS, LOGGING_ADMIN, etc.) - merge with existing en.json
 - [ ] Update `MenuConfigService.getMenus()` to support multiple roles
 - [ ] Update `login-bootstrap.ts` to pass roles array to menu service
 - [ ] Add logs menu item to admin menu with `restriction: USER_ROLE.LOGGING_ADMIN`
@@ -2395,47 +2721,60 @@ $$ LANGUAGE plpgsql;
 - [ ] Verify only SUPER_ADMIN can toggle LOGGING_ADMIN role in user admin UI
 
 ### Phase 6: Logging API Routes
-- [ ] Create `LoggingController` with methods: getSummary, getFailedAuth, getLogsList, getHourlySummary, exportLogs
+- [ ] Implement `getLogsList` method in LoggingService (with pagination, filtering, sorting)
+- [ ] Implement `getHealth` method in LoggingService
+- [ ] Create `LoggingController` with methods: getFailedAuth, getHealth, getHourlySummary, getLogsList, getSummary, exportLogs
 - [ ] Create `logging-api.routes.ts` with `hasLoggingAdminRole` middleware protection
 - [ ] Add logging routes to `v1.routes.ts` (`/logs/*`)
 - [ ] Implement context-dependent sanitization in LoggingService
-- [ ] Add Socket.IO throttling logic for auth failure alerts
+- [ ] Add Socket.IO threshold tracking logic (in-memory map with 5-min sliding window)
 - [ ] Test API endpoints with different roles (should reject non-LOGGING_ADMIN users)
+- [ ] Test health endpoint returns correct status when TimescaleDB is up/down
 
 ### Phase 7: Admin UI Components
-- [ ] Create `LOGGING_ADMIN_ROUTES` constants
-- [ ] Create `LoggingAdminRouter` with role check
+- [ ] Create `LOGGING_ADMIN_ROUTES` and `LOGGING_API_ENDPOINTS` constants
+- [ ] Create `LoggingAdminErrorBoundary` component
+- [ ] Create `LoggingAdminRouter` with role check (using `useSelector`, not `store.getState()`)
 - [ ] Add logging router to admin routes config
 - [ ] Create logging dashboard component (`logging-admin-dashboard.component.tsx`)
   - [ ] Summary metrics cards with trend indicators
   - [ ] Time range selector (1h, 6h, 24h, 7d, 30d, Custom)
   - [ ] Auto-refresh toggle
   - [ ] Real-time alert banner display
+  - [ ] Health status indicator (uses `/api/v1/logs/health`)
 - [ ] Create failed auth lookup component (`logging-admin-failed-auth.component.tsx`)
   - [ ] Search by IP/fingerprint/user_id
   - [ ] Time window selector
   - [ ] Results table with export
 - [ ] Create log list component (`logging-admin-list.component.tsx`)
   - [ ] Filterable table (event type, date range, success/failure, user, IP, fingerprint)
-  - [ ] Pagination (25/50/100/200 rows)
+  - [ ] Pagination (25/50/100/200 rows) - server-side
   - [ ] Sorting (created_at, event_type, ip_address)
   - [ ] Export to CSV/JSON
-- [ ] Add RTK Query endpoints for logging API
+- [ ] Add RTK Query endpoints for logging API (including health endpoint)
 - [ ] Create logging Redux slice for alerts state
 - [ ] Implement `useLoggingAlerts` hook for Socket.IO connection
-- [ ] Add graceful degradation UI for TimescaleDB downtime
+- [ ] Implement `useLoggingHealth` hook for health status polling
+- [ ] Add graceful degradation UI for TimescaleDB downtime (banner with last query timestamp)
+- [ ] Wrap routes with `LoggingAdminErrorBoundary`
 - [ ] Test route protection (unauthorized redirect)
+- [ ] Test error boundary (forced error recovery)
 
 ### Phase 8: Socket.IO Real-Time Alerts
 - [ ] Create `/admin-logs` namespace in Socket.IO server
-- [ ] Implement auto-join to `logging-alerts` room for LOGGING_ADMIN users
-- [ ] Add threshold tracking in LoggingService (in-memory map or Redis)
-- [ ] Emit `auth_failure_warning` at 3 failures
-- [ ] Emit `auth_failure_critical` at 10+ failures
+- [ ] Add authentication middleware to namespace (verify LOGGING_ADMIN role)
+- [ ] Implement auto-join to `logging-alerts` room for authenticated users
+- [ ] Add in-memory threshold tracking with 5-minute sliding window
+  - [ ] Track by key: `${ipAddress}:${fingerprint}`
+  - [ ] Document limitation: counts not shared across API instances
+- [ ] Emit `auth_failure_warning` at 3 failures in window
+- [ ] Emit `auth_failure_critical` at 10+ failures in window
 - [ ] Emit `rate_limit_alert` for rate limit events
+- [ ] Add cleanup logic for stale entries (older than 5 minutes)
 - [ ] Test Socket.IO connection from admin dashboard
 - [ ] Test alert display (warning banner, critical banner with sound)
 - [ ] Verify alerts don't fire for isolated failures (1-2 attempts)
+- [ ] Test threshold reset on server restart (expected behavior)
 
 ### Phase 9: Testing & Validation
 - [ ] Unit tests for LoggingService (sanitization, context extraction)
@@ -2463,6 +2802,6 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-*Document Version: 4.0*
+*Document Version: 4.1*
 *Created: January 27, 2026*
-*Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, and implementation decisions*
+*Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, implementation decisions, error boundary, health check endpoint, getLogsList method, and clarified threshold tracking limitations*
