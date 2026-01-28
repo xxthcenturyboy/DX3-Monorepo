@@ -77,13 +77,141 @@ This approach provides immediate visibility into user traffic while maintaining 
 
 ## Table of Contents
 
-1. [Data Retention Strategy](#data-retention-strategy)
-2. [Google Tag Manager + GA4 (Client-Side)](#google-tag-manager--ga4-client-side)
-3. [TimescaleDB Metrics (Server-Side)](#timescaledb-metrics-server-side)
-4. [Metrics Catalog](#metrics-catalog)
-5. [Implementation Phases](#implementation-phases)
-6. [Future Considerations](#future-considerations)
-7. [Implementation Checklist](#implementation-checklist)
+1. [Implementation Decisions](#implementation-decisions)
+2. [Data Retention Strategy](#data-retention-strategy)
+3. [Google Tag Manager + GA4 (Client-Side)](#google-tag-manager--ga4-client-side)
+4. [TimescaleDB Metrics (Server-Side)](#timescaledb-metrics-server-side)
+5. [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
+6. [Custom Metrics Dashboard](#custom-metrics-dashboard)
+7. [Metrics Catalog](#metrics-catalog)
+8. [Implementation Phases](#implementation-phases)
+9. [Future Considerations](#future-considerations)
+10. [Implementation Checklist](#implementation-checklist)
+
+---
+
+## Implementation Decisions
+
+This section documents key decisions made during requirements interview and technical planning.
+
+### Dashboard Approach
+
+**Initial Implementation:**
+- ✅ **Custom Dashboard in Web App**: Build native React dashboard at `/admin/metrics/dashboard`
+- ✅ Integrated with existing admin UI and RBAC
+- ✅ Uses MUI v7 components, matches app design system
+- ✅ **Defer Grafana**: Add later when advanced features needed (alerting, complex queries, stakeholder reports)
+
+**Rationale:**
+- Get metrics visibility immediately without additional infrastructure
+- Learn what metrics matter before investing in Grafana setup
+- Easy migration path: Grafana connects to same TimescaleDB later
+- Both can coexist: custom dashboard for quick glance, Grafana for deep analysis
+
+### RBAC Decisions
+
+**New Role: METRICS_ADMIN**
+- ✅ Separate role from LOGGING_ADMIN (more granular permissions)
+- ✅ **Role Hierarchy**: SUPER_ADMIN > LOGGING_ADMIN > METRICS_ADMIN
+- ✅ LOGGING_ADMIN automatically includes METRICS_ADMIN permissions
+- ✅ Only SUPER_ADMIN can assign METRICS_ADMIN role
+- ✅ Grants access to `/admin/metrics/*` routes
+
+**Rationale:**
+- Allows business stakeholders to view metrics without log access
+- Security team can have LOGGING_ADMIN (logs + metrics)
+- Product team can have METRICS_ADMIN only (business metrics, no sensitive logs)
+
+### Custom Dashboard Specifications
+
+**Core Metrics (MVP):**
+- ✅ User Growth: DAU/WAU/MAU trend chart (last 30 days)
+- ✅ Signup Counts: 24h/7d/30d with % change indicators
+- ✅ Signup Method Breakdown: Email vs Phone (pie/bar chart)
+- ✅ Geographic Distribution: Top countries by signups
+
+**Features:**
+- ✅ **Refresh**: On-demand with manual refresh button (no auto-refresh)
+- ✅ **Date Filtering**: Fixed presets (Last 7d, 30d, 90d) - defer custom date picker
+- ✅ **Export**: View-only for now (defer CSV/Excel export)
+- ✅ **Mobile**: Full responsive design (charts stack, cards resize)
+- ✅ **Empty State**: Helpful message when no data available
+- ✅ **Historical Data**: Last 90 days raw + unlimited aggregates
+
+**UI/UX:**
+- ✅ Separate from logging dashboard (`/admin/metrics/dashboard` vs `/admin/logs/dashboard`)
+- ✅ Clean, focused interface showing key business metrics
+- ✅ Loading spinner for slow queries (no timeout)
+
+### API Architecture
+
+**Endpoint Structure:**
+- ✅ New namespace: `/api/v1/metrics/*`
+- ✅ Separate MetricsController (not part of LoggingController)
+- ✅ All endpoints protected by `hasMetricsAdminRole` middleware
+- ✅ Examples:
+  - `GET /api/v1/metrics/summary` - Dashboard summary
+  - `GET /api/v1/metrics/dau?date=2026-01-28` - DAU for specific date
+  - `GET /api/v1/metrics/signups?range=7d` - Signup counts
+  - `GET /api/v1/metrics/growth?range=30d` - DAU/WAU/MAU trend
+
+**Failure Handling:**
+- ✅ **Silent Degradation**: Skip metrics recording if TimescaleDB unavailable
+- ✅ Application continues normally (same as logging)
+- ✅ Acceptable to lose some metrics data during downtime
+
+### GA4 + GTM Decisions
+
+**Implementation Approach:**
+- ✅ **Google Tag Manager**: Single GTM container for all tracking pixels
+- ✅ **GA4 Integration**: Configure GA4 tag inside GTM (not direct in code)
+- ✅ **User ID Tracking**: Set user_id on signup completion (cross-platform tracking)
+- ✅ **Cookie Consent**: Implied consent initially (defer banner until EU launch)
+
+**What GA4 Tracks:**
+- ✅ Page views (automatic via GTM)
+- ✅ Unique visitors, sessions, traffic sources
+- ✅ Custom events: signup_started, signup_completed, login_completed
+- ✅ User ID for cross-device tracking
+
+**Privacy:**
+- ✅ Store real user_id in both GA4 and TimescaleDB (not anonymized)
+- ✅ No opt-out for server-side metrics (operational data, like web server logs)
+- ✅ GA4 consent mode deferred (add before EU launch)
+
+### Feature Tracking Scope
+
+**Phase 1 (MVP):**
+- ✅ Auth events: signup, login, logout (via MetricsService)
+- ✅ API route views: which endpoints hit most (from existing logging)
+- ✅ Basic feature usage: media upload, notifications, device registration
+
+**Deferred:**
+- ❌ Detailed feature interactions (button clicks, form submissions)
+- ❌ Session replay
+- ❌ Heatmaps
+- ❌ Advanced funnel analysis
+
+### Mobile Analytics
+
+**Current Plan:**
+- ✅ Web-only metrics for Phase 1
+- ✅ Defer Firebase Analytics until mobile app has production users
+- ✅ Mobile app calls same API endpoints (metrics recorded in TimescaleDB)
+- ✅ Future: Add Firebase when needed (feeds into same GA4 property)
+
+### Data Retention & Privacy
+
+**Server-Side (TimescaleDB):**
+- ✅ Raw logs: 90 days (same as logging table)
+- ✅ Aggregates: Indefinite (metrics_daily, metrics_weekly, metrics_monthly)
+- ✅ Store real user_id for cohort analysis
+- ✅ No anonymization or opt-out for operational metrics
+
+**Client-Side (GA4):**
+- ✅ Event data: 14 months (free tier default)
+- ✅ Can export to BigQuery for longer retention
+- ✅ User ID tracking for cross-platform analysis
 
 ---
 
@@ -872,6 +1000,692 @@ export const AuthController = {
 
 ---
 
+## Role-Based Access Control (RBAC)
+
+### Overview
+
+Access to metrics features is controlled by a new specialized role: **METRICS_ADMIN**. This role grants access to business metrics and analytics without providing log access or general administrative privileges.
+
+### Role Hierarchy
+
+```
+SUPER_ADMIN (order: 5)
+    ↓ (full system access, can assign all roles)
+    ├── LOGGING_ADMIN (order: 4)
+    │   ├── System logs access (from logging implementation)
+    │   └── Metrics access (inherits METRICS_ADMIN)
+    └── METRICS_ADMIN (order: 3)
+        └── Business metrics, analytics, dashboards
+
+ADMIN (order: 2)
+    └── User management, support requests
+
+USER (order: 1)
+    └── Standard application features
+```
+
+**Key Points:**
+- `SUPER_ADMIN` has access to everything
+- `LOGGING_ADMIN` automatically includes `METRICS_ADMIN` permissions
+- `METRICS_ADMIN` is independent (can be granted without LOGGING_ADMIN)
+- Only `SUPER_ADMIN` can assign specialized roles
+
+### RBAC Implementation Checklist
+
+#### 1. Add METRICS_ADMIN Role Constant
+
+**File:** `packages/shared/models/src/user-privilege/user-privilege-shared.consts.ts`
+
+```typescript
+export const USER_ROLE = {
+  ADMIN: 'ADMIN',
+  LOGGING_ADMIN: 'LOGGING_ADMIN',
+  METRICS_ADMIN: 'METRICS_ADMIN',  // NEW
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  USER: 'USER',
+} as const
+
+export const USER_ROLE_ARRAY = Object.values(USER_ROLE)
+```
+
+#### 2. Add Privilege Set Seed Data
+
+**File:** `packages/api/libs/pg/seed/data/user-privilege-sets.data.ts`
+
+```typescript
+export const USER_PRIVILEGE_SETS_SEED: UserPrivilegeSetSeedData[] = [
+  {
+    description: 'Standard user with basic access permissions',
+    name: 'USER',
+    order: 1,
+  },
+  {
+    description: 'Administrator with elevated permissions for user management',
+    name: 'ADMIN',
+    order: 2,
+  },
+  {
+    description: 'Metrics administrator with access to business analytics',  // NEW
+    name: 'METRICS_ADMIN',  // NEW
+    order: 3,  // NEW
+  },  // NEW
+  {
+    description: 'Logging administrator with access to system logs and analytics',
+    name: 'LOGGING_ADMIN',
+    order: 4,  // Changed from 3
+  },
+  {
+    description: 'Super administrator with full system access',
+    name: 'SUPER_ADMIN',
+    order: 5,  // Changed from 4
+  },
+]
+```
+
+**Action:** Run `make db-seed` after updating seed data.
+
+#### 3. Create Metrics Admin Middleware
+
+**File:** `packages/api/libs/auth/middleware/ensure-role.middleware.ts`
+
+```typescript
+/**
+ * Middleware to ensure user has METRICS_ADMIN, LOGGING_ADMIN, or SUPER_ADMIN role
+ * LOGGING_ADMIN includes METRICS_ADMIN permissions
+ */
+export async function hasMetricsAdminRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  const userId = _getUserId(req)
+
+  if (!userId) {
+    throw new Error('User is not authorized for this activity.')
+  }
+
+  // SUPER_ADMIN always has access
+  const hasSuperAdmin = await userHasRole(userId, USER_ROLE.SUPER_ADMIN)
+  if (hasSuperAdmin) {
+    next()
+    return
+  }
+
+  // LOGGING_ADMIN includes metrics access
+  const hasLoggingAdmin = await userHasRole(userId, USER_ROLE.LOGGING_ADMIN)
+  if (hasLoggingAdmin) {
+    next()
+    return
+  }
+
+  // Check for METRICS_ADMIN role
+  const hasRole = await userHasRole(userId, USER_ROLE.METRICS_ADMIN)
+  if (!hasRole) {
+    throw new Error('User does not have metrics admin permissions.')
+  }
+
+  next()
+}
+```
+
+#### 4. Create Protected Metrics Routes
+
+**File:** `packages/api/api-app/src/metrics/metrics-api.routes.ts` (NEW)
+
+```typescript
+import { Router } from 'express'
+import { hasMetricsAdminRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
+import { MetricsController } from './metrics-api.controller'
+
+const router = Router()
+
+// All metrics endpoints require METRICS_ADMIN role (or LOGGING_ADMIN/SUPER_ADMIN)
+router.get('/summary', hasMetricsAdminRole, MetricsController.getSummary)
+router.get('/dau', hasMetricsAdminRole, MetricsController.getDAU)
+router.get('/wau', hasMetricsAdminRole, MetricsController.getWAU)
+router.get('/mau', hasMetricsAdminRole, MetricsController.getMAU)
+router.get('/signups', hasMetricsAdminRole, MetricsController.getSignups)
+router.get('/growth', hasMetricsAdminRole, MetricsController.getGrowthTrend)
+router.get('/geography', hasMetricsAdminRole, MetricsController.getGeography)
+
+export { router as metricsRoutes }
+```
+
+**Add to main routes in:** `packages/api/api-app/src/routes/v1.routes.ts`
+
+```typescript
+import { metricsRoutes } from '../metrics/metrics-api.routes'
+
+// Add to router setup
+router.use('/metrics', metricsRoutes)  // All /api/v1/metrics/* routes
+```
+
+#### 5. Create MetricsController
+
+**File:** `packages/api/api-app/src/metrics/metrics-api.controller.ts` (NEW)
+
+```typescript
+import type { Request, Response } from 'express'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
+import { sendOK } from '@dx3/api-libs/response'
+
+export const MetricsController = {
+  /**
+   * GET /api/v1/metrics/summary
+   * Get comprehensive dashboard metrics
+   */
+  getSummary: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const data = await service.getDashboardMetrics()
+    return sendOK(req, res, data)
+  },
+
+  /**
+   * GET /api/v1/metrics/dau?date=2026-01-28
+   * Get Daily Active Users for specific date
+   */
+  getDAU: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const date = req.query.date ? new Date(req.query.date as string) : new Date()
+    const dau = await service.getDAU(date)
+    return sendOK(req, res, { dau, date })
+  },
+
+  /**
+   * GET /api/v1/metrics/growth?range=30d
+   * Get DAU/WAU/MAU trend over date range
+   */
+  getGrowthTrend: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const range = req.query.range as string || '30d'
+
+    // Parse range (7d, 30d, 90d)
+    const days = parseInt(range.replace('d', ''), 10)
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+
+    // Query metrics_daily aggregate for trend
+    const result = await service.loggingService.queryRaw(`
+      SELECT
+        bucket::date as date,
+        unique_users as users
+      FROM metrics_daily
+      WHERE event_type = 'METRIC_LOGIN'
+        AND bucket >= $1
+        AND bucket <= $2
+      ORDER BY bucket ASC
+    `, [startDate, endDate])
+
+    return sendOK(req, res, { data: result.rows, range })
+  },
+
+  /**
+   * GET /api/v1/metrics/signups?range=7d
+   * Get signup counts by method
+   */
+  getSignups: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const range = req.query.range as string || '7d'
+
+    const days = parseInt(range.replace('d', ''), 10)
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+
+    const breakdown = await service.getSignupsByMethod(startDate, endDate)
+    return sendOK(req, res, { ...breakdown, range })
+  },
+
+  /**
+   * GET /api/v1/metrics/geography?range=30d
+   * Get top countries by signups
+   */
+  getGeography: async (req: Request, res: Response) => {
+    const service = new MetricsService()
+    const range = req.query.range as string || '30d'
+
+    const days = parseInt(range.replace('d', ''), 10)
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+
+    const result = await service.loggingService.queryRaw<{
+      count: string
+      country: string
+    }>(`
+      SELECT
+        geo_country as country,
+        COUNT(*) as count
+      FROM logs
+      WHERE event_type = 'METRIC_SIGNUP'
+        AND created_at >= $1
+        AND created_at < $2
+        AND geo_country IS NOT NULL
+      GROUP BY geo_country
+      ORDER BY count DESC
+      LIMIT 10
+    `, [startDate, endDate])
+
+    return sendOK(req, res, { data: result.rows, range })
+  },
+
+  // Additional endpoints...
+}
+```
+
+#### 6. Update Admin Menu
+
+**File:** `packages/web/web-app/src/app/ui/menus/admin.menu.ts`
+
+```typescript
+import { USER_ROLE } from '@dx3/models-shared'
+import { METRICS_ADMIN_ROUTES } from '../../metrics/admin/metrics-admin-web.routes'
+
+export const adminMenu = (): AppMenuType => {
+  return {
+    items: [
+      // ... existing menu items ...
+      {
+        icon: IconNames.SHOW_CHART,
+        id: 'menu-item-admin-metrics',
+        restriction: USER_ROLE.METRICS_ADMIN,  // METRICS_ADMIN role
+        routeKey: METRICS_ADMIN_ROUTES.DASHBOARD,
+        title: strings.METRICS_DASHBOARD,
+        type: 'ROUTE',
+      },
+      {
+        icon: IconNames.ASSESSMENT,
+        id: 'menu-item-admin-logging',
+        restriction: USER_ROLE.LOGGING_ADMIN,  // LOGGING_ADMIN role
+        routeKey: LOGGING_ADMIN_ROUTES.DASHBOARD,
+        title: strings.SYSTEM_LOGS,
+        type: 'ROUTE',
+      },
+      // ... other menu items ...
+    ],
+    title: strings.ADMIN,
+  }
+}
+```
+
+#### 7. Add i18n Strings
+
+**File:** `packages/web/web-app/assets/locales/en.json`
+
+```json
+{
+  "DAILY_ACTIVE_USERS": "Daily Active Users",
+  "GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution",
+  "METRICS_ADMIN": "Metrics Administrator",
+  "METRICS_ADMIN_DESCRIPTION": "Access to business metrics, analytics, and growth dashboards",
+  "METRICS_DASHBOARD": "Metrics Dashboard",
+  "MONTHLY_ACTIVE_USERS": "Monthly Active Users",
+  "SIGNUP_BREAKDOWN": "Signup Breakdown",
+  "USER_GROWTH": "User Growth",
+  "WEEKLY_ACTIVE_USERS": "Weekly Active Users"
+}
+```
+
+#### 8. Create Route Constants
+
+**File:** `packages/web/web-app/src/app/metrics/admin/metrics-admin-web.routes.ts` (NEW)
+
+```typescript
+export const METRICS_ADMIN_ROUTES = {
+  DASHBOARD: '/admin/metrics/dashboard',
+  GEOGRAPHY: '/admin/metrics/geography',
+  GROWTH: '/admin/metrics/growth',
+  SIGNUPS: '/admin/metrics/signups',
+} as const
+```
+
+### Security Validation Points
+
+1. **Database Level**: `UserModel.roles` setter validates against `USER_ROLE_ARRAY`
+2. **API Level**: All `/api/v1/metrics/*` endpoints use `hasMetricsAdminRole` middleware
+3. **Frontend Level**: Role update UI checks `currentUser?.sa` before allowing changes
+4. **Menu Level**: Menu items filtered by `MenuConfigService` based on user roles
+5. **Router Level**: `MetricsAdminRouter` checks roles before rendering routes
+
+---
+
+## Custom Metrics Dashboard
+
+### Overview
+
+The custom metrics dashboard is a native React component integrated into the admin section at `/admin/metrics/dashboard`. It provides quick visibility into key business metrics without requiring external tools.
+
+### Dashboard Layout
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│  Metrics Dashboard                [Last 30d ▼] [Refresh 🔄]    │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                    USER GROWTH                           │  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐         │  │
+│  │  │    DAU     │  │    WAU     │  │    MAU     │         │  │
+│  │  │   1,234    │  │   5,678    │  │   12,345   │         │  │
+│  │  │   ↑ 8%     │  │   ↑ 12%    │  │   ↑ 15%    │         │  │
+│  │  └────────────┘  └────────────┘  └────────────┘         │  │
+│  │                                                           │  │
+│  │  [Line Chart: DAU/WAU/MAU Trend - Last 30 Days]          │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │                    SIGNUPS                               │  │
+│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐         │  │
+│  │  │  Last 24h  │  │  Last 7d   │  │  Last 30d  │         │  │
+│  │  │     45     │  │    312     │  │   1,234    │         │  │
+│  │  │   ↑ 23%    │  │   ↑ 15%    │  │   ↑ 18%    │         │  │
+│  │  └────────────┘  └────────────┘  └────────────┘         │  │
+│  │                                                           │  │
+│  │  [Pie Chart: Email vs Phone Signups]                     │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │             GEOGRAPHIC DISTRIBUTION                      │  │
+│  │  ┌──────────────────────────────────────────────────┐    │  │
+│  │  │  Country        Signups    % of Total           │    │  │
+│  │  │  🇺🇸 United States  456      37%                │    │  │
+│  │  │  🇬🇧 United Kingdom 234      19%                │    │  │
+│  │  │  🇨🇦 Canada          123      10%                │    │  │
+│  │  │  🇦🇺 Australia       98       8%                 │    │  │
+│  │  │  🇩🇪 Germany         87       7%                 │    │  │
+│  │  └──────────────────────────────────────────────────┘    │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+```
+
+### Component Structure
+
+**File:** `packages/web/web-app/src/app/metrics/admin/dashboard/metrics-admin-dashboard.component.tsx`
+
+```typescript
+import { Box, Button, Card, CardContent, Grid, MenuItem, Select, Typography } from '@mui/material'
+import { RefreshIcon } from '@mui/icons-material'
+import { useEffect, useState } from 'react'
+import { useGetMetricsSummaryQuery, useGetGrowthTrendQuery } from '../metrics-admin-web.api'
+import { MetricCard } from './metric-card.component'
+import { GrowthChart } from './growth-chart.component'
+import { SignupBreakdownChart } from './signup-breakdown-chart.component'
+import { GeographyTable } from './geography-table.component'
+
+export const MetricsAdminDashboard = () => {
+  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d')
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  // Fetch metrics data
+  const { data: summary, isLoading: summaryLoading, error: summaryError } =
+    useGetMetricsSummaryQuery(refreshKey)
+
+  const { data: growth, isLoading: growthLoading } =
+    useGetGrowthTrendQuery({ range: dateRange, refreshKey })
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1)
+  }
+
+  // Empty state
+  if (!summaryLoading && !summary?.dau && !summary?.signupsLast24h) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" color="text.secondary" gutterBottom>
+          No metrics data available yet
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Start collecting data by recording signup and login events
+        </Typography>
+      </Box>
+    )
+  }
+
+  // Error state (TimescaleDB unavailable)
+  if (summaryError) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h6" color="error" gutterBottom>
+          Unable to load metrics
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          The metrics database is currently unavailable. Please try again later.
+        </Typography>
+        <Button onClick={handleRefresh} sx={{ mt: 2 }}>
+          Retry
+        </Button>
+      </Box>
+    )
+  }
+
+  return (
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4">Metrics Dashboard</Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Select value={dateRange} onChange={(e) => setDateRange(e.target.value as any)}>
+            <MenuItem value="7d">Last 7 Days</MenuItem>
+            <MenuItem value="30d">Last 30 Days</MenuItem>
+            <MenuItem value="90d">Last 90 Days</MenuItem>
+          </Select>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+            disabled={summaryLoading || growthLoading}
+          >
+            Refresh
+          </Button>
+        </Box>
+      </Box>
+
+      {/* User Growth Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>User Growth</Typography>
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} sm={4}>
+              <MetricCard
+                title="Daily Active Users"
+                value={summary?.dau || 0}
+                trend={calculateTrend(summary?.dau, summary?.previousDau)}
+                loading={summaryLoading}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <MetricCard
+                title="Weekly Active Users"
+                value={summary?.wau || 0}
+                trend={calculateTrend(summary?.wau, summary?.previousWau)}
+                loading={summaryLoading}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <MetricCard
+                title="Monthly Active Users"
+                value={summary?.mau || 0}
+                trend={calculateTrend(summary?.mau, summary?.previousMau)}
+                loading={summaryLoading}
+              />
+            </Grid>
+          </Grid>
+          <GrowthChart data={growth?.data} loading={growthLoading} />
+        </CardContent>
+      </Card>
+
+      {/* Signups Section */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Signups</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <MetricCard
+                    title="Last 24h"
+                    value={summary?.signupsLast24h || 0}
+                    compact
+                    loading={summaryLoading}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <MetricCard
+                    title="Last 7d"
+                    value={summary?.signupsLast7d || 0}
+                    compact
+                    loading={summaryLoading}
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <MetricCard
+                    title="Last 30d"
+                    value={summary?.signupsLast30d || 0}
+                    compact
+                    loading={summaryLoading}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>Signup Method</Typography>
+              <SignupBreakdownChart range={dateRange} />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Geography Section */}
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>Geographic Distribution</Typography>
+          <GeographyTable range={dateRange} />
+        </CardContent>
+      </Card>
+    </Box>
+  )
+}
+
+function calculateTrend(current?: number, previous?: number): number | undefined {
+  if (!current || !previous) return undefined
+  return ((current - previous) / previous) * 100
+}
+```
+
+### RTK Query API Integration
+
+**File:** `packages/web/web-app/src/app/metrics/admin/metrics-admin-web.api.ts`
+
+```typescript
+import { apiWeb } from '../../../api/api-web.util'
+
+export const apiWebMetricsAdmin = apiWeb.injectEndpoints({
+  endpoints: (build) => ({
+    getMetricsSummary: build.query<MetricsSummaryType, number>({
+      query: (refreshKey) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'GET',
+        url: `metrics/summary?_=${refreshKey}`,  // Cache busting
+      }),
+    }),
+
+    getGrowthTrend: build.query<GrowthTrendType, { range: string; refreshKey: number }>({
+      query: ({ range, refreshKey }) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'GET',
+        url: `metrics/growth?range=${range}&_=${refreshKey}`,
+      }),
+    }),
+
+    getSignupBreakdown: build.query<SignupBreakdownType, { range: string }>({
+      query: ({ range }) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'GET',
+        url: `metrics/signups?range=${range}`,
+      }),
+    }),
+
+    getGeographyData: build.query<GeographyType[], { range: string }>({
+      query: ({ range }) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'GET',
+        url: `metrics/geography?range=${range}`,
+      }),
+    }),
+  }),
+})
+
+export const {
+  useGetMetricsSummaryQuery,
+  useGetGrowthTrendQuery,
+  useGetSignupBreakdownQuery,
+  useGetGeographyDataQuery,
+} = apiWebMetricsAdmin
+```
+
+### Mobile Responsive Design
+
+**Key Responsive Patterns:**
+
+```typescript
+// Metric cards stack on mobile
+<Grid container spacing={2}>
+  <Grid item xs={12} sm={4}>  {/* Full width mobile, 1/3 desktop */}
+    <MetricCard />
+  </Grid>
+</Grid>
+
+// Charts resize automatically with responsive container
+<ResponsiveContainer width="100%" height={300}>
+  <LineChart data={data}>
+    {/* Chart config */}
+  </LineChart>
+</ResponsiveContainer>
+
+// Tables scroll horizontally on mobile
+<TableContainer sx={{ overflowX: 'auto' }}>
+  <Table>
+    {/* Table content */}
+  </Table>
+</TableContainer>
+```
+
+### Loading and Error States
+
+**Loading:**
+- Skeleton loaders for metric cards
+- Chart placeholder with loading spinner
+- Disabled refresh button during load
+
+**Error:**
+- Friendly error message if TimescaleDB unavailable
+- Retry button
+- Falls back gracefully (no app crash)
+
+**Empty State:**
+- Clear message: "No metrics data available yet"
+- Instructions: "Start collecting data by recording events"
+
+### Performance Considerations
+
+**Query Optimization:**
+- Use continuous aggregates (metrics_daily) for historical trends
+- Raw logs table only for last 90 days detailed view
+- Date range presets aligned with aggregate boundaries
+
+**Caching:**
+- RTK Query caches results (5-minute default)
+- Refresh button increments cache key to force refetch
+- No auto-refresh (on-demand only)
+
+---
+
 ## Metrics Catalog
 
 ### Core Business Metrics
@@ -1003,73 +1817,140 @@ ORDER BY s.cohort_week DESC;
 
 ## Implementation Phases
 
-### Phase 1: GTM + GA4 Basic Setup (Week 1)
+### Phase 1: GTM + GA4 Setup (Week 1)
 
-**Goal:** Get basic traffic visibility immediately
+**Goal:** Get client-side traffic visibility immediately
 
-- [ ] Create GTM container (web)
-- [ ] Create GA4 property
-- [ ] Add `GTM_CONTAINER_ID` to environment configs
-- [ ] Create `google-tag-manager.ts` utility
-- [ ] Create `useGoogleTagManager` hook
-- [ ] Add to App root component
-- [ ] Configure GA4 tag in GTM
-- [ ] Configure page_view trigger in GTM
-- [ ] Verify page views in GA4 Real-Time dashboard
-- [ ] Add conversion event triggers (signup_started, signup_completed)
+**Effort:** 2-4 hours
+
+**Tasks:**
+- Create GTM container and GA4 property
+- Implement GTM integration in web app
+- Configure GA4 tag and conversion events in GTM
+- Test data flow to GA4 Real-Time dashboard
 
 **Deliverables:**
-- GTM container configured with GA4
-- GA4 dashboard showing traffic
-- Basic conversion tracking
+- ✅ GTM container configured with GA4
+- ✅ Page views tracked automatically
+- ✅ Conversion events (signup, login) tracked
+- ✅ User ID cross-device tracking
 
-### Phase 2: TimescaleDB Metrics Events (With Logging Implementation)
+**Success Criteria:**
+- GA4 Real-Time shows current visitors
+- Custom events appear in GA4 within 5 minutes
+- User IDs visible in User Explorer
 
-**Goal:** Server-side business metrics
+---
 
-- [ ] Add METRIC_EVENT_TYPE constants to shared models
-- [ ] Create MetricsService class
-- [ ] Integrate with AuthController (signup, login)
-- [ ] Add continuous aggregates (metrics_daily, metrics_weekly, metrics_monthly)
-- [ ] Write unit tests for MetricsService
+### Phase 2: RBAC + TimescaleDB Metrics (Week 2)
 
-**Deliverables:**
-- Server-side signup/login tracking
-- Query-able metrics in TimescaleDB
+**Goal:** Server-side business metrics with role-based access
 
-### Phase 3: Dashboard Integration (Week 3-4)
+**Effort:** 1-2 days
 
-**Goal:** Visualize metrics
-
-**Option A: Grafana (Recommended)**
-- Connect Grafana to TimescaleDB
-- Create dashboard panels for key metrics
-- Set up alerts for anomalies
-
-**Option B: Metabase**
-- Connect Metabase to TimescaleDB
-- Create questions and dashboards
-- More user-friendly for non-technical team members
-
-**Option C: Custom Admin Dashboard**
-- Add `/api/admin/metrics` endpoints
-- Build React dashboard in web app
-- Most control, most effort
+**Tasks:**
+- Add METRICS_ADMIN role to RBAC system
+- Create MetricsService for recording and querying
+- Add continuous aggregates to TimescaleDB schema
+- Integrate with AuthController (signup, login tracking)
+- Create protected API endpoints
 
 **Deliverables:**
-- Visual dashboard for business metrics
-- Automated reporting (optional)
+- ✅ METRICS_ADMIN role with proper hierarchy
+- ✅ Server-side signup/login tracking
+- ✅ Continuous aggregates for fast queries
+- ✅ Protected `/api/v1/metrics/*` endpoints
 
-### Phase 4: Advanced Analytics (Future)
+**Success Criteria:**
+- Signups create METRIC_SIGNUP events in logs table
+- Continuous aggregates populate within refresh interval
+- API endpoints return data in < 2 seconds
+- RBAC permissions work correctly
 
-**Goal:** Deeper product insights when needed
+---
 
-Consider adding:
-- [ ] Session replay (PostHog)
-- [ ] A/B testing framework
-- [ ] Funnel analysis
-- [ ] Cohort analysis dashboard
-- [ ] Predictive churn modeling
+### Phase 3: Custom Metrics Dashboard (Week 3)
+
+**Goal:** Native React dashboard for key business metrics
+
+**Effort:** 3-5 days
+
+**Tasks:**
+- Create metrics admin router and routes
+- Build RTK Query API layer
+- Develop reusable metric components (cards, charts, tables)
+- Implement main dashboard with all sections
+- Add empty/error/loading states
+- Test mobile responsiveness
+
+**Deliverables:**
+- ✅ Custom dashboard at `/admin/metrics/dashboard`
+- ✅ DAU/WAU/MAU visualization
+- ✅ Signup metrics and breakdown
+- ✅ Geographic distribution
+- ✅ Full mobile responsive design
+
+**Success Criteria:**
+- Dashboard loads in < 3 seconds
+- All charts/tables render correctly
+- Date range filtering works
+- Graceful error handling
+- Looks professional on mobile and desktop
+
+---
+
+### Phase 4: Integration and Testing (Week 4)
+
+**Goal:** End-to-end validation and polish
+
+**Effort:** 2-3 days
+
+**Tasks:**
+- Comprehensive RBAC testing
+- API integration tests
+- UI E2E tests (Cypress)
+- Performance testing
+- Documentation updates
+
+**Deliverables:**
+- ✅ All tests passing
+- ✅ Documentation complete
+- ✅ Production-ready deployment
+
+**Success Criteria:**
+- 100% of RBAC tests passing
+- No console errors in production build
+- Dashboard works for all supported roles
+- Performance benchmarks met
+
+---
+
+### Future Enhancements (When Needed)
+
+**Phase 5: Advanced Features**
+
+When core metrics prove valuable, consider adding:
+
+**Grafana Integration** (4-8 hours)
+- Deploy Grafana container
+- Connect to existing TimescaleDB
+- Create advanced dashboards
+- Set up alerting rules
+- Both custom dashboard and Grafana coexist
+
+**Enhanced Tracking** (varies)
+- Cookie consent banner for GA4 (EU launch)
+- Firebase Analytics for mobile app
+- Additional feature usage tracking
+- Session replay (PostHog)
+
+**Advanced Analytics** (2-4 weeks)
+- A/B testing framework
+- Funnel analysis visualization
+- Cohort retention dashboard
+- Predictive churn modeling
+- Custom date range picker
+- CSV/Excel export functionality
 
 ---
 
@@ -1109,45 +1990,328 @@ When the mobile app matures:
 
 ## Implementation Checklist
 
-### Phase 1: GTM + GA4
+### Phase 1: GTM + GA4 (Client-Side Tracking)
+
+**Goal:** Get basic web traffic visibility immediately
 
 - [ ] Create GTM container at [tagmanager.google.com](https://tagmanager.google.com/)
 - [ ] Create GA4 property at [analytics.google.com](https://analytics.google.com/)
 - [ ] Set GA4 data retention to 14 months (Admin > Data Settings > Data Retention)
-- [ ] Add `GTM_CONTAINER_ID` to `.env` files
+- [ ] Add `GTM_CONTAINER_ID` to `.env.development` and `.env.production`
 - [ ] Create `packages/web/web-app/src/lib/analytics/google-tag-manager.ts`
 - [ ] Create `packages/web/web-app/src/hooks/useGoogleTagManager.ts`
 - [ ] Add `useGoogleTagManager()` to App component
+- [ ] Test GTM loads in browser (check dataLayer in console)
 - [ ] **In GTM**: Create GA4 Configuration tag with Measurement ID
 - [ ] **In GTM**: Create page_view trigger (Custom Event)
-- [ ] **In GTM**: Create GA4 Event tags for conversion events
+- [ ] **In GTM**: Create GA4 Event tags for: signup_started, signup_completed, login_completed
+- [ ] **In GTM**: Create variables for event parameters (method, user_id)
 - [ ] **In GTM**: Publish container
-- [ ] Verify data in GA4 Real-Time dashboard
-- [ ] (Optional) Implement cookie consent banner with consent mode
+- [ ] Verify page views in GA4 Real-Time dashboard
+- [ ] Verify custom events appear in GA4 Real-Time
+- [ ] Test user_id tracking after signup (check GA4 User Explorer)
+- [ ] Document GTM container access for team
 
-### Phase 2: TimescaleDB Metrics
-
-- [ ] Add `METRIC_EVENT_TYPE` to `packages/shared/models/src/logging/logging-shared.consts.ts`
-- [ ] Export from shared models index
-- [ ] Create `packages/api/libs/metrics/metrics-api.service.ts`
-- [ ] Create `packages/api/libs/metrics/metrics-api.service.spec.ts`
-- [ ] Create `packages/api/libs/metrics/metrics-api.consts.ts`
-- [ ] Create `packages/api/libs/metrics/metrics-api.types.ts`
-- [ ] Create `packages/api/libs/metrics/index.ts` (barrel)
-- [ ] Add continuous aggregates to TimescaleDB schema
-- [ ] Integrate MetricsService with AuthController
-- [ ] Add metrics recording to other key features
-
-### Phase 3: Dashboard
-
-- [ ] Choose dashboard tool (Grafana/Metabase/Custom)
-- [ ] Connect to TimescaleDB
-- [ ] Create core metrics dashboard
-- [ ] Set up alerting (optional)
-- [ ] Document dashboard access for team
+**Deliverables:**
+- ✅ GTM container configured with GA4
+- ✅ GA4 dashboard showing page views and traffic
+- ✅ Conversion tracking (signup, login)
+- ✅ User ID cross-device tracking
 
 ---
 
-*Document Version: 1.1*
+### Phase 2: RBAC for Metrics
+
+**Goal:** Set up permissions for metrics access
+
+- [ ] Add `METRICS_ADMIN` to `USER_ROLE` in `packages/shared/models/src/user-privilege/user-privilege-shared.consts.ts`
+- [ ] Update privilege sets seed data with `METRICS_ADMIN` entry (order: 3)
+- [ ] Update `LOGGING_ADMIN` order to 4, `SUPER_ADMIN` to 5
+- [ ] Run database seeder: `make db-seed`
+- [ ] Verify new role in user_privilege_sets table
+- [ ] Create `hasMetricsAdminRole` middleware in `packages/api/libs/auth/middleware/ensure-role.middleware.ts`
+  - [ ] Check for METRICS_ADMIN OR LOGGING_ADMIN OR SUPER_ADMIN
+  - [ ] Write unit tests for middleware
+- [ ] Add i18n strings to `packages/web/web-app/assets/locales/en.json`:
+  - [ ] METRICS_DASHBOARD, METRICS_ADMIN, METRICS_ADMIN_DESCRIPTION
+  - [ ] USER_GROWTH, SIGNUP_BREAKDOWN, GEOGRAPHIC_DISTRIBUTION
+  - [ ] DAILY_ACTIVE_USERS, WEEKLY_ACTIVE_USERS, MONTHLY_ACTIVE_USERS
+- [ ] Add metrics menu item to admin menu with `restriction: USER_ROLE.METRICS_ADMIN`
+- [ ] Test menu visibility:
+  - [ ] USER cannot see metrics menu
+  - [ ] ADMIN cannot see metrics menu
+  - [ ] METRICS_ADMIN can see metrics menu
+  - [ ] LOGGING_ADMIN can see both logs and metrics menus
+  - [ ] SUPER_ADMIN can see all menus
+- [ ] Test role assignment:
+  - [ ] Only SUPER_ADMIN can assign METRICS_ADMIN role in user admin UI
+  - [ ] ADMIN cannot assign METRICS_ADMIN role
+
+**Deliverables:**
+- ✅ METRICS_ADMIN role created and seeded
+- ✅ Role hierarchy working correctly
+- ✅ Menu visibility based on roles
+
+---
+
+### Phase 3: TimescaleDB Metrics (Server-Side)
+
+**Goal:** Record business events to TimescaleDB
+
+- [ ] Add `METRIC_EVENT_TYPE` constants to `packages/shared/models/src/logging/logging-shared.consts.ts`
+  - [ ] METRIC_SIGNUP, METRIC_LOGIN, METRIC_LOGOUT
+  - [ ] METRIC_EMAIL_VERIFIED, METRIC_PHONE_VERIFIED
+  - [ ] METRIC_FEATURE_USED, METRIC_SESSION_START
+- [ ] Export from shared models index
+- [ ] Create `packages/api/libs/metrics/metrics-api.service.ts`
+  - [ ] `recordSignup()` method
+  - [ ] `recordLogin()` method
+  - [ ] `recordFeatureUsage()` method
+  - [ ] `getDAU()`, `getWAU()`, `getMAU()` query methods
+  - [ ] `getSignupCount()`, `getSignupsByMethod()` query methods
+  - [ ] `getDashboardMetrics()` comprehensive method
+- [ ] Create `packages/api/libs/metrics/metrics-api.service.spec.ts`
+- [ ] Create `packages/api/libs/metrics/index.ts` (barrel export)
+- [ ] Add continuous aggregates to TimescaleDB schema:
+  - [ ] metrics_daily (bucket, event_type, method, signup_source, geo_country, counts)
+  - [ ] metrics_weekly (bucket, event_type, counts)
+  - [ ] metrics_monthly (bucket, event_type, counts)
+  - [ ] Add refresh policies (daily, weekly, monthly)
+- [ ] Integrate MetricsService with AuthController:
+  - [ ] Call `recordSignup()` on successful account creation
+  - [ ] Call `recordLogin()` on successful login
+  - [ ] Include method (email/phone), signup source detection
+- [ ] Test metrics recording:
+  - [ ] Signup creates METRIC_SIGNUP event
+  - [ ] Login creates METRIC_LOGIN event
+  - [ ] Events appear in logs table
+  - [ ] Continuous aggregates populate correctly
+- [ ] Add metrics recording to other features (if applicable):
+  - [ ] Media upload
+  - [ ] Notification sent
+  - [ ] Device registration
+
+**Deliverables:**
+- ✅ Server-side signup/login tracking
+- ✅ Continuous aggregates for fast queries
+- ✅ Query-able metrics in TimescaleDB
+
+---
+
+### Phase 4: Metrics API Endpoints
+
+**Goal:** Expose metrics data via REST API
+
+- [ ] Create `packages/api/api-app/src/metrics/metrics-api.controller.ts`
+  - [ ] `GET /api/v1/metrics/summary` - Dashboard summary (DAU/WAU/MAU, signups)
+  - [ ] `GET /api/v1/metrics/dau?date=YYYY-MM-DD` - DAU for specific date
+  - [ ] `GET /api/v1/metrics/wau?date=YYYY-MM-DD` - WAU ending on date
+  - [ ] `GET /api/v1/metrics/mau?date=YYYY-MM-DD` - MAU ending on date
+  - [ ] `GET /api/v1/metrics/signups?range=7d` - Signup counts by method
+  - [ ] `GET /api/v1/metrics/growth?range=30d` - DAU/WAU/MAU trend
+  - [ ] `GET /api/v1/metrics/geography?range=30d` - Top countries
+- [ ] Create `packages/api/api-app/src/metrics/metrics-api.routes.ts`
+  - [ ] All routes protected by `hasMetricsAdminRole` middleware
+- [ ] Add metrics routes to `v1.routes.ts`: `router.use('/metrics', metricsRoutes)`
+- [ ] Create `packages/api/api-app/src/metrics/metrics-api.controller.spec.ts`
+- [ ] Test API endpoints:
+  - [ ] Test with SUPER_ADMIN token (should succeed)
+  - [ ] Test with LOGGING_ADMIN token (should succeed)
+  - [ ] Test with METRICS_ADMIN token (should succeed)
+  - [ ] Test with ADMIN token (should fail with 403)
+  - [ ] Test with USER token (should fail with 403)
+  - [ ] Test with no token (should fail with 401)
+- [ ] Test query performance (all queries < 2 seconds)
+
+**Deliverables:**
+- ✅ Protected metrics API endpoints
+- ✅ Role-based access control working
+- ✅ Fast query responses
+
+---
+
+### Phase 5: Custom Metrics Dashboard (Web App)
+
+**Goal:** Build native React dashboard for key metrics
+
+#### 5.1: Routing and Navigation
+
+- [ ] Create `packages/web/web-app/src/app/metrics/admin/metrics-admin-web.routes.ts`
+- [ ] Create `packages/web/web-app/src/app/routers/metrics-admin.router.tsx`
+  - [ ] Role check: METRICS_ADMIN, LOGGING_ADMIN, or SUPER_ADMIN
+  - [ ] Unauthorized component for other users
+  - [ ] Lazy load dashboard components
+- [ ] Add metrics router to admin routes config
+- [ ] Test route protection (unauthorized redirect)
+
+#### 5.2: RTK Query API Layer
+
+- [ ] Create `packages/web/web-app/src/app/metrics/admin/metrics-admin-web.api.ts`
+  - [ ] `useGetMetricsSummaryQuery` hook
+  - [ ] `useGetGrowthTrendQuery` hook
+  - [ ] `useGetSignupBreakdownQuery` hook
+  - [ ] `useGetGeographyDataQuery` hook
+- [ ] Create `packages/web/web-app/src/app/metrics/admin/metrics-admin-web.types.ts`
+  - [ ] MetricsSummaryType
+  - [ ] GrowthTrendType
+  - [ ] SignupBreakdownType
+  - [ ] GeographyType
+
+#### 5.3: Shared Components
+
+- [ ] Create `metric-card.component.tsx` (stat card with trend indicator)
+- [ ] Create `growth-chart.component.tsx` (line chart for DAU/WAU/MAU)
+- [ ] Create `signup-breakdown-chart.component.tsx` (pie/bar chart)
+- [ ] Create `geography-table.component.tsx` (country list with flags)
+- [ ] Add empty state component (no data message)
+- [ ] Add error state component (database unavailable)
+- [ ] Add loading skeletons for all components
+
+#### 5.4: Main Dashboard Component
+
+- [ ] Create `packages/web/web-app/src/app/metrics/admin/dashboard/metrics-admin-dashboard.component.tsx`
+  - [ ] Header with date range selector (7d/30d/90d presets)
+  - [ ] Manual refresh button
+  - [ ] User Growth section (DAU/WAU/MAU cards + trend chart)
+  - [ ] Signups section (24h/7d/30d cards + method breakdown)
+  - [ ] Geography section (top countries table)
+  - [ ] Responsive grid layout (stacks on mobile)
+  - [ ] Empty state when no data
+  - [ ] Error state when TimescaleDB unavailable
+  - [ ] Loading states with spinners
+
+#### 5.5: Testing and Polish
+
+- [ ] Test empty state (no data scenario)
+- [ ] Test error state (API returns 500)
+- [ ] Test loading states
+- [ ] Test mobile responsiveness (iPhone, iPad sizes)
+- [ ] Test date range filtering
+- [ ] Test manual refresh
+- [ ] Verify charts resize on window resize
+- [ ] Test with real data (create test signups/logins)
+
+**Deliverables:**
+- ✅ Custom metrics dashboard at `/admin/metrics/dashboard`
+- ✅ Fully responsive design
+- ✅ Graceful error and empty states
+- ✅ Real-time data from TimescaleDB
+
+---
+
+### Phase 6: GA4 Custom Events Integration
+
+**Goal:** Track key user actions in GA4
+
+- [ ] Add `trackEvent('signup_started')` call to signup form component
+- [ ] Add `trackEvent('signup_completed', { method })` call after successful signup
+- [ ] Add `setUserId(user.id)` call on signup completion
+- [ ] Add `trackEvent('login_started')` call to login form
+- [ ] Add `trackEvent('login_completed', { method })` call after successful login
+- [ ] Add `setUserId(user.id)` call on login if not already set
+- [ ] Test events appear in GA4 Real-Time (Events section)
+- [ ] Test events flow to Reports (wait 24-48 hours for processing)
+- [ ] Test user_id tracking (check User Explorer in GA4)
+
+**Deliverables:**
+- ✅ Conversion events tracked in GA4
+- ✅ User ID for cross-device tracking
+- ✅ Funnel analysis possible (signup started → completed)
+
+---
+
+### Phase 7: Testing and Validation
+
+**Goal:** Comprehensive testing of metrics system
+
+#### API Tests
+
+- [ ] Unit tests for MetricsService (all methods)
+- [ ] Unit tests for hasMetricsAdminRole middleware
+- [ ] Unit tests for MetricsController
+- [ ] Integration tests for metrics recording (signup, login)
+- [ ] Integration tests for metrics API endpoints
+- [ ] Test continuous aggregates populate correctly
+
+#### RBAC Tests
+
+- [ ] Test USER cannot access `/api/v1/metrics/*`
+- [ ] Test ADMIN cannot access metrics (no role)
+- [ ] Test METRICS_ADMIN can access all metrics endpoints
+- [ ] Test LOGGING_ADMIN can access metrics (includes METRICS_ADMIN)
+- [ ] Test SUPER_ADMIN can access all endpoints
+- [ ] Test only SUPER_ADMIN can assign METRICS_ADMIN role
+
+#### UI Tests
+
+- [ ] E2E test: Login as METRICS_ADMIN, verify dashboard visible
+- [ ] E2E test: Login as USER, verify metrics menu not visible
+- [ ] E2E test: Dashboard loads with real data
+- [ ] E2E test: Date range filter works
+- [ ] E2E test: Refresh button reloads data
+- [ ] Test mobile responsive layout
+- [ ] Test empty state display
+- [ ] Test error state display
+
+#### Performance Tests
+
+- [ ] Verify metrics queries complete in < 2 seconds
+- [ ] Load test: 100 concurrent signups recorded correctly
+- [ ] Verify continuous aggregates reduce query time
+- [ ] Check TimescaleDB compression working after 7 days
+
+**Deliverables:**
+- ✅ All tests passing
+- ✅ Performance benchmarks met
+- ✅ RBAC validated
+
+---
+
+### Phase 8: Documentation and Deployment
+
+**Goal:** Prepare for production deployment
+
+- [ ] Update API documentation with new `/api/v1/metrics/*` endpoints
+- [ ] Document METRICS_ADMIN role assignment process
+- [ ] Create metrics dashboard user guide for admins
+- [ ] Document GA4 setup and configuration
+- [ ] Document GTM container configuration
+- [ ] Add troubleshooting guide (common issues)
+- [ ] Update deployment checklist with:
+  - [ ] `GTM_CONTAINER_ID` environment variable
+  - [ ] GA4 Measurement ID
+  - [ ] Continuous aggregates verified
+- [ ] Create monitoring alerts for:
+  - [ ] TimescaleDB connection failures
+  - [ ] Metrics recording failures
+  - [ ] API endpoint slow response times
+- [ ] Document how to add Grafana later (migration path)
+
+**Deliverables:**
+- ✅ Complete documentation
+- ✅ Production deployment checklist
+- ✅ Monitoring and alerting set up
+
+---
+
+### Phase 9: Optional Enhancements (Future)
+
+**Defer until core metrics proven valuable:**
+
+- [ ] Add custom date picker (beyond presets)
+- [ ] Add CSV/Excel export for metrics
+- [ ] Add email reports (weekly/monthly summaries)
+- [ ] Implement cookie consent banner for GA4
+- [ ] Add Firebase Analytics for mobile app
+- [ ] Deploy Grafana for advanced analytics
+- [ ] Add session replay (PostHog)
+- [ ] Add A/B testing framework
+- [ ] Add cohort retention analysis dashboard
+- [ ] Add funnel visualization
+- [ ] Add predictive churn modeling
+
+---
+
+*Document Version: 2.0*
 *Created: January 27, 2026*
-*Updated: January 27, 2026 - Changed to GTM, added data retention strategy*
+*Updated: January 28, 2026 - Added comprehensive implementation decisions, RBAC, custom dashboard, and detailed checklist*
