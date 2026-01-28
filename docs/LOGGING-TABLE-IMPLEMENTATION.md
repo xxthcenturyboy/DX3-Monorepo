@@ -17,18 +17,132 @@ This document outlines the implementation strategy for a comprehensive logging s
 
 ## Table of Contents
 
-1. [Architecture Overview](#architecture-overview)
-2. [Database Setup](#database-setup)
+1. [Implementation Decisions](#implementation-decisions)
+2. [Architecture Overview](#architecture-overview)
+3. [Database Setup](#database-setup)
    - [Architecture Options](#architecture-options)
    - [Migration Guide for Option B](#migration-guide-for-option-b-existing-database)
-3. [Database Schema Design](#database-schema-design)
-4. [File Structure](#file-structure)
-5. [Implementation Details](#implementation-details)
-6. [Integration Points](#integration-points)
-7. [Usage Examples](#usage-examples)
-8. [Testing Considerations](#testing-considerations)
-9. [Future Enhancements](#future-enhancements)
-10. [Implementation Checklist](#implementation-checklist)
+4. [Database Schema Design](#database-schema-design)
+5. [Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
+6. [Admin UI Specifications](#admin-ui-specifications)
+7. [Real-Time Notifications (Socket.IO)](#real-time-notifications-socketio)
+8. [Data Sanitization Rules](#data-sanitization-rules)
+9. [File Structure](#file-structure)
+10. [Implementation Details](#implementation-details)
+11. [Integration Points](#integration-points)
+12. [Usage Examples](#usage-examples)
+13. [Testing Considerations](#testing-considerations)
+14. [Future Enhancements](#future-enhancements)
+15. [Implementation Checklist](#implementation-checklist)
+
+---
+
+## Implementation Decisions
+
+This section documents key decisions made during requirements interview and technical planning.
+
+### Infrastructure Decisions
+
+**Database Architecture:**
+- ✅ **Option B Selected**: Same container, separate database (TimescaleDB)
+- ✅ Replace `postgres:16` → `timescale/timescaledb:latest-pg16` in existing container
+- ✅ Create separate `dx-logs` database for logging data
+- ✅ **Future Migration Path**: Can migrate to separate container (Option A) later with simple dump/restore
+- ✅ **Migration Cost**: Low effort (5-15 min downtime), minimal risk, standard database migration
+
+**Data Policies:**
+- ✅ **Retention**: 90 days with automatic cleanup
+- ✅ **Compression**: 7-day policy (compress chunks older than 7 days)
+- ✅ **Chunk Interval**: 1-day partitioning
+- ✅ **Continuous Aggregates**: Create immediately (logs_hourly, logs_daily)
+
+### Logging Behavior Decisions
+
+**Failure Handling:**
+- ✅ **Silent Degradation**: Continue serving requests if TimescaleDB unavailable
+- ✅ Log errors to console only (no fallback buffering or file logging)
+- ✅ Application availability takes priority over log collection
+
+**Performance:**
+- ✅ **Direct Writes**: Fire-and-forget async writes to TimescaleDB
+- ✅ No Redis buffering or background workers (keep it simple)
+- ✅ Acceptable to drop logs under extreme load (rare scenario)
+
+**Rate Limiting Integration:**
+- ✅ **Audit Only**: Logs are for analytics/auditing, NOT for rate limit decisions
+- ✅ Keep existing Redis-based rate limiting unchanged
+- ✅ No critical path dependency on TimescaleDB for authentication flow
+
+### Data Sanitization Decisions
+
+**Context-Dependent Sanitization:**
+
+**Failed Auth Logs (Moderate Sanitization):**
+- ✅ Keep: Full email/username, IP address, fingerprint, device_id
+- ✅ Store: Attempted credentials (what they tried to log in with)
+- ✅ Store: Error messages for debugging
+- ✅ Store: Request body summary with attempted login method
+- ✅ Rationale: Security investigations need context to identify attack patterns
+
+**Successful Auth Logs (Aggressive Sanitization):**
+- ✅ Keep: user_id reference only
+- ✅ Remove: Email, phone, passwords, tokens
+- ✅ Minimal: No request body data
+- ✅ Rationale: Success confirmed, no debugging needed, privacy-first
+
+**All Logs (Universal Rules):**
+- ✅ Always remove: passwords, tokens, API keys, payment info
+- ✅ Sanitize: Credit card numbers, SSN, sensitive PII
+- ✅ Use existing `sanitizeForLogging()` utility
+
+### Admin UI Decisions
+
+**Access Location:**
+- ✅ **Separate admin portal route** in existing web-app
+- ✅ New routes: `/admin/logs/dashboard`, `/admin/logs/list`, `/admin/logs/failed-auth`
+- ✅ Reuse existing auth, RBAC, UI components (MUI v7)
+- ✅ Integrate with current admin menu system
+
+**MVP Features (First Release):**
+- ✅ **Summary Dashboard**: Key metrics (total requests, auth failures, rate limits, unique users/IPs)
+- ✅ **Failed Auth Lookup Tool**: Search by IP/fingerprint/user_id with time window selector
+- ✅ **Filterable Log Table**: Pagination, filters (event type, date range, success/failure), sorting
+- ✅ **Export Capability**: CSV/JSON export for compliance reporting
+
+**Real-Time Features:**
+- ✅ **Socket.IO Integration**: Yes - notify admins of security events
+- ✅ **Threshold-Based Escalation**: Prevent alert noise (see Real-Time Notifications section)
+- ✅ Admin namespace: `/admin-logs` socket room
+
+**Downtime Handling:**
+- ✅ **Graceful UI Degradation**: Show banner "Logging database unavailable"
+- ✅ Display last successful query timestamp
+- ✅ Disable log queries but keep rest of admin UI functional
+- ✅ No data caching fallback (keep it simple)
+
+### Role-Based Access Control
+
+**New Role: LOGGING_ADMIN**
+- ✅ Grants access to logging dashboard and log data
+- ✅ **Assignment Control**: Only SUPER_ADMIN can assign/remove this role
+- ✅ **Menu Visibility**: Logs menu item only appears if user has LOGGING_ADMIN or SUPER_ADMIN role
+- ✅ **API Protection**: All `/api/v1/logs/*` endpoints require LOGGING_ADMIN role
+- ✅ **Route Protection**: Frontend `/admin/logs/*` routes check for LOGGING_ADMIN role
+- ✅ **Specialized Role**: Does NOT grant user management or other admin powers
+
+**Implementation Approach:**
+- ✅ Add to existing three-tier role hierarchy (USER, ADMIN, SUPER_ADMIN)
+- ✅ Leverage existing RBAC infrastructure
+- ✅ Reuse existing role management UI in user admin section
+- ✅ Create new `hasLoggingAdminRole` middleware for API routes
+
+### Implementation Phasing
+
+**Selected Approach:**
+- ✅ **Full Implementation**: All phases (0-6) at once
+- ✅ Infrastructure + Core Service + Integration + Aggregates + Admin UI + RBAC
+- ✅ Comprehensive feature set ready for production use
+- ✅ Defer future enhancements (geographic heatmaps, anomaly detection) until needed
 
 ---
 
@@ -576,6 +690,501 @@ export type LogEventSubtype = (typeof LOG_EVENT_SUBTYPE)[keyof typeof LOG_EVENT_
 
 ---
 
+## Role-Based Access Control (RBAC)
+
+### Overview
+
+Access to logging features is controlled by a new specialized role: **LOGGING_ADMIN**. This role grants access to view system logs, analytics, and security monitoring data without providing general administrative privileges.
+
+### Role Hierarchy
+
+```
+SUPER_ADMIN (order: 4)
+    ↓ (full system access, can assign all roles)
+    ├── ADMIN (order: 2)
+    │   └── User management, support requests
+    └── LOGGING_ADMIN (order: 3)
+        └── System logs, analytics, security monitoring
+
+USER (order: 1)
+    └── Standard application features
+```
+
+**Key Points:**
+- `SUPER_ADMIN` has access to everything (no restrictions)
+- `ADMIN` and `LOGGING_ADMIN` are **independent specialized roles**
+- A user can have both `ADMIN` and `LOGGING_ADMIN` simultaneously
+- Only `SUPER_ADMIN` can assign/remove specialized roles
+
+### RBAC Implementation Checklist
+
+#### 1. Add LOGGING_ADMIN Role Constant
+
+**File:** `packages/shared/models/src/user-privilege/user-privilege-shared.consts.ts`
+
+```typescript
+export const USER_ROLE = {
+  ADMIN: 'ADMIN',
+  LOGGING_ADMIN: 'LOGGING_ADMIN',  // NEW
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  USER: 'USER',
+} as const
+
+export const USER_ROLE_ARRAY = Object.values(USER_ROLE)
+```
+
+#### 2. Add Privilege Set Seed Data
+
+**File:** `packages/api/libs/pg/seed/data/user-privilege-sets.data.ts`
+
+```typescript
+export const USER_PRIVILEGE_SETS_SEED: UserPrivilegeSetSeedData[] = [
+  {
+    description: 'Standard user with basic access permissions',
+    name: 'USER',
+    order: 1,
+  },
+  {
+    description: 'Administrator with elevated permissions for user management',
+    name: 'ADMIN',
+    order: 2,
+  },
+  {
+    description: 'Logging administrator with access to system logs and analytics',  // NEW
+    name: 'LOGGING_ADMIN',  // NEW
+    order: 3,  // NEW
+  },  // NEW
+  {
+    description: 'Super administrator with full system access',
+    name: 'SUPER_ADMIN',
+    order: 4,  // Changed from 3
+  },
+]
+```
+
+**Action:** Run `make db-seed` after updating seed data.
+
+#### 3. Create Logging Admin Middleware
+
+**File:** `packages/api/libs/auth/middleware/ensure-role.middleware.ts`
+
+```typescript
+/**
+ * Middleware to ensure user has LOGGING_ADMIN or SUPER_ADMIN role
+ * Used to protect logging-related API endpoints
+ */
+export async function hasLoggingAdminRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  const userId = _getUserId(req)
+
+  if (!userId) {
+    throw new Error('User is not authorized for this activity.')
+  }
+
+  // SUPER_ADMIN always has access
+  const hasSuperAdmin = await userHasRole(userId, USER_ROLE.SUPER_ADMIN)
+  if (hasSuperAdmin) {
+    next()
+    return
+  }
+
+  // Check for LOGGING_ADMIN role
+  const hasRole = await userHasRole(userId, USER_ROLE.LOGGING_ADMIN)
+  if (!hasRole) {
+    throw new Error('User does not have logging admin permissions.')
+  }
+
+  next()
+}
+```
+
+#### 4. Create Protected Logging Routes
+
+**File:** `packages/api/api-app/src/logging/logging-api.routes.ts` (NEW)
+
+```typescript
+import { Router } from 'express'
+import { hasLoggingAdminRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
+import { LoggingController } from './logging-api.controller'
+
+const router = Router()
+
+// All logging endpoints require LOGGING_ADMIN role (or SUPER_ADMIN)
+router.get('/summary', hasLoggingAdminRole, LoggingController.getSummary)
+router.get('/failed-auth', hasLoggingAdminRole, LoggingController.getFailedAuth)
+router.get('/list', hasLoggingAdminRole, LoggingController.getLogsList)
+router.get('/hourly', hasLoggingAdminRole, LoggingController.getHourlySummary)
+router.post('/export', hasLoggingAdminRole, LoggingController.exportLogs)
+
+export { router as loggingRoutes }
+```
+
+**Add to main routes in:** `packages/api/api-app/src/routes/v1.routes.ts`
+
+```typescript
+import { loggingRoutes } from '../logging/logging-api.routes'
+
+// Add to router setup
+router.use('/logs', loggingRoutes)  // All /api/v1/logs/* routes
+```
+
+#### 5. Update Admin Menu
+
+**File:** `packages/web/web-app/src/app/ui/menus/admin.menu.ts`
+
+```typescript
+import { USER_ROLE } from '@dx3/models-shared'
+import { LOGGING_ADMIN_ROUTES } from '../../logging/admin/logging-admin-web.routes'
+
+export const adminMenu = (): AppMenuType => {
+  return {
+    items: [
+      // ... existing menu items ...
+      {
+        icon: IconNames.ASSESSMENT,  // Or IconNames.TIMELINE
+        id: 'menu-item-admin-logging',
+        restriction: USER_ROLE.LOGGING_ADMIN,  // Only for LOGGING_ADMIN role
+        routeKey: LOGGING_ADMIN_ROUTES.DASHBOARD,
+        title: strings.SYSTEM_LOGS,
+        type: 'ROUTE',
+      },
+      // ... other menu items ...
+    ],
+    title: strings.ADMIN,
+  }
+}
+```
+
+#### 6. Update Menu Service for Multiple Roles
+
+**File:** `packages/web/web-app/src/app/ui/menus/menu-config.service.ts`
+
+Update the filtering logic to support users with multiple roles:
+
+```typescript
+/**
+ * Filter menu items based on user's roles array
+ * Supports users with multiple roles (e.g., ADMIN + LOGGING_ADMIN)
+ */
+private filterMenuByRoles(menu: AppMenuType, userRoles: string[], includeBeta: boolean): AppMenuType | null {
+  const items: AppMenuItemType[] = []
+
+  for (const item of menu.items) {
+    // No restriction = show to everyone
+    if (!item.restriction) {
+      items.push(item)
+      continue
+    }
+
+    // Beta flag check
+    if (item.beta && !includeBeta) {
+      continue
+    }
+
+    // Check if user has the required role
+    if (userRoles.includes(item.restriction)) {
+      items.push(item)
+      continue
+    }
+
+    // SUPER_ADMIN sees everything
+    if (userRoles.includes(USER_ROLE.SUPER_ADMIN)) {
+      items.push(item)
+      continue
+    }
+  }
+
+  return items.length ? { ...menu, items } : null
+}
+
+public getMenus(userRoles: string[], includeBeta?: boolean): AppMenuType[] {
+  const menus: (AppMenuType | null)[] = []
+
+  for (const menu of this.CARDINAL_MENU_SET) {
+    const filteredMenu = this.filterMenuByRoles(menu, userRoles, includeBeta ?? false)
+    if (filteredMenu) {
+      menus.push(filteredMenu)
+    }
+  }
+
+  return menus.filter((m) => m !== null) as AppMenuType[]
+}
+```
+
+**Update caller in:** `packages/web/web-app/src/app/config/bootstrap/login-bootstrap.ts`
+
+```typescript
+function setUpMenus(userProfile: UserProfileStateType, mobileBreak: boolean) {
+  const menuService = new MenuConfigService()
+
+  // Pass the full roles array instead of single role string
+  const menus = menuService.getMenus(userProfile.role, userProfile.b)
+
+  store.dispatch(uiActions.menusSet({ menus }))
+}
+```
+
+#### 7. Create Logging Admin Router
+
+**File:** `packages/web/web-app/src/app/routers/logging-admin.router.tsx` (NEW)
+
+```typescript
+import { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import { UiLoadingComponent } from '../ui/loading/loading.component'
+import { UnauthorizedComponent } from '../ui/unauthorized/unauthorized.component'
+import { store } from '../store/store.util'
+import { USER_ROLE } from '@dx3/models-shared'
+
+const LoggingDashboard = lazy(() => import('../logging/admin/dashboard/logging-admin-dashboard.component'))
+const LoggingList = lazy(() => import('../logging/admin/list/logging-admin-list.component'))
+const LoggingFailedAuth = lazy(() => import('../logging/admin/failed-auth/logging-admin-failed-auth.component'))
+
+export const LoggingAdminRouter = () => {
+  const hasLoggingAdminRole = (): boolean => {
+    const userRoles = store.getState().userProfile.role
+    // SUPER_ADMIN or LOGGING_ADMIN can access
+    return userRoles.includes(USER_ROLE.SUPER_ADMIN) || userRoles.includes(USER_ROLE.LOGGING_ADMIN)
+  }
+
+  return hasLoggingAdminRole() ? (
+    <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+      <Routes>
+        <Route path="dashboard" element={<LoggingDashboard />} />
+        <Route path="list" element={<LoggingList />} />
+        <Route path="failed-auth" element={<LoggingFailedAuth />} />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
+      </Routes>
+    </Suspense>
+  ) : (
+    <UnauthorizedComponent message="You do not have permission to access system logs." />
+  )
+}
+```
+
+**Add to routes config:** `packages/web/web-app/src/app/routers/routers.config.tsx`
+
+```typescript
+import { LoggingAdminRouter } from './logging-admin.router'
+
+const routes = [
+  // ... existing routes
+  {
+    children: [
+      // ... existing admin routes
+      {
+        element: <LoggingAdminRouter />,
+        path: 'logs/*',  // /admin/logs/*
+      },
+    ],
+    element: <AdminRouter />,
+    path: '/admin/*',
+  },
+]
+```
+
+#### 8. Add i18n Strings
+
+**File:** `packages/web/web-app/assets/locales/en.json`
+
+```json
+{
+  "EXPORT_LOGS": "Export Logs",
+  "FAILED_AUTH_ATTEMPTS": "Failed Auth Attempts",
+  "FAILED_AUTH_LOOKUP": "Failed Auth Lookup",
+  "LOG_SUMMARY": "Log Summary",
+  "LOGGING_ADMIN": "Logging Administrator",
+  "LOGGING_ADMIN_DESCRIPTION": "Access to system logs, analytics, and security monitoring",
+  "LOGGING_DASHBOARD": "Logging Dashboard",
+  "SYSTEM_LOGS": "System Logs",
+  "VIEW_LOGS": "View Logs"
+}
+```
+
+#### 9. Create Route Constants
+
+**File:** `packages/web/web-app/src/app/logging/admin/logging-admin-web.routes.ts` (NEW)
+
+```typescript
+export const LOGGING_ADMIN_ROUTES = {
+  DASHBOARD: '/admin/logs/dashboard',
+  EXPORT: '/admin/logs/export',
+  FAILED_AUTH: '/admin/logs/failed-auth',
+  LIST: '/admin/logs/list',
+} as const
+```
+
+### Role Assignment UI
+
+The existing user admin UI automatically picks up the new `LOGGING_ADMIN` role:
+
+**File:** `packages/web/web-app/src/app/user/admin/user-admin-web-edit.component.tsx`
+
+The current implementation already:
+- ✅ Reads privilege sets dynamically from database
+- ✅ Only allows SUPER_ADMIN to toggle roles (`currentUser?.sa` check)
+- ✅ Shows role checkboxes for all non-USER roles
+- ✅ Calls `updateRolesRestrictions` API endpoint (protected by `hasSuperAdminRole` middleware)
+
+**Optional Enhancement:** Add visual indicator for specialized roles:
+
+```typescript
+{roles.map((role) => (
+  <FormControlLabel
+    control={
+      <Checkbox
+        checked={role.hasRole}
+        disabled={!currentUser?.sa}
+        onClick={() => void handleRoleClick(role.role)}
+      />
+    }
+    label={
+      role.role === USER_ROLE.LOGGING_ADMIN ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {role.role}
+          <Chip label="Specialized" size="small" color="info" />
+        </Box>
+      ) : (
+        role.role
+      )
+    }
+  />
+))}
+```
+
+### Security Validation Points
+
+1. **Database Level**: `UserModel.roles` setter validates against `USER_ROLE_ARRAY`
+2. **API Level**: `updateRolesAndRestrictions` protected by `hasSuperAdminRole` middleware
+3. **Middleware Level**: `hasLoggingAdminRole` checks role before allowing access
+4. **Frontend Level**: Role update UI checks `currentUser?.sa` before allowing changes
+5. **Route Level**: All `/api/v1/logs/*` endpoints use `hasLoggingAdminRole` middleware
+6. **Menu Level**: Menu items filtered by `MenuConfigService` based on user roles
+7. **Router Level**: `LoggingAdminRouter` checks roles before rendering routes
+
+---
+
+## Admin UI Specifications
+
+### Overview
+
+The logging admin UI is integrated into the existing web application at `/admin/logs/*`. Access is controlled by the `LOGGING_ADMIN` role (or `SUPER_ADMIN`).
+
+### Components
+
+#### 1. Summary Dashboard (`/admin/logs/dashboard`)
+
+High-level overview of system activity and security events.
+
+**Key Metrics (Last 24 Hours):**
+- Total Requests
+- Successful Logins
+- Auth Failures
+- Rate Limit Hits
+- Unique Users
+- Unique IP Addresses
+
+**Data Source:** `LoggingService.getSummary(hoursAgo)`
+
+**Features:**
+- Time range selector (1h, 6h, 24h, 7d, 30d, Custom)
+- Metric cards with trend indicators
+- Auto-refresh toggle (30s, 1m, 5m, Off)
+- Real-time alert banner (Socket.IO)
+
+#### 2. Failed Auth Lookup (`/admin/logs/failed-auth`)
+
+Security investigation tool for tracking authentication failures.
+
+**Search By:**
+- IP Address
+- Fingerprint
+- User ID
+- Time window (15m, 1h, 6h, 24h, Custom)
+
+**Data Source:** `LoggingService.getFailedAuthAttempts(identifier, minutesAgo)`
+
+**Results:** Timestamp, Event Type, Identifier, Attempted Value, Message, Geo Location, User Agent
+
+#### 3. Filterable Log Table (`/admin/logs/list`)
+
+Comprehensive log browser with advanced filtering.
+
+**Filters:** Event Type, Date Range, Success/Failure, User ID, IP Address, Fingerprint
+
+**Columns:** Timestamp, Event Type, User ID, IP Address, Request Path, Success, Message, Actions
+
+**Pagination:** 25/50/100/200 rows per page (server-side)
+
+**Sorting:** Created At (DESC), Event Type, IP Address
+
+#### 4. Export Functionality
+
+**Formats:** CSV, JSON
+
+**Limits:** 10,000 rows per export
+
+**API:** `POST /api/v1/logs/export`
+
+### Downtime Handling (Graceful Degradation)
+
+When TimescaleDB unavailable:
+- Show banner: "⚠️ Logging database unavailable. Last query: [timestamp]"
+- Disable query/export actions
+- Keep navigation functional
+- Show cached data if available
+
+---
+
+## Real-Time Notifications (Socket.IO)
+
+### Threshold-Based Alert Escalation
+
+**Purpose:** Prevent alert noise during attacks while ensuring critical events are noticed.
+
+| Level | Threshold | Event | Display |
+|-------|-----------|-------|---------|
+| Silent | 1-2 failures | None | No notification |
+| Warning | 3-9 in 5min | `auth_failure_warning` | 🟡 Yellow banner |
+| Critical | 10+ in 5min | `auth_failure_critical` | 🔴 Red banner + sound |
+
+**Namespace:** `/admin-logs`
+
+**Room:** `logging-alerts`
+
+**Events:** `auth_failure_warning`, `auth_failure_critical`, `rate_limit_alert`, `security_alert`
+
+---
+
+## Data Sanitization Rules
+
+### Failed Auth (Moderate Sanitization)
+
+**Keep:** Full email/username, IP, fingerprint, device_id, login method, error codes
+
+**Store:** Attempted credentials (sanitized), error messages
+
+**Rationale:** Security investigations need context
+
+### Successful Auth (Aggressive Sanitization)
+
+**Keep:** user_id only, IP, fingerprint, device_id
+
+**Remove:** Email, phone, username, request body
+
+**Rationale:** Privacy-first, no debugging needed
+
+### Universal Rules (All Logs)
+
+**Always Remove:** passwords, tokens, API keys, payment info, SSN
+
+**Function:** `sanitizeForLogging()` utility
+
+---
+
 ## File Structure
 
 ```
@@ -616,11 +1225,35 @@ packages/
 │           │       ├── dx-timescale.db.ts        # DxTimescaleDb class
 │           │       └── dx-timescale.schema.ts    # Schema creation SQL
 │           │
-│           └── logging/                          # Optional: Admin routes for viewing logs
+│           └── logging/                          # NEW: Admin routes for viewing logs
 │               ├── logging-api.controller.ts
 │               ├── logging-api.controller.spec.ts
 │               ├── logging-api.routes.ts
 │               └── logging-api.routes.spec.ts
+│
+├── web/
+│   └── web-app/
+│       └── src/
+│           ├── app/
+│           │   ├── logging/                      # NEW: Logging UI components
+│           │   │   └── admin/
+│           │   │       ├── dashboard/
+│           │   │       │   └── logging-admin-dashboard.component.tsx
+│           │   │       ├── list/
+│           │   │       │   └── logging-admin-list.component.tsx
+│           │   │       ├── failed-auth/
+│           │   │       │   └── logging-admin-failed-auth.component.tsx
+│           │   │       ├── logging-admin-web.api.ts
+│           │   │       ├── logging-admin-web.routes.ts
+│           │   │       ├── logging-admin-web.slice.ts
+│           │   │       └── logging-admin-web.types.ts
+│           │   │
+│           │   └── routers/
+│           │       └── logging-admin.router.tsx  # NEW: Logging routes
+│           │
+│           └── assets/
+│               └── locales/
+│                   └── en.json                   # Add i18n strings
 
 _devops/
 └── scripts/
@@ -1743,24 +2376,93 @@ $$ LANGUAGE plpgsql;
 - [ ] Update AuthController to record auth events
 - [ ] Update rate limiter to record rate limit hits
 
-### Phase 4: Continuous Aggregates (Optional)
+### Phase 4: Continuous Aggregates
 - [ ] Create logs_hourly continuous aggregate
 - [ ] Create logs_daily continuous aggregate
-- [ ] Add refresh policies
+- [ ] Add refresh policies (1 hour, 1 day)
+- [ ] Verify aggregates are being populated
 
-### Phase 5: Admin Features (Optional)
-- [ ] Create admin routes for log queries
-- [ ] Add logs summary endpoint
-- [ ] Add failed auth lookup endpoint
+### Phase 5: RBAC Implementation
+- [ ] Add `LOGGING_ADMIN` to `USER_ROLE` constant in shared models
+- [ ] Update privilege sets seed data with `LOGGING_ADMIN` entry
+- [ ] Run database seeder: `make db-seed`
+- [ ] Create `hasLoggingAdminRole` middleware in API
+- [ ] Add i18n strings for logging UI (SYSTEM_LOGS, LOGGING_ADMIN, etc.)
+- [ ] Update `MenuConfigService.getMenus()` to support multiple roles
+- [ ] Update `login-bootstrap.ts` to pass roles array to menu service
+- [ ] Add logs menu item to admin menu with `restriction: USER_ROLE.LOGGING_ADMIN`
+- [ ] Verify menu visibility for different roles (USER, ADMIN, LOGGING_ADMIN, SUPER_ADMIN)
+- [ ] Verify only SUPER_ADMIN can toggle LOGGING_ADMIN role in user admin UI
 
-### Phase 6: Testing & Validation
-- [ ] Unit tests for all new modules
-- [ ] Integration tests for log recording
-- [ ] Verify compression is working
-- [ ] Verify retention policy is configured
+### Phase 6: Logging API Routes
+- [ ] Create `LoggingController` with methods: getSummary, getFailedAuth, getLogsList, getHourlySummary, exportLogs
+- [ ] Create `logging-api.routes.ts` with `hasLoggingAdminRole` middleware protection
+- [ ] Add logging routes to `v1.routes.ts` (`/logs/*`)
+- [ ] Implement context-dependent sanitization in LoggingService
+- [ ] Add Socket.IO throttling logic for auth failure alerts
+- [ ] Test API endpoints with different roles (should reject non-LOGGING_ADMIN users)
+
+### Phase 7: Admin UI Components
+- [ ] Create `LOGGING_ADMIN_ROUTES` constants
+- [ ] Create `LoggingAdminRouter` with role check
+- [ ] Add logging router to admin routes config
+- [ ] Create logging dashboard component (`logging-admin-dashboard.component.tsx`)
+  - [ ] Summary metrics cards with trend indicators
+  - [ ] Time range selector (1h, 6h, 24h, 7d, 30d, Custom)
+  - [ ] Auto-refresh toggle
+  - [ ] Real-time alert banner display
+- [ ] Create failed auth lookup component (`logging-admin-failed-auth.component.tsx`)
+  - [ ] Search by IP/fingerprint/user_id
+  - [ ] Time window selector
+  - [ ] Results table with export
+- [ ] Create log list component (`logging-admin-list.component.tsx`)
+  - [ ] Filterable table (event type, date range, success/failure, user, IP, fingerprint)
+  - [ ] Pagination (25/50/100/200 rows)
+  - [ ] Sorting (created_at, event_type, ip_address)
+  - [ ] Export to CSV/JSON
+- [ ] Add RTK Query endpoints for logging API
+- [ ] Create logging Redux slice for alerts state
+- [ ] Implement `useLoggingAlerts` hook for Socket.IO connection
+- [ ] Add graceful degradation UI for TimescaleDB downtime
+- [ ] Test route protection (unauthorized redirect)
+
+### Phase 8: Socket.IO Real-Time Alerts
+- [ ] Create `/admin-logs` namespace in Socket.IO server
+- [ ] Implement auto-join to `logging-alerts` room for LOGGING_ADMIN users
+- [ ] Add threshold tracking in LoggingService (in-memory map or Redis)
+- [ ] Emit `auth_failure_warning` at 3 failures
+- [ ] Emit `auth_failure_critical` at 10+ failures
+- [ ] Emit `rate_limit_alert` for rate limit events
+- [ ] Test Socket.IO connection from admin dashboard
+- [ ] Test alert display (warning banner, critical banner with sound)
+- [ ] Verify alerts don't fire for isolated failures (1-2 attempts)
+
+### Phase 9: Testing & Validation
+- [ ] Unit tests for LoggingService (sanitization, context extraction)
+- [ ] Unit tests for hasLoggingAdminRole middleware
+- [ ] Integration tests for log recording (auth success/failure, rate limits)
+- [ ] E2E tests for admin UI components
+- [ ] Test RBAC: USER cannot access logs
+- [ ] Test RBAC: ADMIN cannot access logs (unless also has LOGGING_ADMIN)
+- [ ] Test RBAC: LOGGING_ADMIN can access all logging features
+- [ ] Test RBAC: SUPER_ADMIN can access logs and assign LOGGING_ADMIN role
+- [ ] Test RBAC: ADMIN cannot assign LOGGING_ADMIN role
+- [ ] Test Socket.IO threshold escalation logic
+- [ ] Test graceful degradation (TimescaleDB down)
+- [ ] Verify compression is working (check chunks after 7 days)
+- [ ] Verify retention policy is configured (check for auto-deletion after 90 days)
+- [ ] Load test: verify system handles logging under high traffic
+
+### Phase 10: Documentation & Deployment
+- [ ] Update API documentation with new `/api/v1/logs/*` endpoints
+- [ ] Document LOGGING_ADMIN role assignment process
+- [ ] Add logging dashboard user guide for admins
+- [ ] Update deployment checklist with TIMESCALE_URI environment variable
+- [ ] Create monitoring alerts for TimescaleDB connection failures
+- [ ] Document Option B → Option A migration procedure (if needed in future)
 
 ---
 
-*Document Version: 3.1*
+*Document Version: 4.0*
 *Created: January 27, 2026*
-*Updated: January 27, 2026 - Added Option B migration guide*
+*Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, and implementation decisions*
