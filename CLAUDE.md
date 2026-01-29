@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DX3 is a full-stack TypeScript monorepo with React web app, React Native mobile app, and Express.js API. The architecture uses shared packages for type safety across all platforms, with PostgreSQL, Redis, and S3 (LocalStack) as core infrastructure.
+DX3 is a full-stack TypeScript monorepo template designed to serve as boilerplate for building multiple applications. It provides a production-ready foundation in the React, Node, Express, Redis, PostgreSQL, and Expo stack so that future development can start with design and features. The template includes React web app, React Native mobile app, and Express.js API, with shared packages for type safety across all platforms.
+
+**Template Nature**: This repository is cloned to create new applications. Each app maintains its own repository while optionally connecting to shared infrastructure (dx-infrastructure repo) for centralized logging and metrics.
 
 ## Development Environment Setup
 
@@ -181,7 +183,10 @@ packages/
 - Routes defined in `packages/api/api-app/src/routes/v1.routes.ts`
 - Sequelize models in `packages/api/libs/pg/models`
 - Redis caching for hot data
-- Socket.IO namespaces and room subscriptions for real-time updates
+- Socket.IO uses namespace and room subscription model for real-time updates
+  - Namespaces for feature isolation (e.g., `/admin-logs`, `/notifications`)
+  - Rooms for targeted message broadcasting
+  - Socket middleware for authentication and authorization
 - Middleware: auth, rate limiting, role-based access control
 
 **Web Layer:**
@@ -209,6 +214,10 @@ packages/
 3. **i18n**: All UI strings must use i18n (no hardcoded text in components)
 4. **No Barrel Files in Web**: Never use barrel exports (`index.ts`) in web application. Use specific named files.
 5. **Index Files**: Reserve index files only for barrel exports (API/shared libs only, not web)
+6. **API Versioning**: Route versioning via request header, not URL path (use `/api/logs` not `/api/v1/logs`)
+7. **Redux File Naming**: Use `*.reducer.ts` for reducers and `*.selectors.ts` for selectors (not `*.slice.ts`)
+8. **Date Handling**: Use dayjs for date operations over JavaScript's Date constructor
+9. **Bash Only**: All terminal commands in documentation must use bash (Mac OS/Linux only, no Windows-specific commands)
 
 ### Feature Implementation
 
@@ -280,3 +289,13 @@ All services communicate via `dx3-network` bridge network:
 - LocalStack: `localstack:4566` (external: `localhost:4566`)
 - SendGrid Mock: `sendgrid-dx3:3000` (external: `localhost:7070`)
 - API: `api-dx3:4000` (external: `localhost:4000`)
+
+## Deployment Architecture
+
+**Target Platform**: Kubernetes via AWS using CI/CD pipeline (production-ready)
+
+**Multi-App Ecosystem**: When implementing the ecosystem architecture (see `docs/MULTI-APP-ECOSYSTEM-ARCHITECTURE.md`):
+- Apps can run in **standalone mode** (default, uses own containers)
+- Apps can run in **integration mode** (connects to shared infrastructure)
+- Shared infrastructure managed via separate `dx-infrastructure` repository
+- See `docs/IMPLEMENTATION-ROADMAP.md` for phased rollout strategy
