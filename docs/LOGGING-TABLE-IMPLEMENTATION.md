@@ -78,6 +78,8 @@ This section documents key decisions made during requirements interview and tech
 - ✅ **Audit Only**: Logs are for analytics/auditing, NOT for rate limit decisions
 - ✅ Keep existing Redis-based rate limiting unchanged
 - ✅ No critical path dependency on TimescaleDB for authentication flow
+- ✅ **Log Rate Limit Hits**: Record every rate limit trigger to TimescaleDB for security monitoring
+- ✅ **Fire-and-Forget**: Rate limit logging is async and non-blocking (doesn't slow down the 429 response)
 
 ### Data Sanitization Decisions
 
@@ -132,7 +134,7 @@ This section documents key decisions made during requirements interview and tech
 - ✅ Grants access to logging dashboard and log data
 - ✅ **Assignment Control**: Only SUPER_ADMIN can assign/remove this role
 - ✅ **Menu Visibility**: Logs menu item only appears if user has LOGGING_ADMIN or SUPER_ADMIN role
-- ✅ **API Protection**: All `/api/v1/logs/*` endpoints require LOGGING_ADMIN role
+- ✅ **API Protection**: All `/api/logs/*` endpoints require LOGGING_ADMIN role
 - ✅ **Route Protection**: Frontend `/admin/logs/*` routes check for LOGGING_ADMIN role
 - ✅ **Specialized Role**: Does NOT grant user management or other admin powers
 
@@ -837,13 +839,13 @@ router.post('/export', hasLoggingAdminRole, LoggingController.exportLogs)
 export { router as loggingRoutes }
 ```
 
-**Add to main routes in:** `packages/api/api-app/src/routes/v1.routes.ts`
+**Add to main routes in:** `packages/api/api-app/src/routes/api.routes.ts`
 
 ```typescript
 import { loggingRoutes } from '../logging/logging-api.routes'
 
 // Add to router setup
-router.use('/logs', loggingRoutes)  // All /api/v1/logs/* routes
+router.use('/logs', loggingRoutes)  // All /api/logs/* routes
 ```
 
 #### 5. Update Admin Menu
@@ -852,7 +854,7 @@ router.use('/logs', loggingRoutes)  // All /api/v1/logs/* routes
 
 ```typescript
 import { USER_ROLE } from '@dx3/models-shared'
-import { LOGGING_ADMIN_ROUTES } from '../../logging/admin/logging-admin-web.routes'
+import { LOGGING_ROUTES } from '../../logging/logging-web.routes'
 
 export const adminMenu = (): AppMenuType => {
   return {
@@ -862,7 +864,7 @@ export const adminMenu = (): AppMenuType => {
         icon: IconNames.ASSESSMENT,  // Or IconNames.TIMELINE
         id: 'menu-item-admin-logging',
         restriction: USER_ROLE.LOGGING_ADMIN,  // Only for LOGGING_ADMIN role
-        routeKey: LOGGING_ADMIN_ROUTES.DASHBOARD,
+        routeKey: LOGGING_ROUTES.DASHBOARD,
         title: strings.SYSTEM_LOGS,
         type: 'ROUTE',
       },
@@ -942,9 +944,9 @@ function setUpMenus(userProfile: UserProfileStateType, mobileBreak: boolean) {
 }
 ```
 
-#### 7. Create Logging Admin Router
+#### 7. Create Logging Router
 
-**File:** `packages/web/web-app/src/app/routers/logging-admin.router.tsx` (NEW)
+**File:** `packages/web/web-app/src/app/logging/logging-web.router.tsx` (NEW)
 
 > **Note:** Uses `useSelector` hook instead of `store.getState()` to ensure proper React re-renders when role state changes.
 
@@ -956,14 +958,16 @@ import { Navigate, Route, Routes } from 'react-router'
 import { USER_ROLE } from '@dx3/models-shared'
 
 import type { RootState } from '../store/store.types'
+import { ErrorBoundary } from '../ui/error-boundary/error-boundary.component'
 import { UiLoadingComponent } from '../ui/loading/loading.component'
 import { UnauthorizedComponent } from '../ui/unauthorized/unauthorized.component'
+import { GlobalErrorComponent } from '@dx3/web-libs/ui'
 
-const LoggingDashboard = lazy(() => import('../logging/admin/dashboard/logging-admin-dashboard.component'))
-const LoggingFailedAuth = lazy(() => import('../logging/admin/failed-auth/logging-admin-failed-auth.component'))
-const LoggingList = lazy(() => import('../logging/admin/list/logging-admin-list.component'))
+const LoggingDashboard = lazy(() => import('./dashboard/logging-dashboard.component'))
+const LoggingFailedAuth = lazy(() => import('./failed-auth/logging-failed-auth.component'))
+const LoggingList = lazy(() => import('./list/logging-list.component'))
 
-export const LoggingAdminRouter = () => {
+export const LoggingRouter = () => {
   const userRoles = useSelector((state: RootState) => state.userProfile.role)
 
   const hasLoggingAdminRole = useMemo(() => {
@@ -976,14 +980,16 @@ export const LoggingAdminRouter = () => {
   }
 
   return (
-    <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-      <Routes>
-        <Route path="dashboard" element={<LoggingDashboard />} />
-        <Route path="failed-auth" element={<LoggingFailedAuth />} />
-        <Route path="list" element={<LoggingList />} />
-        <Route path="*" element={<Navigate to="dashboard" replace />} />
-      </Routes>
-    </Suspense>
+    <ErrorBoundary fallback={<GlobalErrorComponent buttonText="Go Back" />}>
+      <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+        <Routes>
+          <Route path="dashboard" element={<LoggingDashboard />} />
+          <Route path="failed-auth" element={<LoggingFailedAuth />} />
+          <Route path="list" element={<LoggingList />} />
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 ```
@@ -991,7 +997,7 @@ export const LoggingAdminRouter = () => {
 **Add to routes config:** `packages/web/web-app/src/app/routers/routers.config.tsx`
 
 ```typescript
-import { LoggingAdminRouter } from './logging-admin.router'
+import { LoggingRouter } from '../logging/logging-web.router'
 
 const routes = [
   // ... existing routes
@@ -999,7 +1005,7 @@ const routes = [
     children: [
       // ... existing admin routes
       {
-        element: <LoggingAdminRouter />,
+        element: <LoggingRouter />,
         path: 'logs/*',  // /admin/logs/*
       },
     ],
@@ -1018,7 +1024,6 @@ const routes = [
 ```json
 {
   "... existing keys ...": "...",
-  "ERROR_OCCURRED": "An error occurred",
   "EXPORT_LOGS": "Export Logs",
   "FAILED_AUTH_ATTEMPTS": "Failed Auth Attempts",
   "FAILED_AUTH_LOOKUP": "Failed Auth Lookup",
@@ -1031,8 +1036,6 @@ const routes = [
   "LOGGING_DATABASE_UNAVAILABLE": "Logging database unavailable",
   "LOGGING_LAST_QUERY": "Last successful query",
   "SYSTEM_LOGS": "System Logs",
-  "TRY_AGAIN": "Try Again",
-  "UNKNOWN_ERROR": "An unknown error occurred",
   "VIEW_LOGS": "View Logs",
   "... existing keys ...": "..."
 }
@@ -1040,22 +1043,22 @@ const routes = [
 
 #### 9. Create Route Constants
 
-**File:** `packages/web/web-app/src/app/logging/admin/logging-admin-web.routes.ts` (NEW)
+**File:** `packages/web/web-app/src/app/logging/logging-web.routes.ts` (NEW)
 
 ```typescript
-export const LOGGING_ADMIN_ROUTES = {
+export const LOGGING_ROUTES = {
   DASHBOARD: '/admin/logs/dashboard',
   FAILED_AUTH: '/admin/logs/failed-auth',
   LIST: '/admin/logs/list',
 } as const
 
 export const LOGGING_API_ENDPOINTS = {
-  EXPORT: '/api/v1/logs/export',
-  FAILED_AUTH: '/api/v1/logs/failed-auth',
-  HEALTH: '/api/v1/logs/health',
-  HOURLY: '/api/v1/logs/hourly',
-  LIST: '/api/v1/logs/list',
-  SUMMARY: '/api/v1/logs/summary',
+  EXPORT: '/api/logs/export',
+  FAILED_AUTH: '/api/logs/failed-auth',
+  HEALTH: '/api/logs/health',
+  HOURLY: '/api/logs/hourly',
+  LIST: '/api/logs/list',
+  SUMMARY: '/api/logs/summary',
 } as const
 ```
 
@@ -1103,7 +1106,7 @@ The current implementation already:
 2. **API Level**: `updateRolesAndRestrictions` protected by `hasSuperAdminRole` middleware
 3. **Middleware Level**: `hasLoggingAdminRole` checks role before allowing access
 4. **Frontend Level**: Role update UI checks `currentUser?.sa` before allowing changes
-5. **Route Level**: All `/api/v1/logs/*` endpoints use `hasLoggingAdminRole` middleware
+5. **Route Level**: All `/api/logs/*` endpoints use `hasLoggingAdminRole` middleware
 6. **Menu Level**: Menu items filtered by `MenuConfigService` based on user roles
 7. **Router Level**: `LoggingAdminRouter` checks roles before rendering routes
 
@@ -1169,7 +1172,7 @@ Comprehensive log browser with advanced filtering.
 
 **Limits:** 10,000 rows per export
 
-**API:** `POST /api/v1/logs/export`
+**API:** `POST /api/logs/export`
 
 ### Downtime Handling (Graceful Degradation)
 
@@ -1181,85 +1184,9 @@ When TimescaleDB unavailable:
 
 ### Error Boundary
 
-Wrap logging admin components with an error boundary to catch rendering errors gracefully:
+Wrap logging components with the existing `ErrorBoundary` component.
 
-**File:** `packages/web/web-app/src/app/logging/admin/logging-admin-error-boundary.component.tsx` (NEW)
-
-```typescript
-import { Component, type ErrorInfo, type ReactNode } from 'react'
-
-import { Alert, AlertTitle, Box, Button, Typography } from '@mui/material'
-
-import { strings } from '@dx3/web-libs/i18n'
-
-type Props = {
-  children: ReactNode
-}
-
-type State = {
-  error: Error | null
-  hasError: boolean
-}
-
-export class LoggingAdminErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = { error: null, hasError: false }
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return { error, hasError: true }
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('LoggingAdmin Error:', error, errorInfo)
-  }
-
-  handleRetry = (): void => {
-    this.setState({ error: null, hasError: false })
-  }
-
-  render(): ReactNode {
-    if (this.state.hasError) {
-      return (
-        <Box sx={{ m: 3 }}>
-          <Alert severity="error">
-            <AlertTitle>{strings.ERROR_OCCURRED}</AlertTitle>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              {this.state.error?.message || strings.UNKNOWN_ERROR}
-            </Typography>
-            <Button variant="outlined" size="small" onClick={this.handleRetry}>
-              {strings.TRY_AGAIN}
-            </Button>
-          </Alert>
-        </Box>
-      )
-    }
-
-    return this.props.children
-  }
-}
-```
-
-**Usage in Router:**
-
-```typescript
-import { LoggingAdminErrorBoundary } from '../logging/admin/logging-admin-error-boundary.component'
-
-export const LoggingAdminRouter = () => {
-  // ... role check ...
-
-  return (
-    <LoggingAdminErrorBoundary>
-      <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-        <Routes>
-          {/* ... routes ... */}
-        </Routes>
-      </Suspense>
-    </LoggingAdminErrorBoundary>
-  )
-}
-```
+> **Note:** The app already has `ErrorBoundary` at `packages/web/web-app/src/app/ui/error-boundary/error-boundary.component.tsx` and `GlobalErrorComponent` at `packages/web/libs/ui/global/global-error.component.tsx`. No new components needed. The `ErrorBoundary` is already included in the `LoggingRouter` example above.
 
 ---
 
@@ -1394,23 +1321,23 @@ packages/
 │   └── web-app/
 │       └── src/
 │           ├── app/
-│           │   ├── logging/                      # NEW: Logging UI components
-│           │   │   └── admin/
-│           │   │       ├── dashboard/
-│           │   │       │   └── logging-admin-dashboard.component.tsx
-│           │   │       ├── failed-auth/
-│           │   │       │   └── logging-admin-failed-auth.component.tsx
-│           │   │       ├── list/
-│           │   │       │   └── logging-admin-list.component.tsx
-│           │   │       ├── logging-admin-error-boundary.component.tsx  # NEW
-│           │   │       ├── logging-admin-web.api.ts
-│           │   │       ├── logging-admin-web.hooks.ts                  # NEW: useLoggingAlerts, useLoggingHealth
-│           │   │       ├── logging-admin-web.routes.ts
-│           │   │       ├── logging-admin-web.slice.ts
-│           │   │       └── logging-admin-web.types.ts
+│           │   ├── logging/                      # NEW: Logging UI (admin-only feature)
+│           │   │   ├── dashboard/
+│           │   │   │   └── logging-dashboard.component.tsx
+│           │   │   ├── failed-auth/
+│           │   │   │   └── logging-failed-auth.component.tsx
+│           │   │   ├── list/
+│           │   │   │   └── logging-list.component.tsx
+│           │   │   ├── logging-web.api.ts
+│           │   │   ├── logging-web.hooks.ts      # useLoggingAlerts, useLoggingHealth
+│           │   │   ├── logging-web.reducer.ts    # Redux reducer for alerts state
+│           │   │   ├── logging-web.router.tsx    # Logging routes with role check
+│           │   │   ├── logging-web.routes.ts     # Route constants
+│           │   │   ├── logging-web.selectors.ts  # Redux selectors
+│           │   │   └── logging-web.types.ts
 │           │   │
 │           │   └── routers/
-│           │       └── logging-admin.router.tsx  # NEW: Logging routes
+│           │       └── ... (add logging routes to existing admin router)
 │           │
 │           └── assets/
 │               └── locales/
@@ -1848,6 +1775,8 @@ export async function createLogsSchema(): Promise<void> {
 
 **`packages/api/libs/logging/logging-api.service.ts`**
 
+> **SQL Injection Protection:** All user-provided values use parameterized queries (`$1, $2, ...`). Values that cannot be parameterized (e.g., column names, intervals) are validated against whitelists or type-checked before use.
+
 ```typescript
 import type { Request } from 'express'
 
@@ -1866,6 +1795,27 @@ import {
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { sanitizeForLogging } from '../logger/sanitize-log.util'
 import { TimescaleDbConnection } from '../timescale'
+
+// Whitelist for ORDER BY columns (prevents SQL injection)
+const VALID_ORDER_COLUMNS: Record<string, string> = {
+  createdAt: 'created_at',
+  eventType: 'event_type',
+  ipAddress: 'ip_address',
+} as const
+
+// Whitelist for sort directions
+const VALID_SORT_DIRS = ['ASC', 'DESC'] as const
+
+/**
+ * Validate and sanitize numeric interval values
+ * Prevents SQL injection in INTERVAL clauses
+ */
+function sanitizeInterval(value: number, max: number = 8760): number {
+  const num = Math.floor(Number(value))
+  if (Number.isNaN(num) || num < 1) return 1
+  if (num > max) return max
+  return num
+}
 
 export class LoggingService {
   private logger: ApiLoggingClassType
@@ -2045,10 +1995,13 @@ export class LoggingService {
   ): Promise<number> {
     if (!this.isEnabled) return 0
 
+    // Sanitize interval to prevent SQL injection (max 24 hours = 1440 minutes)
+    const safeMinutes = sanitizeInterval(minutesAgo, 1440)
+
     const conditions: string[] = [
       "event_type IN ('AUTH_LOGIN', 'AUTH_FAILURE')",
       'success = false',
-      `created_at >= NOW() - INTERVAL '${minutesAgo} minutes'`,
+      `created_at >= NOW() - INTERVAL '${safeMinutes} minutes'`,
     ]
     const params: unknown[] = []
     let paramIndex = 1
@@ -2130,13 +2083,13 @@ export class LoggingService {
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
 
-    // Map orderBy to column name
-    const orderByMap: Record<string, string> = {
-      createdAt: 'created_at',
-      eventType: 'event_type',
-      ipAddress: 'ip_address',
-    }
-    const orderColumn = orderByMap[orderBy] || 'created_at'
+    // Validate ORDER BY column against whitelist (prevents SQL injection)
+    const orderColumn = VALID_ORDER_COLUMNS[orderBy] || 'created_at'
+
+    // Validate sort direction against whitelist
+    const safeSortDir = VALID_SORT_DIRS.includes(sortDir as typeof VALID_SORT_DIRS[number])
+      ? sortDir
+      : 'DESC'
 
     // Get total count
     const countResult = await TimescaleDbConnection.query<{ count: string }>(
@@ -2169,7 +2122,7 @@ export class LoggingService {
         error_code as "errorCode"
       FROM logs
       ${whereClause}
-      ORDER BY ${orderColumn} ${sortDir}
+      ORDER BY ${orderColumn} ${safeSortDir}
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
     `, dataParams)
 
@@ -2181,6 +2134,11 @@ export class LoggingService {
    */
   async getHourlySummary(hoursAgo: number = 24, limit: number = 100): Promise<LogsHourlySummaryType[]> {
     if (!this.isEnabled) return []
+
+    // Sanitize interval to prevent SQL injection (max 720 hours = 30 days)
+    const safeHours = sanitizeInterval(hoursAgo, 720)
+    // Sanitize limit (max 1000 rows)
+    const safeLimit = sanitizeInterval(limit, 1000)
 
     const result = await TimescaleDbConnection.query<LogsHourlySummaryType>(`
       SELECT
@@ -2194,10 +2152,10 @@ export class LoggingService {
         avg_response_time_ms as "avgResponseTimeMs",
         max_response_time_ms as "maxResponseTimeMs"
       FROM logs_hourly
-      WHERE bucket >= NOW() - INTERVAL '${hoursAgo} hours'
+      WHERE bucket >= NOW() - INTERVAL '${safeHours} hours'
       ORDER BY bucket DESC
       LIMIT $1
-    `, [limit])
+    `, [safeLimit])
 
     return result.rows
   }
@@ -2217,6 +2175,9 @@ export class LoggingService {
       }
     }
 
+    // Sanitize interval to prevent SQL injection (max 720 hours = 30 days)
+    const safeHours = sanitizeInterval(hoursAgo, 720)
+
     const result = await TimescaleDbConnection.query<{
       auth_failures: string
       rate_limit_hits: string
@@ -2233,7 +2194,7 @@ export class LoggingService {
         COUNT(DISTINCT user_id) FILTER (WHERE user_id IS NOT NULL) as unique_users,
         COUNT(DISTINCT ip_address) as unique_ips
       FROM logs
-      WHERE created_at >= NOW() - INTERVAL '${hoursAgo} hours'
+      WHERE created_at >= NOW() - INTERVAL '${safeHours} hours'
     `)
 
     const row = result.rows[0]
@@ -2376,7 +2337,75 @@ export function logRequest(data: { message?: string; req: Request; type: string 
 }
 ```
 
-### 3. Auth Controller Integration
+### 3. Rate Limiter Integration
+
+**`packages/api/libs/rate-limiter/rate-limiter.middleware.ts`** (Updated)
+
+> **Note:** The existing rate limiter uses Redis for decisions. We're adding logging only - the rate limit logic remains unchanged.
+
+```typescript
+import type { NextFunction, Request, Response } from 'express'
+
+import { LoggingService } from '../logging/logging-api.service'
+
+export const rateLimiterMiddleware = (options: RateLimiterOptions) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Existing Redis-based rate limit check
+      const result = await checkRateLimit(req, options)
+
+      if (result.isLimited) {
+        // NEW: Log rate limit hit to TimescaleDB (fire-and-forget)
+        const loggingService = new LoggingService()
+        loggingService.recordRateLimitHit(req, `Rate limit exceeded: ${options.key}`)
+
+        // Existing rate limit response
+        res.status(429).json({
+          error: 'Too many requests',
+          retryAfter: result.retryAfter,
+        })
+        return
+      }
+
+      next()
+    } catch (err) {
+      // Rate limit check failed - allow request but log warning
+      console.warn('Rate limiter error:', err)
+      next()
+    }
+  }
+}
+```
+
+**Alternative: Centralized Rate Limit Handler**
+
+If you have a centralized rate limit error handler:
+
+```typescript
+// packages/api/libs/rate-limiter/rate-limit-handler.util.ts
+
+import type { Request, Response } from 'express'
+
+import { LoggingService } from '../logging/logging-api.service'
+
+export function handleRateLimitExceeded(
+  req: Request,
+  res: Response,
+  options: { key: string; retryAfter: number }
+): void {
+  // Log to TimescaleDB (fire-and-forget, non-blocking)
+  const loggingService = new LoggingService()
+  loggingService.recordRateLimitHit(req, `Rate limit exceeded: ${options.key}`)
+
+  // Send 429 response
+  res.status(429).json({
+    error: 'Too many requests',
+    retryAfter: options.retryAfter,
+  })
+}
+```
+
+### 4. Auth Controller Integration
 
 **`packages/api/api-app/src/auth/auth-api.controller.ts`** (Updated)
 
@@ -2699,7 +2728,8 @@ $$ LANGUAGE plpgsql;
 - [ ] Add TimescaleDB initialization to main.ts
 - [ ] Update `logRequest` utility to record logs
 - [ ] Update AuthController to record auth events
-- [ ] Update rate limiter to record rate limit hits
+- [ ] Update rate limiter middleware to call `LoggingService.recordRateLimitHit()` on 429 responses
+- [ ] Verify rate limit logging is fire-and-forget (doesn't block 429 response)
 
 ### Phase 4: Continuous Aggregates
 - [ ] Create logs_hourly continuous aggregate
@@ -2725,40 +2755,39 @@ $$ LANGUAGE plpgsql;
 - [ ] Implement `getHealth` method in LoggingService
 - [ ] Create `LoggingController` with methods: getFailedAuth, getHealth, getHourlySummary, getLogsList, getSummary, exportLogs
 - [ ] Create `logging-api.routes.ts` with `hasLoggingAdminRole` middleware protection
-- [ ] Add logging routes to `v1.routes.ts` (`/logs/*`)
+- [ ] Add logging routes to `api.routes.ts` (`/logs/*`)
 - [ ] Implement context-dependent sanitization in LoggingService
 - [ ] Add Socket.IO threshold tracking logic (in-memory map with 5-min sliding window)
 - [ ] Test API endpoints with different roles (should reject non-LOGGING_ADMIN users)
 - [ ] Test health endpoint returns correct status when TimescaleDB is up/down
 
 ### Phase 7: Admin UI Components
-- [ ] Create `LOGGING_ADMIN_ROUTES` and `LOGGING_API_ENDPOINTS` constants
-- [ ] Create `LoggingAdminErrorBoundary` component
-- [ ] Create `LoggingAdminRouter` with role check (using `useSelector`, not `store.getState()`)
+- [ ] Create `LOGGING_ROUTES` and `LOGGING_API_ENDPOINTS` constants (`logging-web.routes.ts`)
+- [ ] Create `LoggingRouter` with role check (using `useSelector`, not `store.getState()`)
 - [ ] Add logging router to admin routes config
-- [ ] Create logging dashboard component (`logging-admin-dashboard.component.tsx`)
+- [ ] Create logging dashboard component (`logging-dashboard.component.tsx`)
   - [ ] Summary metrics cards with trend indicators
   - [ ] Time range selector (1h, 6h, 24h, 7d, 30d, Custom)
   - [ ] Auto-refresh toggle
   - [ ] Real-time alert banner display
-  - [ ] Health status indicator (uses `/api/v1/logs/health`)
-- [ ] Create failed auth lookup component (`logging-admin-failed-auth.component.tsx`)
+  - [ ] Health status indicator (uses `/api/logs/health`)
+- [ ] Create failed auth lookup component (`logging-failed-auth.component.tsx`)
   - [ ] Search by IP/fingerprint/user_id
   - [ ] Time window selector
   - [ ] Results table with export
-- [ ] Create log list component (`logging-admin-list.component.tsx`)
+- [ ] Create log list component (`logging-list.component.tsx`)
   - [ ] Filterable table (event type, date range, success/failure, user, IP, fingerprint)
   - [ ] Pagination (25/50/100/200 rows) - server-side
   - [ ] Sorting (created_at, event_type, ip_address)
   - [ ] Export to CSV/JSON
 - [ ] Add RTK Query endpoints for logging API (including health endpoint)
-- [ ] Create logging Redux slice for alerts state
+- [ ] Create logging Redux reducer (`logging-web.reducer.ts`) for alerts state
+- [ ] Create logging selectors (`logging-web.selectors.ts`)
 - [ ] Implement `useLoggingAlerts` hook for Socket.IO connection
 - [ ] Implement `useLoggingHealth` hook for health status polling
 - [ ] Add graceful degradation UI for TimescaleDB downtime (banner with last query timestamp)
-- [ ] Wrap routes with `LoggingAdminErrorBoundary`
+- [ ] Wrap routes with existing `ErrorBoundary` + `GlobalErrorComponent` as fallback
 - [ ] Test route protection (unauthorized redirect)
-- [ ] Test error boundary (forced error recovery)
 
 ### Phase 8: Socket.IO Real-Time Alerts
 - [ ] Create `/admin-logs` namespace in Socket.IO server
@@ -2778,6 +2807,7 @@ $$ LANGUAGE plpgsql;
 
 ### Phase 9: Testing & Validation
 - [ ] Unit tests for LoggingService (sanitization, context extraction)
+- [ ] Unit tests for SQL injection protection (interval sanitization, ORDER BY whitelist)
 - [ ] Unit tests for hasLoggingAdminRole middleware
 - [ ] Integration tests for log recording (auth success/failure, rate limits)
 - [ ] E2E tests for admin UI components
@@ -2793,7 +2823,7 @@ $$ LANGUAGE plpgsql;
 - [ ] Load test: verify system handles logging under high traffic
 
 ### Phase 10: Documentation & Deployment
-- [ ] Update API documentation with new `/api/v1/logs/*` endpoints
+- [ ] Update API documentation with new `/api/logs/*` endpoints
 - [ ] Document LOGGING_ADMIN role assignment process
 - [ ] Add logging dashboard user guide for admins
 - [ ] Update deployment checklist with TIMESCALE_URI environment variable
@@ -2802,6 +2832,6 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-*Document Version: 4.1*
+*Document Version: 4.6*
 *Created: January 27, 2026*
-*Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, implementation decisions, error boundary, health check endpoint, getLogsList method, and clarified threshold tracking limitations*
+*Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, implementation decisions, health check endpoint, getLogsList method, clarified threshold tracking limitations, rate limiter integration details, use existing ErrorBoundary + GlobalErrorComponent, simplified file structure, and added SQL injection protection (parameterized queries, interval sanitization, ORDER BY whitelist)*

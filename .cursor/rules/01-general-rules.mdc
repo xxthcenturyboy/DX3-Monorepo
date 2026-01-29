@@ -2,3 +2,5 @@
 alwaysApply: true
 ---
 - Use dayjs for dates over Javascript's Date constructor
+- API route versioning is handled via request header, not URL path (use `/api/logs` not `/api/v1/logs`)
+- Redux state management uses `*.reducer.ts` for reducers and `*.selectors.ts` for selectors (not `*.slice.ts`)
