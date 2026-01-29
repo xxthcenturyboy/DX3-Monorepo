@@ -759,11 +759,11 @@ Access to logging features is controlled by a new specialized role: **LOGGING_AD
 ### Role Hierarchy
 
 ```
-SUPER_ADMIN (order: 4)
+SUPER_ADMIN (order: 5)
     ↓ (full system access, can assign all roles)
     ├── ADMIN (order: 2)
     │   └── User management, support requests
-    └── LOGGING_ADMIN (order: 3)
+    └── LOGGING_ADMIN (order: 4)
         └── System logs, analytics, security monitoring
 
 USER (order: 1)
@@ -812,12 +812,12 @@ export const USER_PRIVILEGE_SETS_SEED: UserPrivilegeSetSeedData[] = [
   {
     description: 'Logging administrator with access to system logs and analytics',  // NEW
     name: 'LOGGING_ADMIN',  // NEW
-    order: 3,  // NEW
+    order: 4,  // NEW
   },  // NEW
   {
     description: 'Super administrator with full system access',
     name: 'SUPER_ADMIN',
-    order: 4,  // Changed from 3
+    order: 5,  // Changed from 4
   },
 ]
 ```
@@ -1220,6 +1220,24 @@ Comprehensive log browser with advanced filtering.
 
 **API:** `POST /api/logs/export`
 
+**Implementation:**
+
+```typescript
+// Streaming CSV export for large datasets
+async exportLogsStream(filters: LogFilters, res: Response) {
+  res.setHeader('Content-Type', 'text/csv')
+  res.setHeader('Content-Disposition', 'attachment; filename="logs.csv"')
+
+  const stream = await TimescaleDbConnection.stream(
+    'SELECT * FROM logs WHERE created_at > $1 ORDER BY created_at DESC',
+    [filters.startDate]
+  )
+
+  const csvStream = csv.stringify({ header: true })
+  stream.pipe(csvStream).pipe(res)
+}
+```
+
 ### Downtime Handling (Graceful Degradation)
 
 When TimescaleDB unavailable:
@@ -1288,6 +1306,32 @@ type FailureTracker = Map<string, { count: number; firstSeen: number }>
 | `auth_failure_critical` | `{ count, fingerprint, ipAddress, timestamp }` | 10+ failures in 5min window |
 | `rate_limit_alert` | `{ endpoint, ipAddress, timestamp }` | Rate limit triggered |
 | `security_alert` | `{ alertType, details, timestamp }` | Custom security events |
+
+### Socket.IO Authentication Middleware
+
+```typescript
+// Socket.IO Authentication Middleware
+io.of('/admin-logs').use(async (socket, next) => {
+  const token = socket.handshake.auth.token
+  if (!token) {
+    return next(new Error('Authentication required'))
+  }
+
+  try {
+    const decoded = verifyJWT(token)
+    const user = await UserService.findById(decoded.userId)
+
+    if (!user || !hasRole(user, 'LOGGING_ADMIN')) {
+      return next(new Error('Insufficient permissions'))
+    }
+
+    socket.data.user = user
+    next()
+  } catch (err) {
+    next(new Error('Invalid token'))
+  }
+})
+```
 
 ---
 
@@ -1837,6 +1881,7 @@ import type { Request } from 'express'
 
 import {
   APP_ID,
+  IS_PARENT_DASHBOARD_APP,
   LOG_EVENT_TYPE,
   type GetLogsListQueryType,
   type GetLogsListResponseType,
@@ -1851,9 +1896,6 @@ import {
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { sanitizeForLogging } from '../logger/sanitize-log.util'
 import { TimescaleDbConnection } from '../timescale'
-
-// Flag to determine if this app can read all logs (parent dashboard only)
-const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
 // Whitelist for ORDER BY columns (prevents SQL injection)
 const VALID_ORDER_COLUMNS: Record<string, string> = {
@@ -2121,7 +2163,7 @@ export class LoggingService {
 
     // Multi-app security: Regular apps can only see their own logs
     // Parent dashboard (dx3-admin) can filter by specific app or see all
-    if (IS_PARENT_DASHBOARD) {
+    if (IS_PARENT_DASHBOARD_APP) {
       // Parent dashboard can optionally filter by app_id
       if (appId) {
         conditions.push(`app_id = $${paramIndex++}`)
@@ -2267,7 +2309,7 @@ export class LoggingService {
     const safeHours = sanitizeInterval(hoursAgo, 720)
 
     // Multi-app: Parent dashboard sees all, others see only own app
-    const appFilter = IS_PARENT_DASHBOARD ? '' : `AND app_id = '${APP_ID}'`
+    const appFilter = IS_PARENT_DASHBOARD_APP ? '' : `AND app_id = '${APP_ID}'`
 
     const result = await TimescaleDbConnection.query<{
       auth_failures: string
@@ -2618,84 +2660,23 @@ const peakHours = await TimescaleDbConnection.query(`
 
 ## Testing Considerations
 
+## Testing Strategy
+
 ### Unit Tests
-
-```typescript
-// packages/api/libs/logging/logging-api.service.spec.ts
-
-import { LoggingService } from './logging-api.service'
-import { TimescaleDbConnection } from '../timescale'
-
-jest.mock('../timescale', () => ({
-  TimescaleDbConnection: {
-    pool: { query: jest.fn() },
-    query: jest.fn(),
-  },
-}))
-
-describe('LoggingService', () => {
-  let service: LoggingService
-
-  beforeEach(() => {
-    service = new LoggingService()
-    jest.clearAllMocks()
-  })
-
-  describe('recordFromRequest', () => {
-    it('should extract context and insert log', async () => {
-      const mockReq = {
-        body: { email: 'test@example.com' },
-        fingerprint: 'fp123',
-        geo: { city: { names: { en: 'NYC' } }, country: { iso_code: 'US' } },
-        headers: { 'user-agent': 'Mozilla/5.0', 'x-forwarded-for': '192.168.1.1' },
-        ip: '127.0.0.1',
-        method: 'POST',
-        params: {},
-        path: '/api/auth/login',
-        user: { id: 'user123' },
-      } as unknown as Request
-
-      await service.recordFromRequest({
-        eventType: LOG_EVENT_TYPE.AUTH_LOGIN,
-        req: mockReq,
-        success: true,
-      })
-
-      expect(TimescaleDbConnection.query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO logs'),
-        expect.arrayContaining(['AUTH_LOGIN', 'user123', 'fp123', '192.168.1.1'])
-      )
-    })
-  })
-})
-```
+- Mock TimescaleDB connection for LoggingService tests
+- Test fire-and-forget pattern (errors don't block requests)
+- Verify metadata serialization/deserialization
 
 ### Integration Tests
+- End-to-end logging flow with real TimescaleDB test instance
+- Continuous aggregate refresh validation
+- Multi-app partitioning tests
 
-```typescript
-// packages/api/api-app-e2e/src/logging/logging.e2e.spec.ts
-
-describe('Logging Integration', () => {
-  it('should record login logs to TimescaleDB', async () => {
-    await request(app)
-      .post('/api/auth/login')
-      .send({ password: 'wrong', value: 'test@example.com' })
-      .expect(400)
-
-    // Query TimescaleDB directly
-    const result = await TimescaleDbConnection.query(`
-      SELECT * FROM logs
-      WHERE event_type = 'AUTH_FAILURE'
-      ORDER BY created_at DESC
-      LIMIT 1
-    `)
-
-    expect(result.rows.length).toBe(1)
-    expect(result.rows[0].request_path).toBe('/api/auth/login')
-    expect(result.rows[0].success).toBe(false)
-  })
-})
-```
+### Test Fixtures
+Create test data in `packages/shared/test-data/src/logging`:
+- Sample log events with various event types
+- Mock metadata payloads
+- Multi-app test scenarios
 
 ---
 

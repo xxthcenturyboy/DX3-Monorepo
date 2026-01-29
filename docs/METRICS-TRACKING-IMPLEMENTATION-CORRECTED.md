@@ -396,6 +396,10 @@ export function initializeGTM(): void {
   const script = document.createElement('script')
   script.async = true
   script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_CONTAINER_ID}`
+  script.onerror = () => {
+    console.error('Failed to load GTM script')
+    // Fallback: metrics still tracked to TimescaleDB
+  }
   document.head.appendChild(script)
 }
 
@@ -689,7 +693,7 @@ WITH NO DATA;
 
 -- Refresh policy: refresh daily
 SELECT add_continuous_aggregate_policy('metrics_daily',
-  start_offset => INTERVAL '3 days',
+  start_offset => INTERVAL '1 day',
   end_offset => INTERVAL '1 day',
   schedule_interval => INTERVAL '1 day'
 );
@@ -751,7 +755,7 @@ GROUP BY bucket, event_type
 WITH NO DATA;
 
 SELECT add_continuous_aggregate_policy('metrics_daily_all_apps',
-  start_offset => INTERVAL '3 days',
+  start_offset => INTERVAL '1 day',
   end_offset => INTERVAL '1 day',
   schedule_interval => INTERVAL '1 day'
 );
@@ -764,12 +768,9 @@ Create `packages/api/libs/metrics/metrics-api.service.ts`:
 ```typescript
 import type { Request } from 'express'
 
-import { APP_ID, METRIC_EVENT_TYPE, type MetricEventType } from '@dx3/models-shared'
+import { APP_ID, IS_PARENT_DASHBOARD_APP, METRIC_EVENT_TYPE, type MetricEventType } from '@dx3/models-shared'
 
 import { LoggingService } from '../logging/logging-api.service'
-
-// Flag to determine if this app can read all metrics (parent dashboard only)
-const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
 export class MetricsService {
   private loggingService: LoggingService
@@ -872,7 +873,7 @@ export class MetricsService {
     let appFilter = ''
     const params: unknown[] = [startDate, endDate]
 
-    if (IS_PARENT_DASHBOARD) {
+    if (IS_PARENT_DASHBOARD_APP) {
       if (appId) {
         appFilter = 'AND app_id = $3'
         params.push(appId)
@@ -912,7 +913,7 @@ export class MetricsService {
     let appFilter = ''
     const params: unknown[] = [startOfDay, endOfDay]
 
-    if (IS_PARENT_DASHBOARD) {
+    if (IS_PARENT_DASHBOARD_APP) {
       if (appId) {
         appFilter = 'AND app_id = $3'
         params.push(appId)
@@ -1048,6 +1049,33 @@ export class MetricsService {
 }
 
 export type MetricsServiceType = typeof MetricsService.prototype
+```
+
+## Deduplication Strategy
+
+### Dual Tracking Concerns
+Both GA4 and TimescaleDB track signups and logins. To prevent conflicting metrics:
+
+1. **Single Source of Truth**: TimescaleDB is primary for business metrics
+2. **GA4 for Marketing**: GA4 used for acquisition/campaign tracking only
+3. **Event IDs**: Include `event_id` in metadata for deduplication:
+   ```typescript
+   const eventId = `${userId}_${eventType}_${Date.now()}`
+   ```
+4. **Reconciliation**: Weekly job compares counts between systems
+
+## Data Validation & Idempotency
+
+### Preventing Duplicate Events
+- Client-side: Generate unique event IDs before tracking
+- Server-side: Check for duplicate event_id in recent window (5 minutes)
+- Database: Unique constraint on (event_id, created_at::date) for daily uniqueness
+
+### Implementation
+```typescript
+// Add to metrics table schema
+event_id VARCHAR(255) NOT NULL,
+CONSTRAINT unique_event_per_day UNIQUE (event_id, time_bucket('1 day', created_at))
 ```
 
 ### Integration with Auth Controller
