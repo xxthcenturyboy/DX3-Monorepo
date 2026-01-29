@@ -1,6 +1,12 @@
 ---
 alwaysApply: true
 ---
-- Use dayjs for dates over Javascript's Date constructor
+- All JSON object properties, types, and imports must be sorted alphabetically
+- All strings in the UI must be derived via i18n
 - API route versioning is handled via request header, not URL path (use `/api/logs` not `/api/v1/logs`)
+- Never use barrel files for web applications
+- Prefer specific named files and not put code in index files
 - Redux state management uses `*.reducer.ts` for reducers and `*.selectors.ts` for selectors (not `*.slice.ts`)
+- Reserve index files only for barrel files
+- Use dayjs for dates over Javascript's Date constructor
+- Use types instead of interfaces for TypeScript types

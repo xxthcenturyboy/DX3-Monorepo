@@ -1,4 +1,0 @@
----
-alwaysApply: true
----
-- Use types instead of Interfaces for typescript types

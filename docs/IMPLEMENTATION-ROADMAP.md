@@ -158,14 +158,24 @@ public getMenus(userRoles: string[], includeBeta?: boolean)
 
 #### Task 0.2: Role Hierarchy Alignment
 
-**Problem:** LOGGING doc uses order 3 for LOGGING_ADMIN, METRICS doc uses order 4. This creates conflicts in privilege checks.
+**Problem:** LOGGING doc uses order 3 for LOGGING_ADMIN, METRICS doc uses order 4. Additionally, the BLOG-CMS feature requires an EDITOR role that was not included in initial planning.
 
-**Resolution:** Use METRICS plan hierarchy (more granular, correct ordering).
+**Resolution:** Use a 6-level hierarchy with integer ordering to accommodate all roles including EDITOR.
 
 **Target Hierarchy:**
 ```typescript
-USER (1) → ADMIN (2) → METRICS_ADMIN (3) → LOGGING_ADMIN (4) → SUPER_ADMIN (5)
+USER (1) → EDITOR (2) → ADMIN (3) → METRICS_ADMIN (4) → LOGGING_ADMIN (5) → SUPER_ADMIN (6)
 ```
+
+**Role Descriptions:**
+| Role | Order | Description |
+|------|-------|-------------|
+| USER | 1 | Standard authenticated user |
+| EDITOR | 2 | Blog/content management (Phase 3) |
+| ADMIN | 3 | General admin access |
+| METRICS_ADMIN | 4 | Business metrics and analytics |
+| LOGGING_ADMIN | 5 | System logs (security-sensitive) |
+| SUPER_ADMIN | 6 | Full system access |
 
 **Changes Required:**
 
@@ -174,27 +184,35 @@ USER (1) → ADMIN (2) → METRICS_ADMIN (3) → LOGGING_ADMIN (4) → SUPER_ADM
    // packages/shared/models/src/user-privilege-set/user-privilege-set.consts.ts
    export const USER_PRIVILEGE_SETS_SEED = [
      { name: 'USER', order: 1 },
-     { name: 'ADMIN', order: 2 },
-     { name: 'METRICS_ADMIN', order: 3 },
-     { name: 'LOGGING_ADMIN', order: 4 },
-     { name: 'SUPER_ADMIN', order: 5 },
+     { name: 'EDITOR', order: 2 },
+     { name: 'ADMIN', order: 3 },
+     { name: 'METRICS_ADMIN', order: 4 },
+     { name: 'LOGGING_ADMIN', order: 5 },
+     { name: 'SUPER_ADMIN', order: 6 },
    ]
    ```
 
 2. **Update LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md:**
    - Find references to LOGGING_ADMIN order: 3
-   - Change to order: 4
+   - Change to order: 5
    - Find references to SUPER_ADMIN order: 4
+   - Change to order: 6
+
+3. **Update METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md:**
+   - Find references to METRICS_ADMIN order: 3
+   - Change to order: 4
+   - Find references to LOGGING_ADMIN order: 4
    - Change to order: 5
 
-3. **Verify METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md:**
-   - Already has correct hierarchy
-   - No changes needed
+4. **Update BLOG-CMS-IMPLEMENTATION.md:**
+   - EDITOR role now uses integer order: 2 (not 2.5)
 
-**Rationale:** LOGGING_ADMIN is higher privilege than METRICS_ADMIN because:
-- LOGGING_ADMIN can view system logs (security-sensitive)
-- LOGGING_ADMIN inherits METRICS_ADMIN permissions
-- METRICS_ADMIN only sees business metrics (less sensitive)
+**Rationale:**
+- EDITOR is above USER but below ADMIN (content management, not system admin)
+- ADMIN handles general admin tasks without specialized logging/metrics access
+- METRICS_ADMIN sees business metrics (less sensitive than logs)
+- LOGGING_ADMIN can view system logs (security-sensitive), inherits METRICS_ADMIN
+- SUPER_ADMIN has full access to everything
 
 **Testing:**
 - [ ] Role order comparison works correctly (higher order > lower order)
@@ -930,7 +948,7 @@ SELECT add_retention_policy('logs', INTERVAL '90 days', if_not_exists => TRUE);
 // Add to existing privilege sets seeder
 {
   name: 'LOGGING_ADMIN',
-  order: 4,
+  order: 5,
   description: 'Access to system logs and metrics',
 }
 ```
@@ -1194,7 +1212,7 @@ export const metricsService = new MetricsService()
 ```typescript
 {
   name: 'METRICS_ADMIN',
-  order: 3,
+  order: 4,
   description: 'Access to business metrics and analytics',
 }
 ```
@@ -1291,8 +1309,9 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - Revision restore
 
 #### Task 3.3: Editor Role
-- Create EDITOR role (order: 2.5, between USER and ADMIN)
-- Middleware for blog management
+- Create EDITOR role (order: 2, between USER and ADMIN)
+- Middleware for blog management (`requireRole('EDITOR')`)
+- Add menu restriction for `/admin/blog/*` routes: `restriction: 'EDITOR'`
 
 #### Task 3.4: Admin UI
 - Post editor (Markdown)
@@ -1330,7 +1349,7 @@ Phase 3 implements a full-featured blog/CMS system, including:
 ### Phase 0: Foundation
 
 - [ ] Menu system supports multi-role
-- [ ] Role hierarchy aligned (order 1-5)
+- [ ] Role hierarchy aligned (order 1-6, includes EDITOR)
 - [ ] APP_ID constants in shared package
 - [ ] dx-infrastructure repository created
 - [ ] Template updated with integration mode
@@ -1444,7 +1463,7 @@ pnpm build
 
 **If role seeder fails:**
 ```sql
-DELETE FROM user_privilege_sets WHERE name IN ('LOGGING_ADMIN', 'METRICS_ADMIN');
+DELETE FROM user_privilege_sets WHERE name IN ('EDITOR', 'LOGGING_ADMIN', 'METRICS_ADMIN');
 ```
 
 ### Phase 1 Rollback
@@ -1525,9 +1544,11 @@ DELETE FROM user_privilege_sets WHERE name IN ('LOGGING_ADMIN', 'METRICS_ADMIN')
 
 ---
 
-**Document Version:** 1.1
+**Document Version:** 1.2
 **Last Updated:** January 29, 2026
 **Status:** Ready for Implementation
 **Estimated Total Duration:** 12-19 days
 **Recommended Strategy:** Sequential (Option A)
-**Change Log:** v1.1 - Aligned metrics_daily refresh policy to daily (matches METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md)
+**Change Log:**
+- v1.2 - Updated role hierarchy to 6-level system (1-6) including EDITOR role for Blog CMS; aligned all role order references
+- v1.1 - Aligned metrics_daily refresh policy to daily (matches METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md)
