@@ -780,6 +780,26 @@ export class MetricsService {
   }
 
   /**
+   * Execute a raw SQL query (delegates to LoggingService)
+   * Used by MetricsController for custom aggregate queries
+   *
+   * SECURITY: All user-provided values MUST be passed via the params array.
+   * - Use parameterized placeholders ($1, $2, etc.) in the SQL string
+   * - NEVER interpolate user input directly into the SQL string
+   * - For dynamic values like date ranges, use whitelisted options (see VALID_RANGES)
+   *
+   * @example
+   * // CORRECT: Dates passed as params
+   * queryRaw('SELECT * FROM metrics_daily WHERE bucket >= $1 AND bucket <= $2', [startDate, endDate])
+   *
+   * // WRONG: Date interpolated (SQL injection risk!)
+   * queryRaw(`SELECT * FROM metrics_daily WHERE bucket >= '${startDate}'`, [])
+   */
+  async queryRaw<T>(sql: string, params: unknown[]): Promise<{ rowCount: number; rows: T[] }> {
+    return this.loggingService.queryRaw<T>(sql, params)
+  }
+
+  /**
    * Record a signup event
    */
   async recordSignup(params: {
@@ -1302,7 +1322,15 @@ import type { Request, Response } from 'express'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response'
 
-// Whitelist of allowed range values (prevents arbitrary queries)
+/**
+ * Whitelist of allowed range values
+ * SECURITY: This whitelist prevents:
+ * - SQL injection via arbitrary range values
+ * - DoS attacks via excessively large ranges
+ * - Unexpected query patterns
+ *
+ * Only these exact values are accepted; all others default to 30d
+ */
 const VALID_RANGES: Record<string, number> = {
   '7d': 7,
   '30d': 30,
@@ -1312,7 +1340,10 @@ const VALID_RANGES: Record<string, number> = {
 
 /**
  * Parse date range string (7d, 30d, 90d) into start/end dayjs objects
- * Uses whitelist validation to prevent SQL injection and DoS attacks
+ *
+ * SECURITY: Uses whitelist validation to sanitize user input.
+ * Invalid/unknown range values safely default to 30 days.
+ * The resulting Date objects are passed as parameterized query values.
  */
 function parseDateRange(range: string): { endDate: dayjs.Dayjs; startDate: dayjs.Dayjs } {
   // Validate against whitelist - default to 30d if invalid
@@ -2682,7 +2713,7 @@ When the mobile app matures:
 
 ---
 
-*Document Version: 2.5*
+*Document Version: 2.7*
 *Created: January 27, 2026*
 *Updated: January 28, 2026 - Added comprehensive implementation decisions, RBAC, custom dashboard, and detailed checklist*
 *Updated: January 28, 2026 - Fixed dayjs usage, i18n strings, alphabetical ordering, and barrel file policy per workspace rules*
@@ -2690,3 +2721,4 @@ When the mobile app matures:
 *Updated: January 28, 2026 - Enhanced architecture diagram with entry points, tracking layer, dashboards section, and data flow*
 *Updated: January 28, 2026 - Added File Structure section with complete file tree for all new packages*
 *Updated: January 29, 2026 - Added multi-app ecosystem support: app_id in continuous aggregates, cross-app queries for parent dashboard (dx3-admin), app filter in dashboard UI*
+*Updated: January 29, 2026 - Added queryRaw method with security documentation; enhanced VALID_RANGES whitelist with security comments*

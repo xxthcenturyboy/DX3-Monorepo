@@ -2342,6 +2342,36 @@ export class LoggingService {
   }
 
   /**
+   * Execute a raw SQL query (for advanced queries like aggregates)
+   * Used by MetricsService and other services that need custom queries
+   *
+   * SECURITY: All user-provided values MUST be passed via the params array.
+   * - Use parameterized placeholders ($1, $2, etc.) in the SQL string
+   * - NEVER interpolate user input directly into the SQL string
+   * - For dynamic column names or table names, use a whitelist (see getLogsList)
+   *
+   * @example
+   * // CORRECT: User values in params array
+   * queryRaw('SELECT * FROM logs WHERE user_id = $1', [userId])
+   *
+   * // WRONG: User value interpolated (SQL injection risk!)
+   * queryRaw(`SELECT * FROM logs WHERE user_id = '${userId}'`, [])
+   */
+  async queryRaw<T>(sql: string, params: unknown[]): Promise<{ rowCount: number; rows: T[] }> {
+    if (!this.isEnabled) {
+      return { rowCount: 0, rows: [] }
+    }
+
+    // Validate that params is an array (basic sanity check)
+    if (!Array.isArray(params)) {
+      throw new Error('queryRaw: params must be an array')
+    }
+
+    const result = await TimescaleDbConnection.query<T>(sql, params)
+    return { rowCount: result.rowCount ?? 0, rows: result.rows }
+  }
+
+  /**
    * Health check for TimescaleDB connection
    * Used for monitoring and graceful degradation in UI
    */
@@ -2904,7 +2934,8 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-*Document Version: 4.7*
+*Document Version: 4.9*
 *Created: January 27, 2026*
 *Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, implementation decisions, health check endpoint, getLogsList method, clarified threshold tracking limitations, rate limiter integration details, use existing ErrorBoundary + GlobalErrorComponent, simplified file structure, and added SQL injection protection (parameterized queries, interval sanitization, ORDER BY whitelist)*
 *Updated: January 29, 2026 - Added multi-app ecosystem support: app_id partitioning, centralized TimescaleDB, cross-app queries for parent dashboard (dx3-admin), updated schema and indexes*
+*Updated: January 29, 2026 - Added queryRaw method to LoggingService with security documentation requiring parameterized queries and params array validation*

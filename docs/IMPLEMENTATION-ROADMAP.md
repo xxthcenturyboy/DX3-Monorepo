@@ -1126,11 +1126,11 @@ FROM metrics
 GROUP BY bucket, app_id, metric_type, metric_name
 WITH NO DATA;
 
--- Refresh policy (1 day delay, updated in CORRECTED doc)
+-- Refresh policy: refresh daily (aligned with METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md)
 SELECT add_continuous_aggregate_policy('metrics_daily',
   start_offset => INTERVAL '1 day',
-  end_offset => INTERVAL '1 hour',
-  schedule_interval => INTERVAL '1 hour',
+  end_offset => INTERVAL '1 day',
+  schedule_interval => INTERVAL '1 day',
   if_not_exists => TRUE
 );
 ```
@@ -1525,8 +1525,9 @@ DELETE FROM user_privilege_sets WHERE name IN ('LOGGING_ADMIN', 'METRICS_ADMIN')
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** January 2026
+**Document Version:** 1.1
+**Last Updated:** January 29, 2026
 **Status:** Ready for Implementation
 **Estimated Total Duration:** 12-19 days
 **Recommended Strategy:** Sequential (Option A)
+**Change Log:** v1.1 - Aligned metrics_daily refresh policy to daily (matches METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md)
