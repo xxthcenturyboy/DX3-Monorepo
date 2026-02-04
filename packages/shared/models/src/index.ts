@@ -25,6 +25,7 @@ export type {
 export {
   APP_DESCRIPTION,
   APP_DOMAIN,
+  APP_ID,
   APP_NAME,
   APP_PREFIX,
   APPLE_APP_ID,
@@ -35,7 +36,9 @@ export {
   DEFAULT_SORT,
   DEV_ENV_NAME,
   ERROR_MSG,
+  IS_PARENT_DASHBOARD_APP,
   MOBILE_PACKAGE_NAME,
+  PARENT_DASHBOARD_APP_ID,
   PHONE_DEFAULT_REGION_CODE,
   PROD_ENV_NAME,
   SHA256_CERT_FINGERPRINT,
@@ -215,8 +218,10 @@ export type {
   UserType,
 } from './user/user-shared.types'
 export {
+  hasRoleOrHigher,
   USER_ROLE,
   USER_ROLE_ARRAY,
+  USER_ROLE_ORDER,
 } from './user-privilege/user-privilege-shared.consts'
 // USER PRIVILEGE Types
 export type {

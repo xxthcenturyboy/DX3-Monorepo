@@ -1,5 +1,4 @@
 import type { UserProfileStateType } from '@dx3/models-shared'
-import { USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 
 import { fetchFeatureFlags } from '../../feature-flags/feature-flag-web.api'
@@ -9,20 +8,19 @@ import { notificationActions } from '../../notifications/notification-web.reduce
 import { store } from '../../store/store-web.redux'
 import { supportActions } from '../../support/store/support-web.reducer'
 import { fetchSupportUnviewedCount } from '../../support/support-web.api'
-import type { AppMenuType } from '../../ui/menus/app-menu.types'
 import { MenuConfigService } from '../../ui/menus/menu-config.service'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 
+/**
+ * Set up sidebar menus based on user roles.
+ * Uses the new multi-role filtering in MenuConfigService.
+ */
 function setUpMenus(userProfile: UserProfileStateType, mobileBreak: boolean) {
   const menuService = new MenuConfigService()
-  let menus: AppMenuType[] = []
-  if (userProfile.role.includes(USER_ROLE.SUPER_ADMIN)) {
-    menus = menuService.getMenus(USER_ROLE.SUPER_ADMIN, userProfile.b)
-  } else if (userProfile.role.includes(USER_ROLE.ADMIN)) {
-    menus = menuService.getMenus(USER_ROLE.ADMIN, userProfile.b)
-  } else {
-    menus = menuService.getMenus(undefined, userProfile.b)
-  }
+
+  // Pass the user's roles array and beta flag directly
+  // MenuConfigService now handles role hierarchy internally
+  const menus = menuService.getMenus(userProfile.role, userProfile.b)
 
   store.dispatch(uiActions.menusSet({ menus }))
   if (!mobileBreak) {

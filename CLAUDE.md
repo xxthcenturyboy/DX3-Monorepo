@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 DX3 is a full-stack TypeScript monorepo template designed to serve as boilerplate for building multiple applications. It provides a production-ready foundation in the React, Node, Express, Redis, PostgreSQL, and Expo stack so that future development can start with design and features. The template includes React web app, React Native mobile app, and Express.js API, with shared packages for type safety across all platforms.
 
-**Template Nature**: This repository is cloned to create new applications. Each app maintains its own repository while optionally connecting to shared infrastructure (dx-infrastructure repo) for centralized logging and metrics.
+**Template Nature**: This repository is cloned to create new applications. Each app maintains its own repository while optionally connecting to shared infrastructure (ax-infrastructure repo) for centralized logging and metrics.
 
 ## Development Environment Setup
 
@@ -114,6 +114,44 @@ docker compose logs -f api-node-22-dx3
 # API container shell
 make api-shell
 ```
+
+### Integration Mode (Multi-App Ecosystem)
+```bash
+# First, start ax-infrastructure (in separate terminal)
+cd ~/Developer/ArteFX/ax-infrastructure ; make up
+
+# Then start dx3 in integration mode (skips local Redis/PostgreSQL)
+make dev-integration
+
+# Check all services status
+make integration-status
+
+# Stop dx3 services (keeps ax-infrastructure running)
+make dev-integration-down
+```
+
+See `docs/AX-INFRASTRUCTURE-SETUP.md` for detailed setup instructions.
+
+## User Roles & Permissions
+
+The system implements a hierarchical role-based access control with the following roles (ordered by privilege level):
+
+| Role | Order | Description |
+|------|-------|-------------|
+| `USER` | 1 | Standard authenticated user |
+| `EDITOR` | 2 | Blog/content management (Phase 3) |
+| `ADMIN` | 3 | General admin access, user management |
+| `METRICS_ADMIN` | 4 | Business metrics and analytics dashboards |
+| `LOGGING_ADMIN` | 5 | System logs access (security-sensitive) |
+| `SUPER_ADMIN` | 6 | Full system access |
+
+**Key Role Constants:**
+- `USER_ROLE` - Object with role name constants
+- `USER_ROLE_ORDER` - Maps roles to their hierarchy order
+- `hasRoleOrHigher(userRoles, requiredRole)` - Utility for role hierarchy checks
+
+**Menu System:**
+The `MenuConfigService.getMenus(userRoles: string[], includeBeta?: boolean)` method filters menus based on user roles. Higher-privilege roles can see items restricted to lower roles.
 
 ## Architecture
 
@@ -297,5 +335,9 @@ All services communicate via `dx3-network` bridge network:
 **Multi-App Ecosystem**: When implementing the ecosystem architecture (see `docs/MULTI-APP-ECOSYSTEM-ARCHITECTURE.md`):
 - Apps can run in **standalone mode** (default, uses own containers)
 - Apps can run in **integration mode** (connects to shared infrastructure)
-- Shared infrastructure managed via separate `dx-infrastructure` repository
+- Shared infrastructure managed via separate `ax-infrastructure` repository
 - See `docs/IMPLEMENTATION-ROADMAP.md` for phased rollout strategy
+- Key constants:
+  - `APP_ID` - Unique identifier for this app in the ecosystem (env var)
+  - `IS_PARENT_DASHBOARD_APP` - Boolean flag for parent dashboard detection
+  - `PARENT_DASHBOARD_APP_ID` - The APP_ID of the parent dashboard ('ax-admin')

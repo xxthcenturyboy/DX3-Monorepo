@@ -1,3 +1,5 @@
+import { USER_ROLE } from '@dx3/models-shared'
+
 import { MenuConfigService } from './menu-config.service'
 
 describe('MenuConfigService', () => {
@@ -30,7 +32,7 @@ describe('MenuConfigService', () => {
     // arrange
     const service = new MenuConfigService()
     // act
-    const saMenus = service.getMenus('SUPER_ADMIN')
+    const saMenus = service.getMenus([USER_ROLE.SUPER_ADMIN])
     // assert
     expect(saMenus).toBeTruthy()
     expect(Array.isArray(saMenus)).toBeTruthy()
@@ -45,7 +47,7 @@ describe('MenuConfigService', () => {
     // arrange
     const service = new MenuConfigService()
     // act
-    const adminMenus = service.getMenus('ADMIN')
+    const adminMenus = service.getMenus([USER_ROLE.ADMIN])
     // assert
     expect(adminMenus).toBeTruthy()
     expect(Array.isArray(adminMenus)).toBeTruthy()
@@ -55,16 +57,75 @@ describe('MenuConfigService', () => {
     expect(adminMenus[2].id).toEqual('menu-user')
   })
 
-  it('should get standard menus', () => {
+  it('should get standard user menus', () => {
     // arrange
     const service = new MenuConfigService()
     // act
-    const standardMenus = service.getMenus()
+    const standardMenus = service.getMenus([USER_ROLE.USER])
     // assert
     expect(standardMenus).toBeTruthy()
     expect(Array.isArray(standardMenus)).toBeTruthy()
     expect(standardMenus.length).toEqual(2)
     expect(standardMenus[0].id).toEqual('menu-dashboard')
     expect(standardMenus[1].id).toEqual('menu-user-profile')
+  })
+
+  it('should get editor menus (between USER and ADMIN)', () => {
+    // arrange
+    const service = new MenuConfigService()
+    // act
+    const editorMenus = service.getMenus([USER_ROLE.EDITOR])
+    // assert
+    expect(editorMenus).toBeTruthy()
+    expect(Array.isArray(editorMenus)).toBeTruthy()
+    // EDITOR should see same as USER (no admin menus yet)
+    expect(editorMenus.length).toEqual(2)
+  })
+
+  it('should get logging admin menus', () => {
+    // arrange
+    const service = new MenuConfigService()
+    // act
+    const loggingMenus = service.getMenus([USER_ROLE.LOGGING_ADMIN])
+    // assert
+    expect(loggingMenus).toBeTruthy()
+    expect(Array.isArray(loggingMenus)).toBeTruthy()
+    // LOGGING_ADMIN (order 5) should see ADMIN (order 3) menus
+    expect(loggingMenus.length).toEqual(3)
+  })
+
+  it('should get metrics admin menus', () => {
+    // arrange
+    const service = new MenuConfigService()
+    // act
+    const metricsMenus = service.getMenus([USER_ROLE.METRICS_ADMIN])
+    // assert
+    expect(metricsMenus).toBeTruthy()
+    expect(Array.isArray(metricsMenus)).toBeTruthy()
+    // METRICS_ADMIN (order 4) should see ADMIN (order 3) menus
+    expect(metricsMenus.length).toEqual(3)
+  })
+
+  it('should handle empty roles array as standard user', () => {
+    // arrange
+    const service = new MenuConfigService()
+    // act
+    const menus = service.getMenus([])
+    // assert
+    expect(menus).toBeTruthy()
+    expect(Array.isArray(menus)).toBeTruthy()
+    // Empty roles = no restricted items visible
+    expect(menus.length).toEqual(2)
+  })
+
+  it('should handle multiple roles and use highest privilege', () => {
+    // arrange
+    const service = new MenuConfigService()
+    // act
+    const menus = service.getMenus([USER_ROLE.USER, USER_ROLE.ADMIN])
+    // assert
+    expect(menus).toBeTruthy()
+    // User with both USER and ADMIN should see ADMIN menus
+    expect(menus.length).toEqual(3)
   })
 })

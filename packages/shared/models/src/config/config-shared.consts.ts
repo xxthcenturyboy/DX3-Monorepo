@@ -18,3 +18,28 @@ export const PHONE_DEFAULT_REGION_CODE = 'US'
 export const PROD_ENV_NAME = 'production'
 export const SHA256_CERT_FINGERPRINT = ''
 export const STAGING_ENV_NAME = 'staging'
+
+// ============================================================================
+// Multi-App Ecosystem Configuration
+// ============================================================================
+
+/**
+ * Unique identifier for this application in the ecosystem.
+ * Set via environment variable APP_ID.
+ * Used for logging partitioning and multi-app architectures.
+ *
+ * @example 'artefx', 'dan-underwood.com', 'michelleradnia.com'
+ */
+export const APP_ID = (typeof process !== 'undefined' && process.env?.APP_ID) || 'dx3-default'
+
+/**
+ * The APP_ID of the parent dashboard application.
+ * Used to determine if current app is the umbrella dashboard.
+ */
+export const PARENT_DASHBOARD_APP_ID = 'ax-admin'
+
+/**
+ * Boolean flag indicating if current app is the parent dashboard.
+ * Parent dashboard has read access to all app logs and metrics.
+ */
+export const IS_PARENT_DASHBOARD_APP = APP_ID === PARENT_DASHBOARD_APP_ID

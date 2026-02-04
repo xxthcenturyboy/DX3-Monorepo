@@ -1,5 +1,19 @@
 # DX3 Development Docker Compose Configuration
 # Optimized for development with healthchecks, proper networking, and resource management
+#
+# MODES:
+#   Standalone (default): docker compose up -d
+#     - Starts all services including local Redis (6379) and PostgreSQL (5433)
+#     - Use when developing this app in isolation
+#
+#   Integration Mode: make dev-integration
+#     - Starts only API + SendGrid + LocalStack (no local Redis/PostgreSQL)
+#     - Connects to ax-infrastructure: Redis (6380), TimescaleDB (5434), PostgreSQL (5435)
+#     - Requires ax-infrastructure running first: cd ~/Developer/ArteFX/ax-infrastructure ; make up
+#
+#   BOTH can run simultaneously (no port conflicts):
+#     - Local Redis: 6379 | ax-infrastructure Redis: 6380
+#     - Local PostgreSQL: 5433 | ax-infrastructure PostgreSQL: 5435 | TimescaleDB: 5434
 
 services:
   redis:
@@ -88,6 +102,17 @@ services:
         condition: service_healthy
     environment:
       - ROOT_DIR=/app
+      # Database connections - overridable via .env.integration for integration mode
+      # Standalone defaults: local containers (redis-dx3, postgres-dx3)
+      # Integration mode: ax-infrastructure services (host.docker.internal)
+      - REDIS_URL=${REDIS_URL:-redis://redis-dx3}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - POSTGRES_URI=${POSTGRES_URI:-postgres://pguser:password@postgres:5432/dx-app}
+      # TimescaleDB (logging/metrics) - only enabled in integration mode
+      - TIMESCALE_ENABLED=${TIMESCALE_ENABLED:-false}
+      - TIMESCALE_URI=${TIMESCALE_URI:-}
+      # App identity
+      - APP_ID=${APP_ID:-dx3-default}
     networks:
       - dx3-network
     deploy:

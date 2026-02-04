@@ -6,10 +6,7 @@ alwaysApply: false
 ## Required Rule References
 
 Before starting any work, read and follow these existing rules:
-- `alphabetize.mdc` (alphabetize JSON, types, imports)
-- `types-vs-interfaces.mdc` (use `type`, not `interface`)
-- `index-files.mdc` (no barrels for web, avoid index files)
-- `i18n.mdc` (UI strings rules)
+- `01-general-rules.mdc` (alphabetize JSON, types, imports)
 - `bash.mdc` (bash examples only in docs/README)
 
 ## New Web Feature Implementation Checklist

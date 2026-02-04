@@ -4,7 +4,7 @@
 
 This document outlines the implementation strategy for a comprehensive logging system in the DX3 monorepo. The system will capture request logs, authentication attempts, and other trackable events to a **centralized TimescaleDB database** for analytics, security auditing, and debugging purposes.
 
-> **Multi-App Ecosystem Context:** This logging implementation is part of a larger multi-application ecosystem. All applications (dx3-admin, michelleradnia, xxthcenturyboy, and future apps) write to a **shared centralized TimescaleDB** with logs partitioned by `app_id`. See [MULTI-APP-ECOSYSTEM-ARCHITECTURE.md](./MULTI-APP-ECOSYSTEM-ARCHITECTURE.md) for the full ecosystem design.
+> **Multi-App Ecosystem Context:** This logging implementation is part of a larger multi-application ecosystem. All applications (ax-admin, michelleradnia_com, dan_underwood_com, and future apps) write to a **shared centralized TimescaleDB** with logs partitioned by `app_id`. See [MULTI-APP-ECOSYSTEM-ARCHITECTURE.md](./MULTI-APP-ECOSYSTEM-ARCHITECTURE.md) for the full ecosystem design.
 
 ### Why TimescaleDB?
 
@@ -14,7 +14,7 @@ This document outlines the implementation strategy for a comprehensive logging s
 - **Retention policies**: Automatic cleanup of old data without manual maintenance
 - **Continuous aggregates**: Pre-computed rollups for fast dashboard queries
 - **Multi-app support**: Single instance serves all applications with `app_id` partitioning
-- **Centralized analytics**: Parent dashboard (dx3-admin) can query across all apps
+- **Centralized analytics**: Parent dashboard (ax-admin) can query across all apps
 
 ---
 
@@ -227,13 +227,13 @@ Add to `.env` files:
 
 ```bash
 # Application identifier (required for multi-app ecosystem)
-APP_ID=dx3-admin                           # Or: michelleradnia, xxthcenturyboy, etc.
+APP_ID=ax-admin                           # Or: michelleradnia_com, dan_underwood_com, etc.
 
 # Main application database (existing)
 POSTGRES_URI=postgresql://user:password@localhost:5432/dx-app
 
 # Centralized logs database (shared TimescaleDB for all apps)
-TIMESCALE_URI=postgresql://user:password@localhost:5434/dx_logs
+TIMESCALE_URI=postgresql://user:password@localhost:5434/ax_logs
 TIMESCALE_ENABLED=true                     # Set to false to disable logging (dev mode)
 ```
 
@@ -544,7 +544,7 @@ CREATE TABLE logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   -- Multi-App Ecosystem Identifier (required for cross-app partitioning)
-  app_id VARCHAR(64) NOT NULL,              -- e.g., 'dx3-admin', 'michelleradnia', 'xxthcenturyboy'
+  app_id VARCHAR(64) NOT NULL,              -- e.g., 'ax-admin', 'michelleradnia_com', 'dan_underwood_com'
 
   -- Event Classification
   event_type VARCHAR(64) NOT NULL,          -- e.g., 'REQUEST', 'AUTH_LOGIN', 'AUTH_SIGNUP', 'AUTH_FAILURE', 'RATE_LIMIT'
@@ -600,19 +600,19 @@ SELECT create_hypertable(
 
 -- Create indexes (TimescaleDB automatically creates index on time column)
 -- All indexes include app_id for efficient per-app queries
-CREATE INDEX idx_logs_app_id ON logs(app_id, created_at DESC);
-CREATE INDEX idx_logs_event_type ON logs(app_id, event_type, created_at DESC);
-CREATE INDEX idx_logs_user_id ON logs(app_id, user_id, created_at DESC) WHERE user_id IS NOT NULL;
-CREATE INDEX idx_logs_fingerprint ON logs(app_id, fingerprint, created_at DESC) WHERE fingerprint IS NOT NULL;
-CREATE INDEX idx_logs_ip_address ON logs(app_id, ip_address, created_at DESC);
-CREATE INDEX idx_logs_success ON logs(app_id, success, created_at DESC) WHERE success = false;
+CREATE INDEX iax_logs_app_id ON logs(app_id, created_at DESC);
+CREATE INDEX iax_logs_event_type ON logs(app_id, event_type, created_at DESC);
+CREATE INDEX iax_logs_user_id ON logs(app_id, user_id, created_at DESC) WHERE user_id IS NOT NULL;
+CREATE INDEX iax_logs_fingerprint ON logs(app_id, fingerprint, created_at DESC) WHERE fingerprint IS NOT NULL;
+CREATE INDEX iax_logs_ip_address ON logs(app_id, ip_address, created_at DESC);
+CREATE INDEX iax_logs_success ON logs(app_id, success, created_at DESC) WHERE success = false;
 
 -- Composite index for auth failure lookups (per-app)
-CREATE INDEX idx_logs_auth_failures ON logs(app_id, event_type, ip_address, created_at DESC)
+CREATE INDEX iax_logs_auth_failures ON logs(app_id, event_type, ip_address, created_at DESC)
   WHERE event_type IN ('AUTH_LOGIN', 'AUTH_FAILURE') AND success = false;
 
--- Index for cross-app queries (parent dashboard - dx3-admin)
-CREATE INDEX idx_logs_cross_app ON logs(created_at DESC, app_id, event_type);
+-- Index for cross-app queries (parent dashboard - ax-admin)
+CREATE INDEX iax_logs_cross_app ON logs(created_at DESC, app_id, event_type);
 ```
 
 ### Compression Policy (Automatic)
@@ -692,7 +692,7 @@ SELECT add_continuous_aggregate_policy('logs_daily',
   schedule_interval => INTERVAL '1 day'
 );
 
--- Cross-app aggregate for parent dashboard (dx3-admin)
+-- Cross-app aggregate for parent dashboard (ax-admin)
 -- Summarizes all apps for quick overview queries
 CREATE MATERIALIZED VIEW logs_daily_all_apps
 WITH (timescaledb.continuous) AS
@@ -1836,15 +1836,15 @@ export async function createLogsSchema(): Promise<void> {
 
   // Create indexes (all include app_id for efficient per-app queries)
   await TimescaleDbConnection.query(`
-    CREATE INDEX IF NOT EXISTS idx_logs_app_id ON logs(app_id, created_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_logs_event_type ON logs(app_id, event_type, created_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(app_id, user_id, created_at DESC) WHERE user_id IS NOT NULL;
-    CREATE INDEX IF NOT EXISTS idx_logs_fingerprint ON logs(app_id, fingerprint, created_at DESC) WHERE fingerprint IS NOT NULL;
-    CREATE INDEX IF NOT EXISTS idx_logs_ip_address ON logs(app_id, ip_address, created_at DESC);
-    CREATE INDEX IF NOT EXISTS idx_logs_success ON logs(app_id, success, created_at DESC) WHERE success = false;
-    CREATE INDEX IF NOT EXISTS idx_logs_auth_failures ON logs(app_id, event_type, ip_address, created_at DESC)
+    CREATE INDEX IF NOT EXISTS iax_logs_app_id ON logs(app_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS iax_logs_event_type ON logs(app_id, event_type, created_at DESC);
+    CREATE INDEX IF NOT EXISTS iax_logs_user_id ON logs(app_id, user_id, created_at DESC) WHERE user_id IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS iax_logs_fingerprint ON logs(app_id, fingerprint, created_at DESC) WHERE fingerprint IS NOT NULL;
+    CREATE INDEX IF NOT EXISTS iax_logs_ip_address ON logs(app_id, ip_address, created_at DESC);
+    CREATE INDEX IF NOT EXISTS iax_logs_success ON logs(app_id, success, created_at DESC) WHERE success = false;
+    CREATE INDEX IF NOT EXISTS iax_logs_auth_failures ON logs(app_id, event_type, ip_address, created_at DESC)
       WHERE event_type IN ('AUTH_LOGIN', 'AUTH_FAILURE') AND success = false;
-    CREATE INDEX IF NOT EXISTS idx_logs_cross_app ON logs(created_at DESC, app_id, event_type);
+    CREATE INDEX IF NOT EXISTS iax_logs_cross_app ON logs(created_at DESC, app_id, event_type);
   `)
 
   // Enable compression with app_id segmentation
@@ -2137,7 +2137,7 @@ export class LoggingService {
    *
    * Multi-App Behavior:
    * - Regular apps: Always filter by own APP_ID (cannot see other apps' logs)
-   * - Parent dashboard (dx3-admin): Can query all apps or filter by specific appId
+   * - Parent dashboard (ax-admin): Can query all apps or filter by specific appId
    */
   async getLogsList(query: GetLogsListQueryType): Promise<GetLogsListResponseType> {
     if (!this.isEnabled) return { rows: [], total: 0 }
@@ -2162,7 +2162,7 @@ export class LoggingService {
     let paramIndex = 1
 
     // Multi-app security: Regular apps can only see their own logs
-    // Parent dashboard (dx3-admin) can filter by specific app or see all
+    // Parent dashboard (ax-admin) can filter by specific app or see all
     if (IS_PARENT_DASHBOARD_APP) {
       // Parent dashboard can optionally filter by app_id
       if (appId) {
@@ -2291,7 +2291,7 @@ export class LoggingService {
    *
    * Multi-App Behavior:
    * - Regular apps: Summary for own APP_ID only
-   * - Parent dashboard (dx3-admin): Summary across all apps
+   * - Parent dashboard (ax-admin): Summary across all apps
    */
   async getSummary(hoursAgo: number = 24): Promise<LoggingSummaryResponseType> {
     if (!this.isEnabled) {
@@ -2937,5 +2937,5 @@ $$ LANGUAGE plpgsql;
 *Document Version: 4.9*
 *Created: January 27, 2026*
 *Updated: January 28, 2026 - Added comprehensive RBAC, Admin UI, Socket.IO, implementation decisions, health check endpoint, getLogsList method, clarified threshold tracking limitations, rate limiter integration details, use existing ErrorBoundary + GlobalErrorComponent, simplified file structure, and added SQL injection protection (parameterized queries, interval sanitization, ORDER BY whitelist)*
-*Updated: January 29, 2026 - Added multi-app ecosystem support: app_id partitioning, centralized TimescaleDB, cross-app queries for parent dashboard (dx3-admin), updated schema and indexes*
+*Updated: January 29, 2026 - Added multi-app ecosystem support: app_id partitioning, centralized TimescaleDB, cross-app queries for parent dashboard (ax-admin), updated schema and indexes*
 *Updated: January 29, 2026 - Added queryRaw method to LoggingService with security documentation requiring parameterized queries and params array validation*

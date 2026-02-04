@@ -225,7 +225,7 @@ USER (1) → EDITOR (2) → ADMIN (3) → METRICS_ADMIN (4) → LOGGING_ADMIN (5
 
 **Problem:** Both LOGGING and METRICS docs hardcode parent dashboard check:
 ```typescript
-const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
+const IS_PARENT_DASHBOARD = APP_ID === 'ax-admin'
 ```
 
 **Resolution:** Extract to shared constants for maintainability.
@@ -247,7 +247,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
     * The APP_ID of the parent dashboard application.
     * Used to determine if current app is the umbrella dashboard.
     */
-   export const PARENT_DASHBOARD_APP_ID = 'dx3-admin'
+   export const PARENT_DASHBOARD_APP_ID = 'ax-admin'
 
    /**
     * Boolean flag indicating if current app is the parent dashboard.
@@ -257,7 +257,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
    ```
 
 2. **Update LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md:**
-   - Find: `const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'`
+   - Find: `const IS_PARENT_DASHBOARD = APP_ID === 'ax-admin'`
    - Replace with: `import { IS_PARENT_DASHBOARD_APP } from '@dx3/models-shared'`
    - Update all usages from `IS_PARENT_DASHBOARD` to `IS_PARENT_DASHBOARD_APP`
 
@@ -267,24 +267,24 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 **Testing:**
 - [ ] APP_ID constant available in all packages
 - [ ] IS_PARENT_DASHBOARD_APP evaluates correctly
-- [ ] No hardcoded 'dx3-admin' strings remain in codebase
+- [ ] No hardcoded 'ax-admin' strings remain in codebase
 
 ---
 
-#### Task 0.4: Create dx-infrastructure Repository
+#### Task 0.4: Create ax-infrastructure Repository
 
 **Purpose:** Separate repository for shared services used across all apps.
 
 **Changes Required:**
 
 1. **Create new GitHub repository:**
-   - Name: `dx-infrastructure`
+   - Name: `ax-infrastructure`
    - Visibility: Private (if apps are private)
    - Description: "Shared infrastructure for dx3 ecosystem (TimescaleDB, PostgreSQL, Redis)"
 
 2. **Create repository structure:**
    ```
-   dx-infrastructure/
+   ax-infrastructure/
    ├── docker-compose.yml
    ├── init-scripts/
    │   ├── init-timescale.sql
@@ -296,7 +296,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
 3. **Create `docker-compose.yml`:**
    ```yaml
-   name: dx-infrastructure
+   name: ax-infrastructure
 
    services:
      timescaledb:
@@ -305,14 +305,14 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
        ports:
          - "5434:5432"
        environment:
-         POSTGRES_USER: dxuser
-         POSTGRES_PASSWORD: dxpassword
-         POSTGRES_DB: dx_logs
+         POSTGRES_USER: axuser
+         POSTGRES_PASSWORD: axpassword
+         POSTGRES_DB: ax_logs
        volumes:
          - timescale-data:/var/lib/postgresql/data
          - ./init-scripts/init-timescale.sql:/docker-entrypoint-initdb.d/init.sql
        healthcheck:
-         test: ["CMD-SHELL", "pg_isready -U dxuser -d dx_logs"]
+         test: ["CMD-SHELL", "pg_isready -U axuser -d ax_logs"]
          interval: 5s
          timeout: 5s
          retries: 5
@@ -323,14 +323,14 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
        ports:
          - "5435:5432"
        environment:
-         POSTGRES_USER: dxuser
-         POSTGRES_PASSWORD: dxpassword
+         POSTGRES_USER: axuser
+         POSTGRES_PASSWORD: axpassword
          POSTGRES_DB: postgres
        volumes:
          - postgres-shared-data:/var/lib/postgresql/data
          - ./init-scripts/init-shared-pg.sql:/docker-entrypoint-initdb.d/init.sql
        healthcheck:
-         test: ["CMD-SHELL", "pg_isready -U dxuser"]
+         test: ["CMD-SHELL", "pg_isready -U axuser"]
          interval: 5s
          timeout: 5s
          retries: 5
@@ -361,14 +361,14 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 4. **Create `init-scripts/init-shared-pg.sql`:**
    ```sql
    -- Create databases for lightweight apps
-   CREATE DATABASE dx3_admin;
-   CREATE DATABASE michelleradnia;
-   CREATE DATABASE xxthcenturyboy;
+   CREATE DATABASE ax_admin;
+   CREATE DATABASE michelleradnia_com;
+   CREATE DATABASE dan_underwood_com;
 
    -- Grant permissions
-   GRANT ALL PRIVILEGES ON DATABASE dx3_admin TO dxuser;
-   GRANT ALL PRIVILEGES ON DATABASE michelleradnia TO dxuser;
-   GRANT ALL PRIVILEGES ON DATABASE xxthcenturyboy TO dxuser;
+   GRANT ALL PRIVILEGES ON DATABASE ax_admin TO axuser;
+   GRANT ALL PRIVILEGES ON DATABASE michelleradnia_com TO axuser;
+   GRANT ALL PRIVILEGES ON DATABASE dan_underwood_com TO axuser;
    ```
 
 5. **Create `init-scripts/init-timescale.sql`:**
@@ -391,7 +391,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
    .PHONY: help up down logs restart reset
 
    help:
-   	@echo "dx-infrastructure commands:"
+   	@echo "ax-infrastructure commands:"
    	@echo "  make up       - Start all shared services"
    	@echo "  make down     - Stop all shared services"
    	@echo "  make logs     - View logs from all services"
@@ -421,7 +421,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
 7. **Create `README.md`:**
    ```markdown
-   # dx-infrastructure
+   # ax-infrastructure
 
    Shared infrastructure for the dx3 application ecosystem.
 
@@ -456,8 +456,8 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
    ```bash
    TIMESCALE_ENABLED=true
-   TIMESCALE_URI=postgresql://dxuser:dxpassword@localhost:5434/dx_logs
-   POSTGRES_URI=postgresql://dxuser:dxpassword@localhost:5435/your_db_name
+   TIMESCALE_URI=postgresql://axuser:axpassword@localhost:5434/ax_logs
+   POSTGRES_URI=postgresql://axuser:axpassword@localhost:5435/your_db_name
    REDIS_URL=redis://localhost
    REDIS_PORT=6379
    ```
@@ -488,10 +488,10 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 
    # Shared Infrastructure
    TIMESCALE_ENABLED=true
-   TIMESCALE_URI=postgresql://dxuser:dxpassword@localhost:5434/dx_logs
+   TIMESCALE_URI=postgresql://axuser:axpassword@localhost:5434/ax_logs
 
    # For lightweight apps using shared PostgreSQL
-   POSTGRES_URI=postgresql://dxuser:dxpassword@localhost:5435/dx3_admin
+   POSTGRES_URI=postgresql://axuser:axpassword@localhost:5435/ax_admin
 
    # Shared Redis
    REDIS_URL=redis://localhost
@@ -522,7 +522,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
    		exit 1; \
    	fi
    	@echo "Starting in integration mode..."
-   	@echo "Ensure dx-infrastructure is running: cd ~/Developer/dx-infrastructure && make up"
+   	@echo "Ensure ax-infrastructure is running: cd ~/Developer/ArteFX/ax-infrastructure && make up"
    	docker compose --env-file .env.integration up -d
    	@echo "Run 'make api-watch' and 'make api-start' in separate terminals"
    ```
@@ -540,12 +540,12 @@ const IS_PARENT_DASHBOARD = APP_ID === 'dx3-admin'
 - [ ] Task 0.1: Menu system refactored and tested
 - [ ] Task 0.2: Role hierarchy aligned across all docs
 - [ ] Task 0.3: APP_ID constants extracted to shared package
-- [ ] Task 0.4: dx-infrastructure repository created and working
+- [ ] Task 0.4: ax-infrastructure repository created and working
 - [ ] Task 0.5: Template updated with integration mode support
 - [ ] All existing tests pass
 - [ ] Documentation updated (README.md, CLAUDE.md)
 
-**Exit Criteria:** All tasks complete, all tests passing, dx-infrastructure running successfully.
+**Exit Criteria:** All tasks complete, all tests passing, ax-infrastructure running successfully.
 
 ---
 
@@ -570,7 +570,7 @@ Phase 1 implements centralized logging infrastructure with TimescaleDB, includin
 
 #### Task 1.1: TimescaleDB Schema
 
-**Location:** `dx-infrastructure/init-scripts/init-timescale.sql`
+**Location:** `ax-infrastructure/init-scripts/init-timescale.sql`
 
 **Replace placeholder with full schema:**
 
@@ -610,10 +610,10 @@ SELECT create_hypertable(
 );
 
 -- Indexes for common queries
-CREATE INDEX IF NOT EXISTS idx_logs_app_id ON logs(app_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_logs_event_type ON logs(event_type, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(user_id, created_at DESC) WHERE user_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_logs_success ON logs(success, created_at DESC);
+CREATE INDEX IF NOT EXISTS iax_logs_app_id ON logs(app_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS iax_logs_event_type ON logs(event_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS iax_logs_user_id ON logs(user_id, created_at DESC) WHERE user_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS iax_logs_success ON logs(success, created_at DESC);
 
 -- Continuous aggregates for hourly stats
 CREATE MATERIALIZED VIEW IF NOT EXISTS logs_hourly
@@ -1098,7 +1098,7 @@ Phase 2 implements hybrid metrics tracking using both GA4 (for marketing) and Ti
 
 #### Task 2.1: Metrics Schema
 
-**Location:** `dx-infrastructure/init-scripts/init-timescale.sql`
+**Location:** `ax-infrastructure/init-scripts/init-timescale.sql`
 
 **Add to existing schema:**
 ```sql
@@ -1343,7 +1343,7 @@ Phase 3 implements a full-featured blog/CMS system, including:
 
 - [ ] Review all 4 corrected/original documents
 - [ ] Ensure team understands dependency graph
-- [ ] Set up development environment (dx-infrastructure repo)
+- [ ] Set up development environment (ax-infrastructure repo)
 - [ ] Backup current database state
 
 ### Phase 0: Foundation
@@ -1351,7 +1351,7 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - [ ] Menu system supports multi-role
 - [ ] Role hierarchy aligned (order 1-6, includes EDITOR)
 - [ ] APP_ID constants in shared package
-- [ ] dx-infrastructure repository created
+- [ ] ax-infrastructure repository created
 - [ ] Template updated with integration mode
 - [ ] All tests pass
 
@@ -1499,7 +1499,7 @@ DELETE FROM user_privilege_sets WHERE name IN ('EDITOR', 'LOGGING_ADMIN', 'METRI
 ### Phase 0
 ✅ All existing tests pass
 ✅ Menu system supports multiple roles
-✅ dx-infrastructure running locally
+✅ ax-infrastructure running locally
 ✅ Template ready for cloning
 
 ### Phase 1
@@ -1537,7 +1537,7 @@ DELETE FROM user_privilege_sets WHERE name IN ('EDITOR', 'LOGGING_ADMIN', 'METRI
 ## Next Steps
 
 1. **Review this document** with team
-2. **Set up dx-infrastructure** repository
+2. **Set up ax-infrastructure** repository
 3. **Begin Phase 0** implementation
 4. **Run Phase 0 tests** until all pass
 5. **Proceed to Phase 1**

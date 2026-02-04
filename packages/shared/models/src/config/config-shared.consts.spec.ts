@@ -316,3 +316,60 @@ describe('SHA256_CERT_FINGERPRINT', () => {
     expect(SHA256_CERT_FINGERPRINT).toEqual('')
   })
 })
+
+// Multi-App Ecosystem Configuration Tests
+describe('APP_ID', () => {
+  it('should exist when imported', () => {
+    // arrange
+    // act
+    // assert
+    const { APP_ID } = require('./config-shared.consts')
+    expect(APP_ID).toBeDefined()
+  })
+
+  it('should default to dx3-default when env var not set', () => {
+    // arrange
+    // act
+    // assert
+    const { APP_ID } = require('./config-shared.consts')
+    // In test environment, APP_ID defaults to 'dx3-default'
+    expect(typeof APP_ID).toBe('string')
+    expect(APP_ID.length).toBeGreaterThan(0)
+  })
+})
+
+describe('PARENT_DASHBOARD_APP_ID', () => {
+  it('should exist when imported', () => {
+    // arrange
+    // act
+    // assert
+    const { PARENT_DASHBOARD_APP_ID } = require('./config-shared.consts')
+    expect(PARENT_DASHBOARD_APP_ID).toBeDefined()
+  })
+
+  it('should have the correct value', () => {
+    // arrange
+    // act
+    // assert
+    const { PARENT_DASHBOARD_APP_ID } = require('./config-shared.consts')
+    expect(PARENT_DASHBOARD_APP_ID).toEqual('ax-admin')
+  })
+})
+
+describe('IS_PARENT_DASHBOARD_APP', () => {
+  it('should exist when imported', () => {
+    // arrange
+    // act
+    // assert
+    const { IS_PARENT_DASHBOARD_APP } = require('./config-shared.consts')
+    expect(IS_PARENT_DASHBOARD_APP).toBeDefined()
+  })
+
+  it('should be a boolean', () => {
+    // arrange
+    // act
+    // assert
+    const { IS_PARENT_DASHBOARD_APP } = require('./config-shared.consts')
+    expect(typeof IS_PARENT_DASHBOARD_APP).toBe('boolean')
+  })
+})

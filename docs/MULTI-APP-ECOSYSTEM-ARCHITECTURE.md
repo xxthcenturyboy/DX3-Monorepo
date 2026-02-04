@@ -6,7 +6,7 @@
 
 **Confirmed Requirements**:
 
-1. Each app has a **descriptive name** (e.g., `dx3-admin`, `michelleradnia`, `xxthcenturyboy`)
+1. Each app has a **descriptive name** (e.g., `ax-admin`, `michelleradnia_com`, `dan_underwood_com`)
 2. Each app has **discrete authentication** (independent user tables)
 3. Parent dashboard is **read-only stats viewer** (no cross-app management)
 
@@ -23,7 +23,7 @@
 7. [Template Enhancements Required](#template-enhancements-required)
 8. [Local Development Environment](#local-development-environment)
 9. [Cloud Deployment Topology](#cloud-deployment-topology)
-10. [Parent Dashboard](#parent-dashboard-dx3-admin)
+10. [Parent Dashboard](#parent-dashboard-ax-admin)
 11. [Implementation Phases](#implementation-phases)
 12. [Template Changes Summary](#template-changes-summary)
 
@@ -38,9 +38,9 @@ flowchart TB
     end
 
     subgraph AppRepos [Application Repositories]
-        ParentRepo[dx3-admin repo]
-        Personal1Repo[michelleradnia repo]
-        Personal2Repo[xxthcenturyboy repo]
+        ParentRepo[ax-admin repo]
+        Personal1Repo[michelleradnia_com repo]
+        Personal2Repo[dan_underwood_com repo]
         FutureRepo[future-app repo]
     end
 
@@ -105,9 +105,9 @@ flowchart TB
 
         subgraph SharedPGInstance [Shared PostgreSQL - 3 DBs]
             SharedPG[(Managed PostgreSQL)]
-            ParentDB[dx3_admin]
-            Personal1DB[michelleradnia]
-            Personal2DB[xxthcenturyboy]
+            ParentDB[ax_admin]
+            Personal1DB[michelleradnia_com]
+            Personal2DB[dan_underwood_com]
             SharedPG --> ParentDB
             SharedPG --> Personal1DB
             SharedPG --> Personal2DB
@@ -119,17 +119,17 @@ flowchart TB
     end
 
     subgraph LightweightApps [Lightweight Apps - Use Shared PG]
-        subgraph ParentApp [dx3-admin]
+        subgraph ParentApp [ax-admin]
             ParentAPI[API - Stats Reader]
             ParentWeb[Web - Stats Viewer]
         end
 
-        subgraph PersonalApp1 [michelleradnia]
+        subgraph PersonalApp1 [michelleradnia_com]
             P1API[API]
             P1Web[Web]
         end
 
-        subgraph PersonalApp2 [xxthcenturyboy]
+        subgraph PersonalApp2 [dan_underwood_com]
             P2API[API]
             P2Web[Web]
         end
@@ -171,9 +171,9 @@ flowchart LR
     subgraph SharedPGCluster [Shared PostgreSQL Instance]
         direction TB
         ManagedPG[(DO Managed PostgreSQL)]
-        ManagedPG --> UmbrellaDB[dx3_admin]
-        ManagedPG --> PersonalDB1[michelleradnia]
-        ManagedPG --> PersonalDB2[xxthcenturyboy]
+        ManagedPG --> UmbrellaDB[ax_admin]
+        ManagedPG --> PersonalDB1[michelleradnia_com]
+        ManagedPG --> PersonalDB2[dan_underwood_com]
     end
 
     subgraph IsolatedPGInstances [Isolated PostgreSQL Instances]
@@ -191,9 +191,9 @@ flowchart LR
 
 | App Type | PostgreSQL Strategy | Rationale |
 |----------|---------------------|-----------|
-| dx3-admin (Parent) | Shared instance, own database | Lightweight, cost-effective |
-| michelleradnia | Shared instance, own database | Lightweight, minimal traffic |
-| xxthcenturyboy | Shared instance, own database | Lightweight, minimal traffic |
+| ax-admin (Parent) | Shared instance, own database | Lightweight, cost-effective |
+| michelleradnia_com | Shared instance, own database | Lightweight, minimal traffic |
+| dan_underwood_com | Shared instance, own database | Lightweight, minimal traffic |
 | Heavy/Production Apps | Isolated instance per app | Performance isolation, independent scaling |
 | All Apps (Logging) | Centralized TimescaleDB | Single source of truth for analytics |
 
@@ -205,21 +205,21 @@ flowchart LR
 
 | App | Database Name | Notes |
 |-----|---------------|-------|
-| dx3-admin | `dx3_admin` | Parent dashboard - stats viewer |
-| michelleradnia | `michelleradnia` | Personal app |
-| xxthcenturyboy | `xxthcenturyboy` | Personal app |
+| ax-admin | `ax_admin` | Parent dashboard - stats viewer |
+| michelleradnia_com | `michelleradnia_com` | Personal app |
+| dan_underwood_com | `dan_underwood_com` | Personal app |
 
 **Connection Pattern (same host, different databases):**
 
 ```bash
-# dx3-admin (Parent Dashboard)
-POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/dx3_admin
+# ax-admin (Parent Dashboard)
+POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/ax_admin
 
-# michelleradnia
-POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/michelleradnia
+# michelleradnia_com
+POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/michelleradnia_com
 
-# xxthcenturyboy
-POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/xxthcenturyboy
+# dan_underwood_com
+POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/dan_underwood_com
 ```
 
 ### Isolated PostgreSQL Instances (Heavy Apps)
@@ -234,7 +234,7 @@ POSTGRES_URI=postgresql://user:pass@shared-pg-host:5432/xxthcenturyboy
 
 | Resource | Ownership | Notes |
 |----------|-----------|-------|
-| Redis | Shared for lightweight, per-app for heavy | dx3-admin, michelleradnia, xxthcenturyboy share 1 Redis |
+| Redis | Shared for lightweight, per-app for heavy | ax-admin, michelleradnia_com, dan_underwood_com share 1 Redis |
 | Users Table | Per-app | Discrete authentication per app |
 | S3 Bucket | Per-app | Each app gets its own bucket |
 | GitHub Repo | Per-app | Cloned from dx3-monorepo template |
@@ -265,7 +265,7 @@ flowchart LR
         TM_API --> TM_LogService
     end
 
-    subgraph Dx3AdminRepo [dx3-admin repo]
+    subgraph Dx3AdminRepo [ax-admin repo]
         UD_API[API Server]
         UD_LogService[LoggingService - Read Only]
         UD_API --> UD_LogService
@@ -273,9 +273,9 @@ flowchart LR
 
     subgraph CentralizedLogging [Centralized TimescaleDB]
         LogsTable[(logs hypertable)]
-        Dx3AdminPartition[app_id: dx3-admin]
-        MichellePartition[app_id: michelleradnia]
-        XxthPartition[app_id: xxthcenturyboy]
+        Dx3AdminPartition[app_id: ax-admin]
+        MichellePartition[app_id: michelleradnia_com]
+        XxthPartition[app_id: dan_underwood_com]
 
         LogsTable --> Dx3AdminPartition
         LogsTable --> MichellePartition
@@ -350,7 +350,7 @@ SELECT create_hypertable(
 );
 
 -- Index for parent dashboard queries
-CREATE INDEX idx_logs_app_id ON logs(app_id, created_at DESC);
+CREATE INDEX iax_logs_app_id ON logs(app_id, created_at DESC);
 ```
 
 ---
@@ -361,7 +361,7 @@ CREATE INDEX idx_logs_app_id ON logs(app_id, created_at DESC);
 
 ```
 ~/Developer/
-├── dx-infrastructure/        # Shared services (clone once per machine)
+├── ax-infrastructure/        # Shared services (clone once per machine)
 │   ├── docker-compose.yml
 │   ├── init-scripts/
 │   │   ├── init-timescale.sql
@@ -370,9 +370,9 @@ CREATE INDEX idx_logs_app_id ON logs(app_id, created_at DESC);
 │
 ├── dx3-monorepo/             # Template (reference only)
 │
-├── dx3-admin/                # Parent dashboard - cloned from template
-├── michelleradnia/           # Personal app - cloned from template
-├── xxthcenturyboy/           # Personal app - cloned from template
+├── ax-admin/                # Parent dashboard - cloned from template
+├── michelleradnia_com/           # Personal app - cloned from template
+├── dan_underwood_com/           # Personal app - cloned from template
 └── future-app/               # Future heavy app - cloned from template
 ```
 
@@ -380,18 +380,18 @@ CREATE INDEX idx_logs_app_id ON logs(app_id, created_at DESC);
 
 ```mermaid
 flowchart TB
-    subgraph InfraRepo [dx-infrastructure repo]
+    subgraph InfraRepo [ax-infrastructure repo]
         subgraph SharedServices [Shared Services - Always Running]
             TimescaleDB[(TimescaleDB :5434)]
             SharedPG[(Shared PostgreSQL :5435)]
             SharedRedis[(Shared Redis :6379)]
-            SharedPG --> Dx3AdminDB[dx3_admin]
-            SharedPG --> MichelleDB[michelleradnia]
-            SharedPG --> XxthDB[xxthcenturyboy]
+            SharedPG --> Dx3AdminDB[ax_admin]
+            SharedPG --> MichelleDB[michelleradnia_com]
+            SharedPG --> XxthDB[dan_underwood_com]
         end
     end
 
-    subgraph LightweightApp [Lightweight App Repo - e.g. michelleradnia]
+    subgraph LightweightApp [Lightweight App Repo - e.g. michelleradnia_com]
         L_LocalStack[LocalStack :4566]
         L_SendGrid[SendGrid :7070]
         L_API[API :4001]
@@ -415,14 +415,14 @@ flowchart TB
 
 ---
 
-### dx-infrastructure Repository
+### ax-infrastructure Repository
 
 **Purpose:** Single source of truth for shared local development services.
 
 **docker-compose.yml:**
 
 ```yaml
-name: dx-infrastructure
+name: ax-infrastructure
 
 services:
   timescaledb:
@@ -431,14 +431,14 @@ services:
     ports:
       - "5434:5432"
     environment:
-      POSTGRES_USER: dxuser
-      POSTGRES_PASSWORD: dxpassword
-      POSTGRES_DB: dx_logs
+      POSTGRES_USER: axuser
+      POSTGRES_PASSWORD: axpassword
+      POSTGRES_DB: ax_logs
     volumes:
       - timescale-data:/var/lib/postgresql/data
       - ./init-scripts/init-timescale.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dxuser -d dx_logs"]
+      test: ["CMD-SHELL", "pg_isready -U axuser -d ax_logs"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -449,14 +449,14 @@ services:
     ports:
       - "5435:5432"
     environment:
-      POSTGRES_USER: dxuser
-      POSTGRES_PASSWORD: dxpassword
+      POSTGRES_USER: axuser
+      POSTGRES_PASSWORD: axpassword
       POSTGRES_DB: postgres
     volumes:
       - postgres-shared-data:/var/lib/postgresql/data
       - ./init-scripts/init-shared-pg.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dxuser"]
+      test: ["CMD-SHELL", "pg_isready -U axuser"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -488,14 +488,14 @@ volumes:
 
 ```sql
 -- Create databases for lightweight apps
-CREATE DATABASE dx3_admin;
-CREATE DATABASE michelleradnia;
-CREATE DATABASE xxthcenturyboy;
+CREATE DATABASE ax_admin;
+CREATE DATABASE michelleradnia_com;
+CREATE DATABASE dan_underwood_com;
 
 -- Grant permissions
-GRANT ALL PRIVILEGES ON DATABASE dx3_admin TO dxuser;
-GRANT ALL PRIVILEGES ON DATABASE michelleradnia TO dxuser;
-GRANT ALL PRIVILEGES ON DATABASE xxthcenturyboy TO dxuser;
+GRANT ALL PRIVILEGES ON DATABASE ax_admin TO axuser;
+GRANT ALL PRIVILEGES ON DATABASE michelleradnia_com TO axuser;
+GRANT ALL PRIVILEGES ON DATABASE dan_underwood_com TO axuser;
 ```
 
 **init-scripts/init-timescale.sql:**
@@ -524,7 +524,7 @@ CREATE TABLE IF NOT EXISTS logs (
 SELECT create_hypertable('logs', 'created_at', if_not_exists => TRUE);
 
 -- Create index for cross-app queries
-CREATE INDEX IF NOT EXISTS idx_logs_app_id ON logs(app_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS iax_logs_app_id ON logs(app_id, created_at DESC);
 ```
 
 ---
@@ -555,7 +555,7 @@ For testing cross-app features like parent dashboard:
 
 ```bash
 # First, ensure shared infra is running
-cd ~/Developer/dx-infrastructure
+cd ~/Developer/ArteFX/ax-infrastructure
 docker compose up -d
 
 # Then start your app in integration mode
@@ -566,10 +566,10 @@ make dev:integration
 **Environment (.env.integration):**
 
 ```bash
-APP_ID=dx3-admin
+APP_ID=ax-admin
 TIMESCALE_ENABLED=true
-TIMESCALE_URI=postgresql://dxuser:dxpassword@localhost:5434/dx_logs
-POSTGRES_URI=postgresql://dxuser:dxpassword@localhost:5435/dx3_admin
+TIMESCALE_URI=postgresql://axuser:axpassword@localhost:5434/ax_logs
+POSTGRES_URI=postgresql://axuser:axpassword@localhost:5435/ax_admin
 REDIS_URI=redis://localhost:6379
 ```
 
@@ -581,9 +581,9 @@ To avoid conflicts when running multiple apps:
 
 | Service | Default Port | App-Specific Pattern |
 |---------|--------------|----------------------|
-| **Shared TimescaleDB** | 5434 | Fixed (dx-infrastructure) |
-| **Shared PostgreSQL** | 5435 | Fixed (dx-infrastructure) |
-| **Shared Redis** | 6379 | Fixed (dx-infrastructure) - for lightweight apps |
+| **Shared TimescaleDB** | 5434 | Fixed (ax-infrastructure) |
+| **Shared PostgreSQL** | 5435 | Fixed (ax-infrastructure) |
+| **Shared Redis** | 6379 | Fixed (ax-infrastructure) - for lightweight apps |
 | **App PostgreSQL** | 5440+ | Heavy apps only |
 | **App Redis** | 6390+ | Heavy apps only |
 | **App API** | 4000-4099 | Increment per app |
@@ -594,9 +594,9 @@ To avoid conflicts when running multiple apps:
 
 | App | API | Web | Redis | Own PG | LocalStack |
 |-----|-----|-----|-------|--------|------------|
-| dx3-admin | 4000 | 3000 | Shared (6379) | - | 4566 |
-| michelleradnia | 4001 | 3001 | Shared (6379) | - | 4567 |
-| xxthcenturyboy | 4002 | 3002 | Shared (6379) | - | 4568 |
+| ax-admin | 4000 | 3000 | Shared (6379) | - | 4566 |
+| michelleradnia_com | 4001 | 3001 | Shared (6379) | - | 4567 |
+| dan_underwood_com | 4002 | 3002 | Shared (6379) | - | 4568 |
 | future-heavy-app | 4010 | 3010 | 6390 | 5440 | 4570 |
 
 ---
@@ -608,22 +608,22 @@ To avoid conflicts when running multiple apps:
 ```bash
 # 1. Clone infrastructure repo
 cd ~/Developer
-git clone git@github.com:YourOrg/dx-infrastructure.git
-cd dx-infrastructure
+git clone git@github.com:YourOrg/ax-infrastructure.git
+cd ax-infrastructure
 docker compose up -d
 
 # 2. Verify shared services are running
 docker ps   # Should see dx-timescaledb-shared, dx-postgres-shared
 
 # 3. Clone app repos as needed
-git clone git@github.com:DanEx/dx3-admin.git
-git clone git@github.com:DanEx/michelleradnia.git
+git clone git@github.com:DanEx/ax-admin.git
+git clone git@github.com:DanEx/michelleradnia_com.git
 ```
 
 #### Daily Development (Single App)
 
 ```bash
-cd ~/Developer/michelleradnia
+cd ~/Developer/michelleradnia_com
 make dev   # Uses shared PostgreSQL, TIMESCALE_ENABLED=false
 ```
 
@@ -631,15 +631,15 @@ make dev   # Uses shared PostgreSQL, TIMESCALE_ENABLED=false
 
 ```bash
 # Terminal 1: Ensure infra is up
-cd ~/Developer/dx-infrastructure
+cd ~/Developer/ArteFX/ax-infrastructure
 docker compose up -d
 
 # Terminal 2: Start an app that writes logs
-cd ~/Developer/michelleradnia
+cd ~/Developer/michelleradnia_com
 make dev:integration   # Writes to shared TimescaleDB
 
 # Terminal 3: Start parent dashboard
-cd ~/Developer/dx3-admin
+cd ~/Developer/ax-admin
 make dev:integration   # Reads all logs from shared TimescaleDB
 ```
 
@@ -670,9 +670,9 @@ flowchart TB
 
     subgraph DORegion [DigitalOcean Region]
         subgraph LightweightAppPlatform [Lightweight Apps]
-            Dx3AdminApp[dx3-admin]
-            MichelleApp[michelleradnia]
-            XxthApp[xxthcenturyboy]
+            Dx3AdminApp[ax-admin]
+            MichelleApp[michelleradnia_com]
+            XxthApp[dan_underwood_com]
         end
 
         subgraph HeavyAppPlatform [Future Heavy Apps]
@@ -681,9 +681,9 @@ flowchart TB
 
         subgraph SharedManagedDB [Shared Managed PostgreSQL]
             SharedPG[(1 PG Instance)]
-            Dx3AdminDB[dx3_admin db]
-            MichelleDB[michelleradnia db]
-            XxthDB[xxthcenturyboy db]
+            Dx3AdminDB[ax_admin db]
+            MichelleDB[michelleradnia_com db]
+            XxthDB[dan_underwood_com db]
             SharedPG --> Dx3AdminDB
             SharedPG --> MichelleDB
             SharedPG --> XxthDB
@@ -724,15 +724,15 @@ flowchart TB
 
 ---
 
-## Parent Dashboard (dx3-admin)
+## Parent Dashboard (ax-admin)
 
 The parent dashboard is created from the same dx3-monorepo template, with special configuration:
 
 ### Configuration Differences
 
-| Aspect | Heavy App | Lightweight/Personal App | Parent Dashboard (dx3-admin) |
+| Aspect | Heavy App | Lightweight/Personal App | Parent Dashboard (ax-admin) |
 |--------|-----------|--------------------------|------------------------------|
-| `APP_ID` | `future-app`, etc. | `michelleradnia`, `xxthcenturyboy` | `dx3-admin` |
+| `APP_ID` | `future-app`, etc. | `michelleradnia_com`, `dan_underwood_com` | `ax-admin` |
 | PostgreSQL | Own isolated instance | Shared instance, own DB | Shared instance, own DB |
 | Redis | Own isolated instance | Shared instance | Shared instance |
 | Authentication | Full user system | Full user system | Admin-only access |
@@ -759,7 +759,7 @@ const logs = await loggingService.getLogsList({
 
 ```mermaid
 flowchart LR
-    subgraph ParentDashboard [dx3-admin Dashboard]
+    subgraph ParentDashboard [ax-admin Dashboard]
         AppSelector[App Selector Dropdown]
         StatsView[Aggregated Stats View]
         PerAppDrill[Per-App Drill Down]
@@ -784,7 +784,7 @@ flowchart LR
 
 | Phase | Focus | Deliverables |
 |-------|-------|--------------|
-| **Phase 1** | Infrastructure Repo | Create `dx-infrastructure` repo with shared TimescaleDB + PostgreSQL + Redis |
+| **Phase 1** | Infrastructure Repo | Create `ax-infrastructure` repo with shared TimescaleDB + PostgreSQL + Redis |
 | **Phase 2** | Template Enhancement | Add `APP_ID`, `TIMESCALE_URI`, `TIMESCALE_ENABLED`, port configs |
 | **Phase 3** | LoggingService Update | Auto-inject `app_id`, add conditional enabling |
 | **Phase 4** | Init Script Update | Prompt for `APP_ID`, port assignments, lightweight vs heavy app |
@@ -817,7 +817,7 @@ flowchart LR
 | `docs/ECOSYSTEM-SETUP.md` | Local dev setup and shared infra connection |
 | `docs/PORT-ASSIGNMENTS.md` | Reference for port allocation across apps |
 
-### dx-infrastructure Repo Files
+### ax-infrastructure Repo Files
 
 | File | Purpose |
 |------|---------|
@@ -833,7 +833,7 @@ flowchart LR
 
 | Decision | Choice | Notes |
 |----------|--------|-------|
-| **App naming** | Descriptive names | `dx3-admin`, `michelleradnia`, `xxthcenturyboy`, `finance-tracker`, etc. |
+| **App naming** | Descriptive names | `ax-admin`, `michelleradnia_com`, `dan_underwood_com`, `finance-tracker`, etc. |
 | **Authentication** | Discrete per-app | Independent user tables per application |
 | **Parent dashboard auth** | Separate admin user table | Manual user creation initially; VPN/IP allowlist possible later |
 | **Repository structure** | Each app = separate repo | Cloned from dx3-monorepo template |
@@ -855,9 +855,9 @@ flowchart LR
 
 | App ID | Type | PostgreSQL | Description |
 |--------|------|------------|-------------|
-| `dx3-admin` | Lightweight (Parent) | Shared instance | Umbrella dashboard - stats viewer |
-| `michelleradnia` | Lightweight (Personal) | Shared instance | Personal app |
-| `xxthcenturyboy` | Lightweight (Personal) | Shared instance | Personal app |
+| `ax-admin` | Lightweight (Parent) | Shared instance | Umbrella dashboard - stats viewer |
+| `michelleradnia_com` | Lightweight (Personal) | Shared instance | Personal app |
+| `dan_underwood_com` | Lightweight (Personal) | Shared instance | Personal app |
 | `finance-tracker` | Heavy | Isolated instance | Example production app |
 | `task-manager` | Heavy | Isolated instance | Example production app |
 
@@ -888,7 +888,7 @@ async record(data: LogRecordType): Promise<void> {
 **Single Database User:**
 ```bash
 # All apps use same credentials
-TIMESCALE_URI=postgresql://dxuser:dxpassword@timescale-host:5432/dx_logs
+TIMESCALE_URI=postgresql://axuser:axpassword@timescale-host:5432/ax_logs
 ```
 
 ---
@@ -926,7 +926,7 @@ Dx3 is a **production-ready monorepo template** designed to bootstrap full-stack
 
 ### Template Nature
 
-- **Clone once per application**: Each new app (e.g., `dx3-admin`, `michelleradnia`, `xxthcenturyboy`) is created by cloning this template
+- **Clone once per application**: Each new app (e.g., `ax-admin`, `michelleradnia_com`, `dan_underwood_com`) is created by cloning this template
 - **Independent deployment**: Each app lives in its own GitHub repository with discrete authentication and databases
 - **Optional shared infrastructure**: Apps can connect to centralized TimescaleDB for cross-app logging and metrics
 - **Two development modes**: Standalone (default) or integration mode (with shared services)
@@ -934,9 +934,9 @@ Dx3 is a **production-ready monorepo template** designed to bootstrap full-stack
 ### Ecosystem Architecture
 
 When used in an ecosystem:
-- **Parent Dashboard** (`dx3-admin`): Read-only stats viewer for all apps in the ecosystem
+- **Parent Dashboard** (`ax-admin`): Read-only stats viewer for all apps in the ecosystem
 - **Child Apps**: Individual applications with their own users, databases, and features
-- **Shared Infrastructure** (`dx-infrastructure` repo): TimescaleDB, shared PostgreSQL (for lightweight apps), and Redis
+- **Shared Infrastructure** (`ax-infrastructure` repo): TimescaleDB, shared PostgreSQL (for lightweight apps), and Redis
 ```
 
 #### 3. Update Architecture Diagram
@@ -959,7 +959,7 @@ Each package requires environment variables. Copy `.env.sample` to `.env.local` 
 
 ```bash
 # Required: Unique identifier for this app in the ecosystem
-APP_ID=dx3-default                          # Change to your app name (e.g., 'michelleradnia')
+APP_ID=dx3-default                          # Change to your app name (e.g., 'michelleradnia_com')
 
 # Optional: External logging (disabled by default for standalone dev)
 TIMESCALE_ENABLED=false                     # Set to 'true' for integration mode
@@ -998,8 +998,8 @@ For testing cross-app features or parent dashboard functionality:
 ```bash
 # First, clone and start shared infrastructure (one-time setup)
 cd ~/Developer
-git clone git@github.com:DanEx/dx-infrastructure.git
-cd dx-infrastructure
+git clone git@github.com:DanEx/ax-infrastructure.git
+cd ax-infrastructure
 docker compose up -d
 ```
 
@@ -1056,7 +1056,7 @@ To create a new application in the dx3 ecosystem:
 
 ### Shared Infrastructure Repository
 
-For integration development and production logging, set up the `dx-infrastructure` repository:
+For integration development and production logging, set up the `ax-infrastructure` repository:
 
 **Purpose:** Provides centralized services shared across all apps:
 - TimescaleDB (logging and metrics)
@@ -1066,17 +1066,17 @@ For integration development and production logging, set up the `dx-infrastructur
 **Setup:**
 ```bash
 cd ~/Developer
-git clone git@github.com:DanEx/dx-infrastructure.git
-cd dx-infrastructure
+git clone git@github.com:DanEx/ax-infrastructure.git
+cd ax-infrastructure
 docker compose up -d
 ```
 
 **Services provided:**
 - TimescaleDB: `localhost:5434`
-- Shared PostgreSQL: `localhost:5435` (databases: dx3_admin, michelleradnia, xxthcenturyboy)
+- Shared PostgreSQL: `localhost:5435` (databases: ax_admin, michelleradnia_com, dan_underwood_com)
 - Shared Redis: `localhost:6379`
 
-See `dx-infrastructure` repository README for detailed setup instructions.
+See `ax-infrastructure` repository README for detailed setup instructions.
 ```
 
 #### 7. Add Port Allocation Reference
@@ -1117,10 +1117,10 @@ APP_ID=dx3-default                          # Change to your app name
 
 # Shared Infrastructure Connections
 TIMESCALE_ENABLED=true
-TIMESCALE_URI=postgresql://dxuser:dxpassword@localhost:5434/dx_logs
+TIMESCALE_URI=postgresql://axuser:axpassword@localhost:5434/ax_logs
 
 # For lightweight apps using shared PostgreSQL
-POSTGRES_URI=postgresql://dxuser:dxpassword@localhost:5435/dx3_admin
+POSTGRES_URI=postgresql://axuser:axpassword@localhost:5435/ax_admin
 
 # Shared Redis
 REDIS_URL=redis://localhost
@@ -1146,7 +1146,7 @@ dev-integration:
 		exit 1; \
 	fi
 	@echo "Starting in integration mode..."
-	@echo "Ensure dx-infrastructure is running: cd ~/Developer/dx-infrastructure && make up"
+	@echo "Ensure ax-infrastructure is running: cd ~/Developer/ArteFX/ax-infrastructure && make up"
 	docker compose --env-file .env.integration up -d
 	@echo "Run 'make api-watch' and 'make api-start' in separate terminals"
 ```
@@ -1168,7 +1168,7 @@ The following sections should remain as-is to preserve the primary standalone wo
   - Menu system refactor
   - Role hierarchy alignment
   - APP_ID constants in shared package
-  - dx-infrastructure repository created
+  - ax-infrastructure repository created
   - `.env.integration.example` file created
   - `make dev:integration` target added
 
@@ -1204,5 +1204,5 @@ The README should communicate:
 *Document Version: 1.3*
 *Created: January 2026*
 *Updated: January 2026*
-- *v1.2: Updated with actual app names (dx3-admin, michelleradnia, xxthcenturyboy); added shared Redis for lightweight apps*
+- *v1.2: Updated with actual app names (ax-admin, michelleradnia_com, dan_underwood_com); added shared Redis for lightweight apps*
 - *v1.3: Added README.md update instructions and related documentation references*

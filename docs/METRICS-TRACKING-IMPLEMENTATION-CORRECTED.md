@@ -9,7 +9,7 @@ This document outlines a **hybrid analytics strategy** for the DX3 platform, com
 
 This approach provides immediate visibility into user traffic while maintaining full control over critical business data.
 
-> **Multi-App Ecosystem Context:** This metrics implementation is part of a larger multi-application ecosystem. All applications (dx3-admin, michelleradnia, xxthcenturyboy, and future apps) write metrics to a **shared centralized TimescaleDB** with data partitioned by `app_id`. The parent dashboard (dx3-admin) can view metrics across all apps. See [MULTI-APP-ECOSYSTEM-ARCHITECTURE.md](./MULTI-APP-ECOSYSTEM-ARCHITECTURE.md) for the full ecosystem design.
+> **Multi-App Ecosystem Context:** This metrics implementation is part of a larger multi-application ecosystem. All applications (ax-admin, michelleradnia_com, dan_underwood_com, and future apps) write metrics to a **shared centralized TimescaleDB** with data partitioned by `app_id`. The parent dashboard (ax-admin) can view metrics across all apps. See [MULTI-APP-ECOSYSTEM-ARCHITECTURE.md](./MULTI-APP-ECOSYSTEM-ARCHITECTURE.md) for the full ecosystem design.
 
 ### Why a Hybrid Approach?
 
@@ -172,7 +172,7 @@ When implementing this plan, remember these workspace rules:
 - ✅ Signup Counts: 24h/7d/30d with % change indicators
 - ✅ Signup Method Breakdown: Email vs Phone (pie/bar chart)
 - ✅ Geographic Distribution: Top countries by signups
-- ✅ **Multi-App Support**: Parent dashboard (dx3-admin) can filter by app or view all apps
+- ✅ **Multi-App Support**: Parent dashboard (ax-admin) can filter by app or view all apps
 
 **Features:**
 - ✅ **Refresh**: On-demand with manual refresh button (no auto-refresh)
@@ -195,7 +195,7 @@ When implementing this plan, remember these workspace rules:
 - ✅ All endpoints protected by `hasMetricsAdminRole` middleware
 - ✅ Examples:
   - `GET /api/metrics/summary` - Dashboard summary (all apps for parent, own app for others)
-  - `GET /api/metrics/summary?appId=michelleradnia` - Dashboard for specific app (parent dashboard only)
+  - `GET /api/metrics/summary?appId=michelleradnia_com` - Dashboard for specific app (parent dashboard only)
   - `GET /api/metrics/dau?date=2026-01-28` - DAU for specific date
   - `GET /api/metrics/signups?range=7d` - Signup counts
   - `GET /api/metrics/growth?range=30d` - DAU/WAU/MAU trend
@@ -738,7 +738,7 @@ SELECT add_continuous_aggregate_policy('metrics_monthly',
   schedule_interval => INTERVAL '1 month'
 );
 
--- Cross-app aggregate for parent dashboard (dx3-admin)
+-- Cross-app aggregate for parent dashboard (ax-admin)
 -- Summarizes all apps' metrics for ecosystem-wide overview
 CREATE MATERIALIZED VIEW metrics_daily_all_apps
 WITH (timescaledb.continuous) AS
@@ -886,7 +886,7 @@ export class MetricsService {
    *
    * Multi-App Behavior:
    * - Regular apps: Count for own APP_ID only
-   * - Parent dashboard (dx3-admin): Count across all apps (or filter by specific appId)
+   * - Parent dashboard (ax-admin): Count across all apps (or filter by specific appId)
    */
   async getSignupCount(startDate: Date, endDate: Date, appId?: string): Promise<number> {
     // Multi-app: Parent dashboard can query all or specific app
@@ -921,7 +921,7 @@ export class MetricsService {
    *
    * Multi-App Behavior:
    * - Regular apps: DAU for own APP_ID only
-   * - Parent dashboard (dx3-admin): DAU across all apps (or filter by specific appId)
+   * - Parent dashboard (ax-admin): DAU across all apps (or filter by specific appId)
    */
   async getDAU(date: Date, appId?: string): Promise<number> {
     const startOfDay = new Date(date)
@@ -1687,8 +1687,8 @@ export const MetricsAdminDashboard = () => {
   const [selectedApp, setSelectedApp] = useState<string>('all')  // For parent dashboard
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // Check if this is the parent dashboard (dx3-admin) which can view all apps
-  const isParentDashboard = APP_ID === 'dx3-admin'
+  // Check if this is the parent dashboard (ax-admin) which can view all apps
+  const isParentDashboard = APP_ID === 'ax-admin'
 
   // Fetch metrics data (with optional app filter for parent dashboard)
   const appFilter = isParentDashboard && selectedApp !== 'all' ? selectedApp : undefined
@@ -1740,16 +1740,16 @@ export const MetricsAdminDashboard = () => {
       <Box sx={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4">{t('METRICS_DASHBOARD')}</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          {/* App filter - only shown for parent dashboard (dx3-admin) */}
+          {/* App filter - only shown for parent dashboard (ax-admin) */}
           {isParentDashboard && (
             <Select
               onChange={(e) => setSelectedApp(e.target.value)}
               value={selectedApp}
             >
               <MenuItem value="all">{t('ALL_APPS')}</MenuItem>
-              <MenuItem value="dx3-admin">dx3-admin</MenuItem>
-              <MenuItem value="michelleradnia">michelleradnia</MenuItem>
-              <MenuItem value="xxthcenturyboy">xxthcenturyboy</MenuItem>
+              <MenuItem value="ax-admin">ax-admin</MenuItem>
+              <MenuItem value="michelleradnia_com">michelleradnia_com</MenuItem>
+              <MenuItem value="dan_underwood_com">dan_underwood_com</MenuItem>
             </Select>
           )}
           <Select
@@ -2094,7 +2094,7 @@ SELECT
   SUM(total_count) as signups
 FROM metrics_daily
 WHERE event_type = 'METRIC_SIGNUP'
-  AND app_id = 'michelleradnia'  -- Filter by app_id
+  AND app_id = 'michelleradnia_com'  -- Filter by app_id
   AND bucket >= NOW() - INTERVAL '30 days'
 GROUP BY bucket
 ORDER BY bucket;
@@ -2121,7 +2121,7 @@ SELECT
   ROUND(100.0 * SUM(total_count) / SUM(SUM(total_count)) OVER (), 2) as percentage
 FROM metrics_daily
 WHERE event_type = 'METRIC_SIGNUP'
-  AND app_id = 'michelleradnia'  -- Filter by app_id
+  AND app_id = 'michelleradnia_com'  -- Filter by app_id
   AND bucket >= NOW() - INTERVAL '30 days'
 GROUP BY method;
 
@@ -2720,5 +2720,5 @@ When the mobile app matures:
 *Updated: January 28, 2026 - Removed v1 from API route paths (versioning is via header, not URL path)*
 *Updated: January 28, 2026 - Enhanced architecture diagram with entry points, tracking layer, dashboards section, and data flow*
 *Updated: January 28, 2026 - Added File Structure section with complete file tree for all new packages*
-*Updated: January 29, 2026 - Added multi-app ecosystem support: app_id in continuous aggregates, cross-app queries for parent dashboard (dx3-admin), app filter in dashboard UI*
+*Updated: January 29, 2026 - Added multi-app ecosystem support: app_id in continuous aggregates, cross-app queries for parent dashboard (ax-admin), app filter in dashboard UI*
 *Updated: January 29, 2026 - Added queryRaw method with security documentation; enhanced VALID_RANGES whitelist with security comments*
