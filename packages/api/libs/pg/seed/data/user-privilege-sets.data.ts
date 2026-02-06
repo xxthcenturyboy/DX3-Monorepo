@@ -2,8 +2,11 @@
  * User Privilege Sets Seed Data
  * Defines the available roles in the system
  *
- * Role Hierarchy (order 1-6):
- * USER (1) → EDITOR (2) → ADMIN (3) → METRICS_ADMIN (4) → LOGGING_ADMIN (5) → SUPER_ADMIN (6)
+ * Role Hierarchy (sparse numbering for future insertions):
+ * USER (100) → EDITOR (200) → ADMIN (300) → METRICS_ADMIN (400) → LOGGING_ADMIN (500) → SUPER_ADMIN (1000)
+ *
+ * Gaps of 100 allow inserting new roles without renumbering.
+ * SUPER_ADMIN at 1000 ensures it's always the highest privilege level.
  */
 
 import type { USER_ROLE } from '@dx3/models-shared'
@@ -18,31 +21,31 @@ export const USER_PRIVILEGE_SETS_SEED: UserPrivilegeSetSeedData[] = [
   {
     description: 'Standard user with basic access permissions',
     name: 'USER',
-    order: 1,
+    order: 100,
   },
   {
     description: 'Editor with blog and content management permissions',
     name: 'EDITOR',
-    order: 2,
+    order: 200,
   },
   {
     description: 'Administrator with elevated permissions for user management',
     name: 'ADMIN',
-    order: 3,
+    order: 300,
   },
   {
     description: 'Metrics administrator with access to business analytics and metrics dashboards',
     name: 'METRICS_ADMIN',
-    order: 4,
+    order: 400,
   },
   {
     description: 'Logging administrator with access to system logs (security-sensitive)',
     name: 'LOGGING_ADMIN',
-    order: 5,
+    order: 500,
   },
   {
     description: 'Super administrator with full system access',
     name: 'SUPER_ADMIN',
-    order: 6,
+    order: 1000,
   },
 ]

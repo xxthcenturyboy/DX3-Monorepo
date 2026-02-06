@@ -321,6 +321,45 @@ docker compose logs -f api-node-22-dx3
 
 ---
 
+## Environment Variables
+
+This monorepo uses multiple `.env` files for different contexts:
+
+### File Locations
+
+| File | Purpose | Used By |
+|------|---------|---------|
+| `.env` (root) | Docker Compose variables (standalone mode) | `docker compose up` |
+| `.env.integration` (root) | Docker Compose variables (integration mode) | `make dev-integration` |
+| `.env-sample` (root) | Template for root `.env` | Documentation |
+| `packages/api/api-app/.env` | API app variables | Tests, running API directly on host |
+| `packages/api/api-app/.env.sample` | Template for API app `.env` | Documentation |
+| `packages/api/.env` | API libs variables | Tests for shared libs |
+
+### Why Multiple Files?
+
+- **Docker containers** get environment variables from `docker-compose.yml`, which reads from the **root** `.env` or `--env-file` flag
+- **Node.js running directly** (tests, host execution) uses `dotenv` which reads from the **package-level** `.env`
+- **Values may differ** between contexts (e.g., `redis-dx3` inside container vs `localhost` on host)
+
+### Key Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `APP_ID` | Unique app identifier for multi-app ecosystem | Yes |
+| `TIMESCALE_ENABLED` | Enable TimescaleDB logging (`true`/`false`) | No (default: `false`) |
+| `TIMESCALE_URI` | TimescaleDB connection string | Only if enabled |
+| `POSTGRES_URI` | PostgreSQL connection string | Yes |
+| `REDIS_URL` | Redis connection string | Yes |
+
+### Setup
+
+1. **For standalone mode**: Copy `.env-sample` to `.env` and customize
+2. **For integration mode**: `.env.integration` is pre-configured
+3. **For tests**: Copy `packages/api/api-app/.env.sample` to `.env`
+
+---
+
 ## Testing
 
 ### Flags

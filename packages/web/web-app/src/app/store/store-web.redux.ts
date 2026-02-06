@@ -14,6 +14,11 @@ import {
 
 import type { StatsStateType, UserProfileStateType } from '@dx3/models-shared'
 
+import {
+  adminLogsPersistConfig,
+  adminLogsReducer,
+} from '../admin-logs/admin-logs-web.reducer'
+import type { AdminLogsStateType } from '../admin-logs/admin-logs-web.types'
 import { authPersistConfig, authReducer } from '../auth/auth-web.reducer'
 import type { AuthStateType } from '../auth/auth-web.types'
 import { dashboardReducer } from '../dashboard/dashboard-web.reducer'
@@ -52,6 +57,10 @@ import type { PrivilegeSetStateType } from '../user-privilege/user-privilege-web
 
 const combinedPersistReducers = combineReducers({
   [apiWeb.reducerPath]: apiWeb.reducer,
+  adminLogs: persistReducer<AdminLogsStateType, any>(
+    adminLogsPersistConfig,
+    adminLogsReducer,
+  ) as typeof adminLogsReducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
   dashboard: dashboardReducer,
   featureFlags: persistReducer<FeatureFlagsStateType, any>(

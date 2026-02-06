@@ -1,6 +1,7 @@
 import { USER_ROLE } from '@dx3/models-shared'
 import { IconNames } from '@dx3/web-libs/ui/icons'
 
+import { ADMIN_LOGS_ROUTES } from '../../admin-logs/admin-logs-web.consts'
 import { FEATURE_FLAG_ADMIN_ROUTES } from '../../feature-flags/admin/feature-flag-admin-web.consts'
 import { DEFAULT_STRINGS } from '../../i18n'
 import { STATS_SUDO_ROUTES } from '../../stats/stats-web.consts'
@@ -52,6 +53,15 @@ export const adminMenu = (): AppMenuType => {
         restriction: USER_ROLE.SUPER_ADMIN,
         routeKey: FEATURE_FLAG_ADMIN_ROUTES.LIST,
         title: strings.FEATURE_FLAGS,
+        type: 'ROUTE',
+      },
+      {
+        icon: IconNames.ARTICLE,
+        id: 'menu-item-admin-logs',
+        pathMatches: [ADMIN_LOGS_ROUTES.MAIN],
+        restriction: USER_ROLE.LOGGING_ADMIN,
+        routeKey: ADMIN_LOGS_ROUTES.LIST,
+        title: strings.ADMIN_LOGS_TITLE,
         type: 'ROUTE',
       },
       {

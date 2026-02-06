@@ -10,7 +10,14 @@ import { CookeiService } from '../../cookies/cookie.service'
 import { sendUnauthorized } from '../../http-response/http-responses'
 import { ApiLoggingClass } from '../../logger'
 import { TokenService } from '../tokens/token.service'
-import { hasAdminRole, hasSuperAdminRole, userHasRole } from './ensure-role.middleware'
+import {
+  hasAdminRole,
+  hasLoggingAdminRole,
+  hasMetricsAdminRole,
+  hasSuperAdminRole,
+  userHasRole,
+  userHasRoleOrHigher,
+} from './ensure-role.middleware'
 
 jest.mock('../../logger', () => require('../../testing/mocks/internal/logger.mock'))
 jest.mock('../../cookies/cookie.service.ts')
@@ -114,6 +121,76 @@ describe('ensureLoggedIn', () => {
       const hasRole = await userHasRole('notValidId', USER_ROLE.ADMIN)
       // assert
       expect(hasRole).toBeFalsy()
+    })
+  })
+
+  describe('userHasRoleOrHigher', () => {
+    it('should exist', () => {
+      expect(userHasRoleOrHigher).toBeDefined()
+    })
+
+    test('should return false when userId does not exist', async () => {
+      // arrange
+      // act
+      const hasRole = await userHasRoleOrHigher('notValidId', USER_ROLE.LOGGING_ADMIN)
+      // assert
+      expect(hasRole).toBeFalsy()
+    })
+  })
+
+  describe('hasLoggingAdminRole', () => {
+    it('should exist', () => {
+      expect(hasLoggingAdminRole).toBeDefined()
+    })
+
+    test('should sendUnauthorized when no authorization header', async () => {
+      // arrange
+      req.headers = {}
+      // act
+      await hasLoggingAdminRole(req, res, next)
+      // assert
+      expect(logErrorSpy).toHaveBeenCalled()
+      expect(sendUnauthorized).toHaveBeenCalled()
+    })
+
+    test('should sendUnauthorized when token is invalid', async () => {
+      // arrange
+      req.headers = {
+        authorization: `Bearer ${TEST_UUID}`,
+      }
+      // act
+      await hasLoggingAdminRole(req, res, next)
+      // assert
+      expect(logErrorSpy).toHaveBeenCalled()
+      expect(sendUnauthorized).toHaveBeenCalled()
+    })
+  })
+
+  describe('hasMetricsAdminRole', () => {
+    it('should exist', () => {
+      expect(hasMetricsAdminRole).toBeDefined()
+    })
+
+    test('should sendUnauthorized when no authorization header', async () => {
+      // arrange
+      req.headers = {}
+      // act
+      await hasMetricsAdminRole(req, res, next)
+      // assert
+      expect(logErrorSpy).toHaveBeenCalled()
+      expect(sendUnauthorized).toHaveBeenCalled()
+    })
+
+    test('should sendUnauthorized when token is invalid', async () => {
+      // arrange
+      req.headers = {
+        authorization: `Bearer ${TEST_UUID}`,
+      }
+      // act
+      await hasMetricsAdminRole(req, res, next)
+      // assert
+      expect(logErrorSpy).toHaveBeenCalled()
+      expect(sendUnauthorized).toHaveBeenCalled()
     })
   })
 })

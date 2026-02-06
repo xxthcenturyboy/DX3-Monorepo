@@ -4,9 +4,14 @@ import { Outlet, type RouteObject } from 'react-router'
 import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.component'
 
+import { ADMIN_LOGS_ROUTES } from '../admin-logs/admin-logs-web.consts'
 import { WebConfigService } from '../config/config-web.service'
 import { store } from '../store/store-web.redux'
 import { SUPPORT_ADMIN_ROUTES } from '../support/support.consts'
+
+const LazyAdminLogsListComponent = lazy(async () => ({
+  default: (await import('../admin-logs/admin-logs-web-list.component')).AdminLogsListComponent,
+}))
 
 const LazySupportAdminDetailComponent = lazy(async () => ({
   default: (await import('../support/admin/support-admin-detail.component'))
@@ -57,6 +62,10 @@ export class AdminWebRouterConfig {
     const config: RouteObject[] = [
       {
         children: [
+          {
+            element: <LazyAdminLogsListComponent />,
+            path: ADMIN_LOGS_ROUTES.LIST,
+          },
           {
             element: <LazySupportAdminListComponent />,
             path: SUPPORT_ADMIN_ROUTES.LIST,

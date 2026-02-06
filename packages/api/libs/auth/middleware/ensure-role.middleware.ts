@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import { USER_ROLE } from '@dx3/models-shared'
+import { hasRoleOrHigher, USER_ROLE } from '@dx3/models-shared'
 
 import { HeaderService } from '../../headers/header.service'
 import { sendUnauthorized } from '../../http-response/http-responses'
@@ -13,6 +13,20 @@ export async function userHasRole(userId: string, role: string): Promise<boolean
     return await UserModel.userHasRole(userId, role)
   } catch (err) {
     ApiLoggingClass.instance.logError((err as Error).message || 'Error checking user role.')
+    return false
+  }
+}
+
+/**
+ * Check if user has the required role or higher using the role hierarchy.
+ * Uses the USER_ROLE_ORDER to determine if user's role is at or above the required level.
+ */
+export async function userHasRoleOrHigher(userId: string, requiredRole: string): Promise<boolean> {
+  try {
+    const userRoles = await UserModel.getUserRoles(userId)
+    return hasRoleOrHigher(userRoles, requiredRole)
+  } catch (err) {
+    ApiLoggingClass.instance.logError((err as Error).message || 'Error checking user role hierarchy.')
     return false
   }
 }
@@ -73,6 +87,72 @@ export async function hasSuperAdminRole(
     next()
   } catch (err) {
     const msg = (err as Error).message || 'Error checking super admin role.'
+    ApiLoggingClass.instance.logError(msg)
+    sendUnauthorized(req, res, msg)
+  }
+}
+
+/**
+ * Middleware to check if user has LOGGING_ADMIN role or higher (SUPER_ADMIN).
+ * Required for accessing centralized logging dashboard and log queries.
+ */
+export async function hasLoggingAdminRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = HeaderService.getTokenFromRequest(req)
+    if (!token) {
+      throw new Error('No authentication token provided.')
+    }
+
+    const userId = TokenService.getUserIdFromToken(token)
+    if (!userId) {
+      throw new Error('Token invalid or expired.')
+    }
+
+    const hasRole = await userHasRoleOrHigher(userId, USER_ROLE.LOGGING_ADMIN)
+    if (!hasRole) {
+      throw new Error('User is not authorized to access logging administration.')
+    }
+
+    next()
+  } catch (err) {
+    const msg = (err as Error).message || 'Error checking logging admin role.'
+    ApiLoggingClass.instance.logError(msg)
+    sendUnauthorized(req, res, msg)
+  }
+}
+
+/**
+ * Middleware to check if user has METRICS_ADMIN role or higher (LOGGING_ADMIN, SUPER_ADMIN).
+ * Required for accessing metrics and analytics dashboards.
+ */
+export async function hasMetricsAdminRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = HeaderService.getTokenFromRequest(req)
+    if (!token) {
+      throw new Error('No authentication token provided.')
+    }
+
+    const userId = TokenService.getUserIdFromToken(token)
+    if (!userId) {
+      throw new Error('Token invalid or expired.')
+    }
+
+    const hasRole = await userHasRoleOrHigher(userId, USER_ROLE.METRICS_ADMIN)
+    if (!hasRole) {
+      throw new Error('User is not authorized to access metrics administration.')
+    }
+
+    next()
+  } catch (err) {
+    const msg = (err as Error).message || 'Error checking metrics admin role.'
     ApiLoggingClass.instance.logError(msg)
     sendUnauthorized(req, res, msg)
   }

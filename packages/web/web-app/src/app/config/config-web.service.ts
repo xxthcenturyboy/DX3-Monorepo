@@ -1,3 +1,4 @@
+import { ADMIN_LOGS_ROUTES } from '../admin-logs/admin-logs-web.consts'
 import { AUTH_ROUTES } from '../auth/auth-web.consts'
 import { DASHBOARD_ROUTES } from '../dashboard/dashboard-web.consts'
 import { SHORTLINK_ROUTES } from '../shortlink/shortlink-web.consts'
@@ -23,6 +24,7 @@ export class WebConfigService {
     return {
       ABOUT: '/about',
       ADMIN: {
+        LOGS: ADMIN_LOGS_ROUTES,
         USER: USER_ADMIN_ROUTES,
       },
       AUTH: AUTH_ROUTES,

@@ -1,5 +1,6 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
+import { adminLogsReducer } from '../../admin-logs/admin-logs-web.reducer'
 import { authReducer } from '../../auth/auth-web.reducer'
 import { dashboardReducer } from '../../dashboard/dashboard-web.reducer'
 import { apiWeb } from '../../data/rtk-query/web.api'
@@ -17,6 +18,7 @@ import { privilegeSetReducer } from '../../user-privilege/user-privilege-web.red
 
 export const rootReducer = combineReducers({
   [apiWeb.reducerPath]: apiWeb.reducer,
+  adminLogs: adminLogsReducer,
   auth: authReducer,
   dashboard: dashboardReducer,
   featureFlags: featureFlagsReducer,

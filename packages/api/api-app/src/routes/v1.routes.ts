@@ -2,6 +2,7 @@ import { Router } from 'express'
 
 import { endpointNotFound } from '@dx3/api-libs/http-response/http-responses'
 
+import { AdminLogsRoutes } from '../admin-logs/admin-logs-api.routes'
 import { AuthRoutes } from '../auth/auth-api.routes'
 import { DevicesRoutes } from '../devices/devices-api.routes'
 import { EmailRoutes } from '../email/email-api.routes'
@@ -17,6 +18,7 @@ import { UserPrivilegeRoutes } from '../user-privilege/user-privilege-api.routes
 export class RoutesV1 {
   static configure() {
     const router = Router()
+    router.use('/admin-logs', AdminLogsRoutes.configure())
     router.use('/auth', AuthRoutes.configure())
     router.use('/device', DevicesRoutes.configure())
     router.use('/email', EmailRoutes.configure())

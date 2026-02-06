@@ -98,11 +98,19 @@ volumes:
 ### 2. `init-scripts/init-timescale.sql`
 
 ```sql
+-- =============================================================================
+-- ax-infrastructure TimescaleDB Schema
+-- Phase 1: Complete Logging Infrastructure
+-- =============================================================================
+
 -- Enable extensions
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create logs hypertable
+-- =============================================================================
+-- LOGS TABLE
+-- =============================================================================
+
 CREATE TABLE IF NOT EXISTS logs (
   id UUID DEFAULT uuid_generate_v4() NOT NULL,
   app_id VARCHAR(64) NOT NULL,
@@ -139,7 +147,10 @@ CREATE INDEX IF NOT EXISTS idx_logs_event_type ON logs(event_type, created_at DE
 CREATE INDEX IF NOT EXISTS idx_logs_user_id ON logs(user_id, created_at DESC) WHERE user_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_logs_success ON logs(success, created_at DESC);
 
--- Continuous aggregates for hourly stats
+-- =============================================================================
+-- CONTINUOUS AGGREGATES - Hourly Stats
+-- =============================================================================
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS logs_hourly
 WITH (timescaledb.continuous) AS
 SELECT
@@ -156,7 +167,6 @@ FROM logs
 GROUP BY bucket, app_id, event_type
 WITH NO DATA;
 
--- Refresh policy for hourly aggregate
 SELECT add_continuous_aggregate_policy('logs_hourly',
   start_offset => INTERVAL '3 hours',
   end_offset => INTERVAL '1 hour',
@@ -164,7 +174,61 @@ SELECT add_continuous_aggregate_policy('logs_hourly',
   if_not_exists => TRUE
 );
 
--- Retention policy (90 days)
+-- =============================================================================
+-- CONTINUOUS AGGREGATES - Daily Stats (per app)
+-- =============================================================================
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS logs_daily
+WITH (timescaledb.continuous) AS
+SELECT
+  time_bucket('1 day', created_at) AS bucket,
+  app_id,
+  event_type,
+  COUNT(*) AS total_count,
+  COUNT(*) FILTER (WHERE success = true) AS success_count,
+  COUNT(*) FILTER (WHERE success = false) AS error_count,
+  COUNT(DISTINCT user_id) AS unique_users,
+  AVG(duration_ms) AS avg_duration_ms
+FROM logs
+GROUP BY bucket, app_id, event_type
+WITH NO DATA;
+
+SELECT add_continuous_aggregate_policy('logs_daily',
+  start_offset => INTERVAL '3 days',
+  end_offset => INTERVAL '1 day',
+  schedule_interval => INTERVAL '1 day',
+  if_not_exists => TRUE
+);
+
+-- =============================================================================
+-- CONTINUOUS AGGREGATES - Cross-App (for parent dashboard)
+-- =============================================================================
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS logs_daily_all_apps
+WITH (timescaledb.continuous) AS
+SELECT
+  time_bucket('1 day', created_at) AS bucket,
+  app_id,
+  event_type,
+  COUNT(*) AS total_count,
+  COUNT(DISTINCT user_id) AS unique_users,
+  AVG(duration_ms) AS avg_duration_ms
+FROM logs
+GROUP BY bucket, app_id, event_type
+WITH NO DATA;
+
+SELECT add_continuous_aggregate_policy('logs_daily_all_apps',
+  start_offset => INTERVAL '3 days',
+  end_offset => INTERVAL '1 hour',
+  schedule_interval => INTERVAL '1 hour',
+  if_not_exists => TRUE
+);
+
+-- =============================================================================
+-- RETENTION POLICY
+-- =============================================================================
+
+-- Keep raw logs for 90 days
 SELECT add_retention_policy('logs', INTERVAL '90 days', if_not_exists => TRUE);
 ```
 
@@ -347,12 +411,24 @@ redis-cli -p 6380 ping
 
 ## Next Steps
 
-After creating the ax-infrastructure repository:
+### Phase 0 ✅ Complete
 
-1. ✅ Task 0.1: Menu System Refactor (completed)
-2. ✅ Task 0.2: Role Hierarchy Alignment (completed)
-3. ✅ Task 0.3: APP_ID Configuration Constants (completed)
-4. ✅ Task 0.4: Create ax-infrastructure repository (completed)
-5. ✅ Task 0.5: Update dx3-monorepo template (completed)
+1. ✅ Task 0.1: Menu System Refactor
+2. ✅ Task 0.2: Role Hierarchy Alignment
+3. ✅ Task 0.3: APP_ID Configuration Constants
+4. ✅ Task 0.4: Create ax-infrastructure repository
+5. ✅ Task 0.5: Update dx3-monorepo template
 
-**Phase 0 Complete!** Proceed to Phase 1 (Logging Infrastructure).
+### Phase 1: Logging Infrastructure
+
+**Task 1.1 (ax-infrastructure):**
+- Update `init-scripts/init-timescale.sql` with the complete schema above
+- Run `make reset` to recreate the database with new schema
+- Verify: `psql postgresql://axuser:axpassword@localhost:5434/ax_logs -c "\d logs"`
+
+**Tasks 1.2-1.6 (dx3-monorepo):**
+- Task 1.2: Shared Models & Types (`packages/shared/models/src/logging/`)
+- Task 1.3: LoggingService Implementation (`packages/api/libs/logging/`)
+- Task 1.4: LOGGING_ADMIN Role (database seeder + middleware)
+- Task 1.5: Admin Logging Dashboard (`packages/web/web-app/src/app/admin/logs/`)
+- Task 1.6: Socket.IO Real-time (`/admin-logs` namespace)

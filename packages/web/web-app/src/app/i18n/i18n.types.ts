@@ -73,6 +73,17 @@ export type StringKeys = {
   ACCOUNT_MENU: string
   ADD: string
   ADMIN: string
+  ADMIN_LOGS_ALERT_AUTH_FAILURE_CRITICAL: string
+  ADMIN_LOGS_ALERT_AUTH_FAILURE_WARNING: string
+  ADMIN_LOGS_ALERT_RATE_LIMIT: string
+  ADMIN_LOGS_ALERT_SECURITY: string
+  ADMIN_LOGS_ALL_EVENTS: string
+  ADMIN_LOGS_ALL_STATUS: string
+  ADMIN_LOGS_ERROR: string
+  ADMIN_LOGS_EVENT_TYPE: string
+  ADMIN_LOGS_SUCCESS: string
+  ADMIN_LOGS_TITLE: string
+  ADMIN_LOGS_UNAVAILABLE: string
   ADMINS: string
   ALL_USERS: string
   API_HEALTH: string
@@ -111,6 +122,7 @@ export type StringKeys = {
   COMING_SOON: string
   CONFIRM: string
   CONFIRM_PASSWORD: string
+  CONFIRM_REMOVE_OWN_SUPER_ADMIN: string
   CONTACT_US: string
   COULD_NOT_LOG_YOU_IN: string
   COULD_NOT_LOGOUT: string

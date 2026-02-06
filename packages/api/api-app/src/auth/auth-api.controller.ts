@@ -16,12 +16,12 @@ import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
 import {
   type AccountCreationPayloadType,
+  AUTH_TOKEN_NAMES,
   DEFAULT_TIMEZONE,
   type LoginPayloadType,
   type UserLookupQueryType,
-  UserProfileStateType,
+  type UserProfileStateType,
 } from '@dx3/models-shared'
-import { AUTH_TOKEN_NAMES } from '@dx3/models-shared'
 
 export const AuthController = {
   authLookup: async (req: Request, res: Response) => {

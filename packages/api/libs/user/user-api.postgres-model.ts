@@ -108,7 +108,9 @@ export class UserModel extends Model<UserModel> {
     // NOTE: Using lowercase enum type names for PostgreSQL convention
     set(userRoles: string[] = []): void {
       // Validate all roles are in the allowed list
-      const invalidRoles = userRoles.filter((role) => !USER_ROLE_ARRAY.includes(role))
+      const invalidRoles = userRoles.filter(
+        (role) => !USER_ROLE_ARRAY.includes(role as (typeof USER_ROLE_ARRAY)[number]),
+      )
       if (invalidRoles.length > 0) {
         throw new Error(
           `Invalid role(s) specified: ${invalidRoles.join(', ')}. ` +
@@ -511,6 +513,27 @@ export class UserModel extends Model<UserModel> {
     } catch (err) {
       console.error(err)
       return false
+    }
+  }
+
+  /**
+   * Get all roles for a user by ID.
+   * Returns an empty array if user is not found.
+   */
+  static async getUserRoles(id: string): Promise<string[]> {
+    try {
+      const user = await UserModel.findByPk(id, {
+        attributes: ['roles'],
+      })
+
+      if (!user) {
+        return []
+      }
+
+      return user.roles || []
+    } catch (err) {
+      console.error(err)
+      return []
     }
   }
 

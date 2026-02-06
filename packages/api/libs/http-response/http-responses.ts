@@ -209,3 +209,13 @@ export function sendNotFoundWithCode(
     url: req.url,
   })
 }
+
+export function sendServiceUnavailable(req: Request, res: Response, message: string): void {
+  ApiLoggingClass.instance.logWarn(`Service Unavailable: ${req.url}`)
+  send400(res, {
+    description: getReasonPhrase(StatusCodes.SERVICE_UNAVAILABLE),
+    message,
+    status: StatusCodes.SERVICE_UNAVAILABLE,
+    url: req.url,
+  })
+}

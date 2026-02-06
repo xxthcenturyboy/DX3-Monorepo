@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable corepack for pnpm
+# Enable corepack for pnpm and suppress download prompts
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
 
 # Copy dependency files first (better caching)
@@ -23,9 +24,10 @@ COPY packages/shared/ ./packages/shared/
 COPY _devops/ ./_devops/
 
 # Install dependencies (this layer is cached unless dependencies change)
+# corepack prepare --activate pre-downloads pnpm to avoid runtime download prompts
 RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
     --mount=type=secret,id=gitconfig,target=/root/.gitconfig \
-    corepack prepare && pnpm install
+    corepack prepare --activate && pnpm install
 
 # Expose only the API port (other services have their own containers)
 EXPOSE 4000

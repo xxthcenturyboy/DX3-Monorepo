@@ -32,14 +32,14 @@ describe('USER_ROLE_ORDER', () => {
     expect(USER_ROLE_ORDER).toBeDefined()
   })
 
-  it('should have correct order values for hierarchy', () => {
-    // USER (1) → EDITOR (2) → ADMIN (3) → METRICS_ADMIN (4) → LOGGING_ADMIN (5) → SUPER_ADMIN (6)
-    expect(USER_ROLE_ORDER[USER_ROLE.USER]).toEqual(1)
-    expect(USER_ROLE_ORDER[USER_ROLE.EDITOR]).toEqual(2)
-    expect(USER_ROLE_ORDER[USER_ROLE.ADMIN]).toEqual(3)
-    expect(USER_ROLE_ORDER[USER_ROLE.METRICS_ADMIN]).toEqual(4)
-    expect(USER_ROLE_ORDER[USER_ROLE.LOGGING_ADMIN]).toEqual(5)
-    expect(USER_ROLE_ORDER[USER_ROLE.SUPER_ADMIN]).toEqual(6)
+  it('should have correct order values for hierarchy (sparse numbering)', () => {
+    // USER (100) → EDITOR (200) → ADMIN (300) → METRICS_ADMIN (400) → LOGGING_ADMIN (500) → SUPER_ADMIN (1000)
+    expect(USER_ROLE_ORDER[USER_ROLE.USER]).toEqual(100)
+    expect(USER_ROLE_ORDER[USER_ROLE.EDITOR]).toEqual(200)
+    expect(USER_ROLE_ORDER[USER_ROLE.ADMIN]).toEqual(300)
+    expect(USER_ROLE_ORDER[USER_ROLE.METRICS_ADMIN]).toEqual(400)
+    expect(USER_ROLE_ORDER[USER_ROLE.LOGGING_ADMIN]).toEqual(500)
+    expect(USER_ROLE_ORDER[USER_ROLE.SUPER_ADMIN]).toEqual(1000)
   })
 
   it('should have SUPER_ADMIN as highest order', () => {

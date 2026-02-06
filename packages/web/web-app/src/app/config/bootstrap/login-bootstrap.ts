@@ -1,4 +1,4 @@
-import type { UserProfileStateType } from '@dx3/models-shared'
+import { hasRoleOrHigher, type UserProfileStateType, USER_ROLE } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 
 import { fetchFeatureFlags } from '../../feature-flags/feature-flag-web.api'
@@ -54,7 +54,7 @@ async function getFeatureFlags() {
   }
 }
 
-async function connectToSockets(isAdmin: boolean) {
+async function connectToSockets(isAdmin: boolean, isLoggingAdmin: boolean) {
   // Only connect sockets in browser environment (not during SSR)
   if (typeof window === 'undefined') {
     return
@@ -99,6 +99,19 @@ async function connectToSockets(isAdmin: boolean) {
         SupportWebSockets.instance.socket.connect()
       }
     }
+
+    // Connect to admin logs sockets for security alerts (LOGGING_ADMIN+ only)
+    if (isLoggingAdmin) {
+      const { AdminLogsWebSockets } = await import('../../admin-logs/admin-logs-web.sockets')
+      if (!AdminLogsWebSockets.instance) {
+        AdminLogsWebSockets.connect()
+      } else if (
+        AdminLogsWebSockets.instance.socket &&
+        !AdminLogsWebSockets.instance.socket.connected
+      ) {
+        AdminLogsWebSockets.instance.socket.connect()
+      }
+    }
   } catch (err) {
     logger.error(`Error connecting to sockets: ${(err as Error).message}`)
   }
@@ -117,11 +130,12 @@ async function getSupportUnviewedCount() {
 
 export function loginBootstrap(userProfile: UserProfileStateType, mobileBreak: boolean) {
   const isAdmin = userProfile.a || userProfile.sa
+  const isLoggingAdmin = hasRoleOrHigher(userProfile.role, USER_ROLE.LOGGING_ADMIN)
 
   setUpMenus(userProfile, mobileBreak)
   void getNotifications(userProfile?.id)
   void getFeatureFlags()
-  void connectToSockets(isAdmin)
+  void connectToSockets(isAdmin, isLoggingAdmin)
 
   // Fetch unviewed support request count for admins
   if (isAdmin) {

@@ -110,7 +110,33 @@ export type {
   RedisHealthzResponse,
 } from './healthz/heathz-shared.types'
 // Logging Types
-export { REDACTED_VALUE } from './logging/logging.consts'
+export {
+  ADMIN_LOGS_SOCKET_NS,
+  DEFAULT_LOG_LIMIT,
+  LOG_EVENT_TYPE,
+  LOG_EVENT_TYPE_ARRAY,
+  LOG_RETENTION_DAYS,
+  MAX_LOG_LIMIT,
+  REDACTED_VALUE,
+} from './logging/logging-shared.consts'
+export type {
+  AdminLogsSocketClientToServerEvents,
+  AdminLogsSocketData,
+  AdminLogsSocketInterServerEvents,
+  AdminLogsSocketServerToClientEvents,
+  AuthFailureAlertPayload,
+  GetLogsQueryType,
+  GetLogsResponseType,
+  LogEntryType,
+  LogEventType,
+  LogFiltersType,
+  LogRecordType,
+  LogsDailyAggregateType,
+  LogsHourlyAggregateType,
+  LogsStatsResponseType,
+  RateLimitAlertPayload,
+  SecurityAlertPayload,
+} from './logging/logging-shared.types'
 // MEDIA Types
 export {
   FILE_EXTENSIONS,

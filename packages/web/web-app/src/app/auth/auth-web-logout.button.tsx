@@ -11,6 +11,7 @@ import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
+import { AdminLogsWebSockets } from '../admin-logs/admin-logs-web.sockets'
 import { WebConfigService } from '../config/config-web.service'
 import { featureFlagsActions } from '../feature-flags/feature-flag-web.reducer'
 import { FeatureFlagWebSockets } from '../feature-flags/feature-flag-web.sockets'
@@ -68,6 +69,10 @@ export const LogoutButton: React.FC<LogoutButtonType> = ({ context, onLocalClick
                   // Disconnect feature flag sockets
                   if (FeatureFlagWebSockets.instance) {
                     FeatureFlagWebSockets.instance.disconnect()
+                  }
+                  // Disconnect admin logs sockets
+                  if (AdminLogsWebSockets.instance) {
+                    AdminLogsWebSockets.instance.disconnect()
                   }
                   sleep(500).then(() => {
                     setConfirmOpen(false)

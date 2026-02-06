@@ -20,10 +20,11 @@ import { createPortal } from 'react-dom'
 import { useLocation, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 
-import { ACCOUNT_RESTRICTIONS, type UserRoleUi } from '@dx3/models-shared'
+import { ACCOUNT_RESTRICTIONS, USER_ROLE, type UserRoleUi } from '@dx3/models-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { DialogAlert } from '@dx3/web-libs/ui/dialog/alert.dialog'
+import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { listSkeleton } from '@dx3/web-libs/ui/global/skeletons.ui'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
@@ -62,6 +63,7 @@ export const UserAdminEdit: React.FC = () => {
   const isMobileWidth = useAppSelector((state) => selectIsMobileWidth(state))
   const [title, setTitle] = useState('User')
   const [alertRoleOpen, setAlertRoleOpen] = useState(false)
+  const [confirmSuperAdminRemoval, setConfirmSuperAdminRemoval] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [restrictions, setRestrictions] = useState<UserRestriction[]>([])
   const [roles, setRoles] = useState<UserRoleUi[]>([])
@@ -75,6 +77,9 @@ export const UserAdminEdit: React.FC = () => {
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const { t } = useI18n()
   const strings = useStrings([
+    'CANCEL',
+    'CONFIRM',
+    'CONFIRM_REMOVE_OWN_SUPER_ADMIN',
     'DEFAULT',
     'EMAILS',
     'NAME',
@@ -224,12 +229,7 @@ export const UserAdminEdit: React.FC = () => {
     }
   }
 
-  const handleRoleClick = async (clickedRole: string): Promise<void> => {
-    if (!currentUser?.sa) {
-      setAlertRoleOpen(true)
-      return
-    }
-
+  const executeRoleChange = (clickedRole: string): void => {
     if (user?.roles && Array.isArray(user.roles)) {
       let nextRoles = [...new Set(user.roles)]
       if (user.roles.indexOf(clickedRole) > -1) {
@@ -249,6 +249,33 @@ export const UserAdminEdit: React.FC = () => {
         id: user.id,
         roles: nextRoles,
       })
+    }
+  }
+
+  const handleRoleClick = async (clickedRole: string): Promise<void> => {
+    if (!currentUser?.sa) {
+      setAlertRoleOpen(true)
+      return
+    }
+
+    // Check if user is trying to remove SUPER_ADMIN from themselves
+    const isRemovingSuperAdmin =
+      clickedRole === USER_ROLE.SUPER_ADMIN &&
+      user?.roles?.includes(USER_ROLE.SUPER_ADMIN)
+    const isEditingOwnUser = currentUser?.id === user?.id
+
+    if (isRemovingSuperAdmin && isEditingOwnUser) {
+      setConfirmSuperAdminRemoval(true)
+      return
+    }
+
+    executeRoleChange(clickedRole)
+  }
+
+  const handleSuperAdminRemovalConfirm = (confirmed?: boolean): void => {
+    setConfirmSuperAdminRemoval(false)
+    if (confirmed) {
+      executeRoleChange(USER_ROLE.SUPER_ADMIN)
     }
   }
 
@@ -564,29 +591,44 @@ export const UserAdminEdit: React.FC = () => {
               direction={'column'}
               justifyContent="space-between"
             >
-              {roles.map((role, _index) => {
-                return (
-                  <Grid
-                    container
-                    key={`role-${role.role}`}
-                  >
-                    <Grid>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={role.hasRole}
-                              onClick={() => void handleRoleClick(role.role)}
-                              size="large"
-                            />
-                          }
-                          label={role.role}
-                        />
-                      </FormGroup>
-                    </Grid>
-                  </Grid>
+              {(() => {
+                // If SUPER_ADMIN is checked, only show SUPER_ADMIN option
+                const hasSuperAdmin = roles.some(
+                  (r) => r.role === USER_ROLE.SUPER_ADMIN && r.hasRole,
                 )
-              })}
+                const displayRoles = hasSuperAdmin
+                  ? roles.filter((r) => r.role === USER_ROLE.SUPER_ADMIN)
+                  : roles
+
+                return displayRoles.map((role, _index) => {
+                  // Only SUPER_ADMIN users can grant/revoke SUPER_ADMIN role
+                  const isSuperAdminRole = role.role === USER_ROLE.SUPER_ADMIN
+                  const isDisabled = isSuperAdminRole && !currentUser?.sa
+
+                  return (
+                    <Grid
+                      container
+                      key={`role-${role.role}`}
+                    >
+                      <Grid>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={role.hasRole}
+                                disabled={isDisabled}
+                                onClick={() => void handleRoleClick(role.role)}
+                                size="large"
+                              />
+                            }
+                            label={role.role}
+                          />
+                        </FormGroup>
+                      </Grid>
+                    </Grid>
+                  )
+                })
+              })()}
             </Grid>
           )}
         </Grid>
@@ -658,6 +700,25 @@ export const UserAdminEdit: React.FC = () => {
       closeDialog={() => setAlertRoleOpen(false)}
       isMobileWidth={isMobileWidth}
       open={alertRoleOpen}
+    />,
+    document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+  )
+
+  const confirmSuperAdminModal = createPortal(
+    <CustomDialog
+      body={
+        <ConfirmationDialog
+          bodyMessage={strings.CONFIRM_REMOVE_OWN_SUPER_ADMIN}
+          cancelText={strings.CANCEL}
+          cancellingText={strings.CANCEL}
+          noAwait={true}
+          okText={strings.CONFIRM}
+          onComplete={handleSuperAdminRemovalConfirm}
+        />
+      }
+      closeDialog={() => setConfirmSuperAdminRemoval(false)}
+      isMobileWidth={isMobileWidth}
+      open={confirmSuperAdminRemoval}
     />,
     document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
   )
@@ -745,6 +806,7 @@ export const UserAdminEdit: React.FC = () => {
         )}
       </Box>
       {alertRoleModal}
+      {confirmSuperAdminModal}
     </ContentWrapper>
   )
 }
