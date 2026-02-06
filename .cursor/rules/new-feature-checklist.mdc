@@ -13,13 +13,23 @@ Before starting any work, read and follow these existing rules:
 
 - Define feature scope and route(s) in `packages/web/web-app/src/app`
 - Add a dedicated component file; avoid `index.ts`
-- Use Redux Toolkit or RTK Query for state/data needs
-- Use selector + hook patterns (`useAppSelector`, memoized selectors)
+- Always create Redux reducer (`*.reducer.ts`) and selectors (`*.selectors.ts`) for feature state
+- Use RTK Query for API communication, Redux state for UI/filter/pagination state
+- Use `useAppSelector` with memoized selectors from `*.selectors.ts`
 - Keep types local unless shared across API/web; use `type` not `interface`
 - Use existing UI patterns (ContentHeader, TableComponent, Dialog)
 - Ensure i18n strings are added to `assets/locales/en.json` and types
 - If sockets are needed, connect via shared socket connection utilities
 - Confirm no barrel exports are introduced in the web app
+
+### Table View Pattern
+
+When implementing a table/list view:
+- Create a `*-list.service.ts` file to handle table header definitions and row data formatting
+- Use `getListHeaders()` static method for column definitions
+- Use `getRows(data)` method to transform API data into `TableRowType[]`
+- Always include a refresh button in the `ContentHeader` (see `user-admin-web-list-header.component.tsx` pattern)
+- Store pagination, sorting, and filter state in Redux (persisted where appropriate)
 
 ## New API Feature Implementation Checklist
 

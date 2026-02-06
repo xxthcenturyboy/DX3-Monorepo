@@ -134,20 +134,20 @@ See `docs/AX-INFRASTRUCTURE-SETUP.md` for detailed setup instructions.
 
 ## User Roles & Permissions
 
-The system implements a hierarchical role-based access control with the following roles (ordered by privilege level):
+The system implements a hierarchical role-based access control with the following roles (ordered by privilege level, using sparse numbering for future extensibility):
 
 | Role | Order | Description |
 |------|-------|-------------|
-| `USER` | 1 | Standard authenticated user |
-| `EDITOR` | 2 | Blog/content management (Phase 3) |
-| `ADMIN` | 3 | General admin access, user management |
-| `METRICS_ADMIN` | 4 | Business metrics and analytics dashboards |
-| `LOGGING_ADMIN` | 5 | System logs access (security-sensitive) |
-| `SUPER_ADMIN` | 6 | Full system access |
+| `USER` | 100 | Standard authenticated user |
+| `EDITOR` | 200 | Blog/content management (Phase 3) |
+| `ADMIN` | 300 | General admin access, user management |
+| `METRICS_ADMIN` | 400 | Business metrics and analytics dashboards |
+| `LOGGING_ADMIN` | 500 | System logs access (security-sensitive) |
+| `SUPER_ADMIN` | 1000 | Full system access |
 
 **Key Role Constants:**
 - `USER_ROLE` - Object with role name constants
-- `USER_ROLE_ORDER` - Maps roles to their hierarchy order
+- `USER_ROLE_ORDER` - Maps roles to their hierarchy order (sparse numbering allows inserting new roles)
 - `hasRoleOrHigher(userRoles, requiredRole)` - Utility for role hierarchy checks
 
 **Menu System:**
@@ -273,13 +273,21 @@ packages/
 **Adding New Web Feature:**
 1. Define scope and routes in `packages/web/web-app/src/app/routers/`
 2. Create dedicated component file (not `index.ts`)
-3. Use Redux Toolkit or RTK Query for state/data
-4. Use `useAppSelector` with memoized selectors
-5. Keep types local unless shared with API
-6. Follow existing UI patterns (ContentHeader, TableComponent, Dialog)
-7. Add i18n strings to `assets/locales/en.json`
-8. Connect to Socket.IO if real-time updates needed
-9. No barrel exports
+3. Always create Redux files: `*.reducer.ts`, `*.selectors.ts`, `*.types.ts`
+4. Use RTK Query for API calls, Redux state for UI/filter/pagination
+5. Use `useAppSelector` with memoized selectors from `*.selectors.ts`
+6. Keep types local unless shared with API
+7. Follow existing UI patterns (ContentHeader, TableComponent, Dialog)
+8. Add i18n strings to `assets/locales/en.json`
+9. Connect to Socket.IO if real-time updates needed
+10. No barrel exports
+
+**Table/List View Pattern:**
+- Create `*-list.service.ts` for table headers and row formatting
+- Use `getListHeaders()` static method for column definitions
+- Use `getRows(data)` method to transform API data into `TableRowType[]`
+- Always include refresh button in ContentHeader (see `user-admin-web-list-header.component.tsx`)
+- Store pagination, sorting, and filter state in Redux
 
 **Cross-Cutting:**
 - Centralize feature flag names/constants in shared models
