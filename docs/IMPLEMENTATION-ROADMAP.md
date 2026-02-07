@@ -1264,15 +1264,16 @@ document.head.appendChild(script)
 
 ### Phase 2 Completion Checklist
 
-- [ ] Task 2.1: Metrics schema deployed
-- [ ] Task 2.2: MetricsService implemented
-- [ ] Task 2.3: METRICS_ADMIN role created
-- [ ] Task 2.4: Metrics dashboard functional
-- [ ] Task 2.5: GTM + GA4 integrated
-- [ ] Deduplication strategy implemented
+- [x] Task 2.1: Metrics schema deployed (docs/sql/metrics-aggregates.sql with continuous aggregates)
+- [x] Task 2.2: MetricsService implemented (with recording wired into auth, media, user, support)
+- [x] Task 2.3: METRICS_ADMIN role created (order: 400, already seeded in Phase 0)
+- [x] Task 2.4: Metrics dashboard functional (admin-metrics feature with Redux, stat cards for DAU/WAU/MAU/signups)
+- [ ] Task 2.5: GTM + GA4 integrated (deferred - optional for marketing analytics)
+- [ ] Task 2.6: Charts/sparklines for growth visualization (deferred - add Recharts when needed, time-series API ready)
+- [ ] Deduplication strategy implemented (deferred - not needed without GA4)
 - [ ] All tests passing
 
-**Exit Criteria:** Hybrid metrics tracking operational, dashboards functional, GA4 integration working.
+**Exit Criteria:** TimescaleDB-based metrics tracking operational, dashboards functional. GA4 integration deferred as optional.
 
 ---
 
@@ -1366,12 +1367,12 @@ Phase 3 implements a full-featured blog/CMS system, including:
 
 ### Phase 2: Metrics Tracking
 
-- [ ] Metrics schema deployed
-- [ ] MetricsService working
-- [ ] METRICS_ADMIN role active
-- [ ] Metrics dashboard complete
-- [ ] GA4 integrated
-- [ ] Deduplication working
+- [x] Metrics schema deployed (docs/sql/metrics-aggregates.sql)
+- [x] MetricsService working (with recording integration in auth, media, user, support controllers)
+- [x] METRICS_ADMIN role active (order: 400)
+- [x] Metrics dashboard complete (admin-metrics feature with Redux)
+- [ ] GA4 integrated (deferred - not blocking)
+- [ ] Deduplication working (deferred - not blocking)
 
 ### Phase 3: Blog CMS
 

@@ -19,6 +19,11 @@ import {
   adminLogsReducer,
 } from '../admin-logs/admin-logs-web.reducer'
 import type { AdminLogsStateType } from '../admin-logs/admin-logs-web.types'
+import {
+  adminMetricsPersistConfig,
+  adminMetricsReducer,
+} from '../admin-metrics/admin-metrics-web.reducer'
+import type { AdminMetricsStateType } from '../admin-metrics/admin-metrics-web.types'
 import { authPersistConfig, authReducer } from '../auth/auth-web.reducer'
 import type { AuthStateType } from '../auth/auth-web.types'
 import { dashboardReducer } from '../dashboard/dashboard-web.reducer'
@@ -61,6 +66,10 @@ const combinedPersistReducers = combineReducers({
     adminLogsPersistConfig,
     adminLogsReducer,
   ) as typeof adminLogsReducer,
+  adminMetrics: persistReducer<AdminMetricsStateType, any>(
+    adminMetricsPersistConfig,
+    adminMetricsReducer,
+  ) as typeof adminMetricsReducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
   dashboard: dashboardReducer,
   featureFlags: persistReducer<FeatureFlagsStateType, any>(

@@ -5,12 +5,18 @@ import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.component'
 
 import { ADMIN_LOGS_ROUTES } from '../admin-logs/admin-logs-web.consts'
+import { ADMIN_METRICS_ROUTES } from '../admin-metrics/admin-metrics-web.consts'
 import { WebConfigService } from '../config/config-web.service'
 import { store } from '../store/store-web.redux'
 import { SUPPORT_ADMIN_ROUTES } from '../support/support.consts'
 
 const LazyAdminLogsListComponent = lazy(async () => ({
   default: (await import('../admin-logs/admin-logs-web-list.component')).AdminLogsListComponent,
+}))
+
+const LazyAdminMetricsDashboardComponent = lazy(async () => ({
+  default: (await import('../admin-metrics/admin-metrics-web-dashboard.component'))
+    .AdminMetricsDashboardComponent,
 }))
 
 const LazySupportAdminDetailComponent = lazy(async () => ({
@@ -65,6 +71,10 @@ export class AdminWebRouterConfig {
           {
             element: <LazyAdminLogsListComponent />,
             path: ADMIN_LOGS_ROUTES.LIST,
+          },
+          {
+            element: <LazyAdminMetricsDashboardComponent />,
+            path: ADMIN_METRICS_ROUTES.DASHBOARD,
           },
           {
             element: <LazySupportAdminListComponent />,

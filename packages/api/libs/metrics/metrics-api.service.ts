@@ -262,6 +262,44 @@ export class MetricsService {
   }
 
   /**
+   * Get real-time unique active users for a date range
+   * Queries the raw logs table directly for immediate visibility (no continuous aggregate delay)
+   *
+   * Multi-App Behavior:
+   * - Regular apps: Count for own APP_ID only
+   * - Parent dashboard (ax-admin): Count across all apps (or filter by specific appId)
+   */
+  async getRealTimeActiveUsers(startDate: Date, endDate: Date, appId?: string): Promise<number> {
+    let appFilter = ''
+    const params: unknown[] = [startDate, endDate]
+
+    if (IS_PARENT_DASHBOARD_APP) {
+      if (appId) {
+        appFilter = 'AND app_id = $3'
+        params.push(appId)
+      }
+    } else {
+      appFilter = 'AND app_id = $3'
+      params.push(APP_ID)
+    }
+
+    const result = await this.queryRaw<{ count: string }>(
+      `
+      SELECT COUNT(DISTINCT user_id) as count
+      FROM logs
+      WHERE event_type = 'METRIC_LOGIN'
+        AND created_at >= $1
+        AND created_at < $2
+        AND user_id IS NOT NULL
+        ${appFilter}
+    `,
+      params,
+    )
+
+    return Number.parseInt(result.rows[0]?.count ?? '0', 10)
+  }
+
+  /**
    * Get signup count for a date range
    *
    * Multi-App Behavior:

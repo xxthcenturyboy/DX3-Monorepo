@@ -76,7 +76,9 @@ export const MetricsController = {
   },
 
   /**
-   * Get growth metrics (DAU/WAU/MAU)
+   * Get growth metrics (DAU/WAU/MAU and signups)
+   * Returns aggregate single values for the dashboard stat cards
+   * Uses real-time queries against the logs table for immediate visibility
    */
   getGrowth: async (req: Request, res: Response) => {
     logRequest({ req, type: 'getMetricsGrowth' })
@@ -90,16 +92,34 @@ export const MetricsController = {
         )
       }
 
-      const { endDate, startDate } = parseDateRange(req.query.range as string)
       const appId = req.query.appId as string | undefined
 
-      const [dau, wau, mau] = await Promise.all([
-        metricsService.getDailyActiveUsers(startDate, endDate, appId),
-        metricsService.getWeeklyActiveUsers(startDate, endDate, appId),
-        metricsService.getMonthlyActiveUsers(startDate, endDate, appId),
-      ])
+      // Get date ranges for different metrics
+      const now = dayjs()
+      const todayStart = now.startOf('day').toDate()
+      const todayEnd = now.endOf('day').toDate()
+      const weekStart = now.subtract(7, 'day').startOf('day').toDate()
+      const monthStart = now.subtract(30, 'day').startOf('day').toDate()
 
-      return sendOK(req, res, { dau, mau, wau })
+      // Fetch all metrics in parallel using real-time queries for immediate visibility
+      const [dailyActiveUsers, weeklyActiveUsers, monthlyActiveUsers, signups7d, signups30d, totalSignups] =
+        await Promise.all([
+          metricsService.getRealTimeActiveUsers(todayStart, todayEnd, appId),
+          metricsService.getRealTimeActiveUsers(weekStart, todayEnd, appId),
+          metricsService.getRealTimeActiveUsers(monthStart, todayEnd, appId),
+          metricsService.getSignupCount(weekStart, todayEnd, appId),
+          metricsService.getSignupCount(monthStart, todayEnd, appId),
+          metricsService.getSignupCount(new Date(0), todayEnd, appId), // All time
+        ])
+
+      return sendOK(req, res, {
+        dailyActiveUsers,
+        monthlyActiveUsers,
+        signupsLast7Days: signups7d,
+        signupsLast30Days: signups30d,
+        totalSignups,
+        weeklyActiveUsers,
+      })
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getMetricsGrowth' })
       sendBadRequest(req, res, (err as Error).message)
