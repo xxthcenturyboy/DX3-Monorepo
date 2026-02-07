@@ -6,13 +6,14 @@ import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-respons
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import { UserService } from '@dx3/api-libs/user/user-api.service'
-import type {
-  CreateUserPayloadType,
-  GetUserQueryType,
-  GetUsersListQueryType,
-  UpdatePasswordPayloadType,
-  UpdateUsernamePayloadType,
-  UpdateUserPayloadType,
+import {
+  type CreateUserPayloadType,
+  type GetUserQueryType,
+  type GetUsersListQueryType,
+  METRIC_FEATURE_NAME,
+  type UpdatePasswordPayloadType,
+  type UpdateUsernamePayloadType,
+  type UpdateUserPayloadType,
 } from '@dx3/models-shared'
 
 export const UserController = {
@@ -148,7 +149,7 @@ export const UserController = {
       // Record profile update feature usage
       void MetricsService.instance?.recordFeatureUsage({
         context: { updatedFields: Object.keys(req.body || {}) },
-        featureName: 'profile_update',
+        featureName: METRIC_FEATURE_NAME.PROFILE_UPDATE,
         req,
       })
 
@@ -169,7 +170,7 @@ export const UserController = {
       // Record profile update feature usage
       void MetricsService.instance?.recordFeatureUsage({
         context: { updatedFields: ['username'] },
-        featureName: 'profile_update',
+        featureName: METRIC_FEATURE_NAME.PROFILE_UPDATE,
         req,
       })
 

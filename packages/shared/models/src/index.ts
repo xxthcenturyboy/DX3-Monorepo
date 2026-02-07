@@ -121,8 +121,11 @@ export {
   MAX_LOG_LIMIT,
   METRIC_EVENT_TYPE,
   METRIC_EVENT_TYPE_ARRAY,
+  METRIC_FEATURE_NAME,
   REDACTED_VALUE,
 } from './logging/logging-shared.consts'
+
+export type { MetricFeatureNameType } from './logging/logging-shared.consts'
 export type {
   AdminLogsSocketClientToServerEvents,
   AdminLogsSocketData,

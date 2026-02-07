@@ -22,6 +22,7 @@ import {
   DEFAULT_TIMEZONE,
   LOG_EVENT_TYPE,
   type LoginPayloadType,
+  METRIC_FEATURE_NAME,
   type UserLookupQueryType,
   type UserProfileStateType,
 } from '@dx3/models-shared'
@@ -276,7 +277,7 @@ export const AuthController = {
       // Record feature usage based on type
       void MetricsService.instance?.recordFeatureUsage({
         context: { purpose: 'otp' },
-        featureName: type === 'EMAIL' ? 'email_sent' : 'sms_sent',
+        featureName: type === 'EMAIL' ? METRIC_FEATURE_NAME.EMAIL_SENT : METRIC_FEATURE_NAME.SMS_SENT,
         req,
       })
 
@@ -297,7 +298,7 @@ export const AuthController = {
       // Record email sent feature usage
       void MetricsService.instance?.recordFeatureUsage({
         context: { purpose: 'otp' },
-        featureName: 'email_sent',
+        featureName: METRIC_FEATURE_NAME.EMAIL_SENT,
         req,
       })
 
@@ -322,7 +323,7 @@ export const AuthController = {
       // Record SMS sent feature usage
       void MetricsService.instance?.recordFeatureUsage({
         context: { purpose: 'otp' },
-        featureName: 'sms_sent',
+        featureName: METRIC_FEATURE_NAME.SMS_SENT,
         req,
       })
 

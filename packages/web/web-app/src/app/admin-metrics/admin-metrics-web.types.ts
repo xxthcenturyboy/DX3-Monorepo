@@ -28,7 +28,7 @@ export type MetricsSignupsByMethodType = {
 
 export type MetricsFeatureUsageType = {
   count: number
-  feature: string
+  featureName: string
 }
 
 export type AdminMetricsStateType = {

@@ -98,6 +98,20 @@ export const METRIC_EVENT_TYPE = {
 export const METRIC_EVENT_TYPE_ARRAY = Object.values(METRIC_EVENT_TYPE)
 
 // ============================================================================
+// Metric Feature Names (for METRIC_FEATURE_USED events)
+// ============================================================================
+
+export const METRIC_FEATURE_NAME = {
+  EMAIL_SENT: 'email_sent',
+  MEDIA_UPLOAD: 'media_upload',
+  PROFILE_UPDATE: 'profile_update',
+  SMS_SENT: 'sms_sent',
+  SUPPORT_REQUEST_CREATED: 'support_request_created',
+} as const
+
+export type MetricFeatureNameType = (typeof METRIC_FEATURE_NAME)[keyof typeof METRIC_FEATURE_NAME]
+
+// ============================================================================
 // Socket.IO Namespace
 // ============================================================================
 

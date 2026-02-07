@@ -9,6 +9,7 @@ import {
   MEDIA_SUB_TYPES,
   type MediaDataType,
   type MediaUploadResponseType,
+  METRIC_FEATURE_NAME,
   type UploadMediaHandlerParams,
 } from '@dx3/models-shared'
 
@@ -175,7 +176,7 @@ export const MediaApiController = {
           fileCount: successfulUploads,
           mediaSubType: fileMeta.mediaSubType,
         },
-        featureName: 'media_upload',
+        featureName: METRIC_FEATURE_NAME.MEDIA_UPLOAD,
         req,
       })
     }

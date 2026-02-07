@@ -14,6 +14,7 @@ import {
   DEFAULT_TIMEZONE,
   ERROR_CODES,
   type GetSupportRequestsListQueryType,
+  METRIC_FEATURE_NAME,
   type UpdateSupportRequestStatusPayloadType,
 } from '@dx3/models-shared'
 
@@ -73,7 +74,7 @@ export const SupportController = {
       // Record support request feature usage
       void MetricsService.instance?.recordFeatureUsage({
         context: { category: payload.category },
-        featureName: 'support_request_created',
+        featureName: METRIC_FEATURE_NAME.SUPPORT_REQUEST_CREATED,
         req,
       })
 

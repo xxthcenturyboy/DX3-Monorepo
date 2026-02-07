@@ -1,12 +1,10 @@
 import GroupIcon from '@mui/icons-material/Group'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import TodayIcon from '@mui/icons-material/Today'
+import TouchAppIcon from '@mui/icons-material/TouchApp'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import {
   Alert,
-  Box,
-  Card,
-  CardContent,
   CircularProgress,
   FormControl,
   Grid,
@@ -32,6 +30,7 @@ import {
   useLazyGetMetricsStatusQuery,
 } from './admin-metrics-web.api'
 import {
+  METRIC_FEATURE_I18N_KEYS,
   METRICS_DATE_RANGE_I18N_KEYS,
   METRICS_DATE_RANGES,
   type MetricsDateRangeType,
@@ -277,52 +276,34 @@ export const AdminMetricsDashboardComponent: React.FC = () => {
 
         {/* Feature Usage - only show if there are features */}
         {features.length > 0 && (
-          <Grid size={12}>
-            <Typography
-              sx={{ mb: 2, mt: 2 }}
-              variant="h6"
-            >
-              {strings.ADMIN_METRICS_FEATURE_USAGE}
-            </Typography>
-            <Grid
-              container
-              spacing={2}
-            >
-              {features.map((feature) => (
+          <>
+            <Grid size={12}>
+              <Typography
+                sx={{ mb: 1, mt: 2 }}
+                variant="h6"
+              >
+                {strings.ADMIN_METRICS_FEATURE_USAGE}
+              </Typography>
+            </Grid>
+            {features.map((feature) => {
+              const i18nKey = METRIC_FEATURE_I18N_KEYS[feature.featureName]
+              const label = i18nKey ? strings[i18nKey as keyof typeof strings] : feature.featureName
+
+              return (
                 <Grid
-                  key={feature.feature}
+                  key={feature.featureName}
                   size={{ md: 3, sm: 6, xs: 12 }}
                 >
-                  <Card
-                    elevation={1}
-                    variant="outlined"
-                  >
-                    <CardContent>
-                      <Typography
-                        color="text.secondary"
-                        variant="body2"
-                      >
-                        {feature.feature}
-                      </Typography>
-                      <Box
-                        sx={{
-                          alignItems: 'center',
-                          display: 'flex',
-                          minHeight: 28, // Match h6 line-height to prevent shrinking
-                        }}
-                      >
-                        {isFetching ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <Typography variant="h6">{feature.count}</Typography>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </Card>
+                  <StatCard
+                    icon={<TouchAppIcon />}
+                    label={label}
+                    loading={isFetching}
+                    value={feature.count}
+                  />
                 </Grid>
-              ))}
-            </Grid>
-          </Grid>
+              )
+            })}
+          </>
         )}
       </Grid>
     </ContentWrapper>
