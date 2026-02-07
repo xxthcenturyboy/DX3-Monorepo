@@ -4,7 +4,8 @@ import { RedisStore } from 'rate-limit-redis'
 
 import { sendOK, sendTooManyRequests } from '@dx3/api-libs/http-response/http-responses'
 import { REDIS_DELIMITER, RedisService } from '@dx3/api-libs/redis'
-import { APP_PREFIX } from '@dx3/models-shared'
+import { AdminLogsSocketService, LoggingService } from '@dx3/api-libs/timescale'
+import { APP_PREFIX, LOG_EVENT_TYPE } from '@dx3/models-shared'
 
 import { AUTH_ROUTES_V1_RATE_LIMIT } from '../auth/auth-api.consts'
 import { isDev } from '../config/config-api.service'
@@ -21,11 +22,34 @@ export class DxRateLimiters {
     next: NextFunction,
     options: { message: string },
   ) {
+    console.log('handleLimitCommon', isDev(), process.env.DISABLE_RATE_LIMIT)
     // Only bypass rate limiting if EXPLICITLY disabled in local development
     // This prevents accidental bypass in production if NODE_ENV is misconfigured
     if (isDev() && process.env.DISABLE_RATE_LIMIT === 'true') {
       return next()
     }
+
+    // Log rate limit exceeded to TimescaleDB
+    void LoggingService.instance?.log({
+      eventType: LOG_EVENT_TYPE.RATE_LIMIT_EXCEEDED,
+      ipAddress: req.ip,
+      message: options.message || RATE_LIMIT_MESSAGE,
+      metadata: { endpoint: req.originalUrl },
+      requestMethod: req.method,
+      requestPath: req.originalUrl,
+      success: false,
+      userAgent: req.headers['user-agent'],
+      userId: req.user?.id,
+    })
+
+    // Emit rate limit alert via Socket.IO to connected admins
+    AdminLogsSocketService.instance?.emitRateLimitAlert({
+      endpoint: req.originalUrl,
+      ipAddress: req.ip ?? 'unknown',
+      message: options.message || RATE_LIMIT_MESSAGE,
+      timestamp: new Date().toISOString(),
+      userId: req.user?.id,
+    })
 
     const url = req.originalUrl
     if (AUTH_ROUTES_V1_RATE_LIMIT.indexOf(url) > -1) {

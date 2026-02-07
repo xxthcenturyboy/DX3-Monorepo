@@ -109,7 +109,9 @@ export type AuthFailureAlertPayload = {
 export type RateLimitAlertPayload = {
   endpoint: string
   ipAddress: string
+  message?: string
   timestamp: string
+  userId?: string
 }
 
 /**

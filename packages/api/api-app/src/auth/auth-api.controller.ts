@@ -13,11 +13,13 @@ import {
 } from '@dx3/api-libs/http-response/http-responses'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
+import { LoggingService } from '@dx3/api-libs/timescale'
 import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
 import {
   type AccountCreationPayloadType,
   AUTH_TOKEN_NAMES,
   DEFAULT_TIMEZONE,
+  LOG_EVENT_TYPE,
   type LoginPayloadType,
   type UserLookupQueryType,
   type UserProfileStateType,
@@ -67,6 +69,18 @@ export const AuthController = {
         )
       }
 
+      // Log successful signup to TimescaleDB
+      void LoggingService.instance?.log({
+        eventType: LOG_EVENT_TYPE.USER_SIGNUP,
+        ipAddress: req.ip,
+        message: 'Account created successfully',
+        requestMethod: req.method,
+        requestPath: req.path,
+        success: true,
+        userAgent: req.headers['user-agent'],
+        userId: profile.id,
+      })
+
       sendOK(req, res, {
         accessToken: tokens.accessToken,
         profile,
@@ -94,12 +108,36 @@ export const AuthController = {
         await UserModel.updateRefreshToken(profile.id, tokens.refreshToken, true)
       }
 
+      // Log successful login to TimescaleDB
+      void LoggingService.instance?.log({
+        eventType: LOG_EVENT_TYPE.AUTH_SUCCESS,
+        ipAddress: req.ip,
+        message: 'Login successful',
+        requestMethod: req.method,
+        requestPath: req.path,
+        success: true,
+        userAgent: req.headers['user-agent'],
+        userId: profile.id,
+      })
+
       sendOK(req, res, {
         accessToken: tokens.accessToken,
         profile,
       })
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed login' })
+
+      // Log failed login to TimescaleDB (triggers auth failure tracking)
+      void LoggingService.instance?.log({
+        eventType: LOG_EVENT_TYPE.AUTH_FAILED,
+        ipAddress: req.ip,
+        message: (err as Error)?.message || 'Login failed',
+        requestMethod: req.method,
+        requestPath: req.path,
+        success: false,
+        userAgent: req.headers['user-agent'],
+      })
+
       sendBadRequest(req, res, err.message)
     }
   },
@@ -118,12 +156,17 @@ export const AuthController = {
         return sendOK(req, res, { loggedOut: false })
       }
 
-      // req.session.destroy((err: Error) => {
-      //   if (err) {
-      //     return sendBadRequest(req, res, err.message || 'Failed to destroy session');
-      //   }
-      //   ApiLoggingClass.instance.logInfo(`Session Destroyed: ${req.user?.id}`);
-      // });
+      // Log logout to TimescaleDB
+      void LoggingService.instance?.log({
+        eventType: LOG_EVENT_TYPE.AUTH_LOGOUT,
+        ipAddress: req.ip,
+        message: 'User logged out',
+        requestMethod: req.method,
+        requestPath: req.path,
+        success: true,
+        userAgent: req.headers['user-agent'],
+        userId: req.user?.id,
+      })
 
       sendOK(req, res, { loggedOut: true })
     } catch (err) {
