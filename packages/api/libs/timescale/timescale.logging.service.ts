@@ -437,6 +437,45 @@ export class LoggingService {
       return []
     }
   }
+
+  /**
+   * Execute a raw SQL query against TimescaleDB.
+   * Used by MetricsService for custom aggregate queries.
+   *
+   * SECURITY: All user-provided values MUST be passed via the params array.
+   * - Use parameterized placeholders ($1, $2, etc.) in the SQL string
+   * - NEVER interpolate user input directly into the SQL string
+   *
+   * @param sql The SQL query with parameterized placeholders
+   * @param params Values for the placeholders
+   * @returns Query result with rows and rowCount
+   */
+  public async queryRaw<T>(
+    sql: string,
+    params: unknown[],
+  ): Promise<{ rowCount: number; rows: T[] }> {
+    if (!this.isAvailable()) {
+      return { rowCount: 0, rows: [] }
+    }
+
+    const pool = this.connection?.getPool()
+    if (!pool) {
+      return { rowCount: 0, rows: [] }
+    }
+
+    try {
+      const result = await pool.query<T>(sql, params)
+      return {
+        rowCount: result.rowCount ?? 0,
+        rows: result.rows,
+      }
+    } catch (error) {
+      this.logger.logError('Failed to execute raw query on TimescaleDB', {
+        error: (error as Error).message,
+      })
+      return { rowCount: 0, rows: [] }
+    }
+  }
 }
 
 export type LoggingServiceType = typeof LoggingService.prototype

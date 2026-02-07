@@ -2,7 +2,7 @@ import type { Request, Response } from 'express'
 
 import { sendBadRequest, sendOK, sendServiceUnavailable } from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
-import { LoggingService } from '@dx3/api-libs/timescale'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 import type { GetLogsQueryType } from '@dx3/models-shared'
 
 export const AdminLogsController = {

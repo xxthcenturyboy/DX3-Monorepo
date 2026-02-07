@@ -4,7 +4,8 @@ import { RedisStore } from 'rate-limit-redis'
 
 import { sendOK, sendTooManyRequests } from '@dx3/api-libs/http-response/http-responses'
 import { REDIS_DELIMITER, RedisService } from '@dx3/api-libs/redis'
-import { AdminLogsSocketService, LoggingService } from '@dx3/api-libs/timescale'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
+import { AdminLogsSocketService } from '@dx3/api-libs/timescale/timescale.logging.socket'
 import { APP_PREFIX, LOG_EVENT_TYPE } from '@dx3/models-shared'
 
 import { AUTH_ROUTES_V1_RATE_LIMIT } from '../auth/auth-api.consts'

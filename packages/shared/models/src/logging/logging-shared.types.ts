@@ -3,13 +3,14 @@
  * Types for centralized logging infrastructure (TimescaleDB)
  */
 
-import type { LOG_EVENT_TYPE } from './logging-shared.consts'
+import type { LOG_EVENT_TYPE, METRIC_EVENT_TYPE } from './logging-shared.consts'
 
 // ============================================================================
 // Core Log Types
 // ============================================================================
 
 export type LogEventType = (typeof LOG_EVENT_TYPE)[keyof typeof LOG_EVENT_TYPE]
+export type MetricEventType = (typeof METRIC_EVENT_TYPE)[keyof typeof METRIC_EVENT_TYPE]
 
 export type LogRecordType = {
   appId?: string // Injected by LoggingService from APP_ID env

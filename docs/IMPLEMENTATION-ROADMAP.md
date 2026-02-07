@@ -1289,7 +1289,7 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - Blog post CRUD operations
 - Markdown rendering (existing capability)
 - Draft/schedule/publish workflow
-- Revision history
+- Revision historye
 - SEO optimization (SSR)
 - Editor role
 

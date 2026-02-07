@@ -13,7 +13,8 @@ import {
 } from '@dx3/api-libs/http-response/http-responses'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
-import { LoggingService } from '@dx3/api-libs/timescale'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
 import {
   type AccountCreationPayloadType,
@@ -24,6 +25,7 @@ import {
   type UserLookupQueryType,
   type UserProfileStateType,
 } from '@dx3/models-shared'
+import { regexEmail } from '@dx3/utils-shared'
 
 export const AuthController = {
   authLookup: async (req: Request, res: Response) => {
@@ -81,6 +83,14 @@ export const AuthController = {
         userId: profile.id,
       })
 
+      // Record signup metric for business analytics
+      const signupPayload = req.body as AccountCreationPayloadType
+      void MetricsService.instance?.recordSignup({
+        method: regexEmail.test(signupPayload.value) ? 'email' : 'phone',
+        req,
+        userId: profile.id,
+      })
+
       sendOK(req, res, {
         accessToken: tokens.accessToken,
         profile,
@@ -119,6 +129,17 @@ export const AuthController = {
         userAgent: req.headers['user-agent'],
         userId: profile.id,
       })
+
+      // Record login metric for business analytics
+      const loginPayload = req.body as LoginPayloadType
+      void MetricsService.instance?.recordLogin({
+        method: loginPayload.biometric ? 'biometric' : regexEmail.test(loginPayload.value) ? 'email' : 'phone',
+        req,
+        userId: profile.id,
+      })
+
+      // Record session start
+      void MetricsService.instance?.recordSessionStart({ req, userId: profile.id })
 
       sendOK(req, res, {
         accessToken: tokens.accessToken,
@@ -168,6 +189,15 @@ export const AuthController = {
         userId: req.user?.id,
       })
 
+      // Record logout metric for business analytics
+      void MetricsService.instance?.recordLogout({
+        req,
+        userId: req.user?.id,
+      })
+
+      // Record session end
+      void MetricsService.instance?.recordSessionEnd({ reason: 'logout', req, userId: req.user?.id })
+
       sendOK(req, res, { loggedOut: true })
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed logout' })
@@ -203,6 +233,13 @@ export const AuthController = {
       CookeiService.setRefreshCookie(res, tokens.refreshToken, tokens.refreshTokenExp)
       try {
         await UserModel.updateRefreshToken(userId as string, tokens.refreshToken)
+
+        // Record session continuation on token refresh
+        void MetricsService.instance?.recordSessionStart({
+          req,
+          userId: userId as string,
+        })
+
         return sendOK(req, res, {
           accessToken: tokens.accessToken,
         })
@@ -236,6 +273,13 @@ export const AuthController = {
       const service = new AuthService()
       const result = await service.sentOtpById(id, type)
 
+      // Record feature usage based on type
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { purpose: 'otp' },
+        featureName: type === 'EMAIL' ? 'email_sent' : 'sms_sent',
+        req,
+      })
+
       sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed sendOtpById' })
@@ -249,6 +293,13 @@ export const AuthController = {
       const { email, strict } = req.body as { email: string; strict?: boolean }
       const service = new AuthService()
       const result = await service.sendOtpToEmail(email, strict)
+
+      // Record email sent feature usage
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { purpose: 'otp' },
+        featureName: 'email_sent',
+        req,
+      })
 
       sendOK(req, res, result)
     } catch (err) {
@@ -267,6 +318,13 @@ export const AuthController = {
       }
       const service = new AuthService()
       const result = await service.sendOtpToPhone(phone, regionCode, strict)
+
+      // Record SMS sent feature usage
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { purpose: 'otp' },
+        featureName: 'sms_sent',
+        req,
+      })
 
       sendOK(req, res, result)
     } catch (err) {

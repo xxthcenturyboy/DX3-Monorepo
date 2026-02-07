@@ -8,6 +8,7 @@ import { DevicesRoutes } from '../devices/devices-api.routes'
 import { EmailRoutes } from '../email/email-api.routes'
 import { FeatureFlagRoutes } from '../feature-flags/feature-flag-api.routes'
 import { MediaApiV1Routes } from '../media/media-api.routes'
+import { MetricsRoutes } from '../metrics/metrics-api.routes'
 import { NotificationRoutes } from '../notifications/notification-api.routes'
 import { PhoneRoutes } from '../phone/phone-api.routes'
 import { ShortlinkRoutes } from '../shortlink/shortlink-api.routes'
@@ -24,6 +25,7 @@ export class RoutesV1 {
     router.use('/email', EmailRoutes.configure())
     router.use('/feature-flag', FeatureFlagRoutes.configure())
     router.use('/media', MediaApiV1Routes.configure())
+    router.use('/metrics', MetricsRoutes.configure())
     router.use('/notification', NotificationRoutes.configure())
     router.use('/phone', PhoneRoutes.configure())
     router.use('/privilege-set', UserPrivilegeRoutes.configure())

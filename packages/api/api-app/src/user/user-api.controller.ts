@@ -4,6 +4,7 @@ import { TokenService } from '@dx3/api-libs/auth/tokens/token.service'
 import { HeaderService } from '@dx3/api-libs/headers/header.service'
 import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import { UserService } from '@dx3/api-libs/user/user-api.service'
 import type {
   CreateUserPayloadType,
@@ -143,6 +144,14 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.updateUser(id, req.body as UpdateUserPayloadType)
+
+      // Record profile update feature usage
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { updatedFields: Object.keys(req.body || {}) },
+        featureName: 'profile_update',
+        req,
+      })
+
       return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateUser' })
@@ -156,6 +165,14 @@ export const UserController = {
       const { id } = req.params as { id: string }
       const service = new UserService()
       const result = await service.updateUserName(id, req.body as UpdateUsernamePayloadType)
+
+      // Record profile update feature usage
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { updatedFields: ['username'] },
+        featureName: 'profile_update',
+        req,
+      })
+
       return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateUserName' })

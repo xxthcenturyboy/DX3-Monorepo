@@ -41,6 +41,15 @@ export const LOG_EVENT_TYPE = {
   MEDIA_PROCESSED: 'MEDIA_PROCESSED',
   MEDIA_UPLOADED: 'MEDIA_UPLOADED',
 
+  // Metric Events (business analytics - used by MetricsService)
+  METRIC_FEATURE_USED: 'METRIC_FEATURE_USED',
+  METRIC_LOGIN: 'METRIC_LOGIN',
+  METRIC_LOGOUT: 'METRIC_LOGOUT',
+  METRIC_PAGE_VIEW: 'METRIC_PAGE_VIEW',
+  METRIC_SESSION_END: 'METRIC_SESSION_END',
+  METRIC_SESSION_START: 'METRIC_SESSION_START',
+  METRIC_SIGNUP: 'METRIC_SIGNUP',
+
   // Notification Events
   NOTIFICATION_READ: 'NOTIFICATION_READ',
   NOTIFICATION_SENT: 'NOTIFICATION_SENT',
@@ -71,6 +80,22 @@ export const LOG_EVENT_TYPE = {
 } as const
 
 export const LOG_EVENT_TYPE_ARRAY = Object.values(LOG_EVENT_TYPE)
+
+// ============================================================================
+// Metric Event Types (subset of LOG_EVENT_TYPE for MetricsService)
+// ============================================================================
+
+export const METRIC_EVENT_TYPE = {
+  METRIC_FEATURE_USED: 'METRIC_FEATURE_USED',
+  METRIC_LOGIN: 'METRIC_LOGIN',
+  METRIC_LOGOUT: 'METRIC_LOGOUT',
+  METRIC_PAGE_VIEW: 'METRIC_PAGE_VIEW',
+  METRIC_SESSION_END: 'METRIC_SESSION_END',
+  METRIC_SESSION_START: 'METRIC_SESSION_START',
+  METRIC_SIGNUP: 'METRIC_SIGNUP',
+} as const
+
+export const METRIC_EVENT_TYPE_ARRAY = Object.values(METRIC_EVENT_TYPE)
 
 // ============================================================================
 // Socket.IO Namespace

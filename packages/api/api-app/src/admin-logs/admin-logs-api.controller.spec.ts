@@ -3,7 +3,7 @@ import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
 import { sendBadRequest, sendOK, sendServiceUnavailable } from '@dx3/api-libs/http-response/http-responses'
-import { LoggingService } from '@dx3/api-libs/timescale'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 
 import { AdminLogsController } from './admin-logs-api.controller'
 
@@ -20,7 +20,7 @@ const mockLoggingService = {
   isAvailable: jest.fn(),
 }
 
-jest.mock('@dx3/api-libs/timescale', () => ({
+jest.mock('@dx3/api-libs/timescale/timescale.logging.service', () => ({
   LoggingService: {
     instance: null,
   },

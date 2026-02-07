@@ -6,7 +6,9 @@ dotenv.config()
 import express from 'express'
 
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
-import { LoggingService, TimescaleConnection } from '@dx3/api-libs/timescale'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
+import { TimescaleConnection } from '@dx3/api-libs/timescale/timescale.connection'
 
 import { getApiConfig } from './config/config-api'
 import { API_APP_NAME } from './config/config-api.consts'
@@ -39,15 +41,16 @@ async function run() {
     logger.logInfo('Failed to instantiate S3')
   }
 
-  // Initialize TimescaleDB for centralized logging (optional - graceful degradation)
+  // Initialize TimescaleDB for centralized logging and metrics (optional - graceful degradation)
   const timescale = new TimescaleConnection()
   const timescaleConnected = await timescale.initialize()
   if (timescaleConnected) {
-    // Initialize LoggingService singleton
+    // Initialize LoggingService and MetricsService singletons
     new LoggingService()
-    logger.logInfo('TimescaleDB: Connected (centralized logging enabled)')
+    new MetricsService()
+    logger.logInfo('TimescaleDB: Connected (centralized logging and metrics enabled)')
   } else {
-    logger.logInfo('TimescaleDB: Not connected (centralized logging disabled)')
+    logger.logInfo('TimescaleDB: Not connected (centralized logging and metrics disabled)')
   }
 
   const config = getApiConfig(logger, postgres, redis)

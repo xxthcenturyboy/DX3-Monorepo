@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 import { send400, sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MediaApiService } from '@dx3/api-libs/media/media-api.service'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import {
   MEDIA_SUB_TYPES,
   type MediaDataType,
@@ -164,6 +165,19 @@ export const MediaApiController = {
 
     if (uploadId) {
       void service.clearUpload(uploadId)
+    }
+
+    // Record media upload feature usage
+    const successfulUploads = results.filter((r) => r.ok).length
+    if (successfulUploads > 0) {
+      void MetricsService.instance?.recordFeatureUsage({
+        context: {
+          fileCount: successfulUploads,
+          mediaSubType: fileMeta.mediaSubType,
+        },
+        featureName: 'media_upload',
+        req,
+      })
     }
 
     sendOK(req, res, results)

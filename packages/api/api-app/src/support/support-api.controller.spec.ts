@@ -2,7 +2,8 @@ import { SupportController } from './support-api.controller'
 
 jest.mock('@dx3/api-libs/auth/tokens/token.service')
 jest.mock('@dx3/api-libs/headers/header.service')
-jest.mock('@dx3/api-libs/support')
+jest.mock('@dx3/api-libs/support/support-api.service')
+jest.mock('@dx3/api-libs/support/support-api.socket')
 jest.mock('@dx3/api-libs/logger/log-request.util')
 
 describe('SupportController', () => {

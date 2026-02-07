@@ -23,7 +23,7 @@ export function isTimescaleEnabled(): boolean {
  *
  * @example
  * ```ts
- * import { getTimescaleUriForEnvironment } from '@dx3/api-libs/timescale'
+ * import { getTimescaleUriForEnvironment } from '@dx3/api-libs/timescale/timescale.environment'
  *
  * // In container: returns TIMESCALE_URI as-is (postgres://user:pass@ax-timescaledb:5432/ax_logs)
  * // On host: swaps to localhost:5434 (postgres://user:pass@localhost:5434/ax_logs)

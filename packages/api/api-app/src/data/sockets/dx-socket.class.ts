@@ -4,8 +4,8 @@ import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { NotificationSocketApiService } from '@dx3/api-libs/notifications/notification-api.socket'
 import { SocketApiConnection } from '@dx3/api-libs/socket-io-api'
-import { SupportSocketApiService } from '@dx3/api-libs/support'
-import { AdminLogsSocketService } from '@dx3/api-libs/timescale'
+import { SupportSocketApiService } from '@dx3/api-libs/support/support-api.socket'
+import { AdminLogsSocketService } from '@dx3/api-libs/timescale/timescale.logging.socket'
 
 import { webUrl } from '../../config/config-api.service'
 

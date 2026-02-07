@@ -4,7 +4,9 @@ import { TokenService } from '@dx3/api-libs/auth/tokens/token.service'
 import { HeaderService } from '@dx3/api-libs/headers/header.service'
 import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
-import { SupportService, SupportSocketApiService } from '@dx3/api-libs/support'
+import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
+import { SupportService } from '@dx3/api-libs/support/support-api.service'
+import { SupportSocketApiService } from '@dx3/api-libs/support/support-api.socket'
 import { UserModel } from '@dx3/api-libs/user/user-api.postgres-model'
 import { createApiErrorMessage } from '@dx3/api-libs/utils'
 import {
@@ -67,6 +69,13 @@ export const SupportController = {
       if (SupportSocketApiService.instance) {
         SupportSocketApiService.instance.sendNewRequestNotification(result)
       }
+
+      // Record support request feature usage
+      void MetricsService.instance?.recordFeatureUsage({
+        context: { category: payload.category },
+        featureName: 'support_request_created',
+        req,
+      })
 
       return sendOK(req, res, result)
     } catch (err) {

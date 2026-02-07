@@ -99,6 +99,8 @@ export type {
 export {
   HEADER_API_VERSION_PROP,
   HEADER_CLIENT_FINGERPRINT_PROP,
+  HEADER_DEVICE_ID_PROP,
+  MOBILE_USER_AGENT_IDENTIFIER,
 } from './headers/headers-shared.const'
 // HEALTHZ Types
 export type {
@@ -117,6 +119,8 @@ export {
   LOG_EVENT_TYPE_ARRAY,
   LOG_RETENTION_DAYS,
   MAX_LOG_LIMIT,
+  METRIC_EVENT_TYPE,
+  METRIC_EVENT_TYPE_ARRAY,
   REDACTED_VALUE,
 } from './logging/logging-shared.consts'
 export type {
@@ -134,6 +138,7 @@ export type {
   LogsDailyAggregateType,
   LogsHourlyAggregateType,
   LogsStatsResponseType,
+  MetricEventType,
   RateLimitAlertPayload,
   SecurityAlertPayload,
 } from './logging/logging-shared.types'
