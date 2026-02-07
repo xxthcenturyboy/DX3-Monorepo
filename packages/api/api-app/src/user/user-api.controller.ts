@@ -14,6 +14,7 @@ import {
   type UpdatePasswordPayloadType,
   type UpdateUsernamePayloadType,
   type UpdateUserPayloadType,
+  USER_ROLE,
 } from '@dx3/models-shared'
 
 export const UserController = {
@@ -130,8 +131,32 @@ export const UserController = {
     logRequest({ req, type: 'updateRoleRestrictions' })
     try {
       const { id } = req.params as { id: string }
+      const payload = req.body as UpdateUserPayloadType
+      const currentUser = req.user
       const service = new UserService()
-      const result = await service.updateRolesAndRestrictions(id, req.body as UpdateUserPayloadType)
+
+      // Validate that non-SUPER_ADMIN users cannot modify ADMIN or SUPER_ADMIN roles
+      if (!currentUser?.isSuperAdmin && payload.roles) {
+        const privilegedRoles: string[] = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]
+
+        // Get the target user's current roles to detect changes
+        const targetUser = await service.getUser(id, currentUser?.id || '')
+        const currentRoles: string[] = targetUser?.roles || []
+
+        // Check if ADMIN or SUPER_ADMIN roles are being added or removed
+        const isAddingPrivilegedRole = payload.roles.some(
+          (role: string) => privilegedRoles.includes(role) && !currentRoles.includes(role),
+        )
+        const isRemovingPrivilegedRole = currentRoles.some(
+          (role: string) => privilegedRoles.includes(role) && !payload.roles.includes(role),
+        )
+
+        if (isAddingPrivilegedRole || isRemovingPrivilegedRole) {
+          return sendBadRequest(req, res, 'Only SUPER_ADMIN users can modify ADMIN or SUPER_ADMIN roles')
+        }
+      }
+
+      const result = await service.updateRolesAndRestrictions(id, payload)
       return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed updateRolesRestrictions' })

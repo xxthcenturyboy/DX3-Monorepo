@@ -253,7 +253,17 @@ export const UserAdminEdit: React.FC = () => {
   }
 
   const handleRoleClick = async (clickedRole: string): Promise<void> => {
-    if (!currentUser?.sa) {
+    const isPrivilegedRole = clickedRole === USER_ROLE.ADMIN || clickedRole === USER_ROLE.SUPER_ADMIN
+    const canEditRoles = currentUser?.sa || currentUser?.a
+
+    // Non-admin users cannot edit any roles
+    if (!canEditRoles) {
+      setAlertRoleOpen(true)
+      return
+    }
+
+    // Only SUPER_ADMIN can modify ADMIN or SUPER_ADMIN roles
+    if (isPrivilegedRole && !currentUser?.sa) {
       setAlertRoleOpen(true)
       return
     }
@@ -601,9 +611,12 @@ export const UserAdminEdit: React.FC = () => {
                   : roles
 
                 return displayRoles.map((role, _index) => {
-                  // Only SUPER_ADMIN users can grant/revoke SUPER_ADMIN role
-                  const isSuperAdminRole = role.role === USER_ROLE.SUPER_ADMIN
-                  const isDisabled = isSuperAdminRole && !currentUser?.sa
+                  // Determine if current user can edit this role
+                  const isPrivilegedRole = role.role === USER_ROLE.SUPER_ADMIN || role.role === USER_ROLE.ADMIN
+                  const canEditRoles = currentUser?.sa || currentUser?.a
+
+                  // Disabled if: user can't edit any roles, OR it's a privileged role and user is not SUPER_ADMIN
+                  const isDisabled = !canEditRoles || (isPrivilegedRole && !currentUser?.sa)
 
                   return (
                     <Grid
