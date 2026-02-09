@@ -251,10 +251,7 @@ export class MetricsService {
    * Execute a raw SQL query (delegates to LoggingService)
    * Used by MetricsController for custom aggregate queries
    */
-  async queryRaw<T>(
-    sql: string,
-    params: unknown[],
-  ): Promise<{ rowCount: number; rows: T[] }> {
+  async queryRaw<T>(sql: string, params: unknown[]): Promise<{ rowCount: number; rows: T[] }> {
     if (!this.loggingService) {
       return { rowCount: 0, rows: [] }
     }
@@ -306,11 +303,7 @@ export class MetricsService {
    * - Regular apps: Count for own APP_ID only
    * - Parent dashboard (ax-admin): Count across all apps (or filter by specific appId)
    */
-  async getSignupCount(
-    startDate: Date,
-    endDate: Date,
-    appId?: string,
-  ): Promise<number> {
+  async getSignupCount(startDate: Date, endDate: Date, appId?: string): Promise<number> {
     let appFilter = ''
     const params: unknown[] = [startDate, endDate]
 

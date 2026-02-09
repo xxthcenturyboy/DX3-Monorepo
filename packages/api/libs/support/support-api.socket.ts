@@ -99,7 +99,9 @@ export class SupportSocketApiService {
       if (userId) {
         // Join the admin room for broadcast notifications
         socket.join(ADMIN_ROOM)
-        this.logger.logInfo(`Support socket: Admin ${userId} connected (roles: ${roles.join(', ')})`)
+        this.logger.logInfo(
+          `Support socket: Admin ${userId} connected (roles: ${roles.join(', ')})`,
+        )
       }
 
       // Handle explicit room join
@@ -120,14 +122,18 @@ export class SupportSocketApiService {
   public sendNewRequestNotification(request: SupportRequestType) {
     try {
       if (!this.ns) {
-        this.logger.logError('SupportSocketApiService: Cannot send notification - namespace not initialized')
+        this.logger.logError(
+          'SupportSocketApiService: Cannot send notification - namespace not initialized',
+        )
         return
       }
 
       this.ns.to(ADMIN_ROOM).emit('newSupportRequest', request)
       this.logger.logInfo(`Support socket: Sent new request notification for ${request.id}`)
     } catch (err) {
-      this.logger.logError(`Support socket: Error sending new request notification: ${(err as Error).message}`)
+      this.logger.logError(
+        `Support socket: Error sending new request notification: ${(err as Error).message}`,
+      )
     }
   }
 
@@ -137,14 +143,18 @@ export class SupportSocketApiService {
   public sendRequestUpdatedNotification(request: SupportRequestType) {
     try {
       if (!this.ns) {
-        this.logger.logError('SupportSocketApiService: Cannot send notification - namespace not initialized')
+        this.logger.logError(
+          'SupportSocketApiService: Cannot send notification - namespace not initialized',
+        )
         return
       }
 
       this.ns.to(ADMIN_ROOM).emit('supportRequestUpdated', request)
       this.logger.logInfo(`Support socket: Sent update notification for ${request.id}`)
     } catch (err) {
-      this.logger.logError(`Support socket: Error sending update notification: ${(err as Error).message}`)
+      this.logger.logError(
+        `Support socket: Error sending update notification: ${(err as Error).message}`,
+      )
     }
   }
 }

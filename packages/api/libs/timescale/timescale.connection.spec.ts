@@ -32,6 +32,7 @@ jest.mock('../logger', () => ({
 }))
 
 import { Pool } from 'pg'
+
 import { getTimescaleUriForEnvironment, isTimescaleEnabled } from './timescale.environment'
 
 const mockIsTimescaleEnabled = isTimescaleEnabled as jest.MockedFunction<typeof isTimescaleEnabled>
@@ -91,10 +92,10 @@ describe('TimescaleConnection', () => {
     it('should use custom config when provided', async () => {
       // Clear any previous initialization state
       MockPool.mockClear()
-      
+
       // Close existing pool to allow re-initialization
       await connection.close()
-      
+
       mockIsTimescaleEnabled.mockReturnValue(true)
       mockGetTimescaleUriForEnvironment.mockReturnValue('postgresql://user:pass@localhost:5434/db')
 

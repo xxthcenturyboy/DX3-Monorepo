@@ -5,6 +5,7 @@ import Check from '@mui/icons-material/Check'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Dashboard from '@mui/icons-material/Dashboard'
+import EditDocument from '@mui/icons-material/EditDocument'
 import Flag from '@mui/icons-material/Flag'
 import HealthAndSafety from '@mui/icons-material/HealthAndSafety'
 import HelpOutline from '@mui/icons-material/HelpOutline'
@@ -43,6 +44,9 @@ export const getIcon = (name: IconNames, color?: string): React.ReactElement | n
   }
   if (name === IconNames.DASHBOARD) {
     return <Dashboard style={{ color }} />
+  }
+  if (name === IconNames.EDIT_DOCUMENT) {
+    return <EditDocument style={{ color }} />
   }
   if (name === IconNames.FLAG) {
     return <Flag style={{ color }} />

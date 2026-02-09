@@ -68,9 +68,10 @@ export const AppMenuItem: React.FC<AppMenuItemItemProps> = (props) => {
       }
     }
 
-    // Use startsWith for non-sub-items to prevent /support matching /admin/support
+    // Use exact or prefix-with-slash match for non-sub-items to prevent /blog
+    // matching /blog-editor (pathname.startsWith('/blog') would match both)
     if (!isSubItem) {
-      return pathname.startsWith(route)
+      return pathname === route || pathname.startsWith(`${route}/`)
     }
 
     return false

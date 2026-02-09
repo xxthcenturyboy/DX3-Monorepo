@@ -1,5 +1,9 @@
 import type { Model, ModelCtor } from 'sequelize-typescript'
 
+import { BlogCategoryModel } from '@dx3/api-libs/blog/blog-category-api.postgres-model'
+import { BlogPostModel } from '@dx3/api-libs/blog/blog-post-api.postgres-model'
+import { BlogPostRevisionModel } from '@dx3/api-libs/blog/blog-post-revision-api.postgres-model'
+import { BlogTagModel } from '@dx3/api-libs/blog/blog-tag-api.postgres-model'
 import { DeviceModel } from '@dx3/api-libs/devices/device-api.postgres-model'
 import { EmailModel } from '@dx3/api-libs/email/email-api.postgres-model'
 import { FeatureFlagModel } from '@dx3/api-libs/feature-flags/feature-flag-api.postgres-model'
@@ -16,6 +20,10 @@ import { UserPrivilegeSetModel } from '@dx3/api-libs/user-privilege/user-privile
 export function getPostgresModels(): ModelCtor[] {
   const models: ModelCtor[] = []
 
+  models.push(BlogCategoryModel)
+  models.push(BlogPostModel)
+  models.push(BlogPostRevisionModel)
+  models.push(BlogTagModel)
   models.push(DeviceModel)
   models.push(EmailModel)
   models.push(FeatureFlagModel)

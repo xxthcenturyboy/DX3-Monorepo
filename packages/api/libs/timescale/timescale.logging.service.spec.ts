@@ -1,7 +1,7 @@
 import { LOG_EVENT_TYPE } from '@dx3/models-shared'
 
-import { LoggingService } from './timescale.logging.service'
 import { TimescaleConnection } from './timescale.connection'
+import { LoggingService } from './timescale.logging.service'
 
 // Mock dependencies
 jest.mock('./timescale.connection', () => ({
@@ -68,10 +68,10 @@ describe('LoggingService', () => {
 
     it('should insert log and return entry', async () => {
       const mockLogEntry = {
-        id: 'test-id',
         appId: 'dx3-default',
         createdAt: '2026-02-05T00:00:00Z',
         eventType: LOG_EVENT_TYPE.API_REQUEST,
+        id: 'test-id',
         success: true,
       }
 
@@ -138,10 +138,11 @@ describe('LoggingService', () => {
         success: true,
       })
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE'),
-        ['test-app', LOG_EVENT_TYPE.AUTH_SUCCESS, true],
-      )
+      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('WHERE'), [
+        'test-app',
+        LOG_EVENT_TYPE.AUTH_SUCCESS,
+        true,
+      ])
     })
 
     it('should validate orderBy to prevent SQL injection', async () => {
@@ -197,16 +198,13 @@ describe('LoggingService', () => {
     })
 
     it('should filter by appId when provided', async () => {
-      mockPool.query
-        .mockResolvedValueOnce({ rows: [] })
-        .mockResolvedValueOnce({ rows: [] })
+      mockPool.query.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] })
 
       await loggingService.getStats({ appId: 'test-app' })
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE app_id = $1'),
-        ['test-app'],
-      )
+      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('WHERE app_id = $1'), [
+        'test-app',
+      ])
     })
   })
 
@@ -220,18 +218,13 @@ describe('LoggingService', () => {
     })
 
     it('should query recent error logs', async () => {
-      const mockErrors = [
-        { id: '1', success: false, eventType: LOG_EVENT_TYPE.API_ERROR },
-      ]
+      const mockErrors = [{ eventType: LOG_EVENT_TYPE.API_ERROR, id: '1', success: false }]
       mockPool.query.mockResolvedValue({ rows: mockErrors })
 
       const result = await loggingService.getRecentErrors()
 
       expect(result).toEqual(mockErrors)
-      expect(mockPool.query).toHaveBeenCalledWith(
-        expect.stringContaining('success = false'),
-        [],
-      )
+      expect(mockPool.query).toHaveBeenCalledWith(expect.stringContaining('success = false'), [])
     })
   })
 })

@@ -26,6 +26,7 @@ import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component'
 
 import { AboutComponent } from '../about/about-web.component'
+import { BlogPostComponent } from '../blog/blog-post-web.component'
 import { BlogComponent } from '../blog/blog-web.component'
 import { WebConfigService } from '../config/config-web.service'
 import { FaqComponent } from '../faq/faq-web.component'
@@ -162,6 +163,10 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
         {
           element: <BlogComponent />,
           path: ROUTES.BLOG,
+        },
+        {
+          element: <BlogPostComponent />,
+          path: `${ROUTES.BLOG}/:slug`,
         },
       ],
       element: <SsrRoot />,

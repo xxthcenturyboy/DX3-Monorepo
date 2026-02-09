@@ -14,11 +14,7 @@ export class SupportRoutes {
     router.all('/*', [ensureLoggedIn])
 
     // User endpoints (authenticated users)
-    router.post(
-      '/',
-      DxRateLimiters.veryStrict(),
-      SupportController.createRequest,
-    )
+    router.post('/', DxRateLimiters.veryStrict(), SupportController.createRequest)
 
     // Admin endpoints
     router.get('/list', hasAdminRole, SupportController.getList)

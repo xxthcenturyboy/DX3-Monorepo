@@ -1,5 +1,6 @@
 import { hasRoleOrHigher, USER_ROLE } from '@dx3/models-shared'
 
+import { blogEditorMenu } from '../../blog/admin/blog-editor.menu'
 import { dashboardMenu } from '../../dashboard/dashboard.menu'
 import { supportMenu } from '../../support/support-web.menu'
 import { userProfileMenu } from '../../user/profile/user-profile.menu'
@@ -26,6 +27,7 @@ export class MenuConfigService {
   CARDINAL_MENU_SET: AppMenuType[] = [
     dashboardMenu(),
     publicMenuAuthenticated(),
+    blogEditorMenu(),
     userProfileMenu(),
     supportMenu(),
     adminMenu(),

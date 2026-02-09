@@ -29,11 +29,11 @@ class SsrMetrics {
    * Increment a counter metric
    */
   public increment(name: string, tags: MetricTags = {}): void {
-    if (!this.counters.has(name)) {
-      this.counters.set(name, [])
+    let entries = this.counters.get(name)
+    if (!entries) {
+      entries = []
+      this.counters.set(name, entries)
     }
-
-    const entries = this.counters.get(name)!
     const existing = entries.find((e) => this.tagsMatch(e.tags, tags))
 
     if (existing) {
@@ -47,18 +47,19 @@ class SsrMetrics {
    * Record a histogram value (for timing, sizes, etc.)
    */
   public histogram(name: string, value: number, tags: MetricTags = {}): void {
-    if (!this.histograms.has(name)) {
-      this.histograms.set(name, [])
+    let entries = this.histograms.get(name)
+    if (!entries) {
+      entries = []
+      this.histograms.set(name, entries)
     }
 
-    this.histograms.get(name)!.push({
+    entries.push({
       tags,
       timestamp: Date.now(),
       value,
     })
 
     // Keep only last 1000 entries per metric to prevent memory leak
-    const entries = this.histograms.get(name)!
     if (entries.length > 1000) {
       entries.shift()
     }
@@ -68,18 +69,19 @@ class SsrMetrics {
    * Set a gauge value (for current state metrics like memory usage)
    */
   public gauge(name: string, value: number, tags: MetricTags = {}): void {
-    if (!this.gauges.has(name)) {
-      this.gauges.set(name, [])
+    let entries = this.gauges.get(name)
+    if (!entries) {
+      entries = []
+      this.gauges.set(name, entries)
     }
 
-    this.gauges.get(name)!.push({
+    entries.push({
       tags,
       timestamp: Date.now(),
       value,
     })
 
     // Keep only last 100 gauge values per metric
-    const entries = this.gauges.get(name)!
     if (entries.length > 100) {
       entries.shift()
     }
@@ -196,10 +198,12 @@ class SsrMetrics {
         const grouped = new Map<string, HistogramEntry[]>()
         for (const entry of entries) {
           const tagKey = this.formatTags(entry.tags)
-          if (!grouped.has(tagKey)) {
-            grouped.set(tagKey, [])
+          let tagEntries = grouped.get(tagKey)
+          if (!tagEntries) {
+            tagEntries = []
+            grouped.set(tagKey, tagEntries)
           }
-          grouped.get(tagKey)!.push(entry)
+          tagEntries.push(entry)
         }
 
         for (const [tagKey, tagEntries] of grouped) {
@@ -225,8 +229,9 @@ class SsrMetrics {
         if (latest) {
           const tags = this.formatTags(latest.tags)
           const unit = name.includes('memory') ? 'MB' : ''
-          const value =
-            name.includes('memory') ? (latest.value / 1024 / 1024).toFixed(1) : latest.value.toFixed(2)
+          const value = name.includes('memory')
+            ? (latest.value / 1024 / 1024).toFixed(1)
+            : latest.value.toFixed(2)
           console.log(`  ${name}${tags ? ` [${tags}]` : ''}: ${value}${unit}`)
         }
       }

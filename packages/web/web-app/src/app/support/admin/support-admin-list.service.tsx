@@ -200,7 +200,10 @@ export class SupportAdminWebListService {
     return row
   }
 
-  public getRows(supportData: SupportRequestWithUserType[], selectedIds: string[] = []): TableRowType[] {
+  public getRows(
+    supportData: SupportRequestWithUserType[],
+    selectedIds: string[] = [],
+  ): TableRowType[] {
     const rows: TableRowType[] = []
     for (const sd of supportData) {
       const data = this.getRowData(sd, selectedIds)

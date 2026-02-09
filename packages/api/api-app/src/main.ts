@@ -5,10 +5,12 @@ dotenv.config()
 
 import express from 'express'
 
+import { BlogService } from '@dx3/api-libs/blog/blog-api.service'
+import { startBlogScheduler } from '@dx3/api-libs/blog/blog-scheduler.service'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
-import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 import { TimescaleConnection } from '@dx3/api-libs/timescale/timescale.connection'
+import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 
 import { getApiConfig } from './config/config-api'
 import { API_APP_NAME } from './config/config-api.consts'
@@ -62,6 +64,8 @@ async function run() {
 
   const apiRoutes = new ApiRoutes(app)
   apiRoutes.loadRoutes()
+
+  startBlogScheduler(new BlogService())
 
   const server = app.listen(config.port, config.host, () => {
     logger.logInfo(

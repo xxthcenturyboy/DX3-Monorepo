@@ -1,5 +1,4 @@
 import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
-
 import type { MetricsDateRangeType } from './admin-metrics-web.consts'
 import type {
   MetricsFeatureUsageType,

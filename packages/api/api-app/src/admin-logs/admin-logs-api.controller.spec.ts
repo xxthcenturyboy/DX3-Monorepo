@@ -2,7 +2,11 @@ import type { Request as IRequest, Response as IResponse } from 'express'
 import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
-import { sendBadRequest, sendOK, sendServiceUnavailable } from '@dx3/api-libs/http-response/http-responses'
+import {
+  sendBadRequest,
+  sendOK,
+  sendServiceUnavailable,
+} from '@dx3/api-libs/http-response/http-responses'
 import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 
 import { AdminLogsController } from './admin-logs-api.controller'
@@ -35,7 +39,8 @@ describe('AdminLogsController', () => {
     req = new Request() as unknown as IRequest
     res = new Response() as unknown as IResponse
     req.query = {}
-    ;(LoggingService as unknown as { instance: typeof mockLoggingService }).instance = mockLoggingService
+    ;(LoggingService as unknown as { instance: typeof mockLoggingService }).instance =
+      mockLoggingService
   })
 
   describe('getLogs', () => {

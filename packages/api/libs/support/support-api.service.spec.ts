@@ -179,9 +179,7 @@ describe('SupportService', () => {
     it('should throw error if request not found', async () => {
       ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue(null)
 
-      await expect(service.getById('non-existent-id')).rejects.toThrow(
-        'Support request not found',
-      )
+      await expect(service.getById('non-existent-id')).rejects.toThrow('Support request not found')
     })
   })
 
@@ -279,10 +277,7 @@ describe('SupportService', () => {
     it('should bulk update status', async () => {
       ;(SupportRequestModel.updateStatus as jest.Mock).mockResolvedValue([1])
 
-      const result = await service.bulkUpdateStatus(
-        ['id-1', 'id-2', 'id-3'],
-        SUPPORT_STATUS.CLOSED,
-      )
+      const result = await service.bulkUpdateStatus(['id-1', 'id-2', 'id-3'], SUPPORT_STATUS.CLOSED)
 
       expect(result.success).toBe(true)
       expect(result.updated).toBe(3)

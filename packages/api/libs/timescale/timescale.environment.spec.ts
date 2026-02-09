@@ -7,7 +7,9 @@ jest.mock('../config/config-api.service', () => ({
 
 import { isRunningInContainer } from '../config/config-api.service'
 
-const mockIsRunningInContainer = isRunningInContainer as jest.MockedFunction<typeof isRunningInContainer>
+const mockIsRunningInContainer = isRunningInContainer as jest.MockedFunction<
+  typeof isRunningInContainer
+>
 
 describe('timescale.environment', () => {
   const originalEnv = process.env

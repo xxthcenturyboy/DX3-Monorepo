@@ -26,10 +26,7 @@ type FailureEntry = {
   lastAlertLevel: 'critical' | 'none' | 'warning'
 }
 
-type AlertCallback = (
-  level: 'critical' | 'warning',
-  payload: AuthFailureAlertPayload,
-) => void
+type AlertCallback = (level: 'critical' | 'warning', payload: AuthFailureAlertPayload) => void
 
 /**
  * AuthFailureTracker
@@ -129,9 +126,7 @@ export class AuthFailureTracker {
     // Critical threshold (10+)
     if (entry.count >= ALERT_THRESHOLDS.CRITICAL && entry.lastAlertLevel !== 'critical') {
       entry.lastAlertLevel = 'critical'
-      this.logger.logWarn(
-        `Auth failure CRITICAL: ${entry.count} failures from ${key} in 5 minutes`,
-      )
+      this.logger.logWarn(`Auth failure CRITICAL: ${entry.count} failures from ${key} in 5 minutes`)
       if (this.alertCallback) {
         this.alertCallback('critical', payload)
       }
@@ -145,9 +140,7 @@ export class AuthFailureTracker {
       entry.lastAlertLevel === 'none'
     ) {
       entry.lastAlertLevel = 'warning'
-      this.logger.logInfo(
-        `Auth failure warning: ${entry.count} failures from ${key} in 5 minutes`,
-      )
+      this.logger.logInfo(`Auth failure warning: ${entry.count} failures from ${key} in 5 minutes`)
       if (this.alertCallback) {
         this.alertCallback('warning', payload)
       }

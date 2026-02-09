@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
 import type { RootState } from '../store/store-web.redux'
-import { AdminLogsWebListService } from './admin-logs-web-list.service'
 import type { AdminLogsStateType } from './admin-logs-web.types'
+import { AdminLogsWebListService } from './admin-logs-web-list.service'
 
 const getLogs = (state: RootState): AdminLogsStateType['logs'] => state.adminLogs.logs
 

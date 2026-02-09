@@ -14,10 +14,8 @@ import {
 
 import type { StatsStateType, UserProfileStateType } from '@dx3/models-shared'
 
-import {
-  adminLogsPersistConfig,
-  adminLogsReducer,
-} from '../admin-logs/admin-logs-web.reducer'
+import { adminLogsPersistConfig, adminLogsReducer } from '../admin-logs/admin-logs-web.reducer'
+import { blogEditorReducer } from '../blog/admin/blog-admin-web.reducer'
 import type { AdminLogsStateType } from '../admin-logs/admin-logs-web.types'
 import {
   adminMetricsPersistConfig,
@@ -41,9 +39,9 @@ import type { MediaStateType } from '../media/media-web.types'
 import { notificationReducer } from '../notifications/notification-web.reducer'
 import { statsPersistConfig, statsReducer } from '../stats/stats-web.reducer'
 import {
+  type SupportAdminStateType,
   supportAdminPersistConfig,
   supportAdminReducer,
-  type SupportAdminStateType,
 } from '../support/store/support-admin-web.reducer'
 import { supportReducer } from '../support/store/support-web.reducer'
 import { uiPersistConfig, uiReducer } from '../ui/store/ui-web.reducer'
@@ -71,6 +69,7 @@ const combinedPersistReducers = combineReducers({
     adminMetricsReducer,
   ) as typeof adminMetricsReducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
+  blogEditor: blogEditorReducer,
   dashboard: dashboardReducer,
   featureFlags: persistReducer<FeatureFlagsStateType, any>(
     featureFlagsPersistConfig,

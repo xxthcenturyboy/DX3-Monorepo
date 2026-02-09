@@ -37,9 +37,9 @@ import {
 } from './admin-metrics-web.consts'
 import { adminMetricsActions } from './admin-metrics-web.reducer'
 import { selectAdminMetricsState } from './admin-metrics-web.selectors'
+import type { MetricsFeatureUsageType, MetricsGrowthDataType } from './admin-metrics-web.types'
 import { AdminMetricsDashboardHeaderComponent } from './admin-metrics-web-dashboard-header.component'
 import { StatCard } from './admin-metrics-web-stat-card.component'
-import type { MetricsFeatureUsageType, MetricsGrowthDataType } from './admin-metrics-web.types'
 
 export const AdminMetricsDashboardComponent: React.FC = () => {
   const theme = useTheme()

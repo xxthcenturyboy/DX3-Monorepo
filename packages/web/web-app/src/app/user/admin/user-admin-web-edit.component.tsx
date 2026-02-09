@@ -253,7 +253,8 @@ export const UserAdminEdit: React.FC = () => {
   }
 
   const handleRoleClick = async (clickedRole: string): Promise<void> => {
-    const isPrivilegedRole = clickedRole === USER_ROLE.ADMIN || clickedRole === USER_ROLE.SUPER_ADMIN
+    const isPrivilegedRole =
+      clickedRole === USER_ROLE.ADMIN || clickedRole === USER_ROLE.SUPER_ADMIN
     const canEditRoles = currentUser?.sa || currentUser?.a
 
     // Non-admin users cannot edit any roles
@@ -270,8 +271,7 @@ export const UserAdminEdit: React.FC = () => {
 
     // Check if user is trying to remove SUPER_ADMIN from themselves
     const isRemovingSuperAdmin =
-      clickedRole === USER_ROLE.SUPER_ADMIN &&
-      user?.roles?.includes(USER_ROLE.SUPER_ADMIN)
+      clickedRole === USER_ROLE.SUPER_ADMIN && user?.roles?.includes(USER_ROLE.SUPER_ADMIN)
     const isEditingOwnUser = currentUser?.id === user?.id
 
     if (isRemovingSuperAdmin && isEditingOwnUser) {
@@ -612,7 +612,8 @@ export const UserAdminEdit: React.FC = () => {
 
                 return displayRoles.map((role, _index) => {
                   // Determine if current user can edit this role
-                  const isPrivilegedRole = role.role === USER_ROLE.SUPER_ADMIN || role.role === USER_ROLE.ADMIN
+                  const isPrivilegedRole =
+                    role.role === USER_ROLE.SUPER_ADMIN || role.role === USER_ROLE.ADMIN
                   const canEditRoles = currentUser?.sa || currentUser?.a
 
                   // Disabled if: user can't edit any roles, OR it's a privileged role and user is not SUPER_ADMIN
@@ -722,8 +723,8 @@ export const UserAdminEdit: React.FC = () => {
       body={
         <ConfirmationDialog
           bodyMessage={strings.CONFIRM_REMOVE_OWN_SUPER_ADMIN}
-          cancelText={strings.CANCEL}
           cancellingText={strings.CANCEL}
+          cancelText={strings.CANCEL}
           noAwait={true}
           okText={strings.CONFIRM}
           onComplete={handleSuperAdminRemovalConfirm}
@@ -805,7 +806,10 @@ export const UserAdminEdit: React.FC = () => {
 
         {/** Tabs Section */}
         {id && (
-          <Paper elevation={2} sx={{ marginTop: '24px' }}>
+          <Paper
+            elevation={2}
+            sx={{ marginTop: '24px' }}
+          >
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs
                 onChange={(_e, newValue) => setActiveTab(newValue)}

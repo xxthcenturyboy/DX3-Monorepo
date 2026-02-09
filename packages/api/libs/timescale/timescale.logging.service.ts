@@ -396,7 +396,10 @@ export class LoggingService {
     const { appId, limit = 50, minutesBack = 60 } = options ?? {}
 
     try {
-      const conditions = ['success = false', `created_at >= NOW() - INTERVAL '${minutesBack} minutes'`]
+      const conditions = [
+        'success = false',
+        `created_at >= NOW() - INTERVAL '${minutesBack} minutes'`,
+      ]
       const params: unknown[] = []
 
       if (appId) {

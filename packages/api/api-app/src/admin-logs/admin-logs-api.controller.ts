@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express'
 
-import { sendBadRequest, sendOK, sendServiceUnavailable } from '@dx3/api-libs/http-response/http-responses'
+import {
+  sendBadRequest,
+  sendOK,
+  sendServiceUnavailable,
+} from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { LoggingService } from '@dx3/api-libs/timescale/timescale.logging.service'
 import type { GetLogsQueryType } from '@dx3/models-shared'
@@ -30,7 +34,8 @@ export const AdminLogsController = {
         orderBy: req.query.orderBy as string | undefined,
         sortDir: req.query.sortDir as 'ASC' | 'DESC' | undefined,
         startDate: req.query.startDate as string | undefined,
-        success: req.query.success === 'true' ? true : req.query.success === 'false' ? false : undefined,
+        success:
+          req.query.success === 'true' ? true : req.query.success === 'false' ? false : undefined,
         userId: req.query.userId as string | undefined,
       }
 
@@ -60,7 +65,9 @@ export const AdminLogsController = {
       const options = {
         appId: req.query.appId as string | undefined,
         limit: req.query.limit ? Number.parseInt(req.query.limit as string, 10) : undefined,
-        minutesBack: req.query.minutesBack ? Number.parseInt(req.query.minutesBack as string, 10) : undefined,
+        minutesBack: req.query.minutesBack
+          ? Number.parseInt(req.query.minutesBack as string, 10)
+          : undefined,
       }
 
       const result = await loggingService.getRecentErrors(options)
@@ -88,7 +95,9 @@ export const AdminLogsController = {
 
       const options = {
         appId: req.query.appId as string | undefined,
-        daysBack: req.query.daysBack ? Number.parseInt(req.query.daysBack as string, 10) : undefined,
+        daysBack: req.query.daysBack
+          ? Number.parseInt(req.query.daysBack as string, 10)
+          : undefined,
       }
 
       const result = await loggingService.getStats(options)

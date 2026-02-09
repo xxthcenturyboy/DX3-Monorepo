@@ -14,25 +14,18 @@ import {
 import type React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 
-import {
-  type GetLogsQueryType,
-  LOG_EVENT_TYPE_ARRAY,
-  type LogEventType,
-} from '@dx3/models-shared'
+import { type GetLogsQueryType, LOG_EVENT_TYPE_ARRAY, type LogEventType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 
 import { useI18n } from '../i18n'
 import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
-import {
-  useLazyGetAdminLogsQuery,
-  useLazyGetAdminLogsStatusQuery,
-} from './admin-logs-web.api'
+import { useLazyGetAdminLogsQuery, useLazyGetAdminLogsStatusQuery } from './admin-logs-web.api'
 import { adminLogsActions } from './admin-logs-web.reducer'
 import { selectAdminLogsState, selectLogsListData } from './admin-logs-web.selectors'
-import { AdminLogsListHeaderComponent } from './admin-logs-web-list-header.component'
 import { AdminLogsWebListService } from './admin-logs-web-list.service'
+import { AdminLogsListHeaderComponent } from './admin-logs-web-list-header.component'
 
 export const AdminLogsListComponent: React.FC = () => {
   const theme = useTheme()
@@ -80,12 +73,18 @@ export const AdminLogsListComponent: React.FC = () => {
   const fetchLogsData = async (overrides?: Partial<GetLogsQueryType>) => {
     setIsFetching(true)
     const params: GetLogsQueryType = {
-      eventType: overrides?.eventType !== undefined ? overrides.eventType : eventTypeFilter || undefined,
+      eventType:
+        overrides?.eventType !== undefined ? overrides.eventType : eventTypeFilter || undefined,
       limit: overrides?.limit ?? limit,
       offset: overrides?.offset ?? offset,
       orderBy: overrides?.orderBy ?? orderBy,
       sortDir: overrides?.sortDir ?? sortDir,
-      success: overrides?.success !== undefined ? overrides.success : successFilter === '' ? undefined : successFilter,
+      success:
+        overrides?.success !== undefined
+          ? overrides.success
+          : successFilter === ''
+            ? undefined
+            : successFilter,
     }
 
     const result = await fetchLogs(params)
@@ -144,9 +143,7 @@ export const AdminLogsListComponent: React.FC = () => {
             severity="warning"
             sx={{ maxWidth: '600px', width: '100%' }}
           >
-            <Typography variant="body1">
-              {strings.ADMIN_LOGS_UNAVAILABLE}
-            </Typography>
+            <Typography variant="body1">{strings.ADMIN_LOGS_UNAVAILABLE}</Typography>
           </Alert>
         </Grid>
       </ContentWrapper>

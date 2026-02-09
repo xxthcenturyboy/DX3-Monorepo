@@ -30,10 +30,8 @@ import { store } from '../store/store-web.redux'
 export class AdminLogsWebSockets {
   static #instance: AdminLogsWebSocketsType | null = null
 
-  socket: Socket<
-    AdminLogsSocketServerToClientEvents,
-    AdminLogsSocketClientToServerEvents
-  > | null = null
+  socket: Socket<AdminLogsSocketServerToClientEvents, AdminLogsSocketClientToServerEvents> | null =
+    null
 
   constructor() {
     void this.setupSocket()

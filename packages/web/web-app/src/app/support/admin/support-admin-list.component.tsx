@@ -40,14 +40,13 @@ import {
   selectSupportRequestWithUserRowData,
 } from '../store/support-admin-web.selector'
 import { supportActions } from '../store/support-web.reducer'
-import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS } from '../support.consts'
+import { CATEGORY_LABEL_KEYS, STATUS_LABEL_KEYS, SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import {
   useBulkUpdateSupportStatusMutation,
   useLazyGetSupportRequestListQuery,
   useLazyGetSupportUnviewedCountQuery,
   useMarkAllSupportAsViewedMutation,
 } from '../support-web.api'
-import { SUPPORT_ADMIN_ROUTES } from '../support.consts'
 import { SupportAdminWebListService } from './support-admin-list.service'
 import { SupportAdminListHeaderComponent } from './support-admin-list-header.component'
 

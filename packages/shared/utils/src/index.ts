@@ -33,6 +33,7 @@ export {
   obfuscateEmail,
   obfuscatePhone,
   sentenceToTitleCase,
+  slugify,
   stringToTitleCase,
   stripHyphens,
   truncateString,

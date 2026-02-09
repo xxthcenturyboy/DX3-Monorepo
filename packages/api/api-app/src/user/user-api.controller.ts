@@ -152,7 +152,11 @@ export const UserController = {
         )
 
         if (isAddingPrivilegedRole || isRemovingPrivilegedRole) {
-          return sendBadRequest(req, res, 'Only SUPER_ADMIN users can modify ADMIN or SUPER_ADMIN roles')
+          return sendBadRequest(
+            req,
+            res,
+            'Only SUPER_ADMIN users can modify ADMIN or SUPER_ADMIN roles',
+          )
         }
       }
 

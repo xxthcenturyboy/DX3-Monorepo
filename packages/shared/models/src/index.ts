@@ -21,6 +21,27 @@ export type {
   UserLookupQueryType,
   UserLookupResponseType,
 } from './auth/auth-shared.types'
+// BLOG Types
+export {
+  BLOG_DEFAULTS,
+  BLOG_POST_STATUS,
+  BLOG_POST_STATUS_ARRAY,
+} from './blog/blog-shared.consts'
+export type {
+  BlogCategoryType,
+  BlogPostRevisionType,
+  BlogPostStatusType,
+  BlogPostType,
+  BlogPostWithAuthorType,
+  BlogTagType,
+  CreateBlogPostPayloadType,
+  GetBlogPostsAdminQueryType,
+  GetBlogPostsAdminResponseType,
+  GetBlogPostsQueryType,
+  GetBlogPostsResponseType,
+  ScheduleBlogPostPayloadType,
+  UpdateBlogPostPayloadType,
+} from './blog/blog-shared.types'
 // Config
 export {
   APP_DESCRIPTION,
@@ -111,6 +132,7 @@ export type {
   HealthzStatusType,
   RedisHealthzResponse,
 } from './healthz/heathz-shared.types'
+export type { MetricFeatureNameType } from './logging/logging-shared.consts'
 // Logging Types
 export {
   ADMIN_LOGS_SOCKET_NS,
@@ -124,8 +146,6 @@ export {
   METRIC_FEATURE_NAME,
   REDACTED_VALUE,
 } from './logging/logging-shared.consts'
-
-export type { MetricFeatureNameType } from './logging/logging-shared.consts'
 export type {
   AdminLogsSocketClientToServerEvents,
   AdminLogsSocketData,
@@ -199,6 +219,8 @@ export type {
   ServerToClientEvents,
   SocketData,
 } from './socket-io/socket-shared.types'
+// STATS Types
+export type { StatsStateType } from './stats/stats-model-web.types'
 // SUPPORT Types
 export {
   SUPPORT_CATEGORY,
@@ -226,8 +248,6 @@ export type {
   SupportUnviewedCountResponseType,
   UpdateSupportRequestStatusPayloadType,
 } from './support/support-shared.types'
-// STATS Types
-export type { StatsStateType } from './stats/stats-model-web.types'
 // USER Types
 export { isUsernameValid } from './user/isUsernameValid'
 export { DEFAULT_TIMEZONE, USERNAME_MIN_LENGTH } from './user/user-shared.consts'

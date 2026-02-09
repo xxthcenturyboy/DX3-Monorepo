@@ -1,5 +1,6 @@
 import { ADMIN_LOGS_ROUTES } from '../admin-logs/admin-logs-web.consts'
 import { AUTH_ROUTES } from '../auth/auth-web.consts'
+import { BLOG_EDITOR_ROUTES } from '../blog/admin/blog-admin-web.consts'
 import { DASHBOARD_ROUTES } from '../dashboard/dashboard-web.consts'
 import { SHORTLINK_ROUTES } from '../shortlink/shortlink-web.consts'
 import { STATS_SUDO_ROUTES } from '../stats/stats-web.consts'
@@ -24,6 +25,7 @@ export class WebConfigService {
     return {
       ABOUT: '/about',
       ADMIN: {
+        BLOG: BLOG_EDITOR_ROUTES,
         LOGS: ADMIN_LOGS_ROUTES,
         USER: USER_ADMIN_ROUTES,
       },

@@ -32,6 +32,10 @@ const LazyBlogComponent = lazy(async () => ({
   default: (await import('../blog/blog-web.component')).BlogComponent,
 }))
 
+const LazyBlogPostComponent = lazy(async () => ({
+  default: (await import('../blog/blog-post-web.component')).BlogPostComponent,
+}))
+
 export class AppRouter {
   public static getRouter() {
     const ROUTES = WebConfigService.getWebRoutes()
@@ -66,6 +70,10 @@ export class AppRouter {
           {
             element: <LazyBlogComponent />,
             path: ROUTES.BLOG,
+          },
+          {
+            element: <LazyBlogPostComponent />,
+            path: `${ROUTES.BLOG}/:slug`,
           },
           ...PrivateWebRouterConfig.getRouter(),
           {

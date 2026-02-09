@@ -147,9 +147,7 @@ export class AdminLogsSocketService {
         this.ns.to(LOG_ROOMS.ERROR_LOGS).emit('error-log', log)
       }
     } catch (err) {
-      this.logger.logError(
-        `AdminLogs socket: Error broadcasting log: ${(err as Error).message}`,
-      )
+      this.logger.logError(`AdminLogs socket: Error broadcasting log: ${(err as Error).message}`)
     }
   }
 
@@ -252,9 +250,7 @@ export class AdminLogsSocketService {
         return
       }
       this.ns.to(LOG_ROOMS.ALL_LOGS).emit('security_alert', payload)
-      this.logger.logWarn(
-        `AdminLogs alert: Security alert sent (type: ${payload.alertType})`,
-      )
+      this.logger.logWarn(`AdminLogs alert: Security alert sent (type: ${payload.alertType})`)
     } catch (err) {
       this.logger.logError(
         `AdminLogs socket: Error emitting security_alert: ${(err as Error).message}`,

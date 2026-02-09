@@ -104,6 +104,7 @@ export type StringKeys = {
   ADMIN_METRICS_UNAVAILABLE: string
   ADMIN_METRICS_WAU: string
   ADMINS: string
+  ALL: string
   ALL_USERS: string
   API_HEALTH: string
   APP_MENU: string
@@ -128,7 +129,26 @@ export type StringKeys = {
   BETA: string
   BETA_USERS: string
   BLOG: string
+  BLOG_CREATE_NEW_POST: string
+  BLOG_CREATE_POST: string
+  BLOG_EDITOR_COMING_SOON_DESC: string
+  BLOG_EDITOR_MENU: string
+  BLOG_EDITOR_TITLE: string
+  BLOG_EDIT_POST_ID: string
+  BLOG_EDIT_POST_TITLE: string
+  BLOG_LOADING: string
+  BLOG_NEW_POST_TITLE: string
+  BLOG_NO_POSTS: string
+  BLOG_NO_POSTS_FOUND: string
   BLOG_PAGE_TITLE: string
+  BLOG_POST_NOT_FOUND: string
+  BLOG_READ_MORE: string
+  BLOG_READING_TIME_MIN: string
+  BLOG_RELATED_POSTS: string
+  BLOG_STATUS_ARCHIVED: string
+  BLOG_STATUS_DRAFT: string
+  BLOG_STATUS_PUBLISHED: string
+  BLOG_STATUS_SCHEDULED: string
   CANCEL: string
   CANCELING: string
   CHANGE_PASSWORD: string
@@ -252,6 +272,8 @@ export type StringKeys = {
   PING: string
   PROFILE: string
   PROFILE_UPDATED: string
+  PREVIEW: string
+  PREVIEW_NOT_PUBLISHED: string
   PUBLIC_PAGES: string
   READ: string
   REFRESH: string
@@ -273,6 +295,7 @@ export type StringKeys = {
   SET_AS_DEFAULT: string
   SIGNUP: string
   SIGNUP_FOR_AN_ACCOUNT: string
+  SLUG: string
   SSR_HEALTH: string
   SSR_SERVER: string
   START_OVER: string

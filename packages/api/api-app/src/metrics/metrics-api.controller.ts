@@ -1,7 +1,11 @@
 import dayjs from 'dayjs'
 import type { Request, Response } from 'express'
 
-import { sendBadRequest, sendOK, sendServiceUnavailable } from '@dx3/api-libs/http-response/http-responses'
+import {
+  sendBadRequest,
+  sendOK,
+  sendServiceUnavailable,
+} from '@dx3/api-libs/http-response/http-responses'
 import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 
@@ -102,15 +106,21 @@ export const MetricsController = {
       const monthStart = now.subtract(30, 'day').startOf('day').toDate()
 
       // Fetch all metrics in parallel using real-time queries for immediate visibility
-      const [dailyActiveUsers, weeklyActiveUsers, monthlyActiveUsers, signups7d, signups30d, totalSignups] =
-        await Promise.all([
-          metricsService.getRealTimeActiveUsers(todayStart, todayEnd, appId),
-          metricsService.getRealTimeActiveUsers(weekStart, todayEnd, appId),
-          metricsService.getRealTimeActiveUsers(monthStart, todayEnd, appId),
-          metricsService.getSignupCount(weekStart, todayEnd, appId),
-          metricsService.getSignupCount(monthStart, todayEnd, appId),
-          metricsService.getSignupCount(new Date(0), todayEnd, appId), // All time
-        ])
+      const [
+        dailyActiveUsers,
+        weeklyActiveUsers,
+        monthlyActiveUsers,
+        signups7d,
+        signups30d,
+        totalSignups,
+      ] = await Promise.all([
+        metricsService.getRealTimeActiveUsers(todayStart, todayEnd, appId),
+        metricsService.getRealTimeActiveUsers(weekStart, todayEnd, appId),
+        metricsService.getRealTimeActiveUsers(monthStart, todayEnd, appId),
+        metricsService.getSignupCount(weekStart, todayEnd, appId),
+        metricsService.getSignupCount(monthStart, todayEnd, appId),
+        metricsService.getSignupCount(new Date(0), todayEnd, appId), // All time
+      ])
 
       return sendOK(req, res, {
         dailyActiveUsers,

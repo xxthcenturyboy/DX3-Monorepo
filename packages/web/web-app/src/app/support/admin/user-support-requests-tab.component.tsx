@@ -12,8 +12,8 @@ import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hook
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { supportAdminActions } from '../store/support-admin-web.reducer'
 import { selectUserTabSupportRequestRowData } from '../store/support-admin-web.selector'
-import { useLazyGetSupportRequestListQuery } from '../support-web.api'
 import { SUPPORT_ADMIN_ROUTES } from '../support.consts'
+import { useLazyGetSupportRequestListQuery } from '../support-web.api'
 import { UserSupportRequestListService } from './user-support-requests-list.service'
 
 type UserSupportRequestsTabProps = {

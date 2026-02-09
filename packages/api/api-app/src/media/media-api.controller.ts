@@ -7,9 +7,9 @@ import { MediaApiService } from '@dx3/api-libs/media/media-api.service'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import {
   MEDIA_SUB_TYPES,
+  METRIC_FEATURE_NAME,
   type MediaDataType,
   type MediaUploadResponseType,
-  METRIC_FEATURE_NAME,
   type UploadMediaHandlerParams,
 } from '@dx3/models-shared'
 

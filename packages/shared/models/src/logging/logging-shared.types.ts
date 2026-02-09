@@ -129,10 +129,10 @@ export type AdminLogsSocketServerToClientEvents = {
   'error-log': (log: LogEntryType) => void
   'new-log': (log: LogEntryType) => void
   // Threshold-based alerts
-  'auth_failure_critical': (payload: AuthFailureAlertPayload) => void
-  'auth_failure_warning': (payload: AuthFailureAlertPayload) => void
-  'rate_limit_alert': (payload: RateLimitAlertPayload) => void
-  'security_alert': (payload: SecurityAlertPayload) => void
+  auth_failure_critical: (payload: AuthFailureAlertPayload) => void
+  auth_failure_warning: (payload: AuthFailureAlertPayload) => void
+  rate_limit_alert: (payload: RateLimitAlertPayload) => void
+  security_alert: (payload: SecurityAlertPayload) => void
 }
 
 export type AdminLogsSocketClientToServerEvents = {

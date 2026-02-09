@@ -1,14 +1,28 @@
 import { lazy, Suspense } from 'react'
 import { Outlet, type RouteObject } from 'react-router'
 
+import { hasRoleOrHigher, USER_ROLE } from '@dx3/models-shared'
 import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { UnauthorizedComponent } from '@dx3/web-libs/ui/global/unauthorized.component'
 
 import { ADMIN_LOGS_ROUTES } from '../admin-logs/admin-logs-web.consts'
 import { ADMIN_METRICS_ROUTES } from '../admin-metrics/admin-metrics-web.consts'
+import { BLOG_EDITOR_ROUTES } from '../blog/admin/blog-admin-web.consts'
 import { WebConfigService } from '../config/config-web.service'
 import { store } from '../store/store-web.redux'
 import { SUPPORT_ADMIN_ROUTES } from '../support/support.consts'
+
+const LazyAdminBlogEditorComponent = lazy(async () => ({
+  default: (await import('../blog/admin/blog-admin-web-editor.component')).BlogAdminEditorComponent,
+}))
+
+const LazyAdminBlogListComponent = lazy(async () => ({
+  default: (await import('../blog/admin/blog-admin-web-list.component')).BlogAdminListComponent,
+}))
+
+const LazyBlogPostPreviewComponent = lazy(async () => ({
+  default: (await import('../blog/admin/blog-post-preview-web.component')).BlogPostPreviewComponent,
+}))
 
 const LazyAdminLogsListComponent = lazy(async () => ({
   default: (await import('../admin-logs/admin-logs-web-list.component')).AdminLogsListComponent,
@@ -43,11 +57,9 @@ const LazyUserAdminListComponent = lazy(async () => ({
 
 export const AdminRouter = () => {
   const hasAdminRole = () => {
-    if (store.getState().userProfile.sa || store.getState().userProfile.a) {
-      return true
-    }
-
-    return false
+    const { a, role, sa } = store.getState().userProfile
+    if (sa || a) return true
+    return hasRoleOrHigher(role, USER_ROLE.EDITOR)
   }
   const strings = store.getState()?.i18n?.translations
 
@@ -68,6 +80,22 @@ export class AdminWebRouterConfig {
     const config: RouteObject[] = [
       {
         children: [
+          {
+            element: <LazyAdminBlogEditorComponent />,
+            path: `${BLOG_EDITOR_ROUTES.EDIT}/:id`,
+          },
+          {
+            element: <LazyAdminBlogEditorComponent />,
+            path: BLOG_EDITOR_ROUTES.NEW,
+          },
+          {
+            element: <LazyAdminBlogListComponent />,
+            path: BLOG_EDITOR_ROUTES.LIST,
+          },
+          {
+            element: <LazyBlogPostPreviewComponent />,
+            path: `${BLOG_EDITOR_ROUTES.PREVIEW}/:id`,
+          },
           {
             element: <LazyAdminLogsListComponent />,
             path: ADMIN_LOGS_ROUTES.LIST,

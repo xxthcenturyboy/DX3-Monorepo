@@ -1328,11 +1328,12 @@ Phase 3 implements a full-featured blog/CMS system, including:
 
 ### Phase 3 Completion Checklist
 
-- [ ] All database models created
-- [ ] API endpoints functional
-- [ ] EDITOR role working
-- [ ] Admin UI complete
-- [ ] Public pages rendering (SSR)
+- [x] All database models created
+- [x] API endpoints functional
+- [x] EDITOR role working
+- [x] Admin UI (list view) complete
+- [x] Public pages rendering (SSR)
+- [ ] Admin editor (create/edit with markdown) - placeholder route
 - [ ] SEO optimized
 - [ ] Tests passing
 

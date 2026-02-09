@@ -36,10 +36,7 @@ export const SUPPORT_STATUS_ARRAY = [
  * Open statuses for filtering
  * Requests that are considered "open" (not resolved or closed)
  */
-export const SUPPORT_OPEN_STATUSES = [
-  SUPPORT_STATUS.OPEN,
-  SUPPORT_STATUS.IN_PROGRESS,
-] as const
+export const SUPPORT_OPEN_STATUSES = [SUPPORT_STATUS.OPEN, SUPPORT_STATUS.IN_PROGRESS] as const
 
 /**
  * WebSocket namespace for support notifications

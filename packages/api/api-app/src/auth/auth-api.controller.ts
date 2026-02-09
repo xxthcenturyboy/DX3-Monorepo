@@ -134,7 +134,11 @@ export const AuthController = {
       // Record login metric for business analytics
       const loginPayload = req.body as LoginPayloadType
       void MetricsService.instance?.recordLogin({
-        method: loginPayload.biometric ? 'biometric' : regexEmail.test(loginPayload.value) ? 'email' : 'phone',
+        method: loginPayload.biometric
+          ? 'biometric'
+          : regexEmail.test(loginPayload.value)
+            ? 'email'
+            : 'phone',
         req,
         userId: profile.id,
       })
@@ -197,7 +201,11 @@ export const AuthController = {
       })
 
       // Record session end
-      void MetricsService.instance?.recordSessionEnd({ reason: 'logout', req, userId: req.user?.id })
+      void MetricsService.instance?.recordSessionEnd({
+        reason: 'logout',
+        req,
+        userId: req.user?.id,
+      })
 
       sendOK(req, res, { loggedOut: true })
     } catch (err) {
@@ -277,7 +285,8 @@ export const AuthController = {
       // Record feature usage based on type
       void MetricsService.instance?.recordFeatureUsage({
         context: { purpose: 'otp' },
-        featureName: type === 'EMAIL' ? METRIC_FEATURE_NAME.EMAIL_SENT : METRIC_FEATURE_NAME.SMS_SENT,
+        featureName:
+          type === 'EMAIL' ? METRIC_FEATURE_NAME.EMAIL_SENT : METRIC_FEATURE_NAME.SMS_SENT,
         req,
       })
 

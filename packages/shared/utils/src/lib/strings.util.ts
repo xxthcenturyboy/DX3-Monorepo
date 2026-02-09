@@ -40,6 +40,18 @@ export function obfuscatePhone(phone: string): string {
   return `${masked}${last4}`
 }
 
+/**
+ * Generate URL-safe slug from title (lowercase, hyphens, alphanumeric)
+ */
+export function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 export function sentenceToTitleCase(str: string): string {
   return str
     .toLowerCase()
@@ -63,7 +75,7 @@ export function uppercase(val: string) {
   return val.toUpperCase()
 }
 
-export function truncateString (subject: string, length: number): string {
+export function truncateString(subject: string, length: number): string {
   if (subject.length <= length) {
     return subject
   }

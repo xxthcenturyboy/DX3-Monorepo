@@ -16,7 +16,9 @@ module.exports = {
    * @param {import('sequelize').Sequelize} Sequelize
    */
   down: async (queryInterface, Sequelize) => {
-    console.log('[Migration] Rolling back: Removing user_timezone column from support_requests table')
+    console.log(
+      '[Migration] Rolling back: Removing user_timezone column from support_requests table',
+    )
 
     await queryInterface.sequelize.query(`
       BEGIN;

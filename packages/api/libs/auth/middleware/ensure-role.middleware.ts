@@ -26,7 +26,9 @@ export async function userHasRoleOrHigher(userId: string, requiredRole: string):
     const userRoles = await UserModel.getUserRoles(userId)
     return hasRoleOrHigher(userRoles, requiredRole)
   } catch (err) {
-    ApiLoggingClass.instance.logError((err as Error).message || 'Error checking user role hierarchy.')
+    ApiLoggingClass.instance.logError(
+      (err as Error).message || 'Error checking user role hierarchy.',
+    )
     return false
   }
 }
@@ -120,6 +122,39 @@ export async function hasLoggingAdminRole(
     next()
   } catch (err) {
     const msg = (err as Error).message || 'Error checking logging admin role.'
+    ApiLoggingClass.instance.logError(msg)
+    sendUnauthorized(req, res, msg)
+  }
+}
+
+/**
+ * Middleware to check if user has EDITOR role or higher (ADMIN, METRICS_ADMIN, LOGGING_ADMIN, SUPER_ADMIN).
+ * Required for blog/content management.
+ */
+export async function hasEditorRole(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = HeaderService.getTokenFromRequest(req)
+    if (!token) {
+      throw new Error('No authentication token provided.')
+    }
+
+    const userId = TokenService.getUserIdFromToken(token)
+    if (!userId) {
+      throw new Error('Token invalid or expired.')
+    }
+
+    const hasRole = await userHasRoleOrHigher(userId, USER_ROLE.EDITOR)
+    if (!hasRole) {
+      throw new Error('User is not authorized to access blog administration.')
+    }
+
+    next()
+  } catch (err) {
+    const msg = (err as Error).message || 'Error checking editor role.'
     ApiLoggingClass.instance.logError(msg)
     sendUnauthorized(req, res, msg)
   }
