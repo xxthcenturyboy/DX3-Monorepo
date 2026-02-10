@@ -5,9 +5,19 @@ import type { BlogEditorStateType } from './blog-admin-web.types'
 
 const getBlogEditorState = (state: RootState): BlogEditorStateType => state.blogEditor
 
+export const selectBlogEditorContent = createSelector(
+  [getBlogEditorState],
+  (s) => s.content,
+)
+
 export const selectBlogEditorFilterValue = createSelector(
   [getBlogEditorState],
   (s) => s.filterValue,
+)
+
+export const selectBlogEditorIsDirty = createSelector(
+  [getBlogEditorState],
+  (s) => s.title !== s.initialTitle || s.content !== s.initialContent,
 )
 
 export const selectBlogEditorLimit = createSelector([getBlogEditorState], (s) => s.limit)
@@ -19,6 +29,8 @@ export const selectBlogEditorOrderBy = createSelector([getBlogEditorState], (s) 
 export const selectBlogEditorSortDir = createSelector([getBlogEditorState], (s) => s.sortDir)
 
 export const selectBlogEditorStatus = createSelector([getBlogEditorState], (s) => s.status)
+
+export const selectBlogEditorTitle = createSelector([getBlogEditorState], (s) => s.title)
 
 /**
  * Selector for RTK Query params - use with useGetBlogAdminPostsQuery

@@ -17,9 +17,11 @@ import { BLOG_POST_REVISION_POSTGRES_DB_NAME } from './blog-api.consts'
 import { BlogPostModel } from './blog-post-api.postgres-model'
 
 @Table({
+  createdAt: true,
   indexes: [{ fields: ['post_id'] }],
   modelName: BLOG_POST_REVISION_POSTGRES_DB_NAME,
   underscored: true,
+  updatedAt: false,
 })
 export class BlogPostRevisionModel extends Model<BlogPostRevisionModel> {
   @PrimaryKey

@@ -19,16 +19,6 @@ import type {
 } from './axios-web.types'
 import { getCustomHeaders } from './web.api'
 
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { Navigate } from 'react-router';
-
-// import { store } from '@dx/store-web';
-
 export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
   const URLS = WebConfigService.getWebUrls()
   // const ROUTES = WebConfigService.getWebRoutes();
@@ -82,7 +72,7 @@ export const AxiosInstance = ({ headers }: AxiosInstanceHeadersParamType) => {
     ) => {
       if (
         error.response?.status === 403 &&
-        error.response?.data?.message.toLowerCase().includes('token invalid or expired')
+        error.response?.data?.message?.toLowerCase().includes('token invalid or expired')
       ) {
         const { store } = await import('../../store')
         const accessToken = store.getState().auth.token

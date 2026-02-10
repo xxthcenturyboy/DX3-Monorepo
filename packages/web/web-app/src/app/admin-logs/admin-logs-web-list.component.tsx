@@ -1,6 +1,5 @@
 import {
   Alert,
-  CircularProgress,
   FormControl,
   Grid,
   InputLabel,
@@ -12,6 +11,7 @@ import {
   useTheme,
 } from '@mui/material'
 import type React from 'react'
+import { BeatLoader } from 'react-spinners'
 import { useEffect, useMemo, useState } from 'react'
 
 import { type GetLogsQueryType, LOG_EVENT_TYPE_ARRAY, type LogEventType } from '@dx3/models-shared'
@@ -164,7 +164,11 @@ export const AdminLogsListComponent: React.FC = () => {
           justifyContent="center"
           padding="48px"
         >
-          <CircularProgress />
+          <BeatLoader
+            color={theme.palette.secondary.main}
+            margin="2px"
+            size={24}
+          />
         </Grid>
       </ContentWrapper>
     )

@@ -320,12 +320,12 @@ Create in `packages/web/web-app/src/app/blog/admin/`:
 
 ### 5.3 Markdown Editor
 
-Use `@uiw/react-md-editor` for the admin markdown editor with:
+Use `@mdxeditor/editor` for the admin markdown editor with:
 
-- Live preview panel
-- Toolbar for formatting
-- Image upload integration (via existing Media API)
-- Drag-and-drop support
+- WYSIWYG / Notion-like editing experience
+- Toolbar for formatting (headings, lists, quotes, links)
+- Plugins: headingsPlugin, listsPlugin, quotePlugin, thematicBreakPlugin, linkPlugin, linkDialogPlugin, markdownShortcutPlugin
+- Image upload integration (via existing Media API) - to be added in follow-up
 
 ### 5.4 RTK Query API
 
@@ -374,7 +374,7 @@ Update `packages/web/web-app/src/assets/locales/en.json` with all blog-related s
 - `react-markdown` - Markdown rendering for public pages
 - `remark-gfm` - GitHub Flavored Markdown support
 - `rehype-highlight` - Code syntax highlighting
-- `@uiw/react-md-editor` - Admin markdown editor with preview
+- `@mdxeditor/editor` - Admin WYSIWYG markdown editor
 - `diff` - Revision diff display
 - `react-intersection-observer` - Infinite scroll trigger
 

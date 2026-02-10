@@ -5,7 +5,6 @@ import TouchAppIcon from '@mui/icons-material/TouchApp'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import {
   Alert,
-  CircularProgress,
   FormControl,
   Grid,
   InputLabel,
@@ -16,6 +15,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import { BeatLoader } from 'react-spinners'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 
@@ -144,7 +144,11 @@ export const AdminMetricsDashboardComponent: React.FC = () => {
           justifyContent="center"
           padding="48px"
         >
-          <CircularProgress />
+          <BeatLoader
+            color={theme.palette.secondary.main}
+            margin="2px"
+            size={24}
+          />
         </Grid>
       </ContentWrapper>
     )

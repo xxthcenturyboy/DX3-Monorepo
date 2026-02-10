@@ -89,6 +89,8 @@ export const DEFAULT_STRINGS: StringKeys = {
   BETA: 'Beta',
   BETA_USERS: 'Beta Users',
   BLOG: 'Blog',
+  BLOG_CONTENT: 'Content',
+  BLOG_DISCARD_CHANGES_CONFIRM: 'You have unsaved changes. Discard them?',
   BLOG_CREATE_NEW_POST: 'Create New Post',
   BLOG_CREATE_POST: 'Create Post',
   BLOG_EDITOR_COMING_SOON_DESC:
@@ -136,6 +138,7 @@ export const DEFAULT_STRINGS: StringKeys = {
   DEFAULT: 'Default',
   DELETE: 'Delete',
   DESCRIPTION: 'Description',
+  DISCARD: 'Discard',
   DOWN: 'Down',
   EDIT: 'Edit',
   EMAIL: 'Email',

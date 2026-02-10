@@ -106,7 +106,8 @@ export const TableComponent: React.FC<TableComponentProps> = React.forwardRef((p
     header.map((_data, index) => {
       columnData.push(index)
     })
-    const max = count > limit ? limit : count
+    // Use limit for skeleton rows when count is 0 (e.g. initial load) so loading state is visible
+    const max = count > 0 ? (count > limit ? limit : count) : limit
     for (let i = 0; i < max; i += 1) {
       rowData.push(columnData)
     }

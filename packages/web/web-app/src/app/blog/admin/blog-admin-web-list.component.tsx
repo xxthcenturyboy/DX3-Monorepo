@@ -25,7 +25,9 @@ export const BlogAdminListComponent: React.FC = () => {
   const strings = useStrings(['BLOG', 'BLOG_EDITOR_TITLE'])
 
   const queryParams = useAppSelector(selectBlogEditorQueryParams)
-  const { data, isLoading, refetch } = useGetBlogAdminPostsQuery(queryParams)
+  const { data, isFetching, refetch } = useGetBlogAdminPostsQuery(queryParams, {
+    refetchOnMountOrArgChange: true,
+  })
 
   const limit = useAppSelector((state) => state.blogEditor.limit)
   const offset = useAppSelector((state) => state.blogEditor.offset)
@@ -66,6 +68,7 @@ export const BlogAdminListComponent: React.FC = () => {
   }
 
   const handleCreateClick = (): void => {
+    dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
     navigate(BLOG_EDITOR_ROUTES.NEW)
   }
 
@@ -97,7 +100,7 @@ export const BlogAdminListComponent: React.FC = () => {
           header={listHeaders}
           isInitialized={true}
           limit={limit}
-          loading={isLoading}
+          loading={isFetching}
           offset={offset}
           orderBy={orderBy}
           rows={rows}

@@ -1,10 +1,13 @@
 import type {
   BlogCategoryType,
+  BlogPostType,
   BlogPostWithAuthorType,
   BlogTagType,
+  CreateBlogPostPayloadType,
   GetBlogPostsAdminQueryType,
   GetBlogPostsAdminResponseType,
   GetBlogPostsResponseType,
+  UpdateBlogPostPayloadType,
 } from '@dx3/models-shared'
 
 import { apiWeb, getCustomHeaders } from '../data/rtk-query/web.api'
@@ -16,6 +19,21 @@ type GetPostsParams = {
 
 export const apiWebBlog = apiWeb.injectEndpoints({
   endpoints: (build) => ({
+    createBlogPost: build.mutation<BlogPostType, CreateBlogPostPayloadType>({
+      query: (payload) => ({
+        data: payload,
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'POST',
+        url: '/blog/admin/posts',
+      }),
+    }),
+    getBlogAdminPostById: build.query<BlogPostType, string>({
+      query: (id) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'GET',
+        url: `/blog/admin/posts/${id}`,
+      }),
+    }),
     getBlogAdminPosts: build.query<GetBlogPostsAdminResponseType, GetBlogPostsAdminQueryType>({
       query: (params) => {
         const search = new URLSearchParams()
@@ -87,11 +105,21 @@ export const apiWebBlog = apiWeb.injectEndpoints({
         url: '/blog/tags',
       }),
     }),
+    updateBlogPost: build.mutation<BlogPostType, { id: string; payload: UpdateBlogPostPayloadType }>({
+      query: ({ id, payload }) => ({
+        data: payload,
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'PUT',
+        url: `/blog/admin/posts/${id}`,
+      }),
+    }),
   }),
   overrideExisting: true,
 })
 
 export const {
+  useCreateBlogPostMutation,
+  useGetBlogAdminPostByIdQuery,
   useGetBlogAdminPostsQuery,
   useGetBlogCategoriesQuery,
   useGetBlogPostBySlugQuery,
@@ -100,4 +128,5 @@ export const {
   useGetBlogRelatedPostsQuery,
   useGetBlogTagsQuery,
   useLazyGetBlogPostsQuery,
+  useUpdateBlogPostMutation,
 } = apiWebBlog

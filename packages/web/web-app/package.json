@@ -29,6 +29,7 @@
     "@emotion/styled": "^11.14.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@fontsource/roboto": "^5.2.0",
+    "@mdxeditor/editor": "^3.25.0",
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.3.6",
     "@popperjs/core": "^2.11.8",

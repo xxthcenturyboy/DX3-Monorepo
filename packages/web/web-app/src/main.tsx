@@ -15,7 +15,6 @@ import { AppRouter } from './app/routers/app.router'
 import { getPersistor, store } from './app/store/store-web.redux'
 import { ErrorBoundary } from './app/ui/error-boundary/error-boundary.component'
 
-// @ts-expect-error - store won't exist until we create it here.
 window.store = store
 
 // Create persistor for CSR (no SSR state to apply first)
@@ -51,7 +50,11 @@ root.render(
           persistor={persistor}
         >
           <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-            <RouterProvider router={router} />
+            <RouterProvider
+              router={router}
+              // @ts-expect-error - unstable_useTransitions is experimental and not in types yet
+              unstable_useTransitions={false}
+            />
           </Suspense>
         </PersistGate>
       </Provider>

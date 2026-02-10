@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Fade, Grid, Typography } from '@mui/material'
+import { Box, Container, Fade, Grid, Typography, useTheme } from '@mui/material'
 import * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
@@ -7,12 +7,14 @@ import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
+import { BeatLoader } from 'react-spinners'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { BlogPostCardComponent } from './blog-post-card.component'
 import { useGetBlogPostsQuery } from './blog-web.api'
 
 export const BlogComponent: React.FC = () => {
+  const theme = useTheme()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const [fadeIn, setFadeIn] = React.useState(false)
   const strings = useStrings(['BLOG', 'BLOG_PAGE_TITLE', 'BLOG_LOADING', 'BLOG_NO_POSTS'])
@@ -61,7 +63,11 @@ export const BlogComponent: React.FC = () => {
               justifyContent="center"
               minHeight={200}
             >
-              <CircularProgress />
+              <BeatLoader
+                color={theme.palette.secondary.main}
+                margin="2px"
+                size={24}
+              />
             </Box>
           )}
 

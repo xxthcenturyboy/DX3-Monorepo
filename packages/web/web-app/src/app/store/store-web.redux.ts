@@ -69,6 +69,7 @@ const combinedPersistReducers = combineReducers({
     adminMetricsReducer,
   ) as typeof adminMetricsReducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
+  // blogEditor: intentionally NOT persisted - editor content/title must not survive reload or navigation
   blogEditor: blogEditorReducer,
   dashboard: dashboardReducer,
   featureFlags: persistReducer<FeatureFlagsStateType, any>(

@@ -9,18 +9,35 @@ const BLOG_EDITOR_DEFAULT_LIMIT = 20
 const BLOG_EDITOR_DEFAULT_OFFSET = 0
 
 export const blogEditorInitialState: BlogEditorStateType = {
+  content: '',
   filterValue: '',
+  initialContent: '',
+  initialTitle: '',
   limit: BLOG_EDITOR_DEFAULT_LIMIT,
   offset: BLOG_EDITOR_DEFAULT_OFFSET,
   orderBy: 'createdAt',
   sortDir: 'DESC',
   status: '',
+  title: '',
 }
 
 const blogEditorSlice = createSlice({
   initialState: blogEditorInitialState,
   name: BLOG_EDITOR_ENTITY_NAME,
   reducers: {
+    contentSet(state, action: PayloadAction<string>) {
+      state.content = action.payload
+    },
+    editorFormLoad(
+      state,
+      action: PayloadAction<{ content: string; title: string }>,
+    ) {
+      const { content, title } = action.payload
+      state.content = content
+      state.initialContent = content
+      state.initialTitle = title
+      state.title = title
+    },
     filterValueSet(state, action: PayloadAction<string>) {
       state.filterValue = action.payload
     },
@@ -38,6 +55,9 @@ const blogEditorSlice = createSlice({
     },
     statusSet(state, action: PayloadAction<BlogPostStatusType | ''>) {
       state.status = action.payload
+    },
+    titleSet(state, action: PayloadAction<string>) {
+      state.title = action.payload
     },
   },
 })

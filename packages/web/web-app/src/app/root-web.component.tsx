@@ -6,7 +6,6 @@ import { Outlet, useLocation, useNavigate } from 'react-router'
 import { Slide, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { sleep } from '@dx3/utils-shared'
 import { DialogApiError } from '@dx3/web-libs/ui/dialog/api-error.dialog'
 import { GlobalAwaiter } from '@dx3/web-libs/ui/global/global-awaiter.component'
 import { DRAWER_WIDTH, MEDIA_BREAK, STORAGE_KEYS_UI } from '@dx3/web-libs/ui/ui.consts'
@@ -125,10 +124,8 @@ export const Root: React.FC = () => {
       void fetchProfile()
     }
 
-    sleep(200).then(() => {
-      setBootstrapped(true)
-      dispatch(uiActions.bootstrapSet(true))
-    })
+    setBootstrapped(true)
+    dispatch(uiActions.bootstrapSet(true))
 
     return () => {
       if (typeof window !== 'undefined') {
@@ -198,7 +195,7 @@ export const Root: React.FC = () => {
     <ThemeProvider theme={theme}>
       <Fade
         in={true}
-        timeout={2000}
+        timeout={300}
       >
         <Box
           flexGrow={1}

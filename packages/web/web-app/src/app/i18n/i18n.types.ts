@@ -129,6 +129,8 @@ export type StringKeys = {
   BETA: string
   BETA_USERS: string
   BLOG: string
+  BLOG_CONTENT: string
+  BLOG_DISCARD_CHANGES_CONFIRM: string
   BLOG_CREATE_NEW_POST: string
   BLOG_CREATE_POST: string
   BLOG_EDITOR_COMING_SOON_DESC: string
@@ -174,6 +176,7 @@ export type StringKeys = {
   DEFAULT: string
   DELETE: string
   DESCRIPTION: string
+  DISCARD: string
   DOWN: string
   EDIT: string
   EMAIL: string

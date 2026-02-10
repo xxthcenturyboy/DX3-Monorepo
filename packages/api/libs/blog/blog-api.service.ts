@@ -126,23 +126,28 @@ export class BlogService {
    * Create new draft post
    */
   async createPost(authorId: string, payload: CreateBlogPostPayloadType): Promise<BlogPostType> {
-    const slug = await this.generateSlug(payload.title)
-    const readingTime = BlogPostModel.calculateReadingTime(payload.content)
-    const excerpt = payload.excerpt ?? BlogPostModel.generateExcerpt(payload.content)
+    const title = payload?.title ?? ''
+    if (!title.trim()) {
+      throw new Error('Title is required')
+    }
+    const slug = await this.generateSlug(title)
+    const content = payload?.content ?? ''
+    const readingTime = BlogPostModel.calculateReadingTime(content)
+    const excerpt = payload.excerpt ?? BlogPostModel.generateExcerpt(content)
 
     const categoryIds = await this.resolveCategoryIds(payload.categories ?? [])
     const tagIds = await this.resolveTagIds(payload.tags ?? [])
 
     const post = await BlogPostModel.create({
       authorId,
-      content: payload.content,
+      content,
       excerpt: excerpt || null,
       featuredImageId: payload.featuredImageId ?? null,
       isAnonymous: payload.isAnonymous ?? false,
       readingTimeMinutes: readingTime,
       slug,
       status: BLOG_POST_STATUS.DRAFT,
-      title: payload.title,
+      title: title.trim(),
     })
 
     await (
@@ -321,7 +326,7 @@ export class BlogService {
    * Generate unique slug from title
    */
   async generateSlug(title: string, existingSlug?: string): Promise<string> {
-    const base = slugify(title) || 'untitled'
+    const base = slugify(title ?? '') || 'untitled'
     let slug = base
     let counter = 1
 
@@ -338,6 +343,7 @@ export class BlogService {
     const ids: string[] = []
 
     for (const item of namesOrIds) {
+      if (item == null || typeof item !== 'string') continue
       if (/^[0-9a-f-]{36}$/i.test(item)) {
         ids.push(item)
       } else {
@@ -354,6 +360,7 @@ export class BlogService {
     const ids: string[] = []
 
     for (const item of namesOrIds) {
+      if (item == null || typeof item !== 'string') continue
       if (/^[0-9a-f-]{36}$/i.test(item)) {
         ids.push(item)
       } else {

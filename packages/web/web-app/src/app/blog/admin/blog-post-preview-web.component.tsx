@@ -30,7 +30,6 @@ export const BlogPostPreviewComponent: React.FC = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const [fadeIn, setFadeIn] = React.useState(false)
   const strings = useStrings([
-    'BACK',
     'BLOG',
     'BLOG_EDITOR_TITLE',
     'BLOG_READING_TIME_MIN',
@@ -61,16 +60,8 @@ export const BlogPostPreviewComponent: React.FC = () => {
       >
         {isAuthenticated && (
           <ContentHeader
-            headerContent={
-              <Chip
-                clickable
-                label={strings.BACK}
-                onClick={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
-                size="small"
-                variant="outlined"
-              />
-            }
             headerTitle={strings.BLOG_EDITOR_TITLE || strings.BLOG}
+            navigation={() => navigate(id ? `${BLOG_EDITOR_ROUTES.EDIT}/${id}` : BLOG_EDITOR_ROUTES.LIST)}
           />
         )}
         <Container sx={{ paddingTop: 4 }}>
@@ -87,7 +78,12 @@ export const BlogPostPreviewComponent: React.FC = () => {
         contentTopOffset={isAuthenticated ? '82px' : undefined}
         spacerDiv={isAuthenticated}
       >
-        {isAuthenticated && <ContentHeader headerTitle={strings.BLOG_EDITOR_TITLE || strings.BLOG} />}
+        {isAuthenticated && (
+          <ContentHeader
+            headerTitle={strings.PREVIEW}
+            navigation={() => navigate(`${BLOG_EDITOR_ROUTES.EDIT}/${id}`)}
+          />
+        )}
         <Box
           alignItems="center"
           display="flex"
@@ -112,16 +108,8 @@ export const BlogPostPreviewComponent: React.FC = () => {
     >
       {isAuthenticated && (
         <ContentHeader
-          headerContent={
-            <Chip
-              clickable
-              label={strings.BACK}
-              onClick={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
-              size="small"
-              variant="outlined"
-            />
-          }
-          headerTitle={strings.BLOG_EDITOR_TITLE || strings.BLOG}
+          headerTitle={strings.PREVIEW}
+          navigation={() => navigate(`${BLOG_EDITOR_ROUTES.EDIT}/${id}`)}
         />
       )}
 
