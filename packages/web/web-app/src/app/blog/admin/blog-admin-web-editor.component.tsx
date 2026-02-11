@@ -55,6 +55,32 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const editorRef = React.useRef<MDXEditorMethods>(null)
   const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false)
+  const [editorHeight, setEditorHeight] = React.useState(400)
+
+  const handleResizeStart = React.useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      const startY = e.clientY
+      const startHeight = editorHeight
+      const prevUserSelect = document.body.style.userSelect
+      document.body.style.userSelect = 'none'
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const delta = moveEvent.clientY - startY
+        setEditorHeight(Math.max(200, Math.min(800, startHeight + delta)))
+      }
+
+      const handleMouseUp = () => {
+        document.body.style.userSelect = prevUserSelect
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('mouseup', handleMouseUp)
+      }
+
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', handleMouseUp)
+    },
+    [editorHeight],
+  )
 
   const title = useAppSelector(selectBlogEditorTitle)
   const content = useAppSelector(selectBlogEditorContent)
@@ -214,11 +240,15 @@ export const BlogAdminEditorComponent: React.FC = () => {
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 8,
-            minHeight: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 200,
             overflow: 'hidden',
+            position: 'relative',
           }}
         >
-          <MDXEditor
+          <div style={{ height: editorHeight, minHeight: 200, overflow: 'hidden' }}>
+            <MDXEditor
             key={isNew ? 'new' : id}
             markdown={
               !isNew && post && !isDirty ? post.content : content
@@ -246,6 +276,22 @@ export const BlogAdminEditorComponent: React.FC = () => {
               }),
             ]}
             ref={editorRef}
+          />
+          </div>
+          <button
+            aria-label="Resize editor"
+            onMouseDown={handleResizeStart}
+            style={{
+              backgroundColor: theme.palette.divider,
+              border: 'none',
+              cursor: 'ns-resize',
+              flexShrink: 0,
+              height: 8,
+              padding: 0,
+              width: '100%',
+            }}
+            title="Drag to resize"
+            type="button"
           />
         </div>
 
