@@ -14,16 +14,17 @@ export type MediaFileType = {
 
 export type MediaDataType = {
   altText: string
-  mediaSubType: string
-  mediaType: string
   files: {
     [variant: string]: MediaFileType
   }
   hashedFilenameMimeType: string
   id: string
+  mediaSubType: string
+  mediaType: string
   originalFileName: string
   ownerId: string
   primary: boolean
+  public?: boolean
 }
 
 export type ImageResizeMediaType = {
@@ -51,6 +52,7 @@ export type UploadMediaHandlerParams = {
   newFilename: string
   originalFilename: string
   ownerId: string
+  public?: boolean
   uploadId?: string
 } & UploadMediaParams
 

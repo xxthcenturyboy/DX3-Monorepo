@@ -12,6 +12,7 @@ export class MediaApiBaseRoutes {
   static configure() {
     const router = Router()
 
+    router.get('/pub/:id/:size', MediaApiController.getPublicMedia)
     router.get('/:id/:size', [ensureLoggedInMedia], MediaApiController.getMedia)
 
     return router
@@ -24,13 +25,13 @@ export class MediaApiV1Routes {
     router.post(
       '/upload-profile-image',
       [ensureLoggedIn, UploadMiddleware.singleFile],
-      MediaApiController.uploadUserContent,
+      MediaApiController.uploadContent,
     )
 
     router.post(
-      '/upload-user-content',
+      '/upload-content',
       [ensureLoggedIn, UploadMiddleware.multipleFiles],
-      MediaApiController.uploadUserContent,
+      MediaApiController.uploadContent,
     )
 
     return router

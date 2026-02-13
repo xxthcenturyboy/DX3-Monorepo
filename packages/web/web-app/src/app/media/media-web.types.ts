@@ -11,3 +11,11 @@ export type MediaWebAvatarUploadParamsType = {
   fileName: string
   uploadProgressHandler: UploadProgressHandlerType
 }
+
+export type MediaWebUserContentUploadParamsType = {
+  files: File[]
+  mediaSubType: string
+  ownerId?: string
+  public?: boolean
+  uploadProgressHandler?: UploadProgressHandlerType
+}

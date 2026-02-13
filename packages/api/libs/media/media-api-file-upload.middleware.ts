@@ -10,9 +10,14 @@ import type VolatileFile from 'formidable/VolatileFile'
 import { StatusCodes } from 'http-status-codes'
 import { v4 as uuidV4 } from 'uuid'
 
-import { ERROR_CODES, MB, S3_BUCKETS } from '@dx3/models-shared'
+import {
+  ERROR_CODES,
+  MEDIA_MAX_FILE_SIZE_BYTES,
+  MEDIA_MAX_FILES_PER_UPLOAD,
+  S3_BUCKETS,
+} from '@dx3/models-shared'
 
-import { S3_APP_BUCKET_NAME, UPLOAD_MAX_FILE_SIZE } from '../config/config-api.consts'
+import { S3_APP_BUCKET_NAME } from '../config/config-api.consts'
 import { getEnvironment, isDebug } from '../config/config-api.service'
 import { ApiLoggingClass } from '../logger'
 import { S3Service } from '../s3'
@@ -172,8 +177,8 @@ export const UploadMiddleware = {
           }
           return true
         },
-        maxFileSize: Number(UPLOAD_MAX_FILE_SIZE) * MB,
-        maxFiles: 10,
+        maxFileSize: MEDIA_MAX_FILE_SIZE_BYTES,
+        maxFiles: MEDIA_MAX_FILES_PER_UPLOAD,
         multiples: true,
       })
 
@@ -257,7 +262,7 @@ export const UploadMiddleware = {
           }
           return true
         },
-        maxFileSize: Number(UPLOAD_MAX_FILE_SIZE) * MB,
+        maxFileSize: MEDIA_MAX_FILES_PER_UPLOAD,
         maxFiles: 1,
         multiples: false,
       })

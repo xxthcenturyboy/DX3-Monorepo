@@ -32,6 +32,9 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
         open,
         props,
         slotProps: {
+          root: {
+            sx: { zIndex: 1400 },
+          },
           transition: {
             timeout: TIMEOUT_DUR_500,
           },

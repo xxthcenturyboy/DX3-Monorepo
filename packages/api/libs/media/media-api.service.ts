@@ -153,7 +153,16 @@ export class MediaApiService {
     }
   }
 
-  public async userContentUpload(data: UploadMediaHandlerParams) {
+  private getBucketAndKey(ownerId: string, assetSubType: string, id: string, isPublic: boolean) {
+    let bucket = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.SYS_CONTENT}`
+    if (!isPublic) {
+      bucket = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.USER_CONTENT}`
+    }
+    const key = `${ownerId}/${assetSubType}/${id}`
+    return { bucket, key }
+  }
+
+  public async contentUpload(data: UploadMediaHandlerParams) {
     if (!data.mediaSubType || !data.filePath || !data.mimeType || !data.ownerId || !data.uploadId) {
       await this.clearUpload(data.uploadId)
       throw new Error(
@@ -166,15 +175,14 @@ export class MediaApiService {
       throw new Error(createApiErrorMessage(ERROR_CODES.MEDIA_INVALID_TYPE, 'Incorrect file type'))
     }
     const id = uuidv4()
-    const ASSET_SUB_TYPE = data.mediaSubType.toLowerCase()
-    const BUCKET = `${S3_APP_BUCKET_NAME}-${S3_BUCKETS.USER_CONTENT}`
-    const KEY = `${data.ownerId}/${ASSET_SUB_TYPE}/${id}`
+    const assetSubType = data.mediaSubType.toLowerCase()
+    const { bucket, key } = this.getBucketAndKey(data.ownerId, assetSubType, id, data.public)
     const tagging = data.ownerId === TEST_EXISTING_USER_ID ? 'test-user=true' : undefined
 
     const moved = await this.s3Service.moveObject(
       `/${S3_APP_BUCKET_NAME}-${S3_BUCKETS.UPLOAD_TMP}/${data.uploadId}/${encodeURIComponent(data.originalFilename)}`,
-      BUCKET,
-      KEY,
+      bucket,
+      key,
       undefined,
       tagging,
     )
@@ -186,7 +194,7 @@ export class MediaApiService {
     const mediaType = MEDIA_TYPE_BY_MIME_TYPE_MAP[data.mimeType]
     const hashedFilenameMimeType = dxHashAnyToString(`${data.originalFilename}${data.mimeType}`)
 
-    const file = await this.s3Service.getObject(BUCKET, KEY)
+    const file = await this.s3Service.getObject(bucket, key)
 
     const processedFiles: ImageResizeMediaType[] = await this.processFile(
       mediaType,
@@ -198,8 +206,8 @@ export class MediaApiService {
     const s3Promises = processedFiles.map(
       async (file) =>
         await this.s3Service.uploadObject(
-          BUCKET,
-          `${data.ownerId}/${ASSET_SUB_TYPE}/${file.id}`,
+          bucket,
+          `${data.ownerId}/${assetSubType}/${file.id}`,
           file.asset as Buffer,
           data.mimeType,
           file.metaData,
@@ -216,11 +224,12 @@ export class MediaApiService {
       files: {},
       hashedFilenameMimeType: hashedFilenameMimeType,
       id,
-      mediaSubType: ASSET_SUB_TYPE.toUpperCase(),
+      mediaSubType: assetSubType.toUpperCase(),
       mediaType: data.mimeType,
       originalFileName: data.originalFilename,
       ownerId: data.ownerId,
       primary: data.isPrimary || false,
+      public: data.public || false,
     }
 
     for (const processedFile of processedFiles) {
@@ -256,6 +265,34 @@ export class MediaApiService {
     }
   }
 
+  public async getPublicContentKey(id: string, variant: string): Promise<string | null> {
+    const meta = await this.getPublicContentMeta(id, variant)
+    return meta?.key ?? null
+  }
+
+  public async getPublicContentMeta(
+    id: string,
+    variant: string,
+  ): Promise<{ key: string; mediaType: string; originalFileName: string } | null> {
+    try {
+      const media = await MediaModel.findByPk(id)
+      if (!media || !media.public || !media.files?.[variant]) {
+        return null
+      }
+      const key = media.files[variant].key
+      if (!key) return null
+      return {
+        key,
+        mediaType: media.mediaType ?? '',
+        originalFileName: media.originalFileName ?? 'download',
+      }
+    } catch (err) {
+      const msg = (err as Error).message || 'Could not retrieve public content meta.'
+      this.logger.logError(msg)
+      return null
+    }
+  }
+
   public async getContentKey(id: string, variant: string) {
     try {
       const media = await MediaModel.findByPk(id)
@@ -274,6 +311,16 @@ export class MediaApiService {
   public async getUserContent(key: string, res: Response) {
     try {
       await this.s3Service.getObject(`${S3_APP_BUCKET_NAME}-${S3_BUCKETS.USER_CONTENT}`, key, res)
+    } catch (err) {
+      const msg = (err as Error).message || 'Could not get file.'
+      this.logger.logError(msg)
+      throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
+    }
+  }
+
+  public async getSystemContent(key: string, res: Response) {
+    try {
+      await this.s3Service.getObject(`${S3_APP_BUCKET_NAME}-${S3_BUCKETS.SYS_CONTENT}`, key, res)
     } catch (err) {
       const msg = (err as Error).message || 'Could not get file.'
       this.logger.logError(msg)

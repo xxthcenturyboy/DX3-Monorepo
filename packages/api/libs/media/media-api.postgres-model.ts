@@ -87,6 +87,14 @@ export class MediaModel extends Model<MediaModel> {
   @Column(DataType.BOOLEAN)
   primary: boolean
 
+  @Column({
+    allowNull: false,
+    defaultValue: false,
+    field: 'public',
+    type: DataType.BOOLEAN,
+  })
+  public: boolean
+
   @CreatedAt
   @Default(fn('now'))
   @AllowNull(false)

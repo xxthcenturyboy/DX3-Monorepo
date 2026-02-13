@@ -9,6 +9,7 @@ import { axiosBaseQuery } from './axios-web.api'
 export const apiWeb = createApi({
   baseQuery: axiosBaseQuery(),
   endpoints: () => ({}),
+  tagTypes: ['BlogPost'],
 })
 
 export const getCustomHeaders = (params: { contentType?: string; version: number }) => {

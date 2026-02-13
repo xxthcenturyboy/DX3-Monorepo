@@ -6,6 +6,7 @@ import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MediaApiService } from '@dx3/api-libs/media/media-api.service'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import {
+  MIME_TYPES,
   MEDIA_SUB_TYPES,
   METRIC_FEATURE_NAME,
   type MediaDataType,
@@ -31,9 +32,33 @@ export const MediaApiController = {
     }
   },
 
-  uploadUserContent: async (req: Request, res: Response, _next: NextFunction) => {
+  getPublicMedia: async (req: Request, res: Response, _next: NextFunction) => {
+    const { id, size } = req.params as { id: string; size: string }
+
+    logRequest({ req, type: 'getPublicMedia' })
+    try {
+      const service = new MediaApiService()
+      const meta = await service.getPublicContentMeta(id, size)
+      if (!meta) {
+        return res.status(StatusCodes.NOT_FOUND).send(null)
+      }
+      if (meta.mediaType === MIME_TYPES.FILE.PDF) {
+        const safeName = meta.originalFileName.replace(/[^\w.-]/g, '_')
+        res.set(
+          'Content-Disposition',
+          `attachment; filename="${safeName}"`,
+        )
+      }
+      await service.getSystemContent(meta.key, res)
+    } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed getPublicMedia' })
+      sendBadRequest(req, res, (err as Error).message)
+    }
+  },
+
+  uploadContent: async (req: Request, res: Response, _next: NextFunction) => {
     const { err: uploadErr, fields, files, uploadId } = req.uploads
-    logRequest({ req, type: 'uploadUserContent' })
+    logRequest({ req, type: 'uploadContent' })
     const service = new MediaApiService()
 
     const results: Partial<MediaUploadResponseType>[] = []
@@ -73,6 +98,12 @@ export const MediaApiController = {
       }
       if (key === 'isPrimary' && !fileMeta.isPrimary) {
         fileMeta.isPrimary = typeof value === 'string' ? value === 'true' : false
+      }
+      if (key === 'public') {
+        fileMeta.public = typeof value === 'string' ? value === 'true' : false
+      }
+      if (key === 'ownerId') {
+        fileMeta.ownerId = value
       }
     }
 
@@ -131,7 +162,7 @@ export const MediaApiController = {
       }
 
       promises.push(
-        service.userContentUpload({
+        service.contentUpload({
           ...fileMeta,
           ...data,
         } as UploadMediaHandlerParams),

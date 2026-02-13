@@ -138,6 +138,9 @@ export type StringKeys = {
   BLOG_EDITOR_TITLE: string
   BLOG_EDIT_POST_ID: string
   BLOG_EDIT_POST_TITLE: string
+  BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST: string
+  BLOG_INSERT_IMAGE: string
+  BLOG_INSERT_PDF: string
   BLOG_LOADING: string
   BLOG_NEW_POST_TITLE: string
   BLOG_NO_POSTS: string
@@ -234,8 +237,17 @@ export type StringKeys = {
   LOGOUT: string
   MEDIA_FILE_COUNT_EXCEEDED: string
   MEDIA_FILE_SIZE_EXCEEDED: string
+  MEDIA_IMAGE_URL_PLACEHOLDER: string
+  MEDIA_INSERT_FROM_URL: string
   MEDIA_INVALID_TYPE: string
+  MEDIA_UPLOAD_DRAG_OR_CLICK: string
+  MEDIA_UPLOAD_DROP_HERE: string
   MEDIA_UPLOAD_FAILED: string
+  MEDIA_UPLOAD_FILE_EXCEEDS_SIZE: string
+  MEDIA_UPLOAD_FILES_SELECTED: string
+  MEDIA_UPLOAD_MAX_FILES: string
+  MEDIA_UPLOAD_UNSUPPORTED_TYPE: string
+  MEDIA_UPLOAD_UP_TO_FILES: string
   MESSAGE: string
   NAME: string
   NETWORK: string
@@ -362,6 +374,7 @@ export type StringKeys = {
   UNAUTHORIZED: string
   UPDATE: string
   UPDATE_STATUS: string
+  UPLOAD: string
   UPTIME: string
   USER: string
   USER_ADMIN: string

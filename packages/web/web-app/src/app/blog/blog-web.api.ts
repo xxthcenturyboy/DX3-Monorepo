@@ -20,6 +20,7 @@ type GetPostsParams = {
 export const apiWebBlog = apiWeb.injectEndpoints({
   endpoints: (build) => ({
     createBlogPost: build.mutation<BlogPostType, CreateBlogPostPayloadType>({
+      invalidatesTags: ['BlogPost'],
       query: (payload) => ({
         data: payload,
         headers: getCustomHeaders({ version: 1 }),
@@ -28,6 +29,7 @@ export const apiWebBlog = apiWeb.injectEndpoints({
       }),
     }),
     getBlogAdminPostById: build.query<BlogPostType, string>({
+      providesTags: (_, __, id) => [{ id, type: 'BlogPost' }],
       query: (id) => ({
         headers: getCustomHeaders({ version: 1 }),
         method: 'GET',
@@ -67,6 +69,7 @@ export const apiWebBlog = apiWeb.injectEndpoints({
     }),
     // Admin endpoints (require EDITOR role)
     getBlogPostPreview: build.query<BlogPostWithAuthorType | null, string>({
+      providesTags: (_, __, id) => [{ id, type: 'BlogPost' }],
       query: (id) => ({
         headers: getCustomHeaders({ version: 1 }),
         method: 'GET',
@@ -106,6 +109,7 @@ export const apiWebBlog = apiWeb.injectEndpoints({
       }),
     }),
     updateBlogPost: build.mutation<BlogPostType, { id: string; payload: UpdateBlogPostPayloadType }>({
+      invalidatesTags: (_result, _error, { id }) => [{ id, type: 'BlogPost' }],
       query: ({ id, payload }) => ({
         data: payload,
         headers: getCustomHeaders({ version: 1 }),

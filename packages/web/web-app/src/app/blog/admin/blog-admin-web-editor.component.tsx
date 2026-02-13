@@ -4,6 +4,7 @@ import {
   CreateLink,
   headingsPlugin,
   InsertThematicBreak,
+  imagePlugin,
   ListsToggle,
   linkDialogPlugin,
   linkPlugin,
@@ -17,12 +18,21 @@ import {
   UndoRedo,
 } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
-import { Button, TextField, useTheme } from '@mui/material'
+import AddPhotoAlternateOutlined from '@mui/icons-material/AddPhotoAlternateOutlined'
+import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
+import { Box, Button, IconButton, TextField, Tooltip, useTheme } from '@mui/material'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
-import { BeatLoader } from 'react-spinners'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { BeatLoader } from 'react-spinners'
 
+import {
+  type MediaUploadResponseType,
+  MEDIA_SUB_TYPES,
+  MEDIA_VARIANTS,
+  MIME_TYPES,
+  MIME_TYPE_BY_SUB_TYPE,
+} from '@dx3/models-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
@@ -30,9 +40,13 @@ import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
+import { WebConfigService } from '../../config/config-web.service'
 import { useStrings } from '../../i18n'
+import { MediaUploadModal } from '../../media/media-upload-modal.component'
+import { useUploadContentMutation } from '../../media/media-web.api'
+import { getPublicMediaUrl } from '../../media/media-web.util'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { selectIsMobileWidth } from '../../ui/store/ui-web.selector'
+import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import {
   useCreateBlogPostMutation,
@@ -56,6 +70,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const editorRef = React.useRef<MDXEditorMethods>(null)
   const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false)
   const [editorHeight, setEditorHeight] = React.useState(400)
+  const [imageModalOpen, setImageModalOpen] = React.useState(false)
+  const [pdfModalOpen, setPdfModalOpen] = React.useState(false)
 
   const handleResizeStart = React.useCallback(
     (e: React.MouseEvent) => {
@@ -86,12 +102,25 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const content = useAppSelector(selectBlogEditorContent)
   const isDirty = useAppSelector(selectBlogEditorIsDirty)
   const isMobileWidth = useAppSelector(selectIsMobileWidth)
+  const windowHeight = useAppSelector(selectWindowHeight)
   const theme = useTheme()
+
+  // Initial editor height: fill viewport minus header, title field, buttons, padding
+  const EDITOR_OVERHEAD_PX = 360
+  React.useEffect(() => {
+    if (windowHeight > 0) {
+      const fillHeight = Math.max(200, Math.min(800, windowHeight - EDITOR_OVERHEAD_PX))
+      setEditorHeight(fillHeight)
+    }
+  }, [windowHeight])
 
   const strings = useStrings([
     'BLOG',
     'BLOG_DISCARD_CHANGES_CONFIRM',
     'BLOG_EDITOR_TITLE',
+    'BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST',
+    'BLOG_INSERT_IMAGE',
+    'BLOG_INSERT_PDF',
     'BLOG_EDIT_POST_TITLE',
     'BLOG_NEW_POST_TITLE',
     'CANCEL',
@@ -111,6 +140,105 @@ export const BlogAdminEditorComponent: React.FC = () => {
   })
   const [createPost, { isLoading: isCreating }] = useCreateBlogPostMutation()
   const [updatePost, { isLoading: isUpdating }] = useUpdateBlogPostMutation()
+  const [uploadContent] = useUploadContentMutation()
+  const apiUrl = WebConfigService.getWebUrls().API_URL
+
+  const imageUploadHandler = React.useCallback(
+    async (file: File): Promise<string> => {
+      if (!id || !post?.id) {
+        throw new Error(strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST)
+      }
+      const result = await uploadContent({
+        files: [file],
+        mediaSubType: MEDIA_SUB_TYPES.IMAGE,
+        ownerId: post.id,
+        public: true,
+      }).unwrap()
+      const first = result[0]
+      if (!first?.ok || !first.data?.id) {
+        throw new Error('Upload failed')
+      }
+      return getPublicMediaUrl(apiUrl, first.data.id)
+    },
+    [apiUrl, id, post?.id, strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST, uploadContent],
+  )
+
+  const handleImageModalClose = React.useCallback(() => setImageModalOpen(false), [])
+
+  const handleImageUrlInsert = React.useCallback(
+    (url: string) => {
+      editorRef.current?.insertMarkdown(`![](${url})`)
+      setImageModalOpen(false)
+    },
+    [],
+  )
+
+  const handleImageSuccess = React.useCallback(
+    (results: MediaUploadResponseType[]) => {
+      const first = results[0]
+      if (!first?.ok || !first.data?.id) return
+      const url = getPublicMediaUrl(apiUrl, first.data.id, MEDIA_VARIANTS.MEDIUM)
+      editorRef.current?.insertMarkdown(`![](${url})`)
+      setImageModalOpen(false)
+    },
+    [apiUrl],
+  )
+
+  const handleImageUpload = React.useCallback(
+    async ({
+      files,
+      public: isPublic,
+    }: {
+      files: File[]
+      public: boolean
+    }): Promise<MediaUploadResponseType[]> => {
+      if (!post?.id) {
+        throw new Error(strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST)
+      }
+      return uploadContent({
+        files,
+        mediaSubType: MEDIA_SUB_TYPES.IMAGE,
+        ownerId: post.id,
+        public: isPublic,
+      }).unwrap()
+    },
+    [post?.id, strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST, uploadContent],
+  )
+
+  const handlePdfModalClose = React.useCallback(() => setPdfModalOpen(false), [])
+
+  const handlePdfSuccess = React.useCallback(
+    (results: MediaUploadResponseType[]) => {
+      const first = results[0]
+      if (!first?.ok || !first.data?.id) return
+      const fileName = first.data.originalFileName ?? 'Download PDF'
+      const url = getPublicMediaUrl(apiUrl, first.data.id, MEDIA_VARIANTS.ORIGINAL)
+      editorRef.current?.insertMarkdown(`[${fileName}](${url})`)
+      setPdfModalOpen(false)
+    },
+    [apiUrl],
+  )
+
+  const handlePdfUpload = React.useCallback(
+    async ({
+      files,
+      public: isPublic,
+    }: {
+      files: File[]
+      public: boolean
+    }): Promise<MediaUploadResponseType[]> => {
+      if (!post?.id) {
+        throw new Error(strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST)
+      }
+      return uploadContent({
+        files,
+        mediaSubType: MEDIA_SUB_TYPES.DOCUMENT,
+        ownerId: post.id,
+        public: isPublic,
+      }).unwrap()
+    },
+    [post?.id, strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST, uploadContent],
+  )
 
   const isSaving = isCreating || isUpdating
 
@@ -234,12 +362,13 @@ export const BlogAdminEditorComponent: React.FC = () => {
           variant="outlined"
         />
 
-        <div
+        <Box
           data-testid="blog-editor-content"
-          style={{
+          data-theme-mode={theme.palette.mode}
+          sx={{
             border: '1px solid',
             borderColor: 'divider',
-            borderRadius: 8,
+            borderRadius: 1,
             display: 'flex',
             flexDirection: 'column',
             minHeight: 200,
@@ -247,37 +376,75 @@ export const BlogAdminEditorComponent: React.FC = () => {
             position: 'relative',
           }}
         >
-          <div style={{ height: editorHeight, minHeight: 200, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              height: editorHeight,
+              minHeight: 200,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+            }}
+          >
             <MDXEditor
-            key={isNew ? 'new' : id}
-            markdown={
-              !isNew && post && !isDirty ? post.content : content
-            }
-            onChange={(markdown) => dispatch(blogEditorActions.contentSet(markdown))}
-            plugins={[
-              headingsPlugin(),
-              listsPlugin(),
-              quotePlugin(),
-              thematicBreakPlugin(),
-              linkPlugin(),
-              linkDialogPlugin(),
-              markdownShortcutPlugin(),
-              toolbarPlugin({
-                toolbarContents: () => (
-                  <>
-                    <UndoRedo />
-                    <BoldItalicUnderlineToggles />
-                    <BlockTypeSelect />
-                    <ListsToggle />
-                    <CreateLink />
-                    <InsertThematicBreak />
-                  </>
-                ),
-              }),
-            ]}
-            ref={editorRef}
-          />
-          </div>
+              key={isNew ? 'new' : id}
+              markdown={!isNew && post && !isDirty ? post.content : content}
+              onChange={(markdown) => dispatch(blogEditorActions.contentSet(markdown))}
+              plugins={[
+                headingsPlugin(),
+                imagePlugin({ imageUploadHandler }),
+                listsPlugin(),
+                quotePlugin(),
+                thematicBreakPlugin(),
+                linkPlugin(),
+                linkDialogPlugin(),
+                markdownShortcutPlugin(),
+                toolbarPlugin({
+                  toolbarContents: () => (
+                    <>
+                      <UndoRedo />
+                      <BoldItalicUnderlineToggles />
+                      <BlockTypeSelect />
+                      <ListsToggle />
+                      <CreateLink />
+                      <Tooltip
+                        title={
+                          !post?.id ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST : strings.BLOG_INSERT_IMAGE
+                        }
+                      >
+                        <span>
+                          <IconButton
+                            aria-label={strings.BLOG_INSERT_IMAGE}
+                            disabled={!post?.id}
+                            onClick={() => setImageModalOpen(true)}
+                            size="small"
+                          >
+                            <AddPhotoAlternateOutlined fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <Tooltip
+                        title={
+                          !post?.id ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST : strings.BLOG_INSERT_PDF
+                        }
+                      >
+                        <span>
+                          <IconButton
+                            aria-label={strings.BLOG_INSERT_PDF}
+                            disabled={!post?.id}
+                            onClick={() => setPdfModalOpen(true)}
+                            size="small"
+                          >
+                            <PictureAsPdfOutlined fontSize="small" />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <InsertThematicBreak />
+                    </>
+                  ),
+                }),
+              ]}
+              ref={editorRef}
+            />
+          </Box>
           <button
             aria-label="Resize editor"
             onMouseDown={handleResizeStart}
@@ -293,7 +460,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
             title="Drag to resize"
             type="button"
           />
-        </div>
+        </Box>
 
         <div
           style={{
@@ -304,7 +471,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
           }}
         >
           <Button
-            disabled={isSaving || !title.trim()}
+            disabled={isSaving || !isDirty || !title.trim()}
             onClick={handleSave}
             variant="contained"
           >
@@ -314,8 +481,10 @@ export const BlogAdminEditorComponent: React.FC = () => {
                 margin="2px"
                 size={12}
               />
+            ) : isNew ? (
+              strings.CREATE
             ) : (
-              isNew ? strings.CREATE : strings.SAVE
+              strings.SAVE
             )}
           </Button>
           <Button
@@ -327,6 +496,31 @@ export const BlogAdminEditorComponent: React.FC = () => {
           </Button>
         </div>
       </div>
+
+      {imageModalOpen &&
+        createPortal(
+          <CustomDialog
+            body={
+              <MediaUploadModal
+                closeDialog={handleImageModalClose}
+                config={{
+                  allowUrlInput: true,
+                  allowedMimeTypes: MIME_TYPE_BY_SUB_TYPE[MEDIA_SUB_TYPES.IMAGE],
+                  maxFiles: 1,
+                  public: true,
+                }}
+                isMobileWidth={isMobileWidth}
+                onSuccess={handleImageSuccess}
+                onUpload={handleImageUpload}
+                onUrlInsert={handleImageUrlInsert}
+              />
+            }
+            closeDialog={handleImageModalClose}
+            isMobileWidth={isMobileWidth}
+            open={imageModalOpen}
+          />,
+          document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+        )}
 
       {cancelConfirmOpen &&
         createPortal(
@@ -343,6 +537,29 @@ export const BlogAdminEditorComponent: React.FC = () => {
             closeDialog={() => setCancelConfirmOpen(false)}
             isMobileWidth={isMobileWidth}
             open={cancelConfirmOpen}
+          />,
+          document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+        )}
+
+      {pdfModalOpen &&
+        createPortal(
+          <CustomDialog
+            body={
+              <MediaUploadModal
+                closeDialog={handlePdfModalClose}
+                config={{
+                  allowedMimeTypes: [MIME_TYPES.FILE.PDF],
+                  maxFiles: 1,
+                  public: true,
+                }}
+                isMobileWidth={isMobileWidth}
+                onSuccess={handlePdfSuccess}
+                onUpload={handlePdfUpload}
+              />
+            }
+            closeDialog={handlePdfModalClose}
+            isMobileWidth={isMobileWidth}
+            open={pdfModalOpen}
           />,
           document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
         )}

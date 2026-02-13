@@ -1,3 +1,4 @@
+import { MIME_TYPES } from '@dx3/models-shared'
 /**
  * Allowed MIME types for file uploads.
  * Add or remove types based on application requirements.
@@ -7,13 +8,9 @@
  */
 export const ALLOWED_MIME_TYPES = [
   // Images
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
+  ...Object.values(MIME_TYPES.IMAGE),
   // Documents
-  'application/pdf',
+  ...Object.values(MIME_TYPES.FILE),
 ] as const
 
 export type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number]

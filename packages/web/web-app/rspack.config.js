@@ -1,4 +1,5 @@
 const path = require('node:path')
+require('dotenv').config({ path: path.join(__dirname, '.env') })
 const { CopyRspackPlugin, HtmlRspackPlugin } = require('@rspack/core')
 const ReactRefreshPlugin = require('@rspack/plugin-react-refresh')
 const Dotenv = require('dotenv-webpack')
@@ -15,6 +16,13 @@ module.exports = {
     historyApiFallback: true,
     hot: true,
     port: 3000,
+    proxy: [
+      {
+        changeOrigin: true,
+        context: ['/api'],
+        target: process.env.API_URL || 'http://localhost:4000',
+      },
+    ],
     // Configure cache headers for development assets
     setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {

@@ -6,7 +6,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useParams } from 'react-router'
-import rehypeSanitize from 'rehype-sanitize'
+import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { BeatLoader } from 'react-spinners'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
@@ -18,6 +18,7 @@ import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
+import { blogMarkdownComponents } from './blog-markdown-components'
 import { BlogPostCardComponent } from './blog-post-card.component'
 import { useGetBlogPostBySlugQuery, useGetBlogRelatedPostsQuery } from './blog-web.api'
 
@@ -169,7 +170,13 @@ export const BlogPostComponent: React.FC = () => {
                 '& pre': { overflow: 'auto' },
               }}
             >
-              <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{post.content}</ReactMarkdown>
+              <ReactMarkdown
+                components={blogMarkdownComponents}
+                remarkRehypeOptions={{ allowDangerousHtml: true }}
+                rehypePlugins={blogRehypePlugins}
+              >
+                {post.content}
+              </ReactMarkdown>
             </Box>
           </article>
 

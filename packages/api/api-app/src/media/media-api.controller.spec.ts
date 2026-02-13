@@ -15,10 +15,10 @@ describe('MediaApiController', () => {
     expect(MediaApiController.getMedia).toBeDefined()
   })
 
-  it('should have uploadUserContent method when instantiated', () => {
+  it('should have uploadContent method when instantiated', () => {
     // arrange
     // act
     // assert
-    expect(MediaApiController.uploadUserContent).toBeDefined()
+    expect(MediaApiController.uploadContent).toBeDefined()
   })
 })

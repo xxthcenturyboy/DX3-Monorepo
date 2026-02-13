@@ -45,6 +45,24 @@ svg {
   display: none;
 }
 
+/* Radix poppers (e.g. link edit popover) often portal to body - ensure above drawer */
+.mdxeditor-popup-container {
+  z-index: 1400 !important;
+}
+
+/* Blog editor: MDXEditor borders match MUI TextField/divider */
+[data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor,
+[data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor-root-contenteditable,
+[data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor-toolbar {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor,
+[data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor-root-contenteditable,
+[data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor-toolbar {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
 /* Phone input label styling */
 .react-tel-input .special-label {
   left: 10px;

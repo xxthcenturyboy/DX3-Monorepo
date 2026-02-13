@@ -85,4 +85,3 @@ export const MAXMIND_GEOIP_DB_PATH = resolveMaxmindGeoIpPath()
 export const POSTGRES_URI = getOptionalEnvVar('POSTGRES_URI', '')
 export const S3_APP_BUCKET_NAME = `${APP_PREFIX}-bucket`
 export const SENDGRID_URL = getOptionalEnvVar('SENDGRID_URL', 'http://localhost:7000')
-export const UPLOAD_MAX_FILE_SIZE = getOptionalEnvVar('UPLOAD_MAX_FILE_SIZE', '50')

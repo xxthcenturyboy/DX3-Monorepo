@@ -1,5 +1,11 @@
 export const MB = 1048576
 
+/** Max file size in bytes for media uploads. API enforces this limit. */
+export const MEDIA_MAX_FILE_SIZE_BYTES = 250 * MB
+
+/** Max number of files per upload (e.g. media upload modal supports up to 5). */
+export const MEDIA_MAX_FILES_PER_UPLOAD = 10
+
 export const MEDIA_SUB_TYPES = {
   ASSET: 'ASSET',
   AUDIO: 'AUDIO',
@@ -37,6 +43,7 @@ export const MIME_TYPES = {
     JPG: 'image/jpeg',
     PNG: 'image/png',
     SVG: 'image/svg+xml',
+    WEBP: 'image/webp',
   },
   VIDEO: {
     MP4: 'video/mp4',
@@ -55,6 +62,7 @@ export const MIME_TYPE_BY_SUB_TYPE = {
     MIME_TYPES.IMAGE.JPG,
     MIME_TYPES.IMAGE.PNG,
     MIME_TYPES.IMAGE.SVG,
+    MIME_TYPES.IMAGE.WEBP,
   ],
   [MEDIA_SUB_TYPES.PROFILE_IMAGE]: [MIME_TYPES.IMAGE.JPG, MIME_TYPES.IMAGE.PNG],
   [MEDIA_SUB_TYPES.VIDEO]: [
@@ -83,6 +91,7 @@ export const MEDIA_TYPE_BY_MIME_TYPE_MAP = {
   [MIME_TYPES.IMAGE.JPG]: MEDIA_TYPES.IMAGE,
   [MIME_TYPES.IMAGE.PNG]: MEDIA_TYPES.IMAGE,
   [MIME_TYPES.IMAGE.SVG]: MEDIA_TYPES.SVG,
+  [MIME_TYPES.IMAGE.WEBP]: MEDIA_TYPES.IMAGE,
   [MIME_TYPES.VIDEO.MP4]: MEDIA_TYPES.VIDEO,
   [MIME_TYPES.VIDEO.MPEG]: MEDIA_TYPES.VIDEO,
   [MIME_TYPES.VIDEO.OGG]: MEDIA_TYPES.VIDEO,
