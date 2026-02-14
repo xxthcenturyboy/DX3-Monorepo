@@ -44,8 +44,8 @@ export const CustomDialog: React.FC<CustomDialogPropsType> = (props) => {
           '& .MuiDialog-paper': {
             borderBottomLeftRadius: isMobileWidth ? '0px' : '24px',
             borderBottomRightRadius: isMobileWidth ? '0px' : '24px',
-            borderTopLeftRadius: isMobileWidth ? '16px' : '24px',
-            borderTopRightRadius: isMobileWidth ? '16px' : '24px',
+            borderTopLeftRadius: isMobileWidth ? '10px' : '24px',
+            borderTopRightRadius: isMobileWidth ? '10px' : '24px',
             bottom: isMobileWidth ? '0px' : 'auto',
             height: isMobileWidth ? '96%' : 'auto',
             position: isMobileWidth ? 'fixed' : 'relative',

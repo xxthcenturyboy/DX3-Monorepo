@@ -46,78 +46,101 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
     'TOOLTIP_REFRESH_LIST',
   ])
 
+  const statusFilterControl = (
+    <FormControl
+      size="small"
+      sx={{ minWidth: SM_BREAK ? 100 : 160 }}
+    >
+      <InputLabel>{strings.STATUS}</InputLabel>
+      <Select
+        label={strings.STATUS}
+        onChange={(e) =>
+          dispatch(
+            blogEditorActions.statusSet(
+              e.target.value as
+                | (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS]
+                | '',
+            ),
+          )
+        }
+        value={statusFilter}
+      >
+        <MenuItem value="">{strings.ALL}</MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.DRAFT}>{strings.BLOG_STATUS_DRAFT}</MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.PUBLISHED}>
+          {strings.BLOG_STATUS_PUBLISHED}
+        </MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.SCHEDULED}>
+          {strings.BLOG_STATUS_SCHEDULED}
+        </MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.ARCHIVED}>
+          {strings.BLOG_STATUS_ARCHIVED}
+        </MenuItem>
+      </Select>
+    </FormControl>
+  )
+
+  const createButton = (
+    <Button
+      color="primary"
+      onClick={props.onCreateClick}
+      variant="contained"
+    >
+      {strings.BLOG_CREATE_POST}
+    </Button>
+  )
+
+  const refreshButton = (
+    <IconButton
+      color="primary"
+      onClick={(e: React.SyntheticEvent) => {
+        e.stopPropagation()
+        props.onRefresh()
+      }}
+      sx={{ boxShadow: 1 }}
+    >
+      <Tooltip title={strings.TOOLTIP_REFRESH_LIST}>
+        <Cached />
+      </Tooltip>
+    </IconButton>
+  )
+
   return (
     <ContentHeader
-      headerColumnRightJustification={SM_BREAK ? 'center' : 'flex-end'}
+      forceRowOnMobile
+      headerColumnRightJustification="flex-end"
       headerColumnsBreaks={{
-        left: { sm: 4, xs: 12 },
-        right: { sm: 8, xs: 12 },
+        left: { md: 4, sm: 4, xs: 10 },
+        right: { md: 8, sm: 8, xs: 2 },
       }}
       headerContent={
-        <Grid
-          alignItems="center"
-          container
-          direction={SM_BREAK ? 'column-reverse' : 'row'}
-          justifyContent={SM_BREAK ? 'center' : 'flex-end'}
-          spacing={1}
-        >
-          <Grid>
-            <FormControl
-              size="small"
-              sx={{ minWidth: 160 }}
-            >
-              <InputLabel>{strings.STATUS}</InputLabel>
-              <Select
-                label={strings.STATUS}
-                onChange={(e) =>
-                  dispatch(
-                    blogEditorActions.statusSet(
-                      e.target.value as
-                        | (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS]
-                        | '',
-                    ),
-                  )
-                }
-                value={statusFilter}
-              >
-                <MenuItem value="">{strings.ALL}</MenuItem>
-                <MenuItem value={BLOG_POST_STATUS.DRAFT}>{strings.BLOG_STATUS_DRAFT}</MenuItem>
-                <MenuItem value={BLOG_POST_STATUS.PUBLISHED}>
-                  {strings.BLOG_STATUS_PUBLISHED}
-                </MenuItem>
-                <MenuItem value={BLOG_POST_STATUS.SCHEDULED}>
-                  {strings.BLOG_STATUS_SCHEDULED}
-                </MenuItem>
-                <MenuItem value={BLOG_POST_STATUS.ARCHIVED}>
-                  {strings.BLOG_STATUS_ARCHIVED}
-                </MenuItem>
-              </Select>
-            </FormControl>
+        SM_BREAK ? (
+          refreshButton
+        ) : (
+          <Grid
+            alignItems="center"
+            container
+            direction="row"
+            justifyContent="flex-end"
+            spacing={1}
+          >
+            <Grid>{statusFilterControl}</Grid>
+            <Grid>{createButton}</Grid>
+            <Grid>{refreshButton}</Grid>
           </Grid>
-          <Grid>
-            <Button
-              color="primary"
-              onClick={props.onCreateClick}
-              variant="contained"
-            >
-              {strings.BLOG_CREATE_POST}
-            </Button>
+        )
+      }
+      headerSecondaryContent={
+        SM_BREAK ? (
+          <Grid
+            alignItems="center"
+            container
+            justifyContent="space-between"
+          >
+            <Grid>{statusFilterControl}</Grid>
+            <Grid>{createButton}</Grid>
           </Grid>
-          <Grid>
-            <IconButton
-              color="primary"
-              onClick={(e: React.SyntheticEvent) => {
-                e.stopPropagation()
-                props.onRefresh()
-              }}
-              sx={{ boxShadow: 1 }}
-            >
-              <Tooltip title={strings.TOOLTIP_REFRESH_LIST}>
-                <Cached />
-              </Tooltip>
-            </IconButton>
-          </Grid>
-        </Grid>
+        ) : undefined
       }
       headerTitle={strings.BLOG_EDITOR_TITLE ?? strings.BLOG}
     />

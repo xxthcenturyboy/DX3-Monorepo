@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material'
+import { Grid, useMediaQuery, useTheme } from '@mui/material'
 import * as React from 'react'
 import { useNavigate } from 'react-router'
 
@@ -20,7 +20,9 @@ import { BlogAdminListHeaderComponent } from './blog-admin-web-list-header.compo
 export const BlogAdminListComponent: React.FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const theme = useTheme()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const isMobileWidth = useMediaQuery(theme.breakpoints.down('sm'))
 
   const strings = useStrings(['BLOG', 'BLOG_EDITOR_TITLE'])
 
@@ -75,7 +77,7 @@ export const BlogAdminListComponent: React.FC = () => {
   return (
     <ContentWrapper
       contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
-      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      contentTopOffset={isAuthenticated ? (isMobileWidth ? '120px' : '82px') : undefined}
       spacerDiv={isAuthenticated}
     >
       <BlogAdminListHeaderComponent

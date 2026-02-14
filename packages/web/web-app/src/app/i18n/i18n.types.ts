@@ -146,6 +146,7 @@ export type StringKeys = {
   BLOG_NO_POSTS: string
   BLOG_NO_POSTS_FOUND: string
   BLOG_PAGE_TITLE: string
+  BLOG_PDF_UPLOAD_SAVE_POST_FIRST: string
   BLOG_POST_NOT_FOUND: string
   BLOG_READ_MORE: string
   BLOG_READING_TIME_MIN: string
@@ -226,6 +227,21 @@ export type StringKeys = {
   HEAP_TOTAL: string
   HEAP_USED: string
   HOME: string
+  IMAGE_EDIT_ALT: string
+  IMAGE_EDIT_DIALOG_TITLE: string
+  IMAGE_EDIT_TITLE: string
+  IMAGE_EDIT_USE_TOOLBAR: string
+  LINK_EDIT_ANCHOR_TEXT: string
+  LINK_EDIT_ANCHOR_TEXT_PLACEHOLDER: string
+  LINK_EDIT_COPIED: string
+  LINK_EDIT_COPY_TO_CLIPBOARD: string
+  LINK_EDIT_EDIT_LINK: string
+  LINK_EDIT_OPEN_IN_NEW: string
+  LINK_EDIT_REMOVE_LINK: string
+  LINK_EDIT_TITLE: string
+  LINK_EDIT_TITLE_PLACEHOLDER: string
+  LINK_EDIT_URL: string
+  LINK_EDIT_URL_PLACEHOLDER: string
   ITEMS_SELECTED: string
   LABEL: string
   LAST_NAME: string
@@ -240,6 +256,11 @@ export type StringKeys = {
   MEDIA_IMAGE_URL_PLACEHOLDER: string
   MEDIA_INSERT_FROM_URL: string
   MEDIA_INVALID_TYPE: string
+  MEDIA_TYPE_FILES: string
+  MEDIA_TYPE_IMAGE: string
+  MEDIA_TYPE_PDF: string
+  MEDIA_UPLOAD_CLICK_TO_SELECT: string
+  MEDIA_UPLOAD_HEADER: string
   MEDIA_UPLOAD_DRAG_OR_CLICK: string
   MEDIA_UPLOAD_DROP_HERE: string
   MEDIA_UPLOAD_FAILED: string

@@ -12,6 +12,7 @@ import {
 import type React from 'react'
 
 export type ContentHeaderPropsType = {
+  forceRowOnMobile?: boolean
   gridDirection?: 'row' | 'column'
   headerTitle: string
   headerColumnRightJustification?: string
@@ -30,6 +31,7 @@ export type ContentHeaderPropsType = {
     }
   }
   headerContent?: React.ReactNode
+  headerSecondaryContent?: React.ReactNode
   headerSubTitle?: string
   navigation?: () => void
   tooltip?: string
@@ -38,10 +40,12 @@ export type ContentHeaderPropsType = {
 
 export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
   const {
+    forceRowOnMobile,
     gridDirection,
     headerColumnsBreaks,
     headerColumnRightJustification,
     headerContent,
+    headerSecondaryContent,
     headerSubTitle,
     headerTitle,
     navigation,
@@ -85,7 +89,9 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
     if (gridDirection) {
       return gridDirection
     }
-
+    if (forceRowOnMobile) {
+      return 'row'
+    }
     return SM_BREAK ? 'column' : 'row'
   }
 
@@ -159,6 +165,11 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
           {headerContent}
         </Grid>
       </Grid>
+      {headerSecondaryContent && (
+        <Box sx={{ padding: '0 16px 14px' }}>
+          {headerSecondaryContent}
+        </Box>
+      )}
       <Divider />
     </Box>
   )

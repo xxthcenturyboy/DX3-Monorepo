@@ -1332,10 +1332,16 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - [x] API endpoints functional
 - [x] EDITOR role working
 - [x] Admin UI (list view) complete
+- [x] Admin editor (create/edit with markdown) - MDXEditor with image/PDF upload, preview
 - [x] Public pages rendering (SSR)
-- [ ] Admin editor (create/edit with markdown) - placeholder route
-- [ ] SEO optimized
+- [ ] Admin settings panel (slug, excerpt, categories, tags, scheduling, SEO) - see BLOG-CMS Phase 5.2
+- [ ] Admin revisions UI (history, diff, restore) - see BLOG-CMS Phase 5.2
+- [ ] Publish/schedule actions in list UI (API exists)
+- [ ] SEO optimized (meta tags for posts; document title done)
+- [ ] RSS feed generation
 - [ ] Tests passing
+
+**Deferred to future phase:** Comments (BLOG-CMS Requirements Summary)
 
 ---
 
@@ -1377,12 +1383,16 @@ Phase 3 implements a full-featured blog/CMS system, including:
 
 ### Phase 3: Blog CMS
 
-- [ ] Database models created
-- [ ] API complete
-- [ ] EDITOR role active
-- [ ] Admin UI functional
-- [ ] Public pages live
-- [ ] SEO optimized
+- [x] Database models created
+- [x] API complete
+- [x] EDITOR role active
+- [x] Admin UI (list + editor with markdown, image/PDF upload)
+- [x] Public pages live
+- [ ] Admin settings panel (slug, excerpt, categories, tags, scheduling, SEO)
+- [ ] Admin revisions UI (history, diff, restore)
+- [ ] Publish/schedule actions in list UI
+- [ ] SEO optimized (meta tags)
+- [ ] Tests passing
 
 ### Post-Implementation
 

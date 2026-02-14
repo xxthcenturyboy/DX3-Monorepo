@@ -30,6 +30,7 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
     'CLOSE',
     'MEDIA_IMAGE_URL_PLACEHOLDER',
     'MEDIA_INSERT_FROM_URL',
+    'MEDIA_UPLOAD_CLICK_TO_SELECT',
     'MEDIA_UPLOAD_FAILED',
     'UPLOAD',
   ])
@@ -45,6 +46,15 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
   const maxFiles = config.maxFiles ?? DEFAULT_MAX_FILES
   const allowUrlInput = config.allowUrlInput ?? false
   const allowedMimeTypes = config.allowedMimeTypes
+  const mediaTypeKey = config.mediaTypeKey ?? 'MEDIA_TYPE_FILES'
+  const headerTitle = t('MEDIA_UPLOAD_HEADER', {
+    mediaType: t(mediaTypeKey),
+  })
+  const enableDragAndDrop = !isMobileWidth
+  const isImageOnly =
+    isMobileWidth &&
+    allowedMimeTypes.length > 0 &&
+    allowedMimeTypes.every((m) => m.startsWith('image/'))
 
   const validateFiles = useCallback(
     (files: File[]): string | null => {
@@ -57,7 +67,11 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
             fileName: file.name,
           })
         }
-        if (!allowedMimeTypes.includes(file.type)) {
+        const typeAllowed =
+          isImageOnly && file.type.startsWith('image/')
+            ? true
+            : allowedMimeTypes.includes(file.type)
+        if (!typeAllowed) {
           return t('MEDIA_UPLOAD_UNSUPPORTED_TYPE', {
             allowedTypes: allowedMimeTypes.join(', '),
             fileName: file.name,
@@ -66,7 +80,7 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
       }
       return null
     },
-    [allowedMimeTypes, maxFiles, t],
+    [allowedMimeTypes, isImageOnly, maxFiles, t],
   )
 
   const handleUpload = useCallback(async () => {
@@ -221,6 +235,13 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
         maxWidth="500px"
         windowHeight={windowHeight}
       >
+        <Typography
+          component="h2"
+          sx={{ mb: 2 }}
+          variant="h6"
+        >
+          {headerTitle}
+        </Typography>
         {allowUrlInput && onUrlInsert && (
           <Box sx={{ mb: 2, width: '100%' }}>
             <TextField
@@ -245,9 +266,11 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
         )}
         <Box
           onClick={() => inputRef.current?.click()}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
+          {...(enableDragAndDrop && {
+            onDragLeave: handleDragLeave,
+            onDragOver: handleDragOver,
+            onDrop: handleDrop,
+          })}
           sx={{
             border: '2px dashed',
             borderColor: isDragActive ? 'primary.main' : 'divider',
@@ -259,7 +282,9 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
           }}
         >
           <input
-            accept={allowedMimeTypes.join(',')}
+            accept={
+              isImageOnly ? 'image/*' : allowedMimeTypes.join(',')
+            }
             multiple={maxFiles > 1}
             onChange={handleInputChange}
             ref={inputRef}
@@ -270,7 +295,11 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
             color="text.secondary"
             variant="body1"
           >
-            {isDragActive ? t('MEDIA_UPLOAD_DROP_HERE') : t('MEDIA_UPLOAD_DRAG_OR_CLICK')}
+            {enableDragAndDrop
+              ? isDragActive
+                ? t('MEDIA_UPLOAD_DROP_HERE')
+                : t('MEDIA_UPLOAD_DRAG_OR_CLICK')
+              : strings.MEDIA_UPLOAD_CLICK_TO_SELECT}
           </Typography>
           <Typography
             color="text.disabled"

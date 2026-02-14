@@ -63,6 +63,19 @@ svg {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+/* Blog editor: toolbar and content scroll together when horizontal overflow (e.g. large image) */
+[data-testid="blog-editor-content"] .mdxeditor {
+  min-width: min-content;
+}
+[data-testid="blog-editor-content"] .mdxeditor-root-contenteditable {
+  overflow-x: visible !important;
+  min-width: min-content;
+}
+[data-testid="blog-editor-content"] .mdxeditor-toolbar {
+  flex-shrink: 0;
+  min-width: min-content;
+}
+
 /* Phone input label styling */
 .react-tel-input .special-label {
   left: 10px;
