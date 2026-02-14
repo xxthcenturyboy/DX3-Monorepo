@@ -44,6 +44,72 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 | Images in content | Both Media API (S3) and external URLs allowed |
 | SEO fields | Title, description, canonical URL override |
 
+## Completed Work
+
+### Step 1: Publish/Schedule in List (Done)
+
+**List view quick actions:**
+
+- **Publish** – Publish immediately with confirmation dialog (Confirm/Cancel, Lottie animations).
+- **Schedule** – Opens `BlogScheduleDialogComponent` with:
+  - Date/time picker (min: now)
+  - Timezone Autocomplete (curated list; "Your timezone" grouped first)
+  - "In your timezone" preview when timezone differs from user's
+  - Confirm/Cancel
+- **Unschedule** – Reverts scheduled posts to draft with confirmation.
+
+**List columns:**
+
+- Title, Slug, Status (all existing)
+- **Date** – Creation date (`createdAt`), sortable
+- **Date Published** – `publishedAt` when published, `scheduledAt` when scheduled, em dash otherwise; sortable
+- **Actions** – Publish, Schedule (draft only), Unschedule (scheduled only)
+
+**API:**
+
+- `POST /blog/admin/posts/:id/publish`
+- `POST /blog/admin/posts/:id/schedule` (body: `{ scheduledAt: ISO string }`)
+- `POST /blog/admin/posts/:id/unschedule`
+
+**Components:**
+
+- `BlogScheduleDialogComponent` – Modal for scheduling (extracted from list).
+- `blog-admin-web-list.service.tsx` – List service with actions column.
+
+### Step 2: Admin Settings Panel (Done)
+
+**Post settings panel** – Right sidebar on edit post page (`/admin/blog/edit/:id`):
+
+- **Slug** – Editable URL path (hidden on new post, auto-generated on first save).
+- **Excerpt** – Optional multiline; API auto-generates if empty.
+- **Categories** – Multi-select Autocomplete from `useGetBlogCategoriesQuery`.
+- **Tags** – Multi-select Autocomplete with `freeSolo` (create-on-the-fly) from `useGetBlogTagsQuery`.
+- **Anonymous toggle** – "Publish as DX3 Team (anonymous)".
+- **SEO section** – `seoTitle`, `seoDescription`, `canonicalUrl`.
+
+**Layout:** Flex row on desktop (editor ~66%, settings 320px sticky); column stack on mobile.
+
+**State:** Redux `blogEditor.settings`; `editorFormLoad` and `settingsSet` actions.
+
+**Components:**
+
+- `BlogAdminSettingsComponent` – Settings form.
+- `blog-admin-web.types.ts` – `BlogEditorSettingsType`.
+
+**Note:** Scheduling remains in the list view (Schedule/Unschedule actions). Featured image deferred.
+
+## Recommended Next Steps (Order)
+
+| Step | Task | Rationale |
+|------|------|-----------|
+| 1 | ~~**Admin settings panel**~~ | Done. Slug, Excerpt, SEO section, categories/tags, anonymous toggle. |
+| 2 | **Public SEO meta tags** | Render stored SEO fields in `<head>` on blog post pages (e.g. `<meta name="description">`, `og:title`). |
+| 3 | Admin revisions UI | History list, diff view, restore. API exists. |
+| 4 | RSS feed | Optional, can be last. |
+| 5 | Tests | After core features are stable. |
+
+**Note:** SEO meta tags are edited in the Admin settings panel, so the panel must be built first. Step 2 then adds the public-facing rendering of those values.
+
 ## Implementation Todos
 
 | ID | Task | Status |
@@ -295,24 +361,13 @@ Add to `packages/web/web-app/src/app/routers/admin.router.tsx`:
 Create in `packages/web/web-app/src/app/blog/admin/`:
 
 - `blog-admin-list.component.tsx` - DataGrid of all posts:
-  - Columns: Title, Status, Author, Created, Updated
+  - Columns: Title, Slug, Status, Date, Date Published, Actions
   - Filters: Status (draft/published/scheduled/archived)
   - Default sort: Most recently created
-  - Quick actions: Edit, Publish, Delete
-- `blog-admin-editor.component.tsx` - Markdown editor with:
-  - Split pane: editor + live preview
-  - Toolbar for formatting (bold, italic, headers, links, images)
-  - Image upload via Media API or external URL paste
-  - Auto-save draft functionality
-- `blog-admin-settings.component.tsx` - Post settings panel:
-  - Slug field (auto-generated, manually editable)
-  - Excerpt field (optional, shows auto-generated preview)
-  - Featured image selector (optional)
-  - Category multi-select
-  - Tag multi-select (with create-on-the-fly)
-  - Anonymous toggle ("Publish as DX3 Team")
-  - SEO section: title, description, canonical URL
-  - Scheduling: date/time picker for future publish
+  - Quick actions: Edit, Publish, Schedule, Unschedule
+- `blog-admin-editor.component.tsx` - Markdown editor (done)
+- `blog-admin-settings.component.tsx` - Post settings panel (see Admin Settings Panel UI Plan below)
+- `blog-admin-revisions.component.tsx` - Revision history (list of revisions, diff view, restore button)
 - `blog-admin-revisions.component.tsx` - Revision history:
   - List of all revisions with timestamp and editor
   - Diff view comparing revisions
@@ -391,3 +446,82 @@ This is a significant feature spanning ~30-40 files across shared, API, and web 
 5. **Phase 5: Polish** (i18n, error handling, loading states)
 
 **Estimated Effort:** 3-5 days for full implementation
+
+---
+
+## Admin Settings Panel UI Plan
+
+The Admin settings panel is where editors configure post metadata, taxonomy, and SEO. It should live on the **edit post page** (`/admin/blog/edit/:id`), alongside the title + markdown editor.
+
+### Layout Options
+
+| Option | Description | Recommendation |
+|--------|-------------|----------------|
+| **Right sidebar** | Collapsible drawer to the right of the editor | Best for desktop; keeps content and settings visible |
+| **Below editor** | Expandable Accordion/Collapsible section | Works well on mobile; simpler layout |
+| **Tabbed** | "Content" vs "Settings" tabs | Clear separation but requires tab switching |
+
+**Recommended:** Right sidebar (desktop) that collapses to a bottom drawer or full-width accordion on mobile. Use MUI `Drawer` or a sticky `Paper` with `sx={{ position: 'sticky', top: ... }}`.
+
+### Panel Sections (Top to Bottom)
+
+**1. Slug**
+- TextField, prefilled from `post.slug`
+- Auto-generated on create from title; editable
+- Show validation error if slug exists (API returns error on save)
+- Helper text: "URL path (e.g. my-post-title)"
+
+**2. Excerpt**
+- Multiline TextField (2–3 rows)
+- Optional; if empty, API auto-generates from content
+- Helper text: "Brief summary for cards and SEO. Leave empty to auto-generate."
+
+**3. Categories**
+- Autocomplete multi-select
+- Options from `useGetBlogCategoriesQuery()`
+- Create new category inline (future: admin CRUD for categories)
+- Selected: `post.categories` (array of `{ id, name, slug }`)
+
+**4. Tags**
+- Autocomplete multi-select with create-on-the-fly
+- Options from `useGetBlogTagsQuery()`
+- Allow free-text entry; API `resolveTagIds` finds or creates by slug
+- Selected: `post.tags` (array of `{ id, name, slug }`)
+
+**5. Featured Image** (Optional Phase)
+- Media selector or URL input
+- Maps to `featuredImageId`
+- Can defer if Media API integration is nontrivial
+
+**6. Anonymous Toggle**
+- MUI Switch: "Publish as DX3 Team (anonymous)"
+- Maps to `isAnonymous`
+
+**7. SEO Section** ← **SEO meta tags live here**
+- **SEO Title** (`seoTitle`) – TextField, placeholder: "Defaults to post title"
+- **SEO Description** (`seoDescription`) – Multiline, max ~160 chars, placeholder: "Meta description for search results"
+- **Canonical URL** (`canonicalUrl`) – TextField, optional, for cross-posting / syndication
+
+These fields feed `<meta name="description">`, `<meta property="og:title">`, etc. on the public post page. The public `blog-post-web.component.tsx` must render these in `<head>` (via React Helmet or equivalent).
+
+**8. Scheduling**
+- Only shown when post is DRAFT
+- Datetime-local + timezone (reuse `BlogScheduleDialogComponent` patterns or inline fields)
+- Maps to `scheduledAt`; calls `schedulePost` API on "Schedule" or persists via `updatePost` if API supports `scheduledAt` in update payload
+- If post is SCHEDULED: show scheduled date + "Change" / "Unschedule" actions
+
+### Data Flow
+
+- **Load:** `useGetBlogAdminPostByIdQuery(id)` populates post; settings panel reads `post.slug`, `post.excerpt`, `post.categories`, `post.tags`, `post.seoTitle`, `post.seoDescription`, `post.canonicalUrl`, `post.isAnonymous`, `post.scheduledAt`.
+- **Save:** On "Save" (or auto-save), `updatePost` payload includes all changed settings. Editor already sends `content` and `title`; extend to include settings fields.
+- **State:** Either lift settings into Redux (`blogEditor` reducer) or keep local state in the settings component and merge into payload on save.
+
+### Implementation Order
+
+1. Create `BlogAdminSettingsComponent` shell (empty panel, correct placement in editor layout).
+2. Slug + Excerpt (simplest fields).
+3. SEO section (seoTitle, seoDescription, canonicalUrl).
+4. Categories + Tags (requires Autocomplete + API wiring).
+5. Anonymous toggle.
+6. Scheduling (inline or link to schedule flow).
+7. Featured image (optional).

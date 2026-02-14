@@ -15,9 +15,25 @@ export const selectBlogEditorFilterValue = createSelector(
   (s) => s.filterValue,
 )
 
+const settingsEqual = (
+  a: { canonicalUrl: string; categories: string[]; excerpt: string; isAnonymous: boolean; seoDescription: string; seoTitle: string; slug: string; tags: string[] },
+  b: typeof a,
+): boolean =>
+  a.canonicalUrl === b.canonicalUrl &&
+  a.excerpt === b.excerpt &&
+  a.isAnonymous === b.isAnonymous &&
+  a.seoDescription === b.seoDescription &&
+  a.seoTitle === b.seoTitle &&
+  a.slug === b.slug &&
+  JSON.stringify([...a.categories].sort()) === JSON.stringify([...b.categories].sort()) &&
+  JSON.stringify([...a.tags].sort()) === JSON.stringify([...b.tags].sort())
+
 export const selectBlogEditorIsDirty = createSelector(
   [getBlogEditorState],
-  (s) => s.title !== s.initialTitle || s.content !== s.initialContent,
+  (s) =>
+    s.title !== s.initialTitle ||
+    s.content !== s.initialContent ||
+    !settingsEqual(s.settings, s.initialSettings),
 )
 
 export const selectBlogEditorLimit = createSelector([getBlogEditorState], (s) => s.limit)
@@ -29,6 +45,11 @@ export const selectBlogEditorOrderBy = createSelector([getBlogEditorState], (s) 
 export const selectBlogEditorSortDir = createSelector([getBlogEditorState], (s) => s.sortDir)
 
 export const selectBlogEditorStatus = createSelector([getBlogEditorState], (s) => s.status)
+
+export const selectBlogEditorSettings = createSelector(
+  [getBlogEditorState],
+  (s) => s.settings,
+)
 
 export const selectBlogEditorTitle = createSelector([getBlogEditorState], (s) => s.title)
 

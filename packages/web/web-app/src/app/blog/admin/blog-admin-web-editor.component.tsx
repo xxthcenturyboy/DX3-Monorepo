@@ -52,8 +52,14 @@ import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import {
   useCreateBlogPostMutation,
   useGetBlogAdminPostByIdQuery,
+  useGetBlogCategoriesQuery,
+  useGetBlogTagsQuery,
   useUpdateBlogPostMutation,
 } from '../blog-web.api'
+import {
+  BlogAdminSettingsDrawerComponent,
+  BlogAdminSettingsTriggerButton,
+} from './blog-admin-settings-drawer.component'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
 import { blogEditorActions } from './blog-admin-web.reducer'
 import {
@@ -75,6 +81,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const [editorHeight, setEditorHeight] = React.useState(400)
   const [imageModalOpen, setImageModalOpen] = React.useState(false)
   const [pdfModalOpen, setPdfModalOpen] = React.useState(false)
+  const [settingsDrawerOpen, setSettingsDrawerOpen] = React.useState(false)
 
   const handleResizeStart = React.useCallback(
     (e: React.MouseEvent) => {
@@ -105,8 +112,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const content = useAppSelector(selectBlogEditorContent)
   const isDirty = useAppSelector(selectBlogEditorIsDirty)
   const isMobileWidth = useAppSelector(selectIsMobileWidth)
-  const windowHeight = useAppSelector(selectWindowHeight)
   const theme = useTheme()
+  const windowHeight = useAppSelector(selectWindowHeight)
 
   // Initial editor height: fill viewport minus header, title field, buttons, padding
   const EDITOR_OVERHEAD_PX = 360
@@ -142,6 +149,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
     refetchOnMountOrArgChange: true,
     skip: isNew || !id,
   })
+  const { data: categories = [] } = useGetBlogCategoriesQuery()
+  const { data: tags = [] } = useGetBlogTagsQuery()
   const [createPost, { isLoading: isCreating }] = useCreateBlogPostMutation()
   const [updatePost, { isLoading: isUpdating }] = useUpdateBlogPostMutation()
   const [uploadContent] = useUploadContentMutation()
@@ -248,6 +257,16 @@ export const BlogAdminEditorComponent: React.FC = () => {
       dispatch(
         blogEditorActions.editorFormLoad({
           content: post.content,
+          settings: {
+            canonicalUrl: post.canonicalUrl ?? '',
+            categories: post.categories?.map((c) => c.id) ?? [],
+            excerpt: post.excerpt ?? '',
+            isAnonymous: post.isAnonymous ?? false,
+            seoDescription: post.seoDescription ?? '',
+            seoTitle: post.seoTitle ?? '',
+            slug: post.slug ?? '',
+            tags: post.tags?.map((t) => t.id) ?? [],
+          },
           title: post.title,
         }),
       )
@@ -279,25 +298,59 @@ export const BlogAdminEditorComponent: React.FC = () => {
     setCancelConfirmOpen(false)
     if (confirmed) {
       navigate(BLOG_EDITOR_ROUTES.LIST)
-      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+      sleep(1000).then(() => {
+        dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+      })
     }
   }
+
+  const settings = useAppSelector((state) => state.blogEditor.settings)
 
   const handleSave = async () => {
     if (!title.trim()) return
 
     try {
       if (isNew) {
-        const result = await createPost({ content: content || '', title: title.trim() }).unwrap()
+        const result = await createPost({
+          content: content || '',
+          title: title.trim(),
+          ...(settings.excerpt && { excerpt: settings.excerpt }),
+          ...(settings.categories.length > 0 && {
+            categories: settings.categories,
+          }),
+          ...(settings.tags.length > 0 && { tags: settings.tags }),
+          ...(settings.isAnonymous && { isAnonymous: true }),
+        }).unwrap()
         navigate(`${BLOG_EDITOR_ROUTES.EDIT}/${result.id}`)
       } else if (id) {
         await updatePost({
           id,
-          payload: { content: content || '', title: title.trim() },
+          payload: {
+            canonicalUrl: settings.canonicalUrl || null,
+            categories: settings.categories,
+            content: content || '',
+            excerpt: settings.excerpt || null,
+            isAnonymous: settings.isAnonymous,
+            seoDescription: settings.seoDescription || null,
+            seoTitle: settings.seoTitle || null,
+            slug: settings.slug || undefined,
+            tags: settings.tags,
+            title: title.trim(),
+          },
         }).unwrap()
         dispatch(
           blogEditorActions.editorFormLoad({
             content: content || '',
+            settings: {
+              canonicalUrl: settings.canonicalUrl,
+              categories: settings.categories,
+              excerpt: settings.excerpt,
+              isAnonymous: settings.isAnonymous,
+              seoDescription: settings.seoDescription,
+              seoTitle: settings.seoTitle,
+              slug: settings.slug,
+              tags: settings.tags,
+            },
             title: title.trim(),
           }),
         )
@@ -345,15 +398,19 @@ export const BlogAdminEditorComponent: React.FC = () => {
           right: { md: 6, sm: 6, xs: 4 },
         }}
         headerContent={
-          !isNew && id ? (
-            <Button
-              disabled={isDirty}
-              onClick={() => !isDirty && navigate(`${BLOG_EDITOR_ROUTES.PREVIEW}/${id}`)}
-              variant="outlined"
-            >
-              {strings.PREVIEW}
-            </Button>
-          ) : undefined
+          <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+            <BlogAdminSettingsTriggerButton onClick={() => setSettingsDrawerOpen(true)} />
+            {!isNew && id && (
+              <Button
+                disabled={isDirty}
+                onClick={() => !isDirty && navigate(`${BLOG_EDITOR_ROUTES.PREVIEW}/${id}`)}
+                size="small"
+                variant="outlined"
+              >
+                {strings.PREVIEW}
+              </Button>
+            )}
+          </Box>
         }
         headerTitle={isNew ? strings.BLOG_NEW_POST_TITLE : strings.BLOG_EDIT_POST_TITLE}
         navigation={handleCancel}
@@ -516,6 +573,22 @@ export const BlogAdminEditorComponent: React.FC = () => {
           </Button>
         </Box>
       </Box>
+
+      <BlogAdminSettingsDrawerComponent
+        categories={categories}
+        isDirty={isDirty}
+        isNew={isNew}
+        isSaving={isSaving}
+        onClose={() => setSettingsDrawerOpen(false)}
+        onPublishSuccess={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
+        onScheduleSuccess={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
+        onUnscheduleSuccess={() => {}}
+        open={settingsDrawerOpen}
+        postId={id}
+        postStatus={post?.status}
+        postTitle={post?.title}
+        tags={tags}
+      />
 
       {createPortal(
         <CustomDialog

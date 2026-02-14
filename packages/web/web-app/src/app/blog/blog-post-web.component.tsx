@@ -14,9 +14,11 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
+import { WebConfigService } from '../config/config-web.service'
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
 import { useAppSelector } from '../store/store-web-redux.hooks'
+import { setBlogPostMeta } from './blog-web-set-meta'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { blogMarkdownComponents } from './blog-markdown-components'
 import { BlogPostCardComponent } from './blog-post-card.component'
@@ -49,10 +51,22 @@ export const BlogPostComponent: React.FC = () => {
   )
 
   React.useEffect(() => {
-    if (post) {
+    if (post && slug) {
       setDocumentTitle(post.seoTitle ?? post.title)
+      setBlogPostMeta(
+        {
+          canonicalUrl: post.canonicalUrl,
+          content: post.content,
+          excerpt: post.excerpt,
+          seoDescription: post.seoDescription,
+          seoTitle: post.seoTitle,
+          slug,
+          title: post.title,
+        },
+        WebConfigService.getWebUrls().WEB_APP_URL,
+      )
     }
-  }, [post])
+  }, [post, slug])
 
   React.useEffect(() => {
     setFadeIn(true)

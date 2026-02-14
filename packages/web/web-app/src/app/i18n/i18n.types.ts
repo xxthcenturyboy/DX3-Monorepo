@@ -132,9 +132,21 @@ export type StringKeys = {
   BLOG_CONTENT: string
   BLOG_DISCARD_CHANGES_CONFIRM: string
   BLOG_CREATE_NEW_POST: string
+  BLOG_ANONYMOUS: string
+  BLOG_CANONICAL_URL: string
+  BLOG_CATEGORIES: string
   BLOG_CREATE_POST: string
   BLOG_DATE_CREATED: string
   BLOG_DATE_PUBLISHED: string
+  BLOG_EXCERPT: string
+  BLOG_EXCERPT_HELPER: string
+  BLOG_SEO_DESCRIPTION: string
+  BLOG_SEO_SECTION: string
+  BLOG_SEO_TITLE: string
+  BLOG_SETTINGS: string
+  BLOG_SETTINGS_BUTTON: string
+  BLOG_SLUG_HELPER: string
+  BLOG_TAGS: string
   BLOG_EDITOR_COMING_SOON_DESC: string
   BLOG_EDITOR_MENU: string
   BLOG_EDITOR_TITLE: string
@@ -152,6 +164,8 @@ export type StringKeys = {
   BLOG_POST_NOT_FOUND: string
   BLOG_PUBLISH: string
   BLOG_PUBLISH_CONFIRM: string
+  BLOG_PUBLISH_NOW: string
+  BLOG_PUBLISHING: string
   BLOG_READ_MORE: string
   BLOG_READING_TIME_MIN: string
   BLOG_RELATED_POSTS: string
