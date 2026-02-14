@@ -1,21 +1,33 @@
 import { Grid, useMediaQuery, useTheme } from '@mui/material'
 import * as React from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
+import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
+import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { TableComponent } from '@dx3/web-libs/ui/table/table.component'
 import type { TableRowType } from '@dx3/web-libs/ui/table/types'
+import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
 import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
-import { useGetBlogAdminPostsQuery } from '../blog-web.api'
+import {
+  useGetBlogAdminPostsQuery,
+  usePublishBlogPostMutation,
+  useUnscheduleBlogPostMutation,
+} from '../blog-web.api'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
 import { blogEditorActions } from './blog-admin-web.reducer'
 import { selectBlogEditorQueryParams } from './blog-admin-web.selectors'
-import { BlogAdminWebListService } from './blog-admin-web-list.service'
 import { BlogAdminListHeaderComponent } from './blog-admin-web-list-header.component'
+import {
+  BlogAdminWebListService,
+  type BlogListActionsType,
+} from './blog-admin-web-list.service'
+import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
 
 export const BlogAdminListComponent: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -24,12 +36,30 @@ export const BlogAdminListComponent: React.FC = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const isMobileWidth = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const strings = useStrings(['BLOG', 'BLOG_EDITOR_TITLE'])
+  const strings = useStrings([
+    'BLOG',
+    'BLOG_EDITOR_TITLE',
+    'BLOG_PUBLISH',
+    'BLOG_PUBLISH_CONFIRM',
+    'BLOG_UNSCHEDULE',
+    'BLOG_UNSCHEDULE_CONFIRM',
+    'CANCEL',
+    'CANCELING',
+  ])
 
   const queryParams = useAppSelector(selectBlogEditorQueryParams)
   const { data, isFetching, refetch } = useGetBlogAdminPostsQuery(queryParams, {
     refetchOnMountOrArgChange: true,
   })
+  const [publishPost] = usePublishBlogPostMutation()
+  const [unschedulePost] = useUnscheduleBlogPostMutation()
+
+  const [publishConfirmOpen, setPublishConfirmOpen] = React.useState(false)
+  const [publishPostId, setPublishPostId] = React.useState<string | null>(null)
+  const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false)
+  const [schedulePostId, setSchedulePostId] = React.useState<string | null>(null)
+  const [unscheduleConfirmOpen, setUnscheduleConfirmOpen] = React.useState(false)
+  const [unschedulePostId, setUnschedulePostId] = React.useState<string | null>(null)
 
   const limit = useAppSelector((state) => state.blogEditor.limit)
   const offset = useAppSelector((state) => state.blogEditor.offset)
@@ -38,9 +68,71 @@ export const BlogAdminListComponent: React.FC = () => {
 
   const listService = React.useMemo(() => new BlogAdminWebListService(), [])
   const listHeaders = BlogAdminWebListService.getListHeaders()
+  const handlePublishClick = React.useCallback((id: string) => {
+    setPublishPostId(id)
+    setPublishConfirmOpen(true)
+  }, [])
+  const handlePublishConfirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setPublishConfirmOpen(false)
+      const id = publishPostId
+      setPublishPostId(null)
+      if (!confirmed || !id) return
+      try {
+        await publishPost(id).unwrap()
+        refetch()
+      } catch {
+        // Error handled by RTK Query / toast
+      }
+    },
+    [publishPost, publishPostId, refetch],
+  )
+  const handleScheduleClick = React.useCallback((id: string) => {
+    setSchedulePostId(id)
+    setScheduleDialogOpen(true)
+  }, [])
+  const handleScheduleClose = React.useCallback(() => {
+    setScheduleDialogOpen(false)
+    setSchedulePostId(null)
+  }, [])
+  const handleUnscheduleClick = React.useCallback((id: string) => {
+    setUnschedulePostId(id)
+    setUnscheduleConfirmOpen(true)
+  }, [])
+  const handleUnscheduleConfirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setUnscheduleConfirmOpen(false)
+      const id = unschedulePostId
+      setUnschedulePostId(null)
+      if (!confirmed || !id) return
+      try {
+        await unschedulePost(id).unwrap()
+        refetch()
+      } catch {
+        // Error handled by RTK Query / toast
+      }
+    },
+    [refetch, unschedulePost, unschedulePostId],
+  )
+  const handleUnscheduleClose = React.useCallback(() => {
+    setUnscheduleConfirmOpen(false)
+    setUnschedulePostId(null)
+  }, [])
+  const listActions: BlogListActionsType = React.useMemo(
+    () => ({
+      onPublish: handlePublishClick,
+      onScheduleClick: handleScheduleClick,
+      onUnschedule: handleUnscheduleClick,
+    }),
+    [handlePublishClick, handleScheduleClick, handleUnscheduleClick],
+  )
   const rows: TableRowType[] = React.useMemo(
-    () => listService.getRows(data?.rows ?? []),
-    [data?.rows, listService],
+    () => listService.getRows(data?.rows ?? [], listActions),
+    [data?.rows, listActions, listService],
+  )
+  const scheduledPost = React.useMemo(
+    () => data?.rows?.find((p) => p.id === schedulePostId) ?? null,
+    [data?.rows, schedulePostId],
   )
 
   React.useEffect(() => {
@@ -110,6 +202,50 @@ export const BlogAdminListComponent: React.FC = () => {
           tableName="BlogPosts"
         />
       </Grid>
+
+      <BlogScheduleDialogComponent
+        onClose={handleScheduleClose}
+        onSuccess={refetch}
+        open={scheduleDialogOpen}
+        postId={schedulePostId}
+        postTitle={scheduledPost?.title ?? ''}
+      />
+      {createPortal(
+        <>
+          <CustomDialog
+            body={
+              <ConfirmationDialog
+                bodyMessage={strings.BLOG_PUBLISH_CONFIRM}
+                cancellingText={(strings as Record<string, string>).CANCELING ?? 'Canceling'}
+                cancelText={strings.CANCEL}
+                okText={strings.BLOG_PUBLISH}
+                onComplete={handlePublishConfirm}
+              />
+            }
+            closeDialog={() => {
+              setPublishConfirmOpen(false)
+              setPublishPostId(null)
+            }}
+            isMobileWidth={isMobileWidth}
+            open={publishConfirmOpen}
+          />
+          <CustomDialog
+            body={
+              <ConfirmationDialog
+                bodyMessage={strings.BLOG_UNSCHEDULE_CONFIRM}
+                cancellingText={(strings as Record<string, string>).CANCELING ?? 'Canceling'}
+                cancelText={strings.CANCEL}
+                okText={strings.BLOG_UNSCHEDULE}
+                onComplete={handleUnscheduleConfirm}
+              />
+            }
+            closeDialog={handleUnscheduleClose}
+            isMobileWidth={isMobileWidth}
+            open={unscheduleConfirmOpen}
+          />
+        </>,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )}
     </ContentWrapper>
   )
 }

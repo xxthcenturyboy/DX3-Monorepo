@@ -266,6 +266,25 @@ export class BlogService {
   }
 
   /**
+   * Unschedule a scheduled post (revert to draft)
+   */
+  async unschedulePost(id: string): Promise<BlogPostType> {
+    const post = await BlogPostModel.findByPk(id)
+    if (!post || post.deletedAt) throw new Error('Post not found')
+    if (post.status !== BLOG_POST_STATUS.SCHEDULED)
+      throw new Error('Only scheduled posts can be unscheduled')
+
+    await post.update({
+      scheduledAt: null,
+      status: BLOG_POST_STATUS.DRAFT,
+    })
+
+    const saved = await this.getPostById(id)
+    if (!saved) throw new Error('Failed to unschedule post')
+    return saved
+  }
+
+  /**
    * Get revision history for a post
    */
   async getRevisions(postId: string): Promise<BlogPostRevisionType[]> {

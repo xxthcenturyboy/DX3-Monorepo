@@ -250,6 +250,20 @@ export const BlogController = {
     }
   },
 
+  unschedulePost: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'unscheduleBlogPost' })
+    try {
+      const id = req.params.id
+      if (!id) return sendBadRequest(req, res, 'Post ID is required')
+
+      const post = await blogService.unschedulePost(id)
+      return sendOK(req, res, post)
+    } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed unscheduleBlogPost' })
+      sendBadRequest(req, res, (err as Error).message)
+    }
+  },
+
   updatePost: async (req: Request, res: Response) => {
     logRequest({ req, type: 'updateBlogPost' })
     try {

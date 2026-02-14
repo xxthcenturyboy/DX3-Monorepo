@@ -36,6 +36,7 @@ function configureAdminRoutes(): Router {
   router.delete('/posts/:id', BlogController.deletePost)
   router.post('/posts/:id/publish', BlogController.publishPost)
   router.post('/posts/:id/schedule', BlogController.schedulePost)
+  router.post('/posts/:id/unschedule', BlogController.unschedulePost)
   router.get('/posts/:id/revisions', BlogController.getRevisions)
   router.post('/posts/:id/revisions/:revisionId/restore', BlogController.restoreRevision)
 

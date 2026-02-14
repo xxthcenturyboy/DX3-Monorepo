@@ -33,6 +33,7 @@ import {
   MIME_TYPE_BY_SUB_TYPE,
   MIME_TYPES,
 } from '@dx3/models-shared'
+import { sleep } from '@dx3/utils-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
@@ -268,15 +269,17 @@ export const BlogAdminEditorComponent: React.FC = () => {
       setCancelConfirmOpen(true)
       return
     }
-    dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
     navigate(BLOG_EDITOR_ROUTES.LIST)
+    sleep(1000).then(() => {
+      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+    })
   }
 
   const handleCancelConfirm = (confirmed: boolean) => {
     setCancelConfirmOpen(false)
     if (confirmed) {
-      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
       navigate(BLOG_EDITOR_ROUTES.LIST)
+      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
     }
   }
 
@@ -539,24 +542,23 @@ export const BlogAdminEditorComponent: React.FC = () => {
         document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
       )}
 
-      {cancelConfirmOpen &&
-        createPortal(
-          <CustomDialog
-            body={
-              <ConfirmationDialog
-                bodyMessage={strings.BLOG_DISCARD_CHANGES_CONFIRM}
-                cancellingText={strings.CANCELING}
-                cancelText={strings.CANCEL}
-                okText={strings.DISCARD}
-                onComplete={handleCancelConfirm}
-              />
-            }
-            closeDialog={() => setCancelConfirmOpen(false)}
-            isMobileWidth={isMobileWidth}
-            open={cancelConfirmOpen}
-          />,
-          document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
-        )}
+      {createPortal(
+        <CustomDialog
+          body={
+            <ConfirmationDialog
+              bodyMessage={strings.BLOG_DISCARD_CHANGES_CONFIRM}
+              cancellingText={strings.CANCELING}
+              cancelText={strings.CANCEL}
+              okText={strings.DISCARD}
+              onComplete={handleCancelConfirm}
+            />
+          }
+          closeDialog={() => setCancelConfirmOpen(false)}
+          isMobileWidth={isMobileWidth}
+          open={cancelConfirmOpen}
+        />,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )}
 
       {createPortal(
         <CustomDialog

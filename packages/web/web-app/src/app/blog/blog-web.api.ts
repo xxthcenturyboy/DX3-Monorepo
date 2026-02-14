@@ -7,6 +7,7 @@ import type {
   GetBlogPostsAdminQueryType,
   GetBlogPostsAdminResponseType,
   GetBlogPostsResponseType,
+  ScheduleBlogPostPayloadType,
   UpdateBlogPostPayloadType,
 } from '@dx3/models-shared'
 
@@ -108,6 +109,34 @@ export const apiWebBlog = apiWeb.injectEndpoints({
         url: '/blog/tags',
       }),
     }),
+    publishBlogPost: build.mutation<BlogPostType, string>({
+      invalidatesTags: ['BlogPost'],
+      query: (id) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'POST',
+        url: `/blog/admin/posts/${id}/publish`,
+      }),
+    }),
+    scheduleBlogPost: build.mutation<
+      BlogPostType,
+      { id: string; payload: ScheduleBlogPostPayloadType }
+    >({
+      invalidatesTags: (_result, _error, { id }) => [{ id, type: 'BlogPost' }],
+      query: ({ id, payload }) => ({
+        data: payload,
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'POST',
+        url: `/blog/admin/posts/${id}/schedule`,
+      }),
+    }),
+    unscheduleBlogPost: build.mutation<BlogPostType, string>({
+      invalidatesTags: (_result, _error, id) => [{ id, type: 'BlogPost' }],
+      query: (id) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'POST',
+        url: `/blog/admin/posts/${id}/unschedule`,
+      }),
+    }),
     updateBlogPost: build.mutation<BlogPostType, { id: string; payload: UpdateBlogPostPayloadType }>({
       invalidatesTags: (_result, _error, { id }) => [{ id, type: 'BlogPost' }],
       query: ({ id, payload }) => ({
@@ -132,5 +161,8 @@ export const {
   useGetBlogRelatedPostsQuery,
   useGetBlogTagsQuery,
   useLazyGetBlogPostsQuery,
+  usePublishBlogPostMutation,
+  useScheduleBlogPostMutation,
+  useUnscheduleBlogPostMutation,
   useUpdateBlogPostMutation,
 } = apiWebBlog

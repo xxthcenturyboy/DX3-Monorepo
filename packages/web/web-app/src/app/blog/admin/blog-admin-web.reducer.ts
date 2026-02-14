@@ -5,7 +5,7 @@ import type { BlogPostStatusType } from '@dx3/models-shared'
 import { BLOG_EDITOR_ENTITY_NAME } from './blog-admin-web.consts'
 import type { BlogEditorStateType } from './blog-admin-web.types'
 
-const BLOG_EDITOR_DEFAULT_LIMIT = 20
+const BLOG_EDITOR_DEFAULT_LIMIT = 25
 const BLOG_EDITOR_DEFAULT_OFFSET = 0
 
 export const blogEditorInitialState: BlogEditorStateType = {
