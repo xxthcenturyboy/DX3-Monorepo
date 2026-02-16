@@ -53,10 +53,8 @@ export const selectBlogEditorStatus = createSelector(
   (s) => s.status,
 )
 
-export const selectBlogEditorSettings = createSelector(
-  [getBlogEditorSettingsState],
-  (s) => s,
-)
+/** Plain selector - no createSelector needed when passing through the full slice */
+export const selectBlogEditorSettings = getBlogEditorSettingsState
 
 export const selectBlogEditorTitle = createSelector(
   [getBlogEditorBodyState],

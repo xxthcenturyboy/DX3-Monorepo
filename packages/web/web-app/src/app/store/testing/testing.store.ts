@@ -42,9 +42,10 @@ export const rootReducer = combineReducers({
   userProfile: userProfileReducer,
 })
 
-export const setupStore = (_preloadedState: Partial<RootState>) => {
+export const setupStore = (preloadedState: Partial<RootState> = {}) => {
   return configureStore({
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiWeb.middleware),
+    preloadedState,
     reducer: rootReducer,
   })
 }
