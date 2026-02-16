@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implement a full-featured blog/news CMS with database-driven content, markdown rendering, role-based authorship (editor role), draft/scheduling/revision support, and an admin UI - all integrated with the existing SSR infrastructure.
+Implement a full-featured blog/news CMS with database-driven content, markdown rendering, role-based authorship (editor role), draft/scheduling support, and an admin UI - all integrated with the existing SSR infrastructure.
 
 ## Requirements Summary
 
@@ -24,10 +24,9 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 | Author attribution | Author's choice per post (show name or anonymous) |
 | Anonymous display | Shows "DX3 Team" when anonymous |
 
-### Revisions & Scheduling
+### Scheduling
 | Requirement | Decision |
 |-------------|----------|
-| Revision retention | Unlimited (keep all history) |
 | Scheduled posts | node-cron background job within API process |
 
 ### Public Display
@@ -102,30 +101,26 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 
 | Step | Task | Rationale |
 |------|------|-----------|
-| 1 | ~~**Admin settings panel**~~ | Done. Slug, Excerpt, SEO section, categories/tags, anonymous toggle. |
-| 2 | **Public SEO meta tags** | Render stored SEO fields in `<head>` on blog post pages (e.g. `<meta name="description">`, `og:title`). |
-| 3 | Admin revisions UI | History list, diff view, restore. API exists. |
-| 4 | RSS feed | Optional, can be last. |
-| 5 | Tests | After core features are stable. |
-
-**Note:** SEO meta tags are edited in the Admin settings panel, so the panel must be built first. Step 2 then adds the public-facing rendering of those values.
+| 1 | ~~**Admin settings panel**~~ | Done. Slug, excerpt, SEO, categories/tags, anonymous toggle. |
+| 2 | ~~**Public SEO meta tags**~~ | Done. `setBlogPostMeta()` renders description, og:title, og:url on post pages. |
+| 3 | **Featured image** | UI to set/display optional featured image per post. |
+| 4 | **Tests** | Unit and E2E tests for blog editor, list, publish/schedule flows. |
 
 ## Implementation Todos
 
 | ID | Task | Status |
 |----|------|--------|
-| shared-types | Create shared blog types and constants in packages/shared/models/src/blog/ | Pending |
-| db-models | Create Postgres models for blog_posts, revisions, categories, tags | Pending |
-| db-migration | Create database migration script for blog tables | Pending |
-| api-service | Implement BlogService with CRUD, publishing, scheduling, and revision methods | Pending |
-| api-routes | Create public and admin API routes for blog operations | Pending |
-| scheduler | Implement node-cron job for publishing scheduled posts | Pending |
-| ssr-loaders | Add SSR loaders to ssr.routes.tsx for /blog and /blog/:slug | Pending |
-| public-components | Refactor blog components with markdown rendering, infinite scroll, related posts | Pending |
-| admin-routes | Add blog admin routes to admin.router.tsx | Pending |
-| admin-ui | Build admin UI: post list, markdown editor, settings, revisions | Pending |
-| rtk-api | Create RTK Query endpoints for blog admin operations | Pending |
-| i18n | Add all blog-related i18n strings to en.json | Pending |
+| shared-types | Shared blog types and constants | Done |
+| db-models | Postgres models for blog_posts, categories, tags | Done |
+| db-migration | Database migration for blog tables | Done |
+| api-service | BlogService with CRUD, publish, schedule, unpublish | Done |
+| api-routes | Public and admin API routes | Done |
+| scheduler | node-cron for publishing scheduled posts | Done |
+| public-components | Markdown rendering, infinite scroll, related posts | Done |
+| admin-ui | Post list, markdown editor, settings panel | Done |
+| rtk-api | RTK Query endpoints for blog | Done |
+| featured-image | Featured image UI in settings | Pending |
+| tests | Unit and E2E tests for blog | Pending |
 
 ## Architecture Overview
 
@@ -145,7 +140,6 @@ flowchart TB
 
     subgraph db [PostgreSQL]
         PostsTable[blog_posts]
-        RevisionsTable[blog_post_revisions]
         CategoriesTable[blog_categories]
         TagsTable[blog_tags]
     end
@@ -156,7 +150,6 @@ flowchart TB
     BlogRoutes --> BlogService
     BlogService --> BlogModel
     BlogModel --> PostsTable
-    BlogModel --> RevisionsTable
     BlogModel --> CategoriesTable
     BlogModel --> TagsTable
 ```
@@ -165,7 +158,7 @@ flowchart TB
 
 Create shared blog types in `packages/shared/models/src/blog/`:
 
-- `blog-shared.types.ts` - BlogPost, BlogCategory, BlogTag, BlogRevision types
+- `blog-shared.types.ts` - BlogPost, BlogCategory, BlogTag types
 - `blog-shared.consts.ts` - Post status enum (DRAFT, SCHEDULED, PUBLISHED, ARCHIVED), role constants
 
 Key types:
@@ -207,15 +200,6 @@ type BlogTagType = {
   slug: string
 }
 
-type BlogPostRevisionType = {
-  content: string
-  createdAt: Date
-  editorId: string                   // Who made this revision
-  excerpt: string | null
-  id: string
-  postId: string
-  title: string
-}
 ```
 
 ## Phase 2: Database Layer (API)
@@ -227,8 +211,7 @@ Create in `packages/api/libs/blog/`:
 | Model | Table | Purpose |
 |-------|-------|---------|
 | `BlogPostModel` | `blog_posts` | Main posts table with status, scheduling, SEO fields |
-| `BlogPostRevisionModel` | `blog_post_revisions` | Version history for each post |
-| `BlogCategoryModel` | `blog_categories` | Post categories (hierarchical) |
+| `BlogCategoryModel` | `blog_categories` | Post categories (flat) |
 | `BlogTagModel` | `blog_tags` | Post tags (flat) |
 | `BlogPostTagModel` | `blog_post_tags` | Many-to-many junction |
 | `BlogPostCategoryModel` | `blog_post_categories` | Many-to-many junction |

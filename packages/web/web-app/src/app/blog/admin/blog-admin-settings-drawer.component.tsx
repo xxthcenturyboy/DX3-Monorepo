@@ -17,10 +17,12 @@ import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../../i18n'
+import { useAppSelector } from '../../store/store-web-redux.hooks'
 import {
   BlogAdminSettingsComponent,
   type BlogAdminSettingsComponentPropsType,
 } from './blog-admin-settings.component'
+import { selectBlogEditorIsDirty } from './blog-admin-web.selectors'
 import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
 import {
   usePublishBlogPostMutation,
@@ -29,9 +31,9 @@ import {
 } from '../blog-web.api'
 
 export type BlogAdminSettingsDrawerPropsType = BlogAdminSettingsComponentPropsType & {
-  isDirty?: boolean
   isSaving?: boolean
   onClose: () => void
+  onFeaturedImageClick?: () => void
   onPublishSuccess?: () => void
   onScheduleSuccess?: () => void
   onUnpublishSuccess?: () => void
@@ -48,10 +50,10 @@ const DRAWER_HEIGHT_MOBILE_PERCENT = 96
  */
 export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerPropsType> = ({
   categories,
-  isDirty = false,
   isNew,
   isSaving = false,
   onClose,
+  onFeaturedImageClick,
   onPublishSuccess,
   onScheduleSuccess,
   onUnpublishSuccess,
@@ -64,6 +66,7 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
   postTitle = '',
   tags,
 }) => {
+  const isDirty = useAppSelector(selectBlogEditorIsDirty)
   const theme = useTheme()
   const isMobileWidth = useMediaQuery(theme.breakpoints.down('md'))
   const anchor = isMobileWidth ? 'bottom' : 'right'
@@ -232,6 +235,7 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
               isMobileWidth={isMobileWidth}
               isNew={isNew}
               isSaving={isSaving}
+              onFeaturedImageClick={onFeaturedImageClick}
               onPublishClick={() => {
                 onClose()
                 setPublishConfirmOpen(true)

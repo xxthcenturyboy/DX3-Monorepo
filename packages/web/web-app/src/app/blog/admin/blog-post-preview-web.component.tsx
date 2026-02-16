@@ -5,21 +5,25 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { useNavigate, useParams } from 'react-router'
-import { blogRehypePlugins } from '../blog-rehype-sanitize-schema'
+import remarkGfm from 'remark-gfm'
+import type { PluggableList } from 'unified'
 
+import { MEDIA_VARIANTS } from '@dx3/models-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
+import { WebConfigService } from '../../config/config-web.service'
 import { useStrings } from '../../i18n'
+import { getPublicMediaUrl } from '../../media/media-web.util'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
+import { blogMarkdownComponents } from '../blog-markdown-components'
+import { blogRehypePlugins } from '../blog-rehype-sanitize-schema'
 import { useGetBlogPostPreviewQuery } from '../blog-web.api'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
-import { blogMarkdownComponents } from '../blog-markdown-components'
 
 dayjs.extend(localizedFormat)
 
@@ -34,12 +38,17 @@ export const BlogPostPreviewComponent: React.FC = () => {
   const strings = useStrings([
     'BLOG',
     'BLOG_EDITOR_TITLE',
+    'BLOG_FEATURED_IMAGE',
     'BLOG_READING_TIME_MIN',
     'PREVIEW',
     'PREVIEW_NOT_PUBLISHED',
   ])
 
-  const { data: post, isLoading, isError } = useGetBlogPostPreviewQuery(id ?? '', {
+  const {
+    data: post,
+    isLoading,
+    isError,
+  } = useGetBlogPostPreviewQuery(id ?? '', {
     skip: !id,
   })
 
@@ -63,7 +72,9 @@ export const BlogPostPreviewComponent: React.FC = () => {
         {isAuthenticated && (
           <ContentHeader
             headerTitle={strings.BLOG_EDITOR_TITLE || strings.BLOG}
-            navigation={() => navigate(id ? `${BLOG_EDITOR_ROUTES.EDIT}/${id}` : BLOG_EDITOR_ROUTES.LIST)}
+            navigation={() =>
+              navigate(id ? `${BLOG_EDITOR_ROUTES.EDIT}/${id}` : BLOG_EDITOR_ROUTES.LIST)
+            }
           />
         )}
         <Container sx={{ paddingTop: 4 }}>
@@ -131,6 +142,24 @@ export const BlogPostPreviewComponent: React.FC = () => {
           </Alert>
 
           <article>
+            {post.featuredImageId && (
+              <Box
+                alt={strings.BLOG_FEATURED_IMAGE}
+                component="img"
+                src={getPublicMediaUrl(
+                  WebConfigService.getWebUrls().API_URL,
+                  post.featuredImageId,
+                  MEDIA_VARIANTS.MEDIUM,
+                )}
+                sx={{
+                  borderRadius: 1,
+                  marginBottom: 2,
+                  maxHeight: 400,
+                  objectFit: 'cover',
+                  width: '100%',
+                }}
+              />
+            )}
             <Typography
               component="h1"
               gutterBottom
@@ -178,9 +207,9 @@ export const BlogPostPreviewComponent: React.FC = () => {
             >
               <ReactMarkdown
                 components={blogMarkdownComponents}
+                rehypePlugins={blogRehypePlugins as PluggableList}
                 remarkPlugins={[remarkGfm]}
                 remarkRehypeOptions={{ allowDangerousHtml: true }}
-                rehypePlugins={blogRehypePlugins}
               >
                 {post.content}
               </ReactMarkdown>

@@ -15,7 +15,11 @@ import {
 import type { StatsStateType, UserProfileStateType } from '@dx3/models-shared'
 
 import { adminLogsPersistConfig, adminLogsReducer } from '../admin-logs/admin-logs-web.reducer'
-import { blogEditorReducer } from '../blog/admin/blog-admin-web.reducer'
+import {
+  blogEditorBodyReducer,
+  blogEditorListReducer,
+  blogEditorSettingsReducer,
+} from '../blog/admin/blog-admin-web.reducer'
 import type { AdminLogsStateType } from '../admin-logs/admin-logs-web.types'
 import {
   adminMetricsPersistConfig,
@@ -69,8 +73,9 @@ const combinedPersistReducers = combineReducers({
     adminMetricsReducer,
   ) as typeof adminMetricsReducer,
   auth: persistReducer<AuthStateType, any>(authPersistConfig, authReducer) as typeof authReducer,
-  // blogEditor: intentionally NOT persisted - editor content/title must not survive reload or navigation
-  blogEditor: blogEditorReducer,
+  blogEditorBody: blogEditorBodyReducer,
+  blogEditorList: blogEditorListReducer,
+  blogEditorSettings: blogEditorSettingsReducer,
   dashboard: dashboardReducer,
   featureFlags: persistReducer<FeatureFlagsStateType, any>(
     featureFlagsPersistConfig,

@@ -47,9 +47,8 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
   const allowUrlInput = config.allowUrlInput ?? false
   const allowedMimeTypes = config.allowedMimeTypes
   const mediaTypeKey = config.mediaTypeKey ?? 'MEDIA_TYPE_FILES'
-  const headerTitle = t('MEDIA_UPLOAD_HEADER', {
-    mediaType: t(mediaTypeKey),
-  })
+  const headerTitle =
+    config.title ?? t('MEDIA_UPLOAD_HEADER', { mediaType: t(mediaTypeKey) })
   const enableDragAndDrop = !isMobileWidth
   const isImageOnly =
     isMobileWidth &&

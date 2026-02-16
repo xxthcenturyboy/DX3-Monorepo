@@ -74,7 +74,6 @@ export const MIME_TYPE_BY_SUB_TYPE = {
 }
 
 export const MEDIA_VARIANTS = {
-  LARGE: 'LARGE',
   MEDIUM: 'MEDIUM',
   ORIGINAL: 'ORIGINAL',
   SMALL: 'SMALL',

@@ -4,6 +4,7 @@ export type BlogEditorSettingsType = {
   canonicalUrl: string
   categories: string[]
   excerpt: string
+  featuredImageId: string
   isAnonymous: boolean
   seoDescription: string
   seoTitle: string
@@ -15,7 +16,6 @@ export type BlogEditorStateType = {
   content: string
   filterValue: string
   initialContent: string
-  initialSettings: BlogEditorSettingsType
   initialTitle: string
   limit: number
   offset: number

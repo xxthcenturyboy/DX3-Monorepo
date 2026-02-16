@@ -14,7 +14,7 @@ import type React from 'react'
 export type ContentHeaderPropsType = {
   forceRowOnMobile?: boolean
   gridDirection?: 'row' | 'column'
-  headerTitle: string
+  headerTitle: React.ReactNode
   headerColumnRightJustification?: string
   headerColumnsBreaks?: {
     left?: {

@@ -33,10 +33,7 @@ const STATUS_STRING_KEYS: Record<string, string> = {
  * Renders a colored status chip for blog posts.
  * Draft = info, Scheduled = warning, Published = success, Unpublished = error (danger)
  */
-export const BlogPostStatusChipComponent: React.FC<BlogPostStatusChipPropsType> = ({
-  listView = false,
-  status,
-}) => {
+export const BlogPostStatusChipComponent: React.FC<BlogPostStatusChipPropsType> = ({ status }) => {
   const strings = useStrings([
     'BLOG_STATUS_ARCHIVED',
     'BLOG_STATUS_DRAFT',
@@ -62,7 +59,7 @@ export const BlogPostStatusChipComponent: React.FC<BlogPostStatusChipPropsType> 
         borderRadius: '6px',
         justifyContent: 'center',
         textAlign: 'center',
-        width: listView ? 80 : undefined,
+        width: 80,
       }}
       variant="filled"
     />

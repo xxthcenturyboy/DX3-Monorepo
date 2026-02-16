@@ -9,7 +9,6 @@ import {
   DataType,
   Default,
   ForeignKey,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -28,7 +27,6 @@ import { MediaModel } from '../media/media-api.postgres-model'
 import { UserModel } from '../user/user-api.postgres-model'
 import { BLOG_POST_POSTGRES_DB_NAME } from './blog-api.consts'
 import { BlogCategoryModel } from './blog-category-api.postgres-model'
-import { BlogPostRevisionModel } from './blog-post-revision-api.postgres-model'
 import { BlogTagModel } from './blog-tag-api.postgres-model'
 
 @Table({
@@ -147,9 +145,6 @@ export class BlogPostModel extends Model<BlogPostModel> {
     through: 'blog_post_tags',
   })
   tags: BlogTagModel[]
-
-  @HasMany(() => BlogPostRevisionModel, 'post_id')
-  revisions: BlogPostRevisionModel[]
 
   /**
    * Calculate reading time from content (~200 words per minute)

@@ -18,7 +18,8 @@ import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component
 
 import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { blogEditorActions } from './blog-admin-web.reducer'
+import { blogEditorListActions } from './blog-admin-web-list.reducer'
+import { selectBlogEditorStatus } from './blog-admin-web.selectors'
 
 type BlogAdminListHeaderComponentProps = {
   onCreateClick: () => void
@@ -31,7 +32,7 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
   const dispatch = useAppDispatch()
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
-  const statusFilter = useAppSelector((state) => state.blogEditor.status)
+  const statusFilter = useAppSelector(selectBlogEditorStatus)
 
   const strings = useStrings([
     'ALL',
@@ -57,7 +58,7 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
         label={strings.STATUS}
         onChange={(e) =>
           dispatch(
-            blogEditorActions.statusSet(
+            blogEditorListActions.statusSet(
               e.target.value as
                 | (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS]
                 | '',

@@ -55,6 +55,7 @@ export const apiWebBlog = apiWeb.injectEndpoints({
       },
     }),
     getBlogCategories: build.query<BlogCategoryType[], void>({
+      providesTags: ['BlogCategories'],
       query: () => ({
         headers: getCustomHeaders({ version: 1 }),
         method: 'GET',
@@ -103,6 +104,7 @@ export const apiWebBlog = apiWeb.injectEndpoints({
       },
     }),
     getBlogTags: build.query<BlogTagType[], void>({
+      providesTags: ['BlogTags'],
       query: () => ({
         headers: getCustomHeaders({ version: 1 }),
         method: 'GET',
@@ -146,7 +148,27 @@ export const apiWebBlog = apiWeb.injectEndpoints({
       }),
     }),
     updateBlogPost: build.mutation<BlogPostType, { id: string; payload: UpdateBlogPostPayloadType }>({
-      invalidatesTags: (_result, _error, { id }) => [{ id, type: 'BlogPost' }],
+      invalidatesTags: (_result, _error, { id }) => [
+        { id, type: 'BlogPost' },
+        'BlogCategories',
+        'BlogTags',
+      ],
+      query: ({ id, payload }) => ({
+        data: payload,
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'PUT',
+        url: `/blog/admin/posts/${id}`,
+      }),
+    }),
+    /**
+     * Same as updateBlogPost but does not invalidate cache. Use for passive auto-save
+     * so that refetch does not overwrite user input while typing.
+     */
+    updateBlogPostPassive: build.mutation<
+      BlogPostType,
+      { id: string; payload: UpdateBlogPostPayloadType }
+    >({
+      invalidatesTags: [],
       query: ({ id, payload }) => ({
         data: payload,
         headers: getCustomHeaders({ version: 1 }),
@@ -174,4 +196,5 @@ export const {
   useUnpublishBlogPostMutation,
   useUnscheduleBlogPostMutation,
   useUpdateBlogPostMutation,
+  useUpdateBlogPostPassiveMutation,
 } = apiWebBlog

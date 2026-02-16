@@ -24,19 +24,6 @@ export type BlogTagType = {
 }
 
 /**
- * Blog post revision for version history
- */
-export type BlogPostRevisionType = {
-  content: string
-  createdAt: Date
-  editorId: string
-  excerpt: string | null
-  id: string
-  postId: string
-  title: string
-}
-
-/**
  * Blog post entity with full relations
  */
 export type BlogPostType = {

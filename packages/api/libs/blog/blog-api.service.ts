@@ -3,7 +3,6 @@ import dayjs from 'dayjs'
 import {
   BLOG_POST_STATUS,
   type BlogCategoryType,
-  type BlogPostRevisionType,
   type BlogPostStatusType,
   type BlogPostType,
   type BlogPostWithAuthorType,
@@ -22,10 +21,6 @@ import type { UserModel } from '../user/user-api.postgres-model'
 import { ANONYMOUS_AUTHOR_DISPLAY_NAME } from './blog-api.consts'
 import { BlogCategoryModel, type BlogCategoryModelType } from './blog-category-api.postgres-model'
 import { BlogPostModel, type BlogPostModelType } from './blog-post-api.postgres-model'
-import {
-  BlogPostRevisionModel,
-  type BlogPostRevisionModelType,
-} from './blog-post-revision-api.postgres-model'
 import { BlogTagModel, type BlogTagModelType } from './blog-tag-api.postgres-model'
 
 export class BlogService {
@@ -161,11 +156,11 @@ export class BlogService {
   }
 
   /**
-   * Update post and create revision
+   * Update post
    */
   async updatePost(
     id: string,
-    editorId: string,
+    _editorId: string,
     payload: UpdateBlogPostPayloadType,
   ): Promise<BlogPostType> {
     const post = await BlogPostModel.findByPk(id)
@@ -173,14 +168,6 @@ export class BlogService {
     if (!post || post.deletedAt) {
       throw new Error('Post not found')
     }
-
-    await BlogPostRevisionModel.create({
-      content: post.content,
-      editorId,
-      excerpt: post.excerpt,
-      postId: id,
-      title: post.title,
-    })
 
     const updates: Partial<BlogPostModelType> = {}
 
@@ -300,44 +287,6 @@ export class BlogService {
     const saved = await this.getPostById(id)
     if (!saved) throw new Error('Failed to unpublish post')
     return saved
-  }
-
-  /**
-   * Get revision history for a post
-   */
-  async getRevisions(postId: string): Promise<BlogPostRevisionType[]> {
-    const rows = await BlogPostRevisionModel.getByPostId(postId)
-
-    return rows.map((r: BlogPostRevisionModelType & { editor?: UserModel }) => ({
-      content: r.content,
-      createdAt: r.createdAt,
-      editorId: r.editorId,
-      excerpt: r.excerpt,
-      id: r.id,
-      postId: r.postId,
-      title: r.title,
-    }))
-  }
-
-  /**
-   * Restore post from revision (creates new revision with restored content)
-   */
-  async restoreRevision(
-    postId: string,
-    revisionId: string,
-    editorId: string,
-  ): Promise<BlogPostType> {
-    const revision = await BlogPostRevisionModel.findOne({
-      where: { id: revisionId, postId },
-    })
-
-    if (!revision) throw new Error('Revision not found')
-
-    return this.updatePost(postId, editorId, {
-      content: revision.content,
-      excerpt: revision.excerpt ?? undefined,
-      title: revision.title,
-    })
   }
 
   /**

@@ -10,6 +10,7 @@ import { useParams } from 'react-router'
 import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { BeatLoader } from 'react-spinners'
 
+import { MEDIA_VARIANTS } from '@dx3/models-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
@@ -18,6 +19,7 @@ import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 import { WebConfigService } from '../config/config-web.service'
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
+import { getPublicMediaUrl } from '../media/media-web.util'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setBlogPostMeta } from './blog-web-set-meta'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
@@ -34,6 +36,7 @@ export const BlogPostComponent: React.FC = () => {
   const theme = useTheme()
   const strings = useStrings([
     'BLOG',
+    'BLOG_FEATURED_IMAGE',
     'BLOG_POST_NOT_FOUND',
     'BLOG_READING_TIME_MIN',
     'BLOG_RELATED_POSTS',
@@ -144,6 +147,24 @@ export const BlogPostComponent: React.FC = () => {
           sx={{ paddingBottom: '40px', paddingTop: isAuthenticated ? undefined : '40px' }}
         >
           <article>
+            {post.featuredImageId && (
+              <Box
+                alt={strings.BLOG_FEATURED_IMAGE}
+                component="img"
+                src={getPublicMediaUrl(
+                  WebConfigService.getWebUrls().API_URL,
+                  post.featuredImageId,
+                  MEDIA_VARIANTS.LARGE,
+                )}
+                sx={{
+                  borderRadius: 1,
+                  marginBottom: 2,
+                  maxHeight: 400,
+                  objectFit: 'cover',
+                  width: '100%',
+                }}
+              />
+            )}
             <Typography
               component="h1"
               gutterBottom

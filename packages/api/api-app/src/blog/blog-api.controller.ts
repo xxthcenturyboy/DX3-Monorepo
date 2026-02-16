@@ -168,20 +168,6 @@ export const BlogController = {
     }
   },
 
-  getRevisions: async (req: Request, res: Response) => {
-    logRequest({ req, type: 'getBlogRevisions' })
-    try {
-      const postId = req.params.id
-      if (!postId) return sendBadRequest(req, res, 'Post ID is required')
-
-      const revisions = await blogService.getRevisions(postId)
-      return sendOK(req, res, revisions)
-    } catch (err) {
-      logRequest({ message: (err as Error)?.message, req, type: 'Failed getBlogRevisions' })
-      sendBadRequest(req, res, (err as Error).message)
-    }
-  },
-
   getTags: async (req: Request, res: Response) => {
     logRequest({ req, type: 'getBlogTags' })
     try {
@@ -203,29 +189,6 @@ export const BlogController = {
       return sendOK(req, res, post)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed publishBlogPost' })
-      sendBadRequest(req, res, (err as Error).message)
-    }
-  },
-
-  restoreRevision: async (req: Request, res: Response) => {
-    logRequest({ req, type: 'restoreBlogRevision' })
-    try {
-      const token = HeaderService.getTokenFromRequest(req)
-      if (!token) return sendBadRequest(req, res, 'Authentication required')
-
-      const editorId = TokenService.getUserIdFromToken(token)
-      if (!editorId) return sendBadRequest(req, res, 'Invalid token')
-
-      const postId = req.params.id
-      const revisionId = req.params.revisionId
-      if (!postId || !revisionId) {
-        return sendBadRequest(req, res, 'Post ID and revision ID are required')
-      }
-
-      const post = await blogService.restoreRevision(postId, revisionId, editorId)
-      return sendOK(req, res, post)
-    } catch (err) {
-      logRequest({ message: (err as Error)?.message, req, type: 'Failed restoreBlogRevision' })
       sendBadRequest(req, res, (err as Error).message)
     }
   },

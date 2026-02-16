@@ -11,6 +11,7 @@ export type MediaUploadConfigType = {
   mediaTypeKey?: MediaUploadMediaTypeKey
   maxFiles?: number
   public: boolean
+  title?: string
 }
 
 export type MediaUploadResultType = MediaUploadResponseType

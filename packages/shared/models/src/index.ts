@@ -29,7 +29,6 @@ export {
 } from './blog/blog-shared.consts'
 export type {
   BlogCategoryType,
-  BlogPostRevisionType,
   BlogPostStatusType,
   BlogPostType,
   BlogPostWithAuthorType,

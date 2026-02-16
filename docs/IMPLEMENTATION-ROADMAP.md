@@ -1289,8 +1289,7 @@ document.head.appendChild(script)
 Phase 3 implements a full-featured blog/CMS system, including:
 - Blog post CRUD operations
 - Markdown rendering (existing capability)
-- Draft/schedule/publish workflow
-- Revision historye
+- Draft/schedule/publish/unpublish workflow
 - SEO optimization (SSR)
 - Editor role
 
@@ -1307,7 +1306,6 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - CRUD operations
 - Publish/unpublish
 - Scheduling
-- Revision restore
 
 #### Task 3.3: Editor Role
 - Create EDITOR role (order: 2, between USER and ADMIN)
@@ -1318,7 +1316,6 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - Post editor (Markdown)
 - Post list with filters
 - Scheduling interface
-- Revision history viewer
 
 #### Task 3.5: Public Blog Pages
 - Blog index (SSR)
@@ -1334,14 +1331,14 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - [x] Admin UI (list view) complete
 - [x] Admin editor (create/edit with markdown) - MDXEditor with image/PDF upload, preview
 - [x] Public pages rendering (SSR)
-- [ ] Admin settings panel (slug, excerpt, categories, tags, scheduling, SEO) - see BLOG-CMS Phase 5.2
-- [ ] Admin revisions UI (history, diff, restore) - see BLOG-CMS Phase 5.2
-- [ ] Publish/schedule actions in list UI (API exists)
-- [ ] SEO optimized (meta tags for posts; document title done)
-- [ ] RSS feed generation
+- [x] Admin settings panel (slug, excerpt, categories, tags, scheduling, SEO)
+- [x] Publish/schedule/unschedule/unpublish actions in list and settings
+- [x] SEO optimized (meta tags for posts via setBlogPostMeta)
+- [ ] Featured image UI (set/display optional featured image per post)
 - [ ] Tests passing
 
-**Deferred to future phase:** Comments (BLOG-CMS Requirements Summary)
+**Removed:** Revisions feature (no longer required)
+**Deferred:** Comments, RSS feed (BLOG-CMS Requirements Summary)
 
 ---
 

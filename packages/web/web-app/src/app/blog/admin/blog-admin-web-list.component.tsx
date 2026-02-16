@@ -21,8 +21,16 @@ import {
   useUnscheduleBlogPostMutation,
 } from '../blog-web.api'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
-import { blogEditorActions } from './blog-admin-web.reducer'
-import { selectBlogEditorQueryParams } from './blog-admin-web.selectors'
+import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
+import { blogEditorListActions } from './blog-admin-web-list.reducer'
+import { blogEditorSettingsActions } from './blog-admin-web-settings.reducer'
+import {
+  selectBlogEditorLimit,
+  selectBlogEditorOffset,
+  selectBlogEditorOrderBy,
+  selectBlogEditorQueryParams,
+  selectBlogEditorSortDir,
+} from './blog-admin-web.selectors'
 import { BlogAdminListHeaderComponent } from './blog-admin-web-list-header.component'
 import {
   BlogAdminWebListService,
@@ -67,10 +75,10 @@ export const BlogAdminListComponent: React.FC = () => {
   const [unschedulePostId, setUnschedulePostId] = React.useState<string | null>(null)
   const [unpublishPostId, setUnpublishPostId] = React.useState<string | null>(null)
 
-  const limit = useAppSelector((state) => state.blogEditor.limit)
-  const offset = useAppSelector((state) => state.blogEditor.offset)
-  const orderBy = useAppSelector((state) => state.blogEditor.orderBy)
-  const sortDir = useAppSelector((state) => state.blogEditor.sortDir)
+  const limit = useAppSelector(selectBlogEditorLimit)
+  const offset = useAppSelector(selectBlogEditorOffset)
+  const orderBy = useAppSelector(selectBlogEditorOrderBy)
+  const sortDir = useAppSelector(selectBlogEditorSortDir)
 
   const listService = React.useMemo(() => new BlogAdminWebListService(), [])
   const listHeaders = BlogAdminWebListService.getListHeaders()
@@ -179,25 +187,26 @@ export const BlogAdminListComponent: React.FC = () => {
   }
 
   const handleOffsetChange = (newOffset: number): void => {
-    dispatch(blogEditorActions.offsetSet(newOffset))
+    dispatch(blogEditorListActions.offsetSet(newOffset))
   }
 
   const handleLimitChange = (newLimit: number): void => {
-    dispatch(blogEditorActions.limitSet(newLimit))
-    dispatch(blogEditorActions.offsetSet(0))
+    dispatch(blogEditorListActions.limitSet(newLimit))
+    dispatch(blogEditorListActions.offsetSet(0))
   }
 
   const handleSortChange = (fieldName: string): void => {
     if (fieldName === orderBy) {
-      dispatch(blogEditorActions.sortDirSet(sortDir === 'ASC' ? 'DESC' : 'ASC'))
+      dispatch(blogEditorListActions.sortDirSet(sortDir === 'ASC' ? 'DESC' : 'ASC'))
       return
     }
-    dispatch(blogEditorActions.orderBySet(fieldName))
-    dispatch(blogEditorActions.sortDirSet('ASC'))
+    dispatch(blogEditorListActions.orderBySet(fieldName))
+    dispatch(blogEditorListActions.sortDirSet('ASC'))
   }
 
   const handleCreateClick = (): void => {
-    dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+    dispatch(blogEditorBodyActions.bodyFormLoad({ content: '', title: '' }))
+    dispatch(blogEditorSettingsActions.settingsFormLoad(undefined))
     navigate(BLOG_EDITOR_ROUTES.NEW)
   }
 

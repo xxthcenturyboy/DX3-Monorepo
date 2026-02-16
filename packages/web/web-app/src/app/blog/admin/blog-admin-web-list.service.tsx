@@ -104,7 +104,6 @@ export class BlogAdminWebListService {
 
   private static renderStatusChip(status: string): React.ReactElement {
     return React.createElement(BlogPostStatusChipComponent, {
-      listView: true,
       status,
     })
   }

@@ -23,19 +23,21 @@ import FormatAlignCenter from '@mui/icons-material/FormatAlignCenter'
 import FormatAlignLeft from '@mui/icons-material/FormatAlignLeft'
 import FormatAlignRight from '@mui/icons-material/FormatAlignRight'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import { Box, Button, IconButton, TextField, Tooltip, useTheme } from '@mui/material'
+import { Box, Button, IconButton, Tooltip, useTheme } from '@mui/material'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { BeatLoader } from 'react-spinners'
 
 import {
+  BLOG_POST_STATUS,
   MEDIA_SUB_TYPES,
   MEDIA_VARIANTS,
   type MediaUploadResponseType,
   MIME_TYPE_BY_SUB_TYPE,
   MIME_TYPES,
 } from '@dx3/models-shared'
+import { slugify } from '@dx3/utils-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
@@ -49,7 +51,7 @@ import { useStrings } from '../../i18n'
 import { MediaUploadModal } from '../../media/media-upload-modal.component'
 import { useUploadContentMutation } from '../../media/media-web.api'
 import { getPublicMediaUrl } from '../../media/media-web.util'
-import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
+import { useAppDispatch, useAppSelector, useAppStore } from '../../store/store-web-redux.hooks'
 import { selectIsMobileWidth, selectWindowHeight } from '../../ui/store/ui-web.selector'
 import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import {
@@ -64,12 +66,17 @@ import {
   BlogAdminSettingsTriggerButton,
 } from './blog-admin-settings-drawer.component'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
-import { blogEditorActions } from './blog-admin-web.reducer'
 import {
+  selectBlogEditorBodyDirty,
   selectBlogEditorContent,
   selectBlogEditorIsDirty,
+  selectBlogEditorSettings,
   selectBlogEditorTitle,
 } from './blog-admin-web.selectors'
+import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
+import { blogEditorSettingsActions } from './blog-admin-web-settings.reducer'
+import { BlogEditorFooterComponent } from './blog-editor-footer.component'
+import { BlogEditorTitleFieldComponent } from './blog-editor-title-field.component'
 import { BlogImageEditDialog } from './blog-image-edit-dialog.component'
 import { BlogLinkEditDialog } from './blog-link-edit-dialog.component'
 import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
@@ -86,13 +93,14 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const store = useAppStore()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const editorRef = React.useRef<MDXEditorMethods>(null)
   const dispatchRef = React.useRef(dispatch)
   dispatchRef.current = dispatch
   const debouncedContentSet = React.useRef(
     debounce((markdown: string) => {
-      dispatchRef.current(blogEditorActions.contentSet(markdown))
+      dispatchRef.current(blogEditorBodyActions.contentSet(markdown))
     }, 300),
   ).current
   // MDXEditor plugins (e.g. imagePlugin URL escaping) fire onChange on load.
@@ -100,6 +108,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const ignoreChangeUntilRef = React.useRef(0)
   const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false)
   const [editorHeight, setEditorHeight] = React.useState(400)
+  const [featuredImageModalOpen, setFeaturedImageModalOpen] = React.useState(false)
   const [imageModalOpen, setImageModalOpen] = React.useState(false)
   const [pdfModalOpen, setPdfModalOpen] = React.useState(false)
   const [settingsDrawerOpen, setSettingsDrawerOpen] = React.useState(false)
@@ -129,9 +138,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
     [editorHeight],
   )
 
-  const title = useAppSelector(selectBlogEditorTitle)
   const content = useAppSelector(selectBlogEditorContent)
-  const isDirty = useAppSelector(selectBlogEditorIsDirty)
+  const isBodyDirty = useAppSelector(selectBlogEditorBodyDirty)
   const isMobileWidth = useAppSelector(selectIsMobileWidth)
   const theme = useTheme()
   const windowHeight = useAppSelector(selectWindowHeight)
@@ -152,22 +160,20 @@ export const BlogAdminEditorComponent: React.FC = () => {
     'ALIGN_CENTER',
     'ALIGN_LEFT',
     'ALIGN_RIGHT',
-    'BLOG',
     'BLOG_DISCARD_CHANGES_CONFIRM',
     'BLOG_EDITOR_TITLE',
+    'BLOG_EDIT_POST_TITLE',
     'BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST',
     'BLOG_INSERT_IMAGE',
     'BLOG_INSERT_PDF',
-    'BLOG_PDF_UPLOAD_SAVE_POST_FIRST',
-    'BLOG_EDIT_POST_TITLE',
     'BLOG_NEW_POST_TITLE',
+    'BLOG_PDF_UPLOAD_SAVE_POST_FIRST',
+    'BLOG_UNPUBLISH_TO_EDIT',
+    'BLOG_UPLOAD_FEATURED_IMAGE',
     'CANCEL',
     'CANCELING',
-    'CLOSE',
-    'CREATE',
     'DISCARD',
     'PREVIEW',
-    'SAVE',
     'TITLE',
   ])
   const isNew = pathname.endsWith('/new') || !id
@@ -242,6 +248,39 @@ export const BlogAdminEditorComponent: React.FC = () => {
     [post?.id, strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST, uploadContent],
   )
 
+  const handleFeaturedImageModalClose = React.useCallback(
+    () => setFeaturedImageModalOpen(false),
+    [],
+  )
+  const handleFeaturedImageSuccess = React.useCallback(
+    (results: MediaUploadResponseType[]) => {
+      const first = results[0]
+      if (!first?.ok || !first.data?.id) return
+      dispatch(blogEditorSettingsActions.settingsSet({ featuredImageId: first.data.id }))
+      setFeaturedImageModalOpen(false)
+    },
+    [dispatch],
+  )
+  const handleFeaturedImageUpload = React.useCallback(
+    async ({
+      files,
+      public: isPublic,
+    }: {
+      files: File[]
+      public: boolean
+    }): Promise<MediaUploadResponseType[]> => {
+      if (!post?.id) {
+        throw new Error(strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST)
+      }
+      return uploadContent({
+        files,
+        mediaSubType: MEDIA_SUB_TYPES.IMAGE,
+        ownerId: post.id,
+        public: isPublic,
+      }).unwrap()
+    },
+    [post?.id, strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST, uploadContent],
+  )
   const handlePdfModalClose = React.useCallback(() => setPdfModalOpen(false), [])
 
   const handlePdfSuccess = React.useCallback(
@@ -287,23 +326,27 @@ export const BlogAdminEditorComponent: React.FC = () => {
     ignoreChangeUntilRef.current = Date.now() + ignoreMs
     if (post) {
       dispatch(
-        blogEditorActions.editorFormLoad({
+        blogEditorBodyActions.bodyFormLoad({
           content: post.content,
-          settings: {
-            canonicalUrl: post.canonicalUrl ?? '',
-            categories: post.categories?.map((c) => c.id) ?? [],
-            excerpt: post.excerpt ?? '',
-            isAnonymous: post.isAnonymous ?? false,
-            seoDescription: post.seoDescription ?? '',
-            seoTitle: post.seoTitle ?? '',
-            slug: post.slug ?? '',
-            tags: post.tags?.map((t) => t.id) ?? [],
-          },
           title: post.title,
         }),
       )
+      dispatch(
+        blogEditorSettingsActions.settingsFormLoad({
+          canonicalUrl: post.canonicalUrl ?? '',
+          categories: post.categories?.map((c) => c.id) ?? [],
+          excerpt: post.excerpt ?? '',
+          featuredImageId: post.featuredImageId ?? '',
+          isAnonymous: post.isAnonymous ?? false,
+          seoDescription: post.seoDescription ?? '',
+          seoTitle: post.seoTitle ?? '',
+          slug: post.slug ?? '',
+          tags: post.tags?.map((t) => t.id) ?? [],
+        }),
+      )
     } else if (isNew) {
-      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+      dispatch(blogEditorBodyActions.bodyFormLoad({ content: '', title: '' }))
+      dispatch(blogEditorSettingsActions.settingsFormLoad(undefined))
     }
   }, [debouncedContentSet, dispatch, isNew, post])
 
@@ -316,7 +359,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
         skipEditorClearOnUnmount = false
         return
       }
-      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+      dispatch(blogEditorBodyActions.bodyFormLoad({ content: '', title: '' }))
+      dispatch(blogEditorSettingsActions.settingsFormLoad(undefined))
     }
   }, [debouncedContentSet, dispatch])
 
@@ -341,6 +385,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
   }, [isNew, strings.BLOG_EDITOR_TITLE, strings.BLOG_NEW_POST_TITLE, strings.BLOG_EDIT_POST_TITLE])
 
   const handleCancel = () => {
+    const isDirty = selectBlogEditorIsDirty(store.getState())
     if (isDirty) {
       setCancelConfirmOpen(true)
       return
@@ -357,13 +402,16 @@ export const BlogAdminEditorComponent: React.FC = () => {
     }
   }
 
-  const settings = useAppSelector((state) => state.blogEditor.settings)
+  const isReadOnly = post?.status === BLOG_POST_STATUS.PUBLISHED
 
   const handleSave = async () => {
+    const title = selectBlogEditorTitle(store.getState())
     if (!title.trim()) return
 
     debouncedContentSet.cancel()
     const latestContent = editorRef.current?.getMarkdown?.() ?? content
+    const settings = selectBlogEditorSettings(store.getState())
+    const slugifiedSlug = settings.slug ? slugify(settings.slug).trim() || undefined : undefined
 
     try {
       if (isNew) {
@@ -373,6 +421,9 @@ export const BlogAdminEditorComponent: React.FC = () => {
           ...(settings.excerpt && { excerpt: settings.excerpt }),
           ...(settings.categories.length > 0 && {
             categories: settings.categories,
+          }),
+          ...(settings.featuredImageId && {
+            featuredImageId: settings.featuredImageId,
           }),
           ...(settings.tags.length > 0 && { tags: settings.tags }),
           ...(settings.isAnonymous && { isAnonymous: true }),
@@ -386,28 +437,33 @@ export const BlogAdminEditorComponent: React.FC = () => {
             categories: settings.categories,
             content: latestContent || '',
             excerpt: settings.excerpt || null,
+            featuredImageId: settings.featuredImageId || null,
             isAnonymous: settings.isAnonymous,
             seoDescription: settings.seoDescription || null,
             seoTitle: settings.seoTitle || null,
-            slug: settings.slug || undefined,
+            slug: slugifiedSlug || undefined,
             tags: settings.tags,
             title: title.trim(),
           },
         }).unwrap()
+        const savedSlug = (slugifiedSlug || settings.slug) ?? ''
         dispatch(
-          blogEditorActions.editorFormLoad({
+          blogEditorBodyActions.bodyFormLoad({
             content: latestContent || '',
-            settings: {
-              canonicalUrl: settings.canonicalUrl,
-              categories: settings.categories,
-              excerpt: settings.excerpt,
-              isAnonymous: settings.isAnonymous,
-              seoDescription: settings.seoDescription,
-              seoTitle: settings.seoTitle,
-              slug: settings.slug,
-              tags: settings.tags,
-            },
             title: title.trim(),
+          }),
+        )
+        dispatch(
+          blogEditorSettingsActions.settingsFormLoad({
+            canonicalUrl: settings.canonicalUrl,
+            categories: settings.categories,
+            excerpt: settings.excerpt,
+            featuredImageId: settings.featuredImageId,
+            isAnonymous: settings.isAnonymous,
+            seoDescription: settings.seoDescription,
+            seoTitle: settings.seoTitle,
+            slug: savedSlug,
+            tags: settings.tags,
           }),
         )
       }
@@ -458,9 +514,9 @@ export const BlogAdminEditorComponent: React.FC = () => {
             <BlogAdminSettingsTriggerButton onClick={() => setSettingsDrawerOpen(true)} />
             {!isNew && id && (
               <Button
-                disabled={isDirty}
+                disabled={isBodyDirty}
                 onClick={() => {
-                  if (!isDirty) {
+                  if (!isBodyDirty) {
                     skipEditorClearOnUnmount = true
                     navigate(`${BLOG_EDITOR_ROUTES.PREVIEW}/${id}`)
                   }
@@ -473,23 +529,20 @@ export const BlogAdminEditorComponent: React.FC = () => {
             )}
           </Box>
         }
-        headerSubContent={
-          !isNew && post?.status ? <BlogPostStatusChipComponent status={post.status} /> : undefined
+        headerTitle={
+          isNew ? (
+            strings.BLOG_NEW_POST_TITLE
+          ) : post?.status ? (
+            <BlogPostStatusChipComponent status={post.status} />
+          ) : (
+            strings.BLOG_EDIT_POST_TITLE
+          )
         }
-        headerTitle={isNew ? strings.BLOG_NEW_POST_TITLE : strings.BLOG_EDIT_POST_TITLE}
         navigation={handleCancel}
       />
 
-      <Box padding={'20px 24px 24px'}>
-        <TextField
-          fullWidth
-          label={strings.TITLE}
-          margin="normal"
-          onChange={(e) => dispatch(blogEditorActions.titleSet(e.target.value))}
-          required
-          value={title}
-          variant="outlined"
-        />
+      <Box padding={'0px 24px 24px'}>
+        <BlogEditorTitleFieldComponent disabled={!!isReadOnly || isSaving} />
 
         <Box
           data-testid="blog-editor-content"
@@ -544,15 +597,17 @@ export const BlogAdminEditorComponent: React.FC = () => {
                         <CreateLink />
                         <Tooltip
                           title={
-                            !post?.id
-                              ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST
-                              : strings.BLOG_INSERT_IMAGE
+                            isReadOnly
+                              ? strings.BLOG_UNPUBLISH_TO_EDIT
+                              : !post?.id
+                                ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST
+                                : strings.BLOG_INSERT_IMAGE
                           }
                         >
                           <span>
                             <IconButton
                               aria-label={strings.BLOG_INSERT_IMAGE}
-                              disabled={!post?.id}
+                              disabled={!!isReadOnly || !post?.id || isSaving}
                               onClick={() => setImageModalOpen(true)}
                               size="small"
                             >
@@ -562,15 +617,17 @@ export const BlogAdminEditorComponent: React.FC = () => {
                         </Tooltip>
                         <Tooltip
                           title={
-                            !post?.id
-                              ? strings.BLOG_PDF_UPLOAD_SAVE_POST_FIRST
-                              : strings.BLOG_INSERT_PDF
+                            isReadOnly
+                              ? strings.BLOG_UNPUBLISH_TO_EDIT
+                              : !post?.id
+                                ? strings.BLOG_PDF_UPLOAD_SAVE_POST_FIRST
+                                : strings.BLOG_INSERT_PDF
                           }
                         >
                           <span>
                             <IconButton
                               aria-label={strings.BLOG_INSERT_PDF}
-                              disabled={!post?.id}
+                              disabled={!!isReadOnly || !post?.id || isSaving}
                               onClick={() => setPdfModalOpen(true)}
                               size="small"
                             >
@@ -632,6 +689,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
                   }),
                   markdownShortcutPlugin(),
                 ]}
+                readOnly={!!isReadOnly || isSaving}
                 ref={editorRef}
               />
             </Box>
@@ -653,45 +711,24 @@ export const BlogAdminEditorComponent: React.FC = () => {
           />
         </Box>
 
-        <Box
-          display={'flex'}
-          gap={'16px'}
-          justifyContent={'flex-end'}
-          marginTop={'24px'}
-        >
-          <Button
-            disabled={isSaving || !isDirty || !title.trim()}
-            onClick={handleSave}
-            variant="contained"
-          >
-            {isSaving ? (
-              <BeatLoader
-                color={theme.palette.secondary.main}
-                margin="2px"
-                size={12}
-              />
-            ) : isNew ? (
-              strings.CREATE
-            ) : (
-              strings.SAVE
-            )}
-          </Button>
-          <Button
-            disabled={isSaving}
-            onClick={handleCancel}
-            variant="outlined"
-          >
-            {isDirty ? strings.CANCEL : strings.CLOSE}
-          </Button>
-        </Box>
+        <BlogEditorFooterComponent
+          isNew={isNew}
+          isReadOnly={!!isReadOnly}
+          isSaving={isSaving}
+          onCancel={handleCancel}
+          onSave={handleSave}
+        />
       </Box>
 
       <BlogAdminSettingsDrawerComponent
         categories={categories}
-        isDirty={isDirty}
         isNew={isNew}
         isSaving={isSaving}
         onClose={() => setSettingsDrawerOpen(false)}
+        onFeaturedImageClick={() => {
+          setSettingsDrawerOpen(false)
+          window.setTimeout(() => setFeaturedImageModalOpen(true), 150)
+        }}
         onPublishSuccess={() => setSettingsDrawerOpen(false)}
         onScheduleSuccess={() => setSettingsDrawerOpen(false)}
         onUnpublishSuccess={() => setSettingsDrawerOpen(false)}
@@ -704,6 +741,30 @@ export const BlogAdminEditorComponent: React.FC = () => {
         postTitle={post?.title}
         tags={tags}
       />
+
+      {createPortal(
+        <CustomDialog
+          body={
+            <MediaUploadModal
+              closeDialog={handleFeaturedImageModalClose}
+              config={{
+                allowedMimeTypes: MIME_TYPE_BY_SUB_TYPE[MEDIA_SUB_TYPES.IMAGE],
+                maxFiles: 1,
+                mediaTypeKey: 'MEDIA_TYPE_IMAGE',
+                public: true,
+                title: strings.BLOG_UPLOAD_FEATURED_IMAGE,
+              }}
+              isMobileWidth={isMobileWidth}
+              onSuccess={handleFeaturedImageSuccess}
+              onUpload={handleFeaturedImageUpload}
+            />
+          }
+          closeDialog={handleFeaturedImageModalClose}
+          isMobileWidth={isMobileWidth}
+          open={featuredImageModalOpen}
+        />,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )}
 
       {createPortal(
         <CustomDialog
