@@ -32,6 +32,7 @@ export type ContentHeaderPropsType = {
   }
   headerContent?: React.ReactNode
   headerSecondaryContent?: React.ReactNode
+  headerSubContent?: React.ReactNode
   headerSubTitle?: string
   navigation?: () => void
   tooltip?: string
@@ -46,6 +47,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
     headerColumnRightJustification,
     headerContent,
     headerSecondaryContent,
+    headerSubContent,
     headerSubTitle,
     headerTitle,
     navigation,
@@ -109,7 +111,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
       zIndex={10}
     >
       <Grid
-        alignItems={MD_BREAK ? 'flex-start' : 'center'}
+        alignItems={'flex-start'}
         container
         direction={getGridDirection()}
         justifyContent="space-between"
@@ -137,6 +139,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
             {navigation && renderHeaderNavigation()}
             {headerTitle}
           </Typography>
+          {headerSubContent && <Box sx={{ marginTop: 1 }}>{headerSubContent}</Box>}
           {headerSubTitle && (
             <span
               style={{
@@ -166,9 +169,7 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
         </Grid>
       </Grid>
       {headerSecondaryContent && (
-        <Box sx={{ padding: '0 16px 14px' }}>
-          {headerSecondaryContent}
-        </Box>
+        <Box sx={{ padding: '0 16px 14px' }}>{headerSecondaryContent}</Box>
       )}
       <Divider />
     </Box>

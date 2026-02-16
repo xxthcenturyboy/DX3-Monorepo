@@ -7,6 +7,7 @@ export const BLOG_POST_STATUS = {
   DRAFT: 'draft',
   PUBLISHED: 'published',
   SCHEDULED: 'scheduled',
+  UNPUBLISHED: 'unpublished',
 } as const
 
 export const BLOG_POST_STATUS_ARRAY = Object.values(BLOG_POST_STATUS)

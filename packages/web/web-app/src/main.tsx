@@ -50,11 +50,7 @@ root.render(
           persistor={persistor}
         >
           <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-            <RouterProvider
-              router={router}
-              // @ts-expect-error - unstable_useTransitions is experimental and not in types yet
-              unstable_useTransitions={false}
-            />
+            <RouterProvider router={router} />
           </Suspense>
         </PersistGate>
       </Provider>

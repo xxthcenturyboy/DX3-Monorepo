@@ -76,6 +76,12 @@ svg {
   min-width: min-content;
 }
 
+/* Blog editor: images scale to fit viewport */
+[data-testid="blog-editor-content"] .mdxeditor-root-contenteditable img {
+  height: auto;
+  max-width: 100%;
+}
+
 /* Phone input label styling */
 .react-tel-input .special-label {
   left: 10px;

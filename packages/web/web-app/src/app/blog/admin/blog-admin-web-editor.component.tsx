@@ -19,6 +19,9 @@ import {
 } from '@mdxeditor/editor'
 import '@mdxeditor/editor/style.css'
 import AddPhotoAlternateOutlined from '@mui/icons-material/AddPhotoAlternateOutlined'
+import FormatAlignCenter from '@mui/icons-material/FormatAlignCenter'
+import FormatAlignLeft from '@mui/icons-material/FormatAlignLeft'
+import FormatAlignRight from '@mui/icons-material/FormatAlignRight'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import { Box, Button, IconButton, TextField, Tooltip, useTheme } from '@mui/material'
 import * as React from 'react'
@@ -33,12 +36,12 @@ import {
   MIME_TYPE_BY_SUB_TYPE,
   MIME_TYPES,
 } from '@dx3/models-shared'
-import { sleep } from '@dx3/utils-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
+import { debounce } from '@dx3/web-libs/utils/debounce'
 
 import { selectIsAuthenticated } from '../../auth/auth-web.selector'
 import { WebConfigService } from '../../config/config-web.service'
@@ -69,6 +72,14 @@ import {
 } from './blog-admin-web.selectors'
 import { BlogImageEditDialog } from './blog-image-edit-dialog.component'
 import { BlogLinkEditDialog } from './blog-link-edit-dialog.component'
+import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
+
+/**
+ * When navigating to Preview (same post, different view), we skip clearing editor state
+ * on unmount so that when the user returns, the state is preserved and we avoid phantom
+ * dirty from MDXEditor's imagePlugin firing onChange after remount.
+ */
+let skipEditorClearOnUnmount = false
 
 export const BlogAdminEditorComponent: React.FC = () => {
   const { id } = useParams<{ id?: string }>()
@@ -77,6 +88,16 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const dispatch = useAppDispatch()
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const editorRef = React.useRef<MDXEditorMethods>(null)
+  const dispatchRef = React.useRef(dispatch)
+  dispatchRef.current = dispatch
+  const debouncedContentSet = React.useRef(
+    debounce((markdown: string) => {
+      dispatchRef.current(blogEditorActions.contentSet(markdown))
+    }, 300),
+  ).current
+  // MDXEditor plugins (e.g. imagePlugin URL escaping) fire onChange on load.
+  // Ignore those to prevent phantom isDirty (see mdx-editor/editor#592).
+  const ignoreChangeUntilRef = React.useRef(0)
   const [cancelConfirmOpen, setCancelConfirmOpen] = React.useState(false)
   const [editorHeight, setEditorHeight] = React.useState(400)
   const [imageModalOpen, setImageModalOpen] = React.useState(false)
@@ -116,15 +137,21 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const windowHeight = useAppSelector(selectWindowHeight)
 
   // Initial editor height: fill viewport minus header, title field, buttons, padding
-  const EDITOR_OVERHEAD_PX = 360
+  // Use smaller overhead on mobile for more editor space
+  const EDITOR_OVERHEAD_DESKTOP = 360
+  const EDITOR_OVERHEAD_MOBILE = 260
+  const editorOverhead = isMobileWidth ? EDITOR_OVERHEAD_MOBILE : EDITOR_OVERHEAD_DESKTOP
   React.useEffect(() => {
     if (windowHeight > 0) {
-      const fillHeight = Math.max(200, Math.min(800, windowHeight - EDITOR_OVERHEAD_PX))
+      const fillHeight = Math.max(200, Math.min(800, windowHeight - editorOverhead))
       setEditorHeight(fillHeight)
     }
-  }, [windowHeight])
+  }, [editorOverhead, windowHeight])
 
   const strings = useStrings([
+    'ALIGN_CENTER',
+    'ALIGN_LEFT',
+    'ALIGN_RIGHT',
     'BLOG',
     'BLOG_DISCARD_CHANGES_CONFIRM',
     'BLOG_EDITOR_TITLE',
@@ -253,6 +280,11 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const isSaving = isCreating || isUpdating
 
   React.useLayoutEffect(() => {
+    debouncedContentSet.cancel()
+    // Ignore onChange after load - imagePlugin fires onChange when images load (mdx-editor#592).
+    // Use 4s for existing posts (often have images); 2s for new.
+    const ignoreMs = post && !isNew ? 4000 : 2000
+    ignoreChangeUntilRef.current = Date.now() + ignoreMs
     if (post) {
       dispatch(
         blogEditorActions.editorFormLoad({
@@ -273,7 +305,32 @@ export const BlogAdminEditorComponent: React.FC = () => {
     } else if (isNew) {
       dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
     }
-  }, [dispatch, isNew, post])
+  }, [debouncedContentSet, dispatch, isNew, post])
+
+  // Clear editor state when navigating away (unmount). Skip when going to Preview
+  // so that state is preserved for when user returns and we avoid phantom dirty.
+  React.useEffect(() => {
+    return () => {
+      debouncedContentSet.cancel()
+      if (skipEditorClearOnUnmount) {
+        skipEditorClearOnUnmount = false
+        return
+      }
+      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
+    }
+  }, [debouncedContentSet, dispatch])
+
+  const handleEditorChange = React.useCallback(
+    (markdown: string) => {
+      if (Date.now() < ignoreChangeUntilRef.current) return
+      debouncedContentSet(markdown)
+    },
+    [debouncedContentSet],
+  )
+
+  // Use post.content (never Redux content) so the editor doesn't re-parse on every keystroke.
+  // post.content is stable during a session; avoids input lag (mdx-editor/editor#839).
+  const editorMarkdown = isNew ? '' : (post?.content ?? '')
 
   React.useEffect(() => {
     setDocumentTitle(
@@ -288,19 +345,15 @@ export const BlogAdminEditorComponent: React.FC = () => {
       setCancelConfirmOpen(true)
       return
     }
+    debouncedContentSet.cancel()
     navigate(BLOG_EDITOR_ROUTES.LIST)
-    sleep(1000).then(() => {
-      dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
-    })
   }
 
   const handleCancelConfirm = (confirmed: boolean) => {
     setCancelConfirmOpen(false)
     if (confirmed) {
+      debouncedContentSet.cancel()
       navigate(BLOG_EDITOR_ROUTES.LIST)
-      sleep(1000).then(() => {
-        dispatch(blogEditorActions.editorFormLoad({ content: '', title: '' }))
-      })
     }
   }
 
@@ -309,10 +362,13 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const handleSave = async () => {
     if (!title.trim()) return
 
+    debouncedContentSet.cancel()
+    const latestContent = editorRef.current?.getMarkdown?.() ?? content
+
     try {
       if (isNew) {
         const result = await createPost({
-          content: content || '',
+          content: latestContent || '',
           title: title.trim(),
           ...(settings.excerpt && { excerpt: settings.excerpt }),
           ...(settings.categories.length > 0 && {
@@ -328,7 +384,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
           payload: {
             canonicalUrl: settings.canonicalUrl || null,
             categories: settings.categories,
-            content: content || '',
+            content: latestContent || '',
             excerpt: settings.excerpt || null,
             isAnonymous: settings.isAnonymous,
             seoDescription: settings.seoDescription || null,
@@ -340,7 +396,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
         }).unwrap()
         dispatch(
           blogEditorActions.editorFormLoad({
-            content: content || '',
+            content: latestContent || '',
             settings: {
               canonicalUrl: settings.canonicalUrl,
               categories: settings.categories,
@@ -403,7 +459,12 @@ export const BlogAdminEditorComponent: React.FC = () => {
             {!isNew && id && (
               <Button
                 disabled={isDirty}
-                onClick={() => !isDirty && navigate(`${BLOG_EDITOR_ROUTES.PREVIEW}/${id}`)}
+                onClick={() => {
+                  if (!isDirty) {
+                    skipEditorClearOnUnmount = true
+                    navigate(`${BLOG_EDITOR_ROUTES.PREVIEW}/${id}`)
+                  }
+                }}
                 size="small"
                 variant="outlined"
               >
@@ -412,11 +473,14 @@ export const BlogAdminEditorComponent: React.FC = () => {
             )}
           </Box>
         }
+        headerSubContent={
+          !isNew && post?.status ? <BlogPostStatusChipComponent status={post.status} /> : undefined
+        }
         headerTitle={isNew ? strings.BLOG_NEW_POST_TITLE : strings.BLOG_EDIT_POST_TITLE}
         navigation={handleCancel}
       />
 
-      <Box padding={'0 24px 24px'}>
+      <Box padding={'20px 24px 24px'}>
         <TextField
           fullWidth
           label={strings.TITLE}
@@ -457,8 +521,8 @@ export const BlogAdminEditorComponent: React.FC = () => {
             >
               <MDXEditor
                 key={isNew ? 'new' : id}
-                markdown={!isNew && post && !isDirty ? post.content : content}
-                onChange={(markdown) => dispatch(blogEditorActions.contentSet(markdown))}
+                markdown={editorMarkdown}
+                onChange={handleEditorChange}
                 plugins={[
                   headingsPlugin(),
                   imagePlugin({
@@ -470,7 +534,6 @@ export const BlogAdminEditorComponent: React.FC = () => {
                   thematicBreakPlugin(),
                   linkPlugin(),
                   linkDialogPlugin({ LinkDialog: () => <BlogLinkEditDialog /> }),
-                  markdownShortcutPlugin(),
                   toolbarPlugin({
                     toolbarContents: () => (
                       <>
@@ -516,9 +579,58 @@ export const BlogAdminEditorComponent: React.FC = () => {
                           </span>
                         </Tooltip>
                         <InsertThematicBreak />
+                        <Tooltip title={strings.ALIGN_LEFT}>
+                          <span>
+                            <IconButton
+                              aria-label={strings.ALIGN_LEFT}
+                              onClick={() => {
+                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                editorRef.current?.insertMarkdown?.(
+                                  sel ? `<p align="left">${sel}</p>` : '<p align="left"></p>',
+                                )
+                              }}
+                              size="small"
+                            >
+                              <FormatAlignLeft fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                        <Tooltip title={strings.ALIGN_CENTER}>
+                          <span>
+                            <IconButton
+                              aria-label={strings.ALIGN_CENTER}
+                              onClick={() => {
+                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                editorRef.current?.insertMarkdown?.(
+                                  sel ? `<p align="center">${sel}</p>` : '<p align="center"></p>',
+                                )
+                              }}
+                              size="small"
+                            >
+                              <FormatAlignCenter fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                        <Tooltip title={strings.ALIGN_RIGHT}>
+                          <span>
+                            <IconButton
+                              aria-label={strings.ALIGN_RIGHT}
+                              onClick={() => {
+                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                editorRef.current?.insertMarkdown?.(
+                                  sel ? `<p align="right">${sel}</p>` : '<p align="right"></p>',
+                                )
+                              }}
+                              size="small"
+                            >
+                              <FormatAlignRight fontSize="small" />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
                       </>
                     ),
                   }),
+                  markdownShortcutPlugin(),
                 ]}
                 ref={editorRef}
               />
@@ -580,11 +692,14 @@ export const BlogAdminEditorComponent: React.FC = () => {
         isNew={isNew}
         isSaving={isSaving}
         onClose={() => setSettingsDrawerOpen(false)}
-        onPublishSuccess={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
-        onScheduleSuccess={() => navigate(BLOG_EDITOR_ROUTES.LIST)}
+        onPublishSuccess={() => setSettingsDrawerOpen(false)}
+        onScheduleSuccess={() => setSettingsDrawerOpen(false)}
+        onUnpublishSuccess={() => setSettingsDrawerOpen(false)}
         onUnscheduleSuccess={() => {}}
         open={settingsDrawerOpen}
         postId={id}
+        postPublishedAt={post?.publishedAt}
+        postScheduledAt={post?.scheduledAt}
         postStatus={post?.status}
         postTitle={post?.title}
         tags={tags}

@@ -2,13 +2,20 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 
 /**
- * Extended schema that allows relative URLs for img src
- * (e.g. /api/media/pub/xxx) so images load when using same-origin proxy.
+ * Extended schema that allows:
+ * - Relative URLs for img src (e.g. /api/media/pub/xxx)
+ * - remark-align output: div with class for alignment (align-left, align-center, align-right)
+ * - p align for backward compatibility with existing <p align="..."> content
  */
 export const blogRehypeSanitize = rehypeSanitize({
   ...defaultSchema,
   attributes: {
     ...defaultSchema.attributes,
+    div: [
+      ...(defaultSchema.attributes?.div ?? []),
+      'className',
+      'class',
+    ],
     img: [
       ...(defaultSchema.attributes?.img ?? []),
       'alt',
@@ -16,6 +23,7 @@ export const blogRehypeSanitize = rehypeSanitize({
       'title',
       'width',
     ],
+    p: [...(defaultSchema.attributes?.p ?? []), 'align'],
   },
   protocols: {
     ...defaultSchema.protocols,

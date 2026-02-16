@@ -1,6 +1,7 @@
 import Publish from '@mui/icons-material/Publish'
 import Schedule from '@mui/icons-material/Schedule'
 import Unpublished from '@mui/icons-material/Unpublished'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { Box, IconButton, Tooltip } from '@mui/material'
 import dayjs from 'dayjs'
 import * as React from 'react'
@@ -8,12 +9,14 @@ import * as React from 'react'
 import { BLOG_POST_STATUS, type BlogPostType } from '@dx3/models-shared'
 import type { TableHeaderItem, TableMeta, TableRowType } from '@dx3/web-libs/ui/table/types'
 
+import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
 import { DEFAULT_STRINGS } from '../../i18n/i18n.consts'
 import { store } from '../../store/store-web.redux'
 
 export type BlogListActionsType = {
   onPublish: (id: string) => void
   onScheduleClick: (id: string) => void
+  onUnpublish: (id: string) => void
   onUnschedule: (id: string) => void
 }
 
@@ -43,7 +46,7 @@ export class BlogAdminWebListService {
     },
     {
       align: 'left',
-      componentType: 'text',
+      componentType: 'component',
       fieldName: 'status',
       fieldType: 'string',
       headerAlign: 'left',
@@ -99,19 +102,11 @@ export class BlogAdminWebListService {
     return data
   }
 
-  private static formatStatus(status: string): string {
-    switch (status) {
-      case BLOG_POST_STATUS.DRAFT:
-        return BlogAdminWebListService.STRINGS.BLOG_STATUS_DRAFT
-      case BLOG_POST_STATUS.PUBLISHED:
-        return BlogAdminWebListService.STRINGS.BLOG_STATUS_PUBLISHED
-      case BLOG_POST_STATUS.SCHEDULED:
-        return BlogAdminWebListService.STRINGS.BLOG_STATUS_SCHEDULED
-      case BLOG_POST_STATUS.ARCHIVED:
-        return BlogAdminWebListService.STRINGS.BLOG_STATUS_ARCHIVED
-      default:
-        return status
-    }
+  private static renderStatusChip(status: string): React.ReactElement {
+    return React.createElement(BlogPostStatusChipComponent, {
+      listView: true,
+      status,
+    })
   }
 
   private static renderActionsCell(
@@ -122,8 +117,10 @@ export class BlogAdminWebListService {
     const canPublish =
       post.status === BLOG_POST_STATUS.DRAFT ||
       post.status === BLOG_POST_STATUS.SCHEDULED ||
-      post.status === BLOG_POST_STATUS.ARCHIVED
+      post.status === BLOG_POST_STATUS.ARCHIVED ||
+      post.status === BLOG_POST_STATUS.UNPUBLISHED
     const canSchedule = post.status === BLOG_POST_STATUS.DRAFT
+    const canUnpublish = post.status === BLOG_POST_STATUS.PUBLISHED
     const canUnschedule = post.status === BLOG_POST_STATUS.SCHEDULED
 
     return (
@@ -152,6 +149,18 @@ export class BlogAdminWebListService {
               size="small"
             >
               <Schedule fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {canUnpublish && (
+          <Tooltip title={strings.BLOG_TOOLTIP_UNPUBLISH ?? 'Unpublish post'}>
+            <IconButton
+              aria-label={strings.BLOG_UNPUBLISH ?? 'Unpublish'}
+              color="primary"
+              onClick={() => actions.onUnpublish(post.id)}
+              size="small"
+            >
+              <VisibilityOff fontSize="small" />
             </IconButton>
           </Tooltip>
         )}
@@ -187,7 +196,7 @@ export class BlogAdminWebListService {
             ? BlogAdminWebListService.renderActionsCell(post, actions)
             : React.createElement(Box, { sx: { minWidth: 48 } })
       } else if (meta.fieldName === 'status') {
-        cellData = BlogAdminWebListService.formatStatus(post.status)
+        cellData = BlogAdminWebListService.renderStatusChip(post.status)
       } else if (meta.fieldName === 'createdAt') {
         cellData = dayjs(post.createdAt).format('L')
       } else if (meta.fieldName === 'publishedAt') {

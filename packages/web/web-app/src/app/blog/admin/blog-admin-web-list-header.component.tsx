@@ -41,6 +41,7 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
     'BLOG_STATUS_DRAFT',
     'BLOG_STATUS_PUBLISHED',
     'BLOG_STATUS_SCHEDULED',
+    'BLOG_STATUS_UNPUBLISHED',
     'BLOG',
     'STATUS',
     'TOOLTIP_REFRESH_LIST',
@@ -72,6 +73,9 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
         </MenuItem>
         <MenuItem value={BLOG_POST_STATUS.SCHEDULED}>
           {strings.BLOG_STATUS_SCHEDULED}
+        </MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.UNPUBLISHED}>
+          {strings.BLOG_STATUS_UNPUBLISHED}
         </MenuItem>
         <MenuItem value={BLOG_POST_STATUS.ARCHIVED}>
           {strings.BLOG_STATUS_ARCHIVED}

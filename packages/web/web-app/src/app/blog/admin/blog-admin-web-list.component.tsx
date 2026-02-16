@@ -17,6 +17,7 @@ import { setDocumentTitle } from '../../ui/ui-web-set-document-title'
 import {
   useGetBlogAdminPostsQuery,
   usePublishBlogPostMutation,
+  useUnpublishBlogPostMutation,
   useUnscheduleBlogPostMutation,
 } from '../blog-web.api'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
@@ -41,6 +42,8 @@ export const BlogAdminListComponent: React.FC = () => {
     'BLOG_EDITOR_TITLE',
     'BLOG_PUBLISH',
     'BLOG_PUBLISH_CONFIRM',
+    'BLOG_UNPUBLISH',
+    'BLOG_UNPUBLISH_CONFIRM',
     'BLOG_UNSCHEDULE',
     'BLOG_UNSCHEDULE_CONFIRM',
     'CANCEL',
@@ -52,14 +55,17 @@ export const BlogAdminListComponent: React.FC = () => {
     refetchOnMountOrArgChange: true,
   })
   const [publishPost] = usePublishBlogPostMutation()
+  const [unpublishPost] = useUnpublishBlogPostMutation()
   const [unschedulePost] = useUnscheduleBlogPostMutation()
 
   const [publishConfirmOpen, setPublishConfirmOpen] = React.useState(false)
+  const [unpublishConfirmOpen, setUnpublishConfirmOpen] = React.useState(false)
   const [publishPostId, setPublishPostId] = React.useState<string | null>(null)
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false)
   const [schedulePostId, setSchedulePostId] = React.useState<string | null>(null)
   const [unscheduleConfirmOpen, setUnscheduleConfirmOpen] = React.useState(false)
   const [unschedulePostId, setUnschedulePostId] = React.useState<string | null>(null)
+  const [unpublishPostId, setUnpublishPostId] = React.useState<string | null>(null)
 
   const limit = useAppSelector((state) => state.blogEditor.limit)
   const offset = useAppSelector((state) => state.blogEditor.offset)
@@ -95,10 +101,29 @@ export const BlogAdminListComponent: React.FC = () => {
     setScheduleDialogOpen(false)
     setSchedulePostId(null)
   }, [])
+  const handleUnpublishClick = React.useCallback((id: string) => {
+    setUnpublishPostId(id)
+    setUnpublishConfirmOpen(true)
+  }, [])
   const handleUnscheduleClick = React.useCallback((id: string) => {
     setUnschedulePostId(id)
     setUnscheduleConfirmOpen(true)
   }, [])
+  const handleUnpublishConfirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setUnpublishConfirmOpen(false)
+      const id = unpublishPostId
+      setUnpublishPostId(null)
+      if (!confirmed || !id) return
+      try {
+        await unpublishPost(id).unwrap()
+        refetch()
+      } catch {
+        // Error handled by RTK Query / toast
+      }
+    },
+    [refetch, unpublishPost, unpublishPostId],
+  )
   const handleUnscheduleConfirm = React.useCallback(
     async (confirmed: boolean) => {
       setUnscheduleConfirmOpen(false)
@@ -114,6 +139,10 @@ export const BlogAdminListComponent: React.FC = () => {
     },
     [refetch, unschedulePost, unschedulePostId],
   )
+  const handleUnpublishClose = React.useCallback(() => {
+    setUnpublishConfirmOpen(false)
+    setUnpublishPostId(null)
+  }, [])
   const handleUnscheduleClose = React.useCallback(() => {
     setUnscheduleConfirmOpen(false)
     setUnschedulePostId(null)
@@ -122,9 +151,15 @@ export const BlogAdminListComponent: React.FC = () => {
     () => ({
       onPublish: handlePublishClick,
       onScheduleClick: handleScheduleClick,
+      onUnpublish: handleUnpublishClick,
       onUnschedule: handleUnscheduleClick,
     }),
-    [handlePublishClick, handleScheduleClick, handleUnscheduleClick],
+    [
+      handlePublishClick,
+      handleScheduleClick,
+      handleUnpublishClick,
+      handleUnscheduleClick,
+    ],
   )
   const rows: TableRowType[] = React.useMemo(
     () => listService.getRows(data?.rows ?? [], listActions),
@@ -228,6 +263,20 @@ export const BlogAdminListComponent: React.FC = () => {
             }}
             isMobileWidth={isMobileWidth}
             open={publishConfirmOpen}
+          />
+          <CustomDialog
+            body={
+              <ConfirmationDialog
+                bodyMessage={strings.BLOG_UNPUBLISH_CONFIRM}
+                cancellingText={(strings as Record<string, string>).CANCELING ?? 'Canceling'}
+                cancelText={strings.CANCEL}
+                okText={strings.BLOG_UNPUBLISH}
+                onComplete={handleUnpublishConfirm}
+              />
+            }
+            closeDialog={handleUnpublishClose}
+            isMobileWidth={isMobileWidth}
+            open={unpublishConfirmOpen}
           />
           <CustomDialog
             body={

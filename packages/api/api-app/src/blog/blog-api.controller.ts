@@ -264,6 +264,20 @@ export const BlogController = {
     }
   },
 
+  unpublishPost: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'unpublishBlogPost' })
+    try {
+      const id = req.params.id
+      if (!id) return sendBadRequest(req, res, 'Post ID is required')
+
+      const post = await blogService.unpublishPost(id)
+      return sendOK(req, res, post)
+    } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed unpublishBlogPost' })
+      sendBadRequest(req, res, (err as Error).message)
+    }
+  },
+
   updatePost: async (req: Request, res: Response) => {
     logRequest({ req, type: 'updateBlogPost' })
     try {

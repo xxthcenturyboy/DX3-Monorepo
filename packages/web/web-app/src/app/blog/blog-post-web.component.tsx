@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useParams } from 'react-router'
 import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { BeatLoader } from 'react-spinners'
@@ -180,12 +181,17 @@ export const BlogPostComponent: React.FC = () => {
             <Box
               className="blog-post-content"
               sx={{
+                '& img': {
+                  height: 'auto',
+                  maxWidth: '100%',
+                },
                 '& p': { marginBottom: 2 },
                 '& pre': { overflow: 'auto' },
               }}
             >
               <ReactMarkdown
                 components={blogMarkdownComponents}
+                remarkPlugins={[remarkGfm]}
                 remarkRehypeOptions={{ allowDangerousHtml: true }}
                 rehypePlugins={blogRehypePlugins}
               >

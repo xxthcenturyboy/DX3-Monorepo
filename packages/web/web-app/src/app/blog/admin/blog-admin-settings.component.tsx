@@ -1,4 +1,5 @@
 import {
+  Alert,
   Autocomplete,
   Box,
   Button,
@@ -7,11 +8,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import dayjs from 'dayjs'
 import * as React from 'react'
 
 import { BLOG_POST_STATUS, type BlogCategoryType, type BlogTagType } from '@dx3/models-shared'
 
-import { useStrings } from '../../i18n'
+import { useStrings, useTranslation } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { blogEditorActions } from './blog-admin-web.reducer'
 import { selectBlogEditorSettings } from './blog-admin-web.selectors'
@@ -24,8 +26,11 @@ export type BlogAdminSettingsComponentPropsType = {
   isSaving?: boolean
   onPublishClick?: () => void
   onScheduleClick?: () => void
+  onUnpublishClick?: () => void
   onUnscheduleClick?: () => void
   postId?: string
+  postPublishedAt?: Date | string | null
+  postScheduledAt?: Date | string | null
   postStatus?: string
   postTitle?: string
   tags: BlogTagType[]
@@ -45,14 +50,18 @@ export const BlogAdminSettingsComponent: React.FC<
   isSaving = false,
   onPublishClick,
   onScheduleClick,
+  onUnpublishClick,
   onUnscheduleClick,
   postId,
+  postPublishedAt,
+  postScheduledAt,
   postStatus,
   postTitle,
   tags,
 }) => {
   const dispatch = useAppDispatch()
   const settings = useAppSelector(selectBlogEditorSettings)
+  const t = useTranslation()
 
   const strings = useStrings([
     'BLOG_ANONYMOUS',
@@ -60,13 +69,14 @@ export const BlogAdminSettingsComponent: React.FC<
     'BLOG_CATEGORIES',
     'BLOG_EXCERPT',
     'BLOG_EXCERPT_HELPER',
-    'BLOG_SEO_DESCRIPTION',
-    'BLOG_SEO_TITLE',
     'BLOG_PUBLISHING',
     'BLOG_PUBLISH_NOW',
     'BLOG_SCHEDULE_PUBLISH',
+    'BLOG_SEO_DESCRIPTION',
+    'BLOG_SEO_TITLE',
     'BLOG_SLUG_HELPER',
     'BLOG_TAGS',
+    'BLOG_UNPUBLISH',
     'BLOG_UNSCHEDULE',
     'SLUG',
   ])
@@ -239,7 +249,12 @@ export const BlogAdminSettingsComponent: React.FC<
         variant="outlined"
       />
 
-      {!isNew && postId && (postStatus === BLOG_POST_STATUS.DRAFT || postStatus === BLOG_POST_STATUS.SCHEDULED) && (
+      {!isNew &&
+        postId &&
+        (postStatus === BLOG_POST_STATUS.DRAFT ||
+          postStatus === BLOG_POST_STATUS.PUBLISHED ||
+          postStatus === BLOG_POST_STATUS.SCHEDULED ||
+          postStatus === BLOG_POST_STATUS.UNPUBLISHED) && (
         <Box
           sx={{
             borderTop: '1px solid',
@@ -263,7 +278,57 @@ export const BlogAdminSettingsComponent: React.FC<
           >
             {strings.BLOG_PUBLISHING}
           </Typography>
-          {postStatus === BLOG_POST_STATUS.DRAFT && (
+          {postStatus === BLOG_POST_STATUS.SCHEDULED &&
+            postScheduledAt && (
+              <Alert
+                severity="info"
+                sx={{ marginBottom: 0 }}
+              >
+                {t('BLOG_SCHEDULED_TO_POST_ON', {
+                  date: dayjs(postScheduledAt).format('LL'),
+                })}
+              </Alert>
+            )}
+          {postStatus === BLOG_POST_STATUS.PUBLISHED &&
+            postPublishedAt && (
+              <>
+                <Alert
+                  severity="success"
+                  sx={{ marginBottom: 0 }}
+                >
+                  {t('BLOG_PUBLISHED_ON', {
+                    date: dayjs(postPublishedAt).format('LL'),
+                  })}
+                </Alert>
+                <Button
+                  disabled={isDirty || isSaving}
+                  fullWidth
+                  onClick={onUnpublishClick}
+                  size={isMobileWidth ? 'medium' : 'small'}
+                  sx={
+                    isMobileWidth
+                      ? { minHeight: 48, padding: '12px 16px' }
+                      : undefined
+                  }
+                  variant="outlined"
+                >
+                  {strings.BLOG_UNPUBLISH}
+                </Button>
+              </>
+            )}
+          {postStatus === BLOG_POST_STATUS.UNPUBLISHED &&
+            postPublishedAt && (
+              <Alert
+                severity="error"
+                sx={{ marginBottom: 0 }}
+              >
+                {t('BLOG_UNPUBLISHED_PREVIOUSLY_ON', {
+                  date: dayjs(postPublishedAt).format('LL'),
+                })}
+              </Alert>
+            )}
+          {(postStatus === BLOG_POST_STATUS.DRAFT ||
+            postStatus === BLOG_POST_STATUS.UNPUBLISHED) && (
             <>
               <Button
                 disabled={isDirty || isSaving}

@@ -107,32 +107,32 @@ export const Root: React.FC = () => {
     updateContentWrapperStyles()
   }, [])
 
+  // Bootstrap and resize listener: run once on mount only.
+  // Re-running on navigation caused appBootstrap (i18n) to re-execute and slowed nav.
   React.useEffect(() => {
     appBootstrap()
-
     dispatch(uiActions.windowSizeSet())
     const handleResize = () => {
       dispatch(uiActions.windowSizeSet())
     }
-
-    // SSR-safe: only add event listeners in browser environment
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', handleResize)
     }
-
-    if (!userProfile && canRedirect) {
-      void fetchProfile()
-    }
-
     setBootstrapped(true)
     dispatch(uiActions.bootstrapSet(true))
-
     return () => {
       if (typeof window !== 'undefined') {
         window.removeEventListener('resize', handleResize)
       }
     }
-  }, [canRedirect, userProfile])
+  }, [dispatch])
+
+  // Fetch profile when on a redirect route and profile is missing.
+  React.useEffect(() => {
+    if (!userProfile && canRedirect) {
+      void fetchProfile()
+    }
+  }, [canRedirect, fetchProfile, userProfile])
 
   React.useEffect(() => {
     if (logoutResponse) {

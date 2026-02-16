@@ -285,6 +285,24 @@ export class BlogService {
   }
 
   /**
+   * Unpublish a published post (sets status to unpublished)
+   */
+  async unpublishPost(id: string): Promise<BlogPostType> {
+    const post = await BlogPostModel.findByPk(id)
+    if (!post || post.deletedAt) throw new Error('Post not found')
+    if (post.status !== BLOG_POST_STATUS.PUBLISHED)
+      throw new Error('Only published posts can be unpublished')
+
+    await post.update({
+      status: BLOG_POST_STATUS.UNPUBLISHED,
+    })
+
+    const saved = await this.getPostById(id)
+    if (!saved) throw new Error('Failed to unpublish post')
+    return saved
+  }
+
+  /**
    * Get revision history for a post
    */
   async getRevisions(postId: string): Promise<BlogPostRevisionType[]> {

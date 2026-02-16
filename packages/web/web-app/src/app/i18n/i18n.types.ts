@@ -72,6 +72,9 @@ export type StringKeys = {
   ABOUT_SECTION_TECH_TITLE: string
   ACCOUNT_MENU: string
   ADD: string
+  ALIGN_CENTER: string
+  ALIGN_LEFT: string
+  ALIGN_RIGHT: string
   ADMIN: string
   ADMIN_LOGS_ALERT_AUTH_FAILURE_CRITICAL: string
   ADMIN_LOGS_ALERT_AUTH_FAILURE_WARNING: string
@@ -165,7 +168,10 @@ export type StringKeys = {
   BLOG_PUBLISH: string
   BLOG_PUBLISH_CONFIRM: string
   BLOG_PUBLISH_NOW: string
+  BLOG_PUBLISHED_ON: string
   BLOG_PUBLISHING: string
+  BLOG_SCHEDULED_TO_POST_ON: string
+  BLOG_UNPUBLISHED_PREVIOUSLY_ON: string
   BLOG_READ_MORE: string
   BLOG_READING_TIME_MIN: string
   BLOG_RELATED_POSTS: string
@@ -181,9 +187,13 @@ export type StringKeys = {
   BLOG_STATUS_DRAFT: string
   BLOG_STATUS_PUBLISHED: string
   BLOG_STATUS_SCHEDULED: string
+  BLOG_STATUS_UNPUBLISHED: string
   BLOG_TOOLTIP_PUBLISH: string
+  BLOG_TOOLTIP_UNPUBLISH: string
   BLOG_TOOLTIP_SCHEDULE: string
   BLOG_TOOLTIP_UNSCHEDULE: string
+  BLOG_UNPUBLISH: string
+  BLOG_UNPUBLISH_CONFIRM: string
   BLOG_UNSCHEDULE: string
   BLOG_UNSCHEDULE_CONFIRM: string
   CANCEL: string
@@ -258,7 +268,11 @@ export type StringKeys = {
   HEAP_TOTAL: string
   HEAP_USED: string
   HOME: string
+  IMAGE_ALIGN_CENTER: string
+  IMAGE_ALIGN_LEFT: string
+  IMAGE_ALIGN_RIGHT: string
   IMAGE_EDIT_ALT: string
+  IMAGE_EDIT_ALIGNMENT: string
   IMAGE_EDIT_DIALOG_TITLE: string
   IMAGE_EDIT_TITLE: string
   IMAGE_EDIT_USE_TOOLBAR: string

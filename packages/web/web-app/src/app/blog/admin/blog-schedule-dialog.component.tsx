@@ -15,6 +15,7 @@ import utc from 'dayjs/plugin/utc'
 import * as React from 'react'
 
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { useStrings } from '../../i18n'
 import { store } from '../../store/store-web.redux'
@@ -97,6 +98,7 @@ export const BlogScheduleDialogComponent: React.FC<
     'CONFIRM',
   ])
 
+  const [scheduleView, setScheduleView] = React.useState<'form' | 'success'>('form')
   const [scheduleDateTime, setScheduleDateTime] = React.useState(() =>
     dayjs().add(1, 'hour').format('YYYY-MM-DDTHH:mm'),
   )
@@ -107,6 +109,7 @@ export const BlogScheduleDialogComponent: React.FC<
 
   React.useEffect(() => {
     if (open) {
+      setScheduleView('form')
       setScheduleDateTime(dayjs().add(1, 'hour').format('YYYY-MM-DDTHH:mm'))
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
       setScheduleTimezone(
@@ -125,24 +128,24 @@ export const BlogScheduleDialogComponent: React.FC<
         id: postId,
         payload: { scheduledAt },
       }).unwrap()
-      onClose()
-      onSuccess?.()
+      setScheduleView('success')
     } catch {
       // Error handled by RTK Query / toast
     }
-  }, [
-    onClose,
-    onSuccess,
-    postId,
-    scheduleDateTime,
-    schedulePost,
-    scheduleTimezone,
-  ])
+  }, [postId, scheduleDateTime, schedulePost, scheduleTimezone])
+
+  const handleSuccessLottieComplete = React.useCallback(() => {
+    onClose()
+    onSuccess?.()
+  }, [onClose, onSuccess])
 
   return (
     <CustomDialog
       body={
-        <Box
+        scheduleView === 'success' ? (
+          <SuccessLottie complete={handleSuccessLottieComplete} />
+        ) : (
+          <Box
           sx={{
             alignSelf: 'stretch',
             display: 'flex',
@@ -272,6 +275,7 @@ export const BlogScheduleDialogComponent: React.FC<
             </Button>
           </Box>
         </Box>
+        )
       }
       closeDialog={onClose}
       isMobileWidth={isMobileWidth}

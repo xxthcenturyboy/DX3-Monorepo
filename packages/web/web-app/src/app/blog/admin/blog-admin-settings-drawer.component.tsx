@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom'
 
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 
 import { useStrings } from '../../i18n'
@@ -23,6 +24,7 @@ import {
 import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
 import {
   usePublishBlogPostMutation,
+  useUnpublishBlogPostMutation,
   useUnscheduleBlogPostMutation,
 } from '../blog-web.api'
 
@@ -32,6 +34,7 @@ export type BlogAdminSettingsDrawerPropsType = BlogAdminSettingsComponentPropsTy
   onClose: () => void
   onPublishSuccess?: () => void
   onScheduleSuccess?: () => void
+  onUnpublishSuccess?: () => void
   onUnscheduleSuccess?: () => void
   open: boolean
 }
@@ -51,9 +54,12 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
   onClose,
   onPublishSuccess,
   onScheduleSuccess,
+  onUnpublishSuccess,
   onUnscheduleSuccess,
   open,
   postId,
+  postPublishedAt,
+  postScheduledAt,
   postStatus,
   postTitle = '',
   tags,
@@ -67,6 +73,8 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
     'BLOG_PUBLISH_CONFIRM',
     'BLOG_PUBLISH_NOW',
     'BLOG_SETTINGS',
+    'BLOG_UNPUBLISH',
+    'BLOG_UNPUBLISH_CONFIRM',
     'BLOG_UNSCHEDULE',
     'BLOG_UNSCHEDULE_CONFIRM',
     'CANCEL',
@@ -75,29 +83,58 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
   ])
 
   const [publishPost] = usePublishBlogPostMutation()
+  const [unpublishPost] = useUnpublishBlogPostMutation()
   const [unschedulePost] = useUnscheduleBlogPostMutation()
 
   const [publishConfirmOpen, setPublishConfirmOpen] = React.useState(false)
+  const [unpublishConfirmOpen, setUnpublishConfirmOpen] = React.useState(false)
+  const [publishConfirmView, setPublishConfirmView] = React.useState<'confirm' | 'success'>(
+    'confirm',
+  )
   const [scheduleDialogOpen, setScheduleDialogOpen] = React.useState(false)
   const [unscheduleConfirmOpen, setUnscheduleConfirmOpen] = React.useState(false)
 
   const handlePublishConfirm = React.useCallback(
     async (confirmed: boolean) => {
-      setPublishConfirmOpen(false)
+      if (!confirmed) {
+        setPublishConfirmOpen(false)
+        return
+      }
+      if (!postId) return
+      try {
+        await publishPost(postId).unwrap()
+        setPublishConfirmView('success')
+      } catch {
+        // Error handled by RTK Query / toast
+      }
+    },
+    [postId, publishPost],
+  )
+  const handlePublishSuccessLottieComplete = React.useCallback(() => {
+    setPublishConfirmOpen(false)
+    setPublishConfirmView('confirm')
+    onPublishSuccess?.()
+  }, [onPublishSuccess])
+  const handleScheduleClose = React.useCallback(() => {
+    setScheduleDialogOpen(false)
+  }, [])
+  const handleUnpublishConfirm = React.useCallback(
+    async (confirmed: boolean) => {
+      setUnpublishConfirmOpen(false)
       if (confirmed && postId) {
         try {
-          await publishPost(postId).unwrap()
+          await unpublishPost(postId).unwrap()
           onClose()
-          onPublishSuccess?.()
+          onUnpublishSuccess?.()
         } catch {
           // Error handled by RTK Query / toast
         }
       }
     },
-    [onClose, onPublishSuccess, postId, publishPost],
+    [onClose, onUnpublishSuccess, postId, unpublishPost],
   )
-  const handleScheduleClose = React.useCallback(() => {
-    setScheduleDialogOpen(false)
+  const handleUnpublishClose = React.useCallback(() => {
+    setUnpublishConfirmOpen(false)
   }, [])
   const handleUnscheduleConfirm = React.useCallback(
     async (confirmed: boolean) => {
@@ -203,11 +240,17 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
                 onClose()
                 setScheduleDialogOpen(true)
               }}
+              onUnpublishClick={() => {
+                onClose()
+                setUnpublishConfirmOpen(true)
+              }}
               onUnscheduleClick={() => {
                 onClose()
                 setUnscheduleConfirmOpen(true)
               }}
               postId={postId}
+              postPublishedAt={postPublishedAt}
+              postScheduledAt={postScheduledAt}
               postStatus={postStatus}
               postTitle={postTitle}
               tags={tags}
@@ -227,17 +270,43 @@ export const BlogAdminSettingsDrawerComponent: React.FC<BlogAdminSettingsDrawerP
       {createPortal(
         <CustomDialog
           body={
-            <ConfirmationDialog
-              bodyMessage={strings.BLOG_PUBLISH_CONFIRM}
-              cancellingText={strings.CANCELING}
-              cancelText={strings.CANCEL}
-              okText={strings.BLOG_PUBLISH_NOW}
-              onComplete={handlePublishConfirm}
-            />
+            publishConfirmView === 'success' ? (
+              <SuccessLottie complete={handlePublishSuccessLottieComplete} />
+            ) : (
+              <ConfirmationDialog
+                bodyMessage={strings.BLOG_PUBLISH_CONFIRM}
+                cancellingText={strings.CANCELING}
+                cancelText={strings.CANCEL}
+                noAwait
+                okText={strings.BLOG_PUBLISH_NOW}
+                onComplete={handlePublishConfirm}
+              />
+            )
           }
-          closeDialog={() => setPublishConfirmOpen(false)}
+          closeDialog={() => {
+            setPublishConfirmOpen(false)
+            setPublishConfirmView('confirm')
+          }}
           isMobileWidth={isMobileWidth}
           open={publishConfirmOpen}
+        />,
+        document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
+      )}
+
+      {createPortal(
+        <CustomDialog
+          body={
+            <ConfirmationDialog
+              bodyMessage={strings.BLOG_UNPUBLISH_CONFIRM}
+              cancellingText={strings.CANCELING}
+              cancelText={strings.CANCEL}
+              okText={strings.BLOG_UNPUBLISH}
+              onComplete={handleUnpublishConfirm}
+            />
+          }
+          closeDialog={handleUnpublishClose}
+          isMobileWidth={isMobileWidth}
+          open={unpublishConfirmOpen}
         />,
         document.getElementById(MODAL_ROOT_ELEM_ID) as HTMLElement,
       )}
