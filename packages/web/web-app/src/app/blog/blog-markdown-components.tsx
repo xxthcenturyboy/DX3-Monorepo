@@ -29,7 +29,7 @@ function parseImageTitle(raw: string | undefined): {
   alignment: 'left' | 'center' | 'right'
   title: string
 } {
-  const alignMatch = raw?.match(/^align:(center|right)\|(.*)$/s)
+  const alignMatch = raw?.match(/^align:(center|right)\|([\s\S]*)$/)
   if (alignMatch) {
     return {
       alignment: alignMatch[1] as 'center' | 'right',

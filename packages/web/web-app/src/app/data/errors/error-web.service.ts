@@ -13,15 +13,17 @@ import {
   parseApiError,
 } from '@dx3/models-shared'
 
-import { DEFAULT_STRINGS } from '../../i18n'
+import { DEFAULT_STRINGS } from '../../i18n/i18n.consts'
 import { selectTranslations } from '../../i18n/i18n.selectors'
 import type { InterpolationParams, StringKeyName } from '../../i18n/i18n.types'
 import type { CustomResponseErrorType } from '../rtk-query'
 
 /**
  * Default fallback error message.
+ * Uses optional chaining for test environments where i18n may not be fully initialized.
  */
-const DEFAULT_ERROR_MESSAGE = DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+const DEFAULT_ERROR_MESSAGE =
+  DEFAULT_STRINGS?.OOPS_SOMETHING_WENT_WRONG ?? 'Something went wrong'
 
 export const getErrorStringFromApiResponse = (res?: CustomResponseErrorType | SerializedError) => {
   if (res) {
@@ -86,7 +88,7 @@ export class ErrorWebService {
 
     // Use DEFAULT_STRINGS directly since store access is async
     // For real-time translations, use the useApiError hook instead
-    let message = DEFAULT_STRINGS[i18nKey]
+    let message = DEFAULT_STRINGS?.[i18nKey]
 
     if (!message) {
       return fallbackMessage || DEFAULT_ERROR_MESSAGE
@@ -127,7 +129,7 @@ export class ErrorWebService {
       const store = await getStore()
       const state = store.getState()
       const translations = selectTranslations(state)
-      let message = translations[i18nKey] || DEFAULT_STRINGS[i18nKey]
+      let message = translations[i18nKey] || DEFAULT_STRINGS?.[i18nKey]
 
       if (!message) {
         return fallbackMessage || DEFAULT_ERROR_MESSAGE
@@ -144,7 +146,7 @@ export class ErrorWebService {
       return message
     } catch {
       // Fallback to DEFAULT_STRINGS if store is not available
-      let message = DEFAULT_STRINGS[i18nKey]
+      let message = DEFAULT_STRINGS?.[i18nKey]
 
       if (!message) {
         return fallbackMessage || DEFAULT_ERROR_MESSAGE

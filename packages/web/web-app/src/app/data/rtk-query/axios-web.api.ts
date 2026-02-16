@@ -8,7 +8,7 @@ import { FingerprintWebService } from '@dx3/web-libs/utils/fingerprint-web.servi
 
 import { authActions } from '../../auth/auth-web.reducer'
 import { WebConfigService } from '../../config/config-web.service'
-import { DEFAULT_STRINGS } from '../../i18n'
+import { DEFAULT_STRINGS } from '../../i18n/i18n.consts'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { ErrorWebService } from '../errors/error-web.service'
 import type {
@@ -150,7 +150,7 @@ async function _handleNotification(message?: string): Promise<void> {
   // const dispatch = useAppDispatch();
   // if (location.pathname !== ROUTES.MAIN) {
   if (!store.getState().ui.isShowingUnauthorizedAlert) {
-    const msg = message ? message : DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+    const msg = message ?? DEFAULT_STRINGS?.OOPS_SOMETHING_WENT_WRONG ?? 'Something went wrong'
     store.dispatch(uiActions.setIsShowingUnauthorizedAlert(true))
     toast.warn(msg, {
       onClose: () => store.dispatch(uiActions.setIsShowingUnauthorizedAlert(false)),
@@ -204,10 +204,11 @@ export const axiosBaseQuery =
         status: number
         url: string
       }>
-      const message = err?.response?.data?.message || DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG
+      const fallbackMsg = DEFAULT_STRINGS?.OOPS_SOMETHING_WENT_WRONG ?? 'Something went wrong'
+      const message = err?.response?.data?.message || fallbackMsg
       logger.error('Error in axiosBaseQuery', err)
       if (err.status === 500) {
-        store.dispatch(uiActions.apiDialogSet(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG))
+        store.dispatch(uiActions.apiDialogSet(fallbackMsg))
       }
 
       const { code, localizedMessage, originalMessage } = ErrorWebService.resolveApiError(message)
