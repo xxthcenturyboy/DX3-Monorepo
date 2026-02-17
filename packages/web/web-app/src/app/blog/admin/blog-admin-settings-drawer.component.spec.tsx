@@ -3,45 +3,21 @@
  */
 
 import { BLOG_POST_STATUS } from '@dx3/models-shared'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: { translations: {} },
-    }),
-  },
-}))
+import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
 import {
+  BLOG_TEST_CATEGORIES_MINIMAL,
+  BLOG_TEST_TAGS_MINIMAL,
+  BLOG_TEST_THEME,
+} from '../testing/blog-test.fixtures'
+import {
   BlogAdminSettingsDrawerComponent,
   BlogAdminSettingsTriggerButton,
 } from './blog-admin-settings-drawer.component'
-
-jest.mock('../../data/rtk-query')
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    BLOG_PUBLISH: 'Publish',
-    BLOG_PUBLISH_CONFIRM: 'Publish this post?',
-    BLOG_PUBLISH_NOW: 'Publish Now',
-    BLOG_SETTINGS: 'Settings',
-    BLOG_SETTINGS_BUTTON: 'Settings',
-    BLOG_UNPUBLISH: 'Unpublish',
-    BLOG_UNPUBLISH_CONFIRM: 'Unpublish this post?',
-    BLOG_UNSCHEDULE: 'Unschedule',
-    BLOG_UNSCHEDULE_CONFIRM: 'Unschedule this post?',
-    CANCEL: 'Cancel',
-    CANCELING: 'Canceling',
-    CLOSE: 'Close',
-  }),
-}))
-
-jest.mock('@mui/material', () => ({
-  ...jest.requireActual('@mui/material'),
-  useMediaQuery: () => false,
-}))
 
 const mockPublishPost = jest.fn().mockReturnValue({ unwrap: () => Promise.resolve({}) })
 const mockSchedulePost = jest.fn().mockReturnValue({ unwrap: () => Promise.resolve({}) })
@@ -67,38 +43,23 @@ jest.mock('./blog-schedule-dialog.component', () => ({
   BlogScheduleDialogComponent: () => null,
 }))
 
-const testTheme = createTheme()
-
-const defaultCategories = [
-  { id: 'cat-1', name: 'Category A', slug: 'category-a' },
-]
-const defaultTags = [
-  { id: 'tag-1', name: 'Tag X', slug: 'tag-x' },
-]
-
 describe('BlogAdminSettingsDrawerComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    let modalRoot = document.getElementById('modal-root')
-    if (!modalRoot) {
-      modalRoot = document.createElement('div')
-      modalRoot.id = 'modal-root'
-      document.body.appendChild(modalRoot)
-    }
   })
 
   it('should not render drawer when open is false', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsDrawerComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES_MINIMAL}
           isNew={false}
           onClose={jest.fn()}
           open={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
           postTitle="My Post"
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS_MINIMAL}
         />
       </ThemeProvider>,
     )
@@ -110,16 +71,16 @@ describe('BlogAdminSettingsDrawerComponent', () => {
     const mockOnClose = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsDrawerComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES_MINIMAL}
           isNew={false}
           onClose={mockOnClose}
           open
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
           postTitle="My Post"
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS_MINIMAL}
         />
       </ThemeProvider>,
     )
@@ -135,16 +96,16 @@ describe('BlogAdminSettingsDrawerComponent', () => {
 
   it('should render settings panel with post title', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsDrawerComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES_MINIMAL}
           isNew={false}
           onClose={jest.fn()}
           open
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
           postTitle="Test Blog Post"
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS_MINIMAL}
         />
       </ThemeProvider>,
     )
@@ -156,16 +117,16 @@ describe('BlogAdminSettingsDrawerComponent', () => {
     const mockOnClose = jest.fn()
 
     const { container } = renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsDrawerComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES_MINIMAL}
           isNew={false}
           onClose={mockOnClose}
           open
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
           postTitle="My Post"
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS_MINIMAL}
         />
       </ThemeProvider>,
     )
@@ -183,7 +144,7 @@ describe('BlogAdminSettingsTriggerButton', () => {
     const mockOnClick = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsTriggerButton onClick={mockOnClick} />
       </ThemeProvider>,
     )

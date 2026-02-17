@@ -3,29 +3,7 @@ import type { BlogPostType } from '@dx3/models-shared'
 
 import { BlogAdminWebListService } from './blog-admin-web-list.service'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: {
-        translations: {
-          BLOG_DATE_CREATED: 'Created',
-          BLOG_DATE_PUBLISHED: 'Published',
-          BLOG_PUBLISH: 'Publish',
-          BLOG_SCHEDULE: 'Schedule',
-          BLOG_TOOLTIP_PUBLISH: 'Publish now',
-          BLOG_TOOLTIP_SCHEDULE: 'Schedule for later',
-          BLOG_TOOLTIP_UNPUBLISH: 'Unpublish',
-          BLOG_TOOLTIP_UNSCHEDULE: 'Unschedule',
-          BLOG_UNPUBLISH: 'Unpublish',
-          BLOG_UNSCHEDULE: 'Unschedule',
-          SLUG: 'Slug',
-          STATUS: 'Status',
-          TITLE: 'Title',
-        },
-      },
-    }),
-  },
-}))
+import '../testing/blog-test-setup'
 
 const createMockPost = (overrides: Partial<BlogPostType> = {}): BlogPostType =>
   ({

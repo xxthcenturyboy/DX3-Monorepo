@@ -114,3 +114,12 @@ console.error = (...args: unknown[]) => {
   }
   originalConsoleError.apply(console, args)
 }
+
+// Ensure modal-root exists for components that render dialogs/portals (MUI Modal, createPortal)
+beforeEach(() => {
+  if (typeof document !== 'undefined' && !document.getElementById('modal-root')) {
+    const div = document.createElement('div')
+    div.id = 'modal-root'
+    document.body.appendChild(div)
+  }
+})

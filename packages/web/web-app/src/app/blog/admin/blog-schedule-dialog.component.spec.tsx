@@ -2,42 +2,18 @@
  * Blog Schedule Dialog Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: {
-        translations: {
-          BLOG_SCHEDULE_TZ_OTHER: 'Other timezones',
-          BLOG_SCHEDULE_TZ_YOURS: 'Your timezone',
-        },
-      },
-    }),
-  },
-}))
+import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
+import {
+  clearStoreTranslations,
+  setStoreTranslations,
+} from '../testing/blog-test-mocks'
+import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
-
-jest.mock('../../data/rtk-query')
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    BLOG_SCHEDULE_DATE: 'Date & Time',
-    BLOG_SCHEDULE_IN_YOUR_TZ: 'In your timezone: {time}',
-    BLOG_SCHEDULE_POST: 'Post',
-    BLOG_SCHEDULE_PUBLISH: 'Schedule Publish',
-    BLOG_SCHEDULE_TIMEZONE: 'Timezone',
-    CANCEL: 'Cancel',
-    CONFIRM: 'Confirm',
-  }),
-}))
-
-jest.mock('@mui/material', () => ({
-  ...jest.requireActual('@mui/material'),
-  useMediaQuery: () => false,
-}))
 
 const mockOnClose = jest.fn()
 const mockOnSuccess = jest.fn()
@@ -49,16 +25,22 @@ jest.mock('../blog-web.api', () => ({
   useScheduleBlogPostMutation: () => [mockSchedulePost],
 }))
 
-const testTheme = createTheme()
-
 describe('BlogScheduleDialogComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    setStoreTranslations({
+      BLOG_SCHEDULE_TZ_OTHER: 'Other timezones',
+      BLOG_SCHEDULE_TZ_YOURS: 'Your timezone',
+    })
+  })
+
+  afterEach(() => {
+    clearStoreTranslations()
   })
 
   it('should not show dialog when open is false', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogScheduleDialogComponent
           onClose={mockOnClose}
           onSuccess={mockOnSuccess}
@@ -75,7 +57,7 @@ describe('BlogScheduleDialogComponent', () => {
 
   it('should render form when open and postId provided', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogScheduleDialogComponent
           onClose={mockOnClose}
           onSuccess={mockOnSuccess}
@@ -97,7 +79,7 @@ describe('BlogScheduleDialogComponent', () => {
 
   it('should call onClose when Cancel clicked', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogScheduleDialogComponent
           onClose={mockOnClose}
           onSuccess={mockOnSuccess}
@@ -114,7 +96,7 @@ describe('BlogScheduleDialogComponent', () => {
 
   it('should call schedulePost when Confirm clicked', async () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogScheduleDialogComponent
           onClose={mockOnClose}
           onSuccess={mockOnSuccess}

@@ -2,50 +2,15 @@
  * Blog Admin List Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: { translations: {} },
-    }),
-  },
-}))
+import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 
 import { renderWithProviders } from '../../../../testing-render'
+import { AUTH_PRELOADED_STATE, BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import { BlogAdminListComponent } from './blog-admin-web-list.component'
-
-jest.mock('../../data/rtk-query')
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    ALL: 'All',
-    BLOG: 'Blog',
-    BLOG_CREATE_POST: 'Create Post',
-    BLOG_EDITOR_TITLE: 'Blog Editor',
-    BLOG_PUBLISH: 'Publish',
-    BLOG_PUBLISH_CONFIRM: 'Publish this post?',
-    BLOG_STATUS_ARCHIVED: 'Archived',
-    BLOG_STATUS_DRAFT: 'Draft',
-    BLOG_STATUS_PUBLISHED: 'Published',
-    BLOG_STATUS_SCHEDULED: 'Scheduled',
-    BLOG_STATUS_UNPUBLISHED: 'Unpublished',
-    BLOG_UNPUBLISH: 'Unpublish',
-    BLOG_UNPUBLISH_CONFIRM: 'Unpublish this post?',
-    BLOG_UNSCHEDULE: 'Unschedule',
-    BLOG_UNSCHEDULE_CONFIRM: 'Unschedule this post?',
-    CANCEL: 'Cancel',
-    CANCELING: 'Canceling',
-    STATUS: 'Status',
-    TOOLTIP_REFRESH_LIST: 'Refresh list',
-  }),
-}))
-
-jest.mock('@mui/material', () => ({
-  ...jest.requireActual('@mui/material'),
-  useMediaQuery: () => false,
-}))
 
 const mockNavigate = jest.fn()
 jest.mock('react-router', () => ({
@@ -56,7 +21,6 @@ jest.mock('react-router', () => ({
 const mockPublishPost = jest.fn().mockResolvedValue({})
 const mockUnpublishPost = jest.fn().mockResolvedValue({})
 const mockUnschedulePost = jest.fn().mockResolvedValue({})
-
 const mockSchedulePost = jest.fn().mockReturnValue({ unwrap: () => Promise.resolve({}) })
 
 jest.mock('../blog-web.api', () => ({
@@ -91,37 +55,19 @@ jest.mock('../blog-web.api', () => ({
   useUnscheduleBlogPostMutation: () => [mockUnschedulePost],
 }))
 
-const testTheme = createTheme()
-
 describe('BlogAdminListComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    let modalRoot = document.getElementById('modal-root')
-    if (!modalRoot) {
-      modalRoot = document.createElement('div')
-      modalRoot.id = 'modal-root'
-      document.body.appendChild(modalRoot)
-    }
   })
 
   it('should render list header and table', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogAdminListComponent />
         </MemoryRouter>
       </ThemeProvider>,
-      {
-        preloadedState: {
-          auth: {
-            logoutResponse: false,
-            password: '',
-            token: 'test-token',
-            userId: 'u1',
-            username: 'u@example.com',
-          },
-        },
-      },
+      { preloadedState: AUTH_PRELOADED_STATE },
     )
 
     expect(screen.getByText('Blog Editor')).toBeTruthy()
@@ -134,22 +80,12 @@ describe('BlogAdminListComponent', () => {
     mockNavigate.mockClear()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogAdminListComponent />
         </MemoryRouter>
       </ThemeProvider>,
-      {
-        preloadedState: {
-          auth: {
-            logoutResponse: false,
-            password: '',
-            token: 'test-token',
-            userId: 'u1',
-            username: 'u@example.com',
-          },
-        },
-      },
+      { preloadedState: AUTH_PRELOADED_STATE },
     )
 
     fireEvent.click(screen.getByText('Create Post'))

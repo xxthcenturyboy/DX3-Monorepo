@@ -2,27 +2,13 @@
  * Blog Image Edit Dialog Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
+import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
+import '../testing/blog-test-setup'
 import { BlogImageEditDialog } from './blog-image-edit-dialog.component'
-
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    CANCEL: 'Cancel',
-    CLOSE: 'Close',
-    IMAGE_ALIGN_CENTER: 'Center',
-    IMAGE_ALIGN_LEFT: 'Left',
-    IMAGE_ALIGN_RIGHT: 'Right',
-    IMAGE_EDIT_ALT: 'Alt text',
-    IMAGE_EDIT_ALIGNMENT: 'Alignment',
-    IMAGE_EDIT_DIALOG_TITLE: 'Edit Image',
-    IMAGE_EDIT_TITLE: 'Title',
-    IMAGE_EDIT_USE_TOOLBAR: 'Use toolbar to add images',
-    SAVE: 'Save',
-  }),
-}))
 
 const mockSaveImage = jest.fn()
 const mockCloseImageDialog = jest.fn()
@@ -44,7 +30,6 @@ jest.mock('@mdxeditor/gurx', () => ({
   },
 }))
 
-const testTheme = createTheme()
 
 describe('BlogImageEditDialog', () => {
   beforeEach(() => {
@@ -66,7 +51,7 @@ describe('BlogImageEditDialog', () => {
     mockUseCellValues.mockReturnValue([{ type: 'inactive' }])
 
     const { container } = renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogImageEditDialog />
       </ThemeProvider>,
     )
@@ -87,7 +72,7 @@ describe('BlogImageEditDialog', () => {
     ])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogImageEditDialog />
       </ThemeProvider>,
     )
@@ -104,7 +89,7 @@ describe('BlogImageEditDialog', () => {
     mockUseCellValues.mockReturnValue([{ type: 'new' }])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogImageEditDialog />
       </ThemeProvider>,
     )
@@ -127,7 +112,7 @@ describe('BlogImageEditDialog', () => {
     ])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogImageEditDialog />
       </ThemeProvider>,
     )

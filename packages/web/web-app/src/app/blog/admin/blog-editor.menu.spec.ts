@@ -1,17 +1,6 @@
-import { blogEditorMenu } from './blog-editor.menu'
+import '../testing/blog-test-setup'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: {
-        translations: {
-          BLOG: 'Blog',
-          BLOG_EDITOR_MENU: 'Blog Editor',
-        },
-      },
-    }),
-  },
-}))
+import { blogEditorMenu } from './blog-editor.menu'
 
 describe('blogEditorMenu', () => {
   it('should return menu config with blog editor item', () => {

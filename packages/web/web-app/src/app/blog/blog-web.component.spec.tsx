@@ -2,30 +2,20 @@
  * Blog (List) Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 
 import { renderWithProviders } from '../../../testing-render'
+import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
+import './testing/blog-test-setup'
 import { BlogComponent } from './blog-web.component'
-
-jest.mock('../data/rtk-query')
-jest.mock('../i18n', () => ({
-  useStrings: () => ({
-    BLOG: 'Blog',
-    BLOG_LOADING: 'Loading',
-    BLOG_NO_POSTS: 'No posts yet',
-    BLOG_PAGE_TITLE: 'Latest posts',
-  }),
-}))
 
 const mockUseGetBlogPostsQuery = jest.fn()
 
 jest.mock('./blog-web.api', () => ({
   useGetBlogPostsQuery: (params?: unknown) => mockUseGetBlogPostsQuery(params),
 }))
-
-const testTheme = createTheme()
 
 describe('BlogComponent', () => {
   beforeEach(() => {
@@ -40,7 +30,7 @@ describe('BlogComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogComponent />
         </MemoryRouter>
@@ -58,7 +48,7 @@ describe('BlogComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogComponent />
         </MemoryRouter>
@@ -76,7 +66,7 @@ describe('BlogComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogComponent />
         </MemoryRouter>
@@ -108,7 +98,7 @@ describe('BlogComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter>
           <BlogComponent />
         </MemoryRouter>

@@ -1,17 +1,12 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { render, screen } from '@testing-library/react'
 import type React from 'react'
 
 import type { BlogPostWithAuthorType } from '@dx3/models-shared'
 
+import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
+import './testing/blog-test-setup'
 import { BlogPostCardComponent } from './blog-post-card.component'
-
-jest.mock('../i18n', () => ({
-  useStrings: () => ({
-    BLOG_READ_MORE: 'Read more',
-    BLOG_READING_TIME_MIN: 'min read',
-  }),
-}))
 
 const mockNavigate = jest.fn()
 jest.mock('react-router', () => ({
@@ -44,7 +39,7 @@ const createMockPost = (overrides: Partial<BlogPostWithAuthorType> = {}): BlogPo
   }) as BlogPostWithAuthorType
 
 const renderWithTheme = (ui: React.ReactElement) =>
-  render(<ThemeProvider theme={createTheme()}>{ui}</ThemeProvider>)
+  render(<ThemeProvider theme={BLOG_TEST_THEME}>{ui}</ThemeProvider>)
 
 describe('BlogPostCardComponent', () => {
   beforeEach(() => {

@@ -3,28 +3,19 @@
  */
 
 import { BLOG_POST_STATUS } from '@dx3/models-shared'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 
-jest.mock('../../store/store-web.redux', () => ({
-  store: {
-    getState: () => ({
-      i18n: { translations: {} },
-    }),
-  },
-}))
+import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
+import {
+  BLOG_TEST_CATEGORIES,
+  BLOG_TEST_TAGS,
+  DEFAULT_BLOG_EDITOR_SETTINGS,
+  BLOG_TEST_THEME,
+} from '../testing/blog-test.fixtures'
 import { BlogAdminSettingsComponent } from './blog-admin-settings.component'
-
-jest.mock('../../config/config-web.service', () => ({
-  WebConfigService: {
-    getWebUrls: () => ({
-      API_URL: 'http://test.api',
-      WEB_APP_URL: 'http://test.app',
-    }),
-  },
-}))
 
 const mockUpdatePostPassive = jest.fn().mockResolvedValue({})
 
@@ -35,45 +26,6 @@ jest.mock('../blog-web.api', () => ({
   ],
 }))
 
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    BLOG_ANONYMOUS: 'Anonymous author',
-    BLOG_CANONICAL_URL: 'Canonical URL',
-    BLOG_CANONICAL_URL_HELPER: 'Canonical URL helper',
-    BLOG_CATEGORIES: 'Categories',
-    BLOG_EXCERPT: 'Excerpt',
-    BLOG_EXCERPT_HELPER: 'Excerpt helper',
-    BLOG_FEATURED_IMAGE: 'Featured Image',
-    BLOG_FEATURED_IMAGE_CHANGE: 'Change',
-    BLOG_FEATURED_IMAGE_REMOVE: 'Remove',
-    BLOG_FEATURED_IMAGE_SAVE_FIRST: 'Save post first',
-    BLOG_FEATURED_IMAGE_SET: 'Set featured image',
-    BLOG_PUBLISHING: 'Publishing',
-    BLOG_PUBLISH_NOW: 'Publish Now',
-    BLOG_SCHEDULE_PUBLISH: 'Schedule Publish',
-    BLOG_SEO_DESCRIPTION: 'SEO Description',
-    BLOG_SEO_TITLE: 'SEO Title',
-    BLOG_SLUG_HELPER: 'URL slug helper',
-    BLOG_TAGS: 'Tags',
-    BLOG_UNPUBLISH: 'Unpublish',
-    BLOG_UNPUBLISH_TO_EDIT: 'Unpublish to edit',
-    BLOG_UNSCHEDULE: 'Unschedule',
-    SLUG: 'Slug',
-  }),
-  useTranslation: () => (key: string) => key,
-}))
-
-const testTheme = createTheme()
-
-const defaultCategories = [
-  { id: 'cat-1', name: 'Category A', slug: 'category-a' },
-  { id: 'cat-2', name: 'Category B', slug: 'category-b' },
-]
-const defaultTags = [
-  { id: 'tag-1', name: 'Tag X', slug: 'tag-x' },
-  { id: 'tag-2', name: 'Tag Y', slug: 'tag-y' },
-]
-
 describe('BlogAdminSettingsComponent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -81,13 +33,13 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should render new post settings without slug field', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew
           postId={undefined}
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
     )
@@ -99,27 +51,20 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should render slug field when not new post', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
       {
         preloadedState: {
           blogEditorSettings: {
-            canonicalUrl: '',
-            categories: [],
-            excerpt: '',
-            featuredImageId: '',
-            isAnonymous: false,
-            seoDescription: '',
-            seoTitle: '',
+            ...DEFAULT_BLOG_EDITOR_SETTINGS,
             slug: 'my-post-slug',
-            tags: [],
           },
         },
       },
@@ -132,13 +77,13 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should show unpublish to edit alert when post is published', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.PUBLISHED}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
     )
@@ -151,15 +96,15 @@ describe('BlogAdminSettingsComponent', () => {
     const mockOnSchedule = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           onPublishClick={mockOnPublish}
           onScheduleClick={mockOnSchedule}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
     )
@@ -178,15 +123,15 @@ describe('BlogAdminSettingsComponent', () => {
     const mockOnUnpublish = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           onUnpublishClick={mockOnUnpublish}
           postId="post-1"
           postPublishedAt="2025-01-15"
           postStatus={BLOG_POST_STATUS.PUBLISHED}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
     )
@@ -201,15 +146,15 @@ describe('BlogAdminSettingsComponent', () => {
     const mockOnUnschedule = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           onUnscheduleClick={mockOnUnschedule}
           postId="post-1"
           postScheduledAt="2025-02-01"
           postStatus={BLOG_POST_STATUS.SCHEDULED}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
     )
@@ -222,27 +167,20 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should dispatch settingsSet when slug input changes', () => {
     const { store } = renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
       {
         preloadedState: {
           blogEditorSettings: {
-            canonicalUrl: '',
-            categories: [],
-            excerpt: '',
-            featuredImageId: '',
-            isAnonymous: false,
-            seoDescription: '',
-            seoTitle: '',
+            ...DEFAULT_BLOG_EDITOR_SETTINGS,
             slug: 'initial-slug',
-            tags: [],
           },
         },
       },
@@ -259,29 +197,19 @@ describe('BlogAdminSettingsComponent', () => {
     const mockOnFeaturedImage = jest.fn()
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           onFeaturedImageClick={mockOnFeaturedImage}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
       {
         preloadedState: {
-          blogEditorSettings: {
-            canonicalUrl: '',
-            categories: [],
-            excerpt: '',
-            featuredImageId: '',
-            isAnonymous: false,
-            seoDescription: '',
-            seoTitle: '',
-            slug: '',
-            tags: [],
-          },
+          blogEditorSettings: DEFAULT_BLOG_EDITOR_SETTINGS,
         },
       },
     )
@@ -293,26 +221,20 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should render categories and tags autocomplete', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
       {
         preloadedState: {
           blogEditorSettings: {
-            canonicalUrl: '',
+            ...DEFAULT_BLOG_EDITOR_SETTINGS,
             categories: ['cat-1'],
-            excerpt: '',
-            featuredImageId: '',
-            isAnonymous: false,
-            seoDescription: '',
-            seoTitle: '',
-            slug: '',
             tags: ['tag-1'],
           },
         },
@@ -325,27 +247,22 @@ describe('BlogAdminSettingsComponent', () => {
 
   it('should render anonymous toggle and SEO fields', () => {
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogAdminSettingsComponent
-          categories={defaultCategories}
+          categories={BLOG_TEST_CATEGORIES}
           isNew={false}
           postId="post-1"
           postStatus={BLOG_POST_STATUS.DRAFT}
-          tags={defaultTags}
+          tags={BLOG_TEST_TAGS}
         />
       </ThemeProvider>,
       {
         preloadedState: {
           blogEditorSettings: {
-            canonicalUrl: '',
-            categories: [],
-            excerpt: '',
-            featuredImageId: '',
+            ...DEFAULT_BLOG_EDITOR_SETTINGS,
             isAnonymous: true,
             seoDescription: 'Meta desc',
             seoTitle: 'SEO Title',
-            slug: '',
-            tags: [],
           },
         },
       },

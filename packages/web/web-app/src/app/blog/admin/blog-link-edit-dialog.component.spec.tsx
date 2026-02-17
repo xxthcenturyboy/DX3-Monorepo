@@ -2,28 +2,13 @@
  * Blog Link Edit Dialog Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
+import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
+import '../testing/blog-test-setup'
 import { BlogLinkEditDialog } from './blog-link-edit-dialog.component'
-
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    CANCEL: 'Cancel',
-    CLOSE: 'Close',
-    LINK_EDIT_ANCHOR_TEXT: 'Anchor text',
-    LINK_EDIT_ANCHOR_TEXT_PLACEHOLDER: 'Link text',
-    LINK_EDIT_COPIED: 'Copied',
-    LINK_EDIT_COPY_TO_CLIPBOARD: 'Copy',
-    LINK_EDIT_REMOVE_LINK: 'Remove link',
-    LINK_EDIT_TITLE: 'Title',
-    LINK_EDIT_TITLE_PLACEHOLDER: 'Link title',
-    LINK_EDIT_URL: 'URL',
-    LINK_EDIT_URL_PLACEHOLDER: 'https://',
-    SAVE: 'Save',
-  }),
-}))
 
 const mockPublishWindowChange = jest.fn()
 const mockUpdateLink = jest.fn()
@@ -57,7 +42,6 @@ jest.mock('@mdxeditor/gurx', () => ({
   usePublisher: () => publisherMocks[usePublisherCallIndex++ % publisherMocks.length],
 }))
 
-const testTheme = createTheme()
 
 describe('BlogLinkEditDialog', () => {
   beforeEach(() => {
@@ -89,7 +73,7 @@ describe('BlogLinkEditDialog', () => {
     ])
 
     const { container } = renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogLinkEditDialog />
       </ThemeProvider>,
     )
@@ -111,7 +95,7 @@ describe('BlogLinkEditDialog', () => {
     ])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogLinkEditDialog />
       </ThemeProvider>,
     )
@@ -138,7 +122,7 @@ describe('BlogLinkEditDialog', () => {
     ])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogLinkEditDialog />
       </ThemeProvider>,
     )
@@ -170,7 +154,7 @@ describe('BlogLinkEditDialog', () => {
     ])
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogLinkEditDialog />
       </ThemeProvider>,
     )

@@ -1,33 +1,15 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { render, screen } from '@testing-library/react'
 import type React from 'react'
 
 import { BLOG_POST_STATUS } from '@dx3/models-shared'
 
+import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
+import '../testing/blog-test-setup'
 import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
 
-const testTheme = createTheme()
-
 const renderWithTheme = (ui: React.ReactElement) =>
-  render(<ThemeProvider theme={testTheme}>{ui}</ThemeProvider>)
-
-const mockStrings: Record<string, string> = {
-  BLOG_STATUS_ARCHIVED: 'Archived',
-  BLOG_STATUS_DRAFT: 'Draft',
-  BLOG_STATUS_PUBLISHED: 'Published',
-  BLOG_STATUS_SCHEDULED: 'Scheduled',
-  BLOG_STATUS_UNPUBLISHED: 'Unpublished',
-}
-
-jest.mock('../../i18n', () => ({
-  useStrings: (keys: string[]) => {
-    const result: Record<string, string> = {}
-    for (const key of keys) {
-      result[key] = mockStrings[key] ?? key
-    }
-    return result
-  },
-}))
+  render(<ThemeProvider theme={BLOG_TEST_THEME}>{ui}</ThemeProvider>)
 
 describe('BlogPostStatusChipComponent', () => {
   it('should render draft status chip', () => {

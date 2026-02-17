@@ -2,33 +2,14 @@
  * Blog Post Preview Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { renderWithProviders } from '../../../../testing-render'
+import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
+import '../testing/blog-test-setup'
 import { BlogPostPreviewComponent } from './blog-post-preview-web.component'
-
-jest.mock('../../data/rtk-query')
-jest.mock('../../i18n', () => ({
-  useStrings: () => ({
-    BLOG: 'Blog',
-    BLOG_EDITOR_TITLE: 'Blog Editor',
-    BLOG_FEATURED_IMAGE: 'Featured image',
-    BLOG_READING_TIME_MIN: 'min read',
-    PREVIEW: 'Preview',
-    PREVIEW_NOT_PUBLISHED: 'This post is not yet published',
-  }),
-}))
-
-jest.mock('../../config/config-web.service', () => ({
-  WebConfigService: {
-    getWebUrls: () => ({
-      API_URL: 'http://test.api',
-      WEB_APP_URL: 'http://test.app',
-    }),
-  },
-}))
 
 const mockPost = {
   id: 'post-1',
@@ -57,7 +38,6 @@ jest.mock('../blog-web.api', () => ({
   useGetBlogPostPreviewQuery: (id: string) => mockUseGetBlogPostPreviewQuery(id),
 }))
 
-const testTheme = createTheme()
 
 describe('BlogPostPreviewComponent', () => {
   beforeEach(() => {
@@ -72,7 +52,7 @@ describe('BlogPostPreviewComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog-editor/preview']}>
           <Routes>
             <Route
@@ -95,7 +75,7 @@ describe('BlogPostPreviewComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route
@@ -118,7 +98,7 @@ describe('BlogPostPreviewComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route
@@ -145,7 +125,7 @@ describe('BlogPostPreviewComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route

@@ -2,32 +2,14 @@
  * Blog Post (Public) Component Tests
  */
 
-import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider } from '@mui/material/styles'
 import { screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { renderWithProviders } from '../../../testing-render'
+import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
+import './testing/blog-test-setup'
 import { BlogPostComponent } from './blog-post-web.component'
-
-jest.mock('../data/rtk-query')
-jest.mock('../i18n', () => ({
-  useStrings: () => ({
-    BLOG: 'Blog',
-    BLOG_FEATURED_IMAGE: 'Featured image',
-    BLOG_POST_NOT_FOUND: 'Post not found',
-    BLOG_READING_TIME_MIN: 'min read',
-    BLOG_RELATED_POSTS: 'Related posts',
-  }),
-}))
-
-jest.mock('../config/config-web.service', () => ({
-  WebConfigService: {
-    getWebUrls: () => ({
-      API_URL: 'http://test.api',
-      WEB_APP_URL: 'http://test.app',
-    }),
-  },
-}))
 
 const mockPost = {
   id: 'post-1',
@@ -59,7 +41,6 @@ jest.mock('./blog-web.api', () => ({
     mockUseGetBlogRelatedPostsQuery(params),
 }))
 
-const testTheme = createTheme()
 
 describe('BlogPostComponent', () => {
   beforeEach(() => {
@@ -75,7 +56,7 @@ describe('BlogPostComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog']}>
           <Routes>
             <Route
@@ -98,7 +79,7 @@ describe('BlogPostComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog/hello']}>
           <Routes>
             <Route
@@ -121,7 +102,7 @@ describe('BlogPostComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog/hello']}>
           <Routes>
             <Route
@@ -146,7 +127,7 @@ describe('BlogPostComponent', () => {
     })
 
     renderWithProviders(
-      <ThemeProvider theme={testTheme}>
+      <ThemeProvider theme={BLOG_TEST_THEME}>
         <MemoryRouter initialEntries={['/blog/bad-slug']}>
           <Routes>
             <Route
