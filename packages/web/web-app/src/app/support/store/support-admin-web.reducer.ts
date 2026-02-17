@@ -16,6 +16,8 @@ import {
 
 import type { SupportAdminStateType } from '../support.types'
 
+export type { SupportAdminStateType }
+
 export const SUPPORT_ADMIN_ENTITY_NAME = 'supportAdmin'
 
 export const supportAdminUserTabInitialState: SupportAdminStateType['userTab'] = {

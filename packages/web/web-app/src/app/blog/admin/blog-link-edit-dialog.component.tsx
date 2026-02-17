@@ -91,9 +91,9 @@ export const BlogLinkEditDialog: React.FC = () => {
 
   React.useEffect(() => {
     if (linkDialogState.type === 'edit' || linkDialogState.type === 'preview') {
-      const u = linkDialogState.url ?? ''
-      const t = linkDialogState.title ?? ''
-      const txt = linkDialogState.text ?? ''
+      const u = (linkDialogState as { url?: string }).url ?? ''
+      const t = (linkDialogState as { title?: string }).title ?? ''
+      const txt = (linkDialogState as { text?: string }).text ?? ''
       initialValuesRef.current = { text: txt, title: t, url: u }
       setUrl(u)
       setTitle(t)
@@ -138,7 +138,10 @@ export const BlogLinkEditDialog: React.FC = () => {
   )
 
   const handleCopyUrl = React.useCallback(() => {
-    const urlToCopy = linkDialogState.type === 'edit' ? url : linkDialogState.url
+    const urlToCopy =
+      linkDialogState.type === 'edit'
+        ? url
+        : (linkDialogState as { url?: string }).url
     if (urlToCopy) {
       window.navigator.clipboard
         .writeText(urlToCopy)
@@ -172,9 +175,7 @@ export const BlogLinkEditDialog: React.FC = () => {
       key={linkDialogState.linkNodeKey}
       open
       placement="bottom-start"
-      slotProps={{
-        root: { sx: { zIndex: 1400 } },
-      }}
+      sx={{ zIndex: 1400 }}
     >
       <Paper elevation={8} sx={{ minWidth: 280, p: 2 }}>
         <Box

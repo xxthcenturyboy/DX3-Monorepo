@@ -62,5 +62,33 @@ describe('blogEditorBodyReducer', () => {
       expect(state.title).toBe('New Title')
       expect(state.initialTitle).toBe('Original Title')
     })
+
+    it('should allow empty title', () => {
+      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+        blogEditorBodyActions.bodyFormLoad({ content: 'C', title: 'T' }),
+      )
+      const state = blogEditorBodyReducer(loadedState,
+        blogEditorBodyActions.titleSet(''),
+      )
+
+      expect(state.title).toBe('')
+      expect(state.initialTitle).toBe('T')
+    })
+  })
+
+  describe('unknown action', () => {
+    it('should return current state for unknown action', () => {
+      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+        blogEditorBodyActions.bodyFormLoad({ content: 'X', title: 'Y' }),
+      )
+      const state = blogEditorBodyReducer(loadedState, {
+        type: 'unknown/action',
+        payload: undefined,
+      } as never)
+
+      expect(state).toBe(loadedState)
+      expect(state.content).toBe('X')
+      expect(state.title).toBe('Y')
+    })
   })
 })

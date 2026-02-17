@@ -10,6 +10,40 @@ import { TextDecoder, TextEncoder } from 'util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
+// Polyfill DOMRect for jsdom (used by MUI Popper/BlogLinkEditDialog)
+if (typeof global.DOMRect === 'undefined') {
+  global.DOMRect = class DOMRect {
+    x: number
+    y: number
+    width: number
+    height: number
+    top: number
+    right: number
+    bottom: number
+    left: number
+
+    constructor(x = 0, y = 0, width = 0, height = 0) {
+      this.x = x
+      this.y = y
+      this.width = width
+      this.height = height
+      this.top = y
+      this.right = x + width
+      this.bottom = y + height
+      this.left = x
+    }
+
+    static fromRect(other?: DOMRectInit) {
+      return new (global.DOMRect as typeof DOMRect)(
+        other?.x ?? 0,
+        other?.y ?? 0,
+        other?.width ?? 0,
+        other?.height ?? 0,
+      )
+    }
+  } as unknown as typeof DOMRect
+}
+
 import '@testing-library/jest-dom'
 
 // Note: lottie-react mock is centralized in packages/web/__mocks__/lottie-react.tsx

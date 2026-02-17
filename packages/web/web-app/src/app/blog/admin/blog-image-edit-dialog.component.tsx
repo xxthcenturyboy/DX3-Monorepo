@@ -53,7 +53,7 @@ export const BlogImageEditDialog: React.FC = () => {
 
   /** Parse title for alignment prefix: "align:center|rest" or "align:right|rest" */
   const parseTitleForAlignment = React.useCallback((raw: string) => {
-    const alignMatch = raw?.match(/^align:(center|right)\|(.*)$/s)
+    const alignMatch = raw?.match(/^align:(center|right)\|([\s\S]*)$/)
     if (alignMatch) {
       return {
         alignment: alignMatch[1] as 'center' | 'right',
@@ -97,7 +97,7 @@ export const BlogImageEditDialog: React.FC = () => {
     state.type === 'editing'
       ? (() => {
           const parsed = (state.initialValues.title ?? '').match(
-            /^align:(center|right)\|(.*)$/s,
+            /^align:(center|right)\|([\s\S]*)$/,
           )
           return {
             alignment: (parsed?.[1] as 'center' | 'right') ?? 'left',

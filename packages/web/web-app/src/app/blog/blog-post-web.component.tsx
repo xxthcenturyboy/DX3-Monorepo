@@ -7,6 +7,7 @@ import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useParams } from 'react-router'
+import type { PluggableList } from 'unified'
 import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { BeatLoader } from 'react-spinners'
 
@@ -154,7 +155,7 @@ export const BlogPostComponent: React.FC = () => {
                 src={getPublicMediaUrl(
                   WebConfigService.getWebUrls().API_URL,
                   post.featuredImageId,
-                  MEDIA_VARIANTS.LARGE,
+                  MEDIA_VARIANTS.MEDIUM,
                 )}
                 sx={{
                   borderRadius: 1,
@@ -214,7 +215,7 @@ export const BlogPostComponent: React.FC = () => {
                 components={blogMarkdownComponents}
                 remarkPlugins={[remarkGfm]}
                 remarkRehypeOptions={{ allowDangerousHtml: true }}
-                rehypePlugins={blogRehypePlugins}
+                rehypePlugins={blogRehypePlugins as PluggableList}
               >
                 {post.content}
               </ReactMarkdown>
