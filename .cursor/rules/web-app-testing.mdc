@@ -1,0 +1,66 @@
+---
+alwaysApply: false
+---
+# Web App Unit Testing Rules
+
+Apply when writing or modifying `*.spec.ts` or `*.spec.tsx` in `packages/web/web-app`.
+
+## Mock Requirements
+
+### i18n
+- Mock `useStrings` with keys the component (and rendered children) actually use
+- If any child uses `useTranslation` (e.g. MediaUploadModal), also mock `useTranslation: () => (key: string) => key`
+- Each spec only needs the subset of keys its component renders
+
+### RTK Query / API Hooks
+- Mock every hook used by the component and its descendants
+- Example: `BlogAdminListComponent` renders `BlogScheduleDialogComponent`, which uses `useScheduleBlogPostMutation` – the list spec must mock it
+- Mutation hooks should return `[mockFn]` or `[mockFn, { isLoading: false }]`; RTK mutations returning Promises need `.mockReturnValue({ unwrap: () => Promise.resolve({}) })` when the test triggers `.unwrap()`
+
+### Store
+- Components that read `store.getState()` (e.g. for i18n) need a store mock: `{ getState: () => ({ i18n: { translations: { ... } } }) }`
+- Components that use `useAppSelector` get state from the real testing store (renderWithProviders); no store mock needed unless the component also calls `store.getState()` directly
+
+### Config
+- Components using `WebConfigService.getWebUrls()` need: `{ WebConfigService: { getWebUrls: () => ({ API_URL: 'http://test.api', WEB_APP_URL: 'http://test.app' }) } }`
+
+## Preloaded State
+
+### Auth
+- Components behind auth need `preloadedState.auth` with: `token`, `userId`, `username`, `logoutResponse`, `password`
+- Use the `AuthStateType` shape; avoid `accessToken` or other incorrect keys
+
+### Redux Slices
+- Provide `preloadedState` for any slice the component reads (e.g. `blogEditorSettings`, `blogEditorBody`)
+
+## Test Fixtures
+
+### Blog Categories and Tags
+- `BlogCategoryType` and `BlogTagType` require `id`, `name`, and `slug`
+- Always include `slug` when building category/tag fixtures for blog specs
+
+## Assertions
+
+### Jest-DOM Matchers
+- web-app `tsconfig.spec.json` does not include `@testing-library/jest-dom` types
+- Avoid `toHaveValue`, `toHaveTextContent`, `toHaveAttribute` unless types are added
+- Use instead: `expect((el as HTMLInputElement).value).toBe('x')`, `expect(el.textContent).toBe('x')`, `expect(el?.getAttribute('aria-hidden')).toBe('true')`
+
+### Dialogs and Visibility
+- MUI Dialog with `keepMounted` keeps content in DOM when closed
+- For "not visible when closed": use `expect(screen.queryByRole('dialog')).toBeNull()` (default query excludes hidden elements)
+
+## Setup
+
+### Modal Root
+- Components that render dialogs/portals to `modal-root` need it in the DOM
+- In `beforeEach`: create `#modal-root` if missing and append to `document.body`
+
+### Theme
+- Wrap rendered components in `ThemeProvider` with `theme={createTheme()}` when they use MUI
+
+## Consolidation
+
+- Prefer shared fixtures (categories, tags, auth state, editor settings) in a feature-level `*-test.fixtures.ts`
+- Prefer shared mock implementations in a feature-level `*-test-mocks.ts` when many specs mock the same modules with the same shape
+- See `docs/BLOG-TEST-MOCK-CONSOLIDATION-PLAN.md` for the blog consolidation plan

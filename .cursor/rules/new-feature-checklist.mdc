@@ -44,6 +44,11 @@ When implementing a table/list view:
 - Use auth/role middleware for protected routes
 - APIs are versioned via header property, not on the route directly
 
+## Testing
+
+- When adding/modifying web-app specs, follow `web-app-testing.mdc` (mocks, fixtures, assertions)
+- Consider consolidating shared mocks and fixtures for the feature (see `docs/BLOG-TEST-MOCK-CONSOLIDATION-PLAN.md` for the pattern)
+
 ## Cross-Cutting Checks
 
 - Ensure feature flag names/constants are centralized in shared models
