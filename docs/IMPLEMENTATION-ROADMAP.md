@@ -1279,6 +1279,7 @@ document.head.appendChild(script)
 
 ## Phase 3: Blog CMS
 
+**Status:** Complete
 **Duration:** 3-5 days
 **Priority:** LOW - Can be deferred if needed
 **Dependencies:** None (completely independent)
@@ -1334,8 +1335,8 @@ Phase 3 implements a full-featured blog/CMS system, including:
 - [x] Admin settings panel (slug, excerpt, categories, tags, scheduling, SEO)
 - [x] Publish/schedule/unschedule/unpublish actions in list and settings
 - [x] SEO optimized (meta tags for posts via setBlogPostMeta)
-- [ ] Featured image UI (set/display optional featured image per post)
-- [ ] Tests passing
+- [x] Tests passing (unit tests for components, reducers, API)
+- [x] Featured image UI (set/change/remove in settings; displayed in post and preview)
 
 **Removed:** Revisions feature (no longer required)
 **Deferred:** Comments, RSS feed (BLOG-CMS Requirements Summary)

@@ -1,5 +1,7 @@
 # Database-Driven Blog CMS Implementation Plan
 
+**Status:** Complete (comments deferred)
+
 ## Overview
 
 Implement a full-featured blog/news CMS with database-driven content, markdown rendering, role-based authorship (editor role), draft/scheduling support, and an admin UI - all integrated with the existing SSR infrastructure.
@@ -81,6 +83,7 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 
 - **Slug** – Editable URL path (hidden on new post, auto-generated on first save).
 - **Excerpt** – Optional multiline; API auto-generates if empty.
+- **Featured image** – Set/change/remove via MediaUploadModal; displayed in post view and preview.
 - **Categories** – Multi-select Autocomplete from `useGetBlogCategoriesQuery`.
 - **Tags** – Multi-select Autocomplete with `freeSolo` (create-on-the-fly) from `useGetBlogTagsQuery`.
 - **Anonymous toggle** – "Publish as DX3 Team (anonymous)".
@@ -95,7 +98,7 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 - `BlogAdminSettingsComponent` – Settings form.
 - `blog-admin-web.types.ts` – `BlogEditorSettingsType`.
 
-**Note:** Scheduling remains in the list view (Schedule/Unschedule actions). Featured image deferred.
+**Note:** Scheduling remains in the list view (Schedule/Unschedule actions). Featured image implemented in settings panel.
 
 ## Recommended Next Steps (Order)
 
@@ -103,8 +106,8 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 |------|------|-----------|
 | 1 | ~~**Admin settings panel**~~ | Done. Slug, excerpt, SEO, categories/tags, anonymous toggle. |
 | 2 | ~~**Public SEO meta tags**~~ | Done. `setBlogPostMeta()` renders description, og:title, og:url on post pages. |
-| 3 | **Featured image** | UI to set/display optional featured image per post. |
-| 4 | **Tests** | Unit and E2E tests for blog editor, list, publish/schedule flows. |
+| 3 | ~~**Featured image**~~ | Done. Set/change/remove in settings panel; displayed in post view and preview. |
+| 4 | ~~**Tests**~~ | Done. Unit tests for blog editor, list, settings, schedule dialog, publish/schedule flows. |
 
 ## Implementation Todos
 
@@ -119,8 +122,8 @@ Implement a full-featured blog/news CMS with database-driven content, markdown r
 | public-components | Markdown rendering, infinite scroll, related posts | Done |
 | admin-ui | Post list, markdown editor, settings panel | Done |
 | rtk-api | RTK Query endpoints for blog | Done |
-| featured-image | Featured image UI in settings | Pending |
-| tests | Unit and E2E tests for blog | Pending |
+| featured-image | Featured image UI in settings (set/change/remove) | Done |
+| tests | Unit tests for blog components, reducers, API | Done |
 
 ## Architecture Overview
 
