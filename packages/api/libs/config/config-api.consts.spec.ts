@@ -11,10 +11,12 @@ import {
   POSTGRES_URI,
   S3_ACCESS_KEY_ID,
   S3_APP_BUCKET_NAME,
+  S3_ENDPOINT,
+  S3_PROVIDER,
+  S3_REGION,
   S3_SECRET_ACCESS_KEY,
   SENDGRID_API_KEY,
   SENDGRID_URL,
-  UPLOAD_MAX_FILE_SIZE,
 } from './config-api.consts'
 
 describe('Config API Constants', () => {
@@ -30,9 +32,11 @@ describe('Config API Constants', () => {
     expect(POSTGRES_URI).toBeDefined()
     expect(S3_ACCESS_KEY_ID).toBeDefined()
     expect(S3_APP_BUCKET_NAME).toBeDefined()
+    expect(S3_ENDPOINT).toBeDefined()
+    expect(S3_PROVIDER).toBeDefined()
+    expect(S3_REGION).toBeDefined()
     expect(S3_SECRET_ACCESS_KEY).toBeDefined()
     expect(SENDGRID_API_KEY).toBeDefined()
     expect(SENDGRID_URL).toBeDefined()
-    expect(UPLOAD_MAX_FILE_SIZE).toBeDefined()
   })
 })

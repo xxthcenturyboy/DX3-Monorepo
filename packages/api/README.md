@@ -36,9 +36,11 @@ pnpm --filter @dx3/api test --testPathPattern="libs/auth/auth-api.service.spec"
 ## S3
 
 ```Bash
-export AWS_ACCESS_KEY_ID="test"
-export AWS_SECRET_ACCESS_KEY="test"
-export AWS_DEFAULT_REGION="us-east-1"
+S3_PROVIDER=minio
+S3_ENDPOINT=http://localhost:9000
+S3_ACCESS_KEY=local
+S3_SECRET_KEY=local123
+S3_BUCKET=my-bucket
 ```
 
 List items in bucket

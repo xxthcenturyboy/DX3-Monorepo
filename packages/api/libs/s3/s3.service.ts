@@ -12,6 +12,7 @@ import {
   type ListObjectsCommandOutput,
   type PutObjectCommandInput,
   S3,
+  type S3ClientConfig,
 } from '@aws-sdk/client-s3'
 import { Upload } from '@aws-sdk/lib-storage'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
@@ -21,38 +22,58 @@ import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import type { S3ServiceParamType } from './s3.types'
 
 export class S3Service {
-  private accessKeyId: string
-  private secretAccessKey: string
   private logger: ApiLoggingClassType
   private s3: typeof S3.prototype
 
   constructor(params: S3ServiceParamType) {
-    this.accessKeyId = params.accessKeyId
     this.logger = ApiLoggingClass.instance
     this.s3 = S3Service.getS3Client(params)
-    this.secretAccessKey = params.secretAccessKey
+  }
+
+  public static getS3ConfigForProvider(params: S3ServiceParamType): S3ClientConfig {
+    const { accessKeyId, endpoint, provider, region, secretAccessKey } = params
+
+    if (provider === 'minio') {
+      return {
+        credentials: {
+          accessKeyId: accessKeyId ?? 'local',
+          secretAccessKey: secretAccessKey ?? 'local123',
+        },
+        endpoint: endpoint ?? 'http://localhost:9000',
+        forcePathStyle: true,
+        region: region ?? 'us-east-1',
+      }
+    }
+
+    if (provider === 'spaces') {
+      return {
+        credentials: {
+          accessKeyId: accessKeyId,
+          secretAccessKey: secretAccessKey,
+        },
+        endpoint: endpoint,
+        forcePathStyle: false,
+        region: region ?? 'nyc3',
+      }
+    }
+
+    // default AWS
+    return {
+      credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+      },
+      forcePathStyle: false,
+      region: region ?? 'us-east-1',
+    }
   }
 
   public static getS3Client(params: S3ServiceParamType) {
     let s3Instance = new S3()
+    const config = S3Service.getS3ConfigForProvider(params)
+
     try {
-      if (params.accessKeyId && params.secretAccessKey) {
-        s3Instance = new S3({
-          credentials: {
-            accessKeyId: params.accessKeyId,
-            secretAccessKey: params.secretAccessKey,
-          },
-        })
-      } else {
-        s3Instance = new S3({
-          credentials: {
-            accessKeyId: 'test',
-            secretAccessKey: 'test',
-          },
-          endpoint: 'http://localstack:4566',
-          forcePathStyle: true,
-        })
-      }
+      s3Instance = new S3(config)
     } catch (err) {
       ApiLoggingClass.instance.logError((err as Error).message || 'Error creating S3 Client')
     }

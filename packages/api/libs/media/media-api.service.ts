@@ -19,9 +19,12 @@ import {
 import { TEST_EXISTING_USER_ID } from '@dx3/test-data'
 
 import {
-  AWS_ACCESS_KEY,
-  AWS_SECRET_ACCESS_KEY,
+  S3_ACCESS_KEY_ID,
   S3_APP_BUCKET_NAME,
+  S3_ENDPOINT,
+  S3_PROVIDER,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
 } from '../config/config-api.consts'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../logger'
 import { S3Service, type S3ServiceType } from '../s3'
@@ -42,8 +45,11 @@ export class MediaApiService {
     this.imageManipulationService = new MediaApiImageManipulationService()
     this.logger = ApiLoggingClass.instance
     this.s3Service = new S3Service({
-      accessKeyId: AWS_ACCESS_KEY,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      accessKeyId: S3_ACCESS_KEY_ID,
+      endpoint: S3_ENDPOINT,
+      provider: S3_PROVIDER,
+      region: S3_REGION,
+      secretAccessKey: S3_SECRET_ACCESS_KEY,
     })
   }
 

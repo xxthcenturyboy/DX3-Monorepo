@@ -7,7 +7,8 @@ import AvatarEditor from 'react-avatar-editor'
 import { BeatLoader } from 'react-spinners'
 
 import type { MediaDataType } from '@dx3/models-shared'
-import { sleep } from '@dx3/utils-shared'
+import { MEDIA_MAX_FILE_SIZE_BYTES } from '@dx3/models-shared'
+import { formatBytes, sleep } from '@dx3/utils-shared'
 import { logger } from '@dx3/web-libs/logger'
 import { CustomDialogContent } from '@dx3/web-libs/ui/dialog/custom-content.dialog'
 import { DialogError } from '@dx3/web-libs/ui/dialog/error.dialog'
@@ -15,7 +16,7 @@ import { DialogWrapper } from '@dx3/web-libs/ui/dialog/ui-wrapper.dialog'
 import { SuccessLottie } from '@dx3/web-libs/ui/lottie/success.lottie'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
-import { useStrings } from '../../i18n'
+import { useStrings, useTranslation } from '../../i18n'
 import { useUploadAvatarMutation } from '../../media/media-web.api'
 import type { MediaWebAvatarUploadParamsType } from '../../media/media-web.types'
 import { UploadProgressComponent } from '../../media/media-web-upload-progress.component'
@@ -45,6 +46,7 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
   const windowHeight = useAppSelector((state) => selectWindowHeight(state))
   const avatarEditorRef = React.useRef<null | AvatarEditor>(null)
   const theme = useTheme()
+  const t = useTranslation()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const strings = useStrings(['AVATAR', 'CANCEL', 'CHOOSE_IMAGE', 'CLOSE', 'UPDATE'])
   const [
@@ -64,7 +66,11 @@ export const UserProfileWebAvatarDialog: React.FC<UserProfileWebAvatarPropTypes>
         setShowLottieError(false)
         setAllSucceeded(true)
       } else {
-        setErrorMessage(getErrorStringFromApiResponse(uploadAvatarError))
+        let msg = getErrorStringFromApiResponse(uploadAvatarError)
+        if (msg.includes('{max}')) {
+          msg = t('MEDIA_FILE_SIZE_EXCEEDED', { max: formatBytes(MEDIA_MAX_FILE_SIZE_BYTES, 1) })
+        }
+        setErrorMessage(msg)
         setShowLottieError(true)
       }
     }

@@ -100,8 +100,11 @@ export const UploadMiddleware = {
       if (fileName && contentType) {
         try {
           const s3Client = S3Service.getS3Client({
-            accessKeyId: env.AWS_ACCESS_KEY,
-            secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+            accessKeyId: env.S3_ACCESS_KEY_ID,
+            endpoint: env.S3_ENDPOINT,
+            provider: env.S3_PROVIDER,
+            region: env.S3_REGION,
+            secretAccessKey: env.S3_SECRET_ACCESS_KEY,
           })
 
           const upload = new Upload({
@@ -262,7 +265,7 @@ export const UploadMiddleware = {
           }
           return true
         },
-        maxFileSize: MEDIA_MAX_FILES_PER_UPLOAD,
+        maxFileSize: MEDIA_MAX_FILE_SIZE_BYTES,
         maxFiles: 1,
         multiples: false,
       })

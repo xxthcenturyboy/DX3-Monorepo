@@ -36,6 +36,20 @@ jest.mock('@aws-sdk/lib-storage', () => {
 })
 
 describe('s3.service', () => {
+  const config = {
+    accessKeyId: 'local',
+    endpoint: 'http://localhost:9000',
+    provider: 'minio',
+    region: 'us-east-1',
+    secretAccessKey: 'local123',
+  }
+  const configEmpty = {
+    accessKeyId: '',
+    endpoint: '',
+    provider: '',
+    region: '',
+    secretAccessKey: '',
+  }
   let service: S3ServiceType
   let serviceWithCreds: S3ServiceType
   const testBucketName = 'test-bucket'
@@ -46,15 +60,9 @@ describe('s3.service', () => {
     new ApiLoggingClass({ appName: 'Test' })
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation()
 
-    service = new S3Service({
-      accessKeyId: '',
-      secretAccessKey: '',
-    })
+    service = new S3Service(configEmpty)
 
-    serviceWithCreds = new S3Service({
-      accessKeyId: 'test-key-id',
-      secretAccessKey: 'test-secret-key',
-    })
+    serviceWithCreds = new S3Service(config)
   })
 
   afterAll(async () => {
@@ -99,34 +107,17 @@ describe('s3.service', () => {
 
   describe('getS3Client', () => {
     it('should create S3 client with valid credentials', () => {
-      const client = S3Service.getS3Client({
-        accessKeyId: 'test-key',
-        secretAccessKey: 'test-secret',
-      })
+      const client = S3Service.getS3Client(config)
       expect(client).toBeDefined()
     })
 
     it('should create S3 client with localstack endpoint when credentials are empty', () => {
-      const client = S3Service.getS3Client({
-        accessKeyId: '',
-        secretAccessKey: '',
-      })
-      expect(client).toBeDefined()
-    })
-
-    it('should create S3 client with localstack endpoint when credentials are missing', () => {
-      const client = S3Service.getS3Client({
-        accessKeyId: null as any,
-        secretAccessKey: null as any,
-      })
+      const client = S3Service.getS3Client(configEmpty)
       expect(client).toBeDefined()
     })
 
     it('should handle errors gracefully', () => {
-      const client = S3Service.getS3Client({
-        accessKeyId: 'valid-key',
-        secretAccessKey: 'valid-secret',
-      })
+      const client = S3Service.getS3Client(config)
       expect(client).toBeDefined()
     })
   })

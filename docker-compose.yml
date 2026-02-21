@@ -100,6 +100,8 @@ services:
         condition: service_healthy
       sendgrid:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
       - ROOT_DIR=/app
       # Database connections - overridable via .env.integration for integration mode
@@ -113,6 +115,12 @@ services:
       - TIMESCALE_URI=${TIMESCALE_URI:-}
       # App identity
       - APP_ID=${APP_ID:-dx3-default}
+      # MinIO/S3 - use Docker service name 'minio' (localhost refers to container itself)
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-${MINIO_ROOT_USER:-local}}
+      - S3_ENDPOINT=http://minio:9000
+      - S3_PROVIDER=${S3_PROVIDER:-minio}
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-${MINIO_ROOT_PASSWORD:-local123}}
     networks:
       - dx3-network
     deploy:
@@ -122,28 +130,25 @@ services:
         reservations:
           memory: 512M
 
-  localstack:
-    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
-    image: localstack/localstack
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
     ports:
-      - "4566:4566"            # LocalStack Gateway
+      - "9000:9000" # S3 API
+      - "9001:9001" # Console UI
     environment:
-      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      - DEBUG=${DEBUG:-1}
-      - SERVICES=s3
-      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
-      - DOCKER_HOST=${DOCKER_HOST}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - minio_data:/data
     networks:
       - dx3-network
     healthcheck:
-      test: ["CMD-SHELL", "awslocal s3 ls || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 secrets:
   npmrc:
@@ -160,3 +165,5 @@ volumes:
   db-data:
   api-node-modules:
     name: dx3-api-node-modules
+  minio_data:
+    name: minio_data

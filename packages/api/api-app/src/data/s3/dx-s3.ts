@@ -3,9 +3,12 @@ import { S3Service } from '@dx3/api-libs/s3'
 import { S3_BUCKETS } from '@dx3/models-shared'
 
 import {
-  AWS_ACCESS_KEY,
-  AWS_SECRET_ACCESS_KEY,
+  S3_ACCESS_KEY_ID,
   S3_APP_BUCKET_NAME,
+  S3_ENDPOINT,
+  S3_PROVIDER,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
 } from '../../config/config-api.consts'
 
 export class DxS3Class {
@@ -14,8 +17,11 @@ export class DxS3Class {
 
     try {
       const service = new S3Service({
-        accessKeyId: AWS_ACCESS_KEY,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+        accessKeyId: S3_ACCESS_KEY_ID,
+        endpoint: S3_ENDPOINT,
+        provider: S3_PROVIDER,
+        region: S3_REGION,
+        secretAccessKey: S3_SECRET_ACCESS_KEY,
       })
       if (!service) {
         logger.logError('S3 Service did not instantiate correctly. S3 unavailable')
