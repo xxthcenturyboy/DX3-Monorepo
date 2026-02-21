@@ -64,3 +64,9 @@ npm-debug.*
 web-build/
 cache/
 .pnpm-store/
+
+# Added by ggshield
+.cache_ggshield
+
+# Added by ggshield
+.cache_ggshield
