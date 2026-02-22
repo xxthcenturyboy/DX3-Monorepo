@@ -1,6 +1,11 @@
 import { resolveMx } from 'node:dns/promises'
 import Joi from 'joi'
 
+import type { DomainCheckResultType } from '@dx3/api-libs/reference-data/reference-data.types'
+import {
+  checkDomain,
+  isReferenceDataApiConfigured,
+} from '@dx3/api-libs/reference-data/reference-data-api.client'
 import { APP_DOMAIN } from '@dx3/models-shared'
 import { regexEmail } from '@dx3/utils-shared'
 
@@ -9,6 +14,7 @@ import { DISPOSABLE_EMAIL_DOMAINS } from './disposable-email-providers'
 import { INVALID_EMAIL_NAMES } from './email-validation.const'
 
 export class EmailUtil {
+  domainCheckResult: DomainCheckResultType | null = null
   logger: ApiLoggingClassType
   regexDots = /\./g
   regexConsecutiveDots = /\.\./
@@ -99,6 +105,16 @@ export class EmailUtil {
     return ''
   }
 
+  async validateDomain(): Promise<DomainCheckResultType | null> {
+    if (this.domainCheckResult) return this.domainCheckResult
+    if (isReferenceDataApiConfigured()) {
+      this.domainCheckResult = await checkDomain(this.domain)
+      return this.domainCheckResult
+    }
+
+    return null
+  }
+
   countOfDotsInName() {
     return (this.name.match(this.regexDots) || []).length
   }
@@ -134,23 +150,6 @@ export class EmailUtil {
     }
   }
 
-  async validateTld(): Promise<boolean> {
-    if (this.isValid) {
-      // JOI library validates TLD with simple validation
-      const validator = Joi.string().email().optional()
-
-      try {
-        const validRes = await validator.validateAsync(this.formattedEmail())
-
-        return !!validRes
-      } catch (_err) {
-        return false
-      }
-    }
-
-    return false
-  }
-
   formattedName() {
     if (this.name && this.hasConsecutiveDots()) {
       return this.strippedName()
@@ -176,7 +175,7 @@ export class EmailUtil {
     if (plusOneIndex > -1) {
       const alias = namePart.substring(plusOneIndex + 1)
 
-      // this pattern is allowed i.e. umgtest_1234 - used for marketer smoke testing in prod
+      // this pattern is allowed i.e. dx3_1234 - used for DX3 testing
       if (/dx3_\d+$/.test(alias)) {
         return namePart
       }
@@ -198,47 +197,89 @@ export class EmailUtil {
     return DISPOSABLE_EMAIL_DOMAINS[this.domain] || false
   }
 
+  /**
+   * Async disposable check. Uses Reference Data API when configured (integration mode);
+   * otherwise falls back to static list.
+   */
+  async isDisposableDomainAsync(): Promise<boolean> {
+    if (isReferenceDataApiConfigured()) {
+      const result = await this.validateDomain()
+      if (result) return result.disposable
+    }
+    return this.isDisposableDomain()
+  }
+
+  /**
+   * Async TLD validation. Uses Reference Data API (IANA list) when configured;
+   * otherwise falls back to Joi.
+   * Pass optional result from this.validateDomain() to avoid duplicate API call when used with validateAsync.
+   */
+  async isValidTldAsync(domainCheckResult?: { validTld: boolean } | null): Promise<boolean> {
+    const tld = this.domainParts?.slice(-1)[0]
+    if (!tld) return false
+
+    if (domainCheckResult) return domainCheckResult.validTld
+
+    if (isReferenceDataApiConfigured()) {
+      const result = await this.validateDomain()
+      if (result) return result.validTld
+    }
+
+    const validator = Joi.string().email().optional()
+    try {
+      const validRes = await validator.validateAsync(this.formattedEmail())
+      return !!validRes
+    } catch {
+      return false
+    }
+  }
+
   whitelistedEmail() {
-    return this.domain.includes(APP_DOMAIN)
+    return Boolean(this.domain?.includes(APP_DOMAIN))
+  }
+
+  validateCommon() {
+    if (this.whitelistedEmail()) return true
+    if (!this.rawValue) return false
+    if (!this.domain) return false
+    if (this.rawValue.length > 254) return false
+    if (!regexEmail.test(this.rawValue)) return false
+    if (this.name.length > 64) return false
+    if (this.domainParts?.some((part) => part.length > 63)) return false
+    if (this.isNumbers) return false
+    if (this.hasInvalidName()) return false
+    return true
+  }
+
+  /**
+   * Async validation. Use when Reference Data API is configured (integration mode).
+   * Uses API for disposable + TLD when configured; otherwise static list + Joi.
+   * Single API call when configured (this.validateDomain() returns both disposable and validTld).
+   */
+  async validateAsync(): Promise<boolean> {
+    if (!this.validateCommon()) return false
+
+    let domainCheckResult: { disposable: boolean; validTld: boolean } | null = null
+    if (isReferenceDataApiConfigured()) {
+      domainCheckResult = await this.validateDomain()
+    }
+
+    const isDisposable = domainCheckResult
+      ? domainCheckResult.disposable
+      : this.isDisposableDomain()
+    if (isDisposable) return false
+
+    const isValidTld = domainCheckResult
+      ? domainCheckResult.validTld
+      : await this.isValidTldAsync(domainCheckResult)
+    if (!isValidTld) return false
+
+    return true
   }
 
   validate() {
-    if (!this.rawValue) {
-      return false
-    }
-
-    if (this.rawValue.length > 254) {
-      return false
-    }
-
-    if (!regexEmail.test(this.rawValue)) {
-      return false
-    }
-
-    if (this.name.length > 64) {
-      return false
-    }
-
-    if (this.domainParts.some((part) => part.length > 63)) {
-      return false
-    }
-
-    if (this.isDisposableDomain()) {
-      return false
-    }
-
-    if (this.isNumbers) {
-      return false
-    }
-
-    if (this.whitelistedEmail()) {
-      return true
-    }
-
-    if (this.hasInvalidName()) {
-      return false
-    }
-
+    if (!this.validateCommon()) return false
+    if (this.isDisposableDomain()) return false
     return true
   }
 }

@@ -202,7 +202,7 @@ Use this mode when testing with shared `ax-infrastructure` services (TimescaleDB
 make dev-integration
 ```
 
-This starts **only** the API, SendGrid, and LocalStack containers — Redis and PostgreSQL come from ax-infrastructure.
+This starts **only** the API, SendGrid, and MinIO containers — Redis and PostgreSQL come from ax-infrastructure.
 
 **Services:**
 
@@ -213,7 +213,7 @@ This starts **only** the API, SendGrid, and LocalStack containers — Redis and 
 | PostgreSQL | ax-infrastructure | 5435 |
 | Redis | ax-infrastructure | 6380 |
 | SendGrid Mock | dx3-monorepo | 7070 |
-| LocalStack (S3) | dx3-monorepo | 4566 |
+| MinIO (S3) | dx3-monorepo | 4566 |
 
 ### Integration Mode Commands
 

@@ -9,6 +9,9 @@ import {
   JWT_REFRESH_SECRET,
   OTP_SALT,
   POSTGRES_URI,
+  REFERENCE_DATA_API_KEY,
+  REFERENCE_DATA_API_SECRET,
+  REFERENCE_DATA_API_URL,
   S3_ACCESS_KEY_ID,
   S3_APP_BUCKET_NAME,
   S3_ENDPOINT,
@@ -31,6 +34,9 @@ describe('Config API Constants', () => {
     expect(JWT_REFRESH_SECRET).toBeDefined()
     expect(OTP_SALT).toBeDefined()
     expect(POSTGRES_URI).toBeDefined()
+    expect(REFERENCE_DATA_API_URL).toBeDefined()
+    expect(REFERENCE_DATA_API_KEY).toBeDefined()
+    expect(REFERENCE_DATA_API_SECRET).toBeDefined()
     expect(S3_ACCESS_KEY_ID).toBeDefined()
     expect(S3_APP_BUCKET_NAME).toBeDefined()
     expect(S3_ENDPOINT).toBeDefined()

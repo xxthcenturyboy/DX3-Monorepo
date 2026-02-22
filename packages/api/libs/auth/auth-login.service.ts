@@ -191,12 +191,12 @@ export class AuthLoginService {
     return user
   }
 
-  private determineLoginType(data: {
+  private async determineLoginType(data: {
     biometric?: BiometricLoginParamType
     emailUtil: EmailUtilType
     password?: string
     phoneUtil: PhoneUtilType
-  }): 'biometric' | 'email' | 'phone' | 'usernamepass' {
+  }): Promise<'biometric' | 'email' | 'phone' | 'usernamepass'> {
     const { biometric, emailUtil, password, phoneUtil } = data
 
     if (biometric?.userId && biometric?.signature) {
@@ -207,7 +207,7 @@ export class AuthLoginService {
       return 'phone'
     }
 
-    if (emailUtil.validate()) {
+    if (await emailUtil.validateAsync()) {
       return 'email'
     }
 
@@ -229,7 +229,7 @@ export class AuthLoginService {
 
     const phoneUtil = new PhoneUtil(value, region || PHONE_DEFAULT_REGION_CODE, this.isDebug)
     const emailUtil = new EmailUtil(value)
-    const loginType = this.determineLoginType({
+    const loginType = await this.determineLoginType({
       biometric,
       emailUtil,
       password,

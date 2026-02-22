@@ -4,6 +4,11 @@ import { TEST_EMAIL } from '@dx3/test-data'
 import { ApiLoggingClass } from '../../../logger'
 import { EmailUtil, type EmailUtilType } from './email.util'
 
+jest.mock('node:dns/promises', () => require('../../../testing/mocks/node-dns.promises.mock'))
+jest.mock('@dx3/api-libs/reference-data/reference-data-api.client', () =>
+  require('../../../testing/mocks/reference-data-api.client.mock'),
+)
+
 describe('email.util', () => {
   let emailUtil: EmailUtilType
 
@@ -216,7 +221,7 @@ describe('email.util', () => {
     // arrange
     emailUtil = new EmailUtil('test@example.com')
     // act
-    const isValidTld = await emailUtil.validateTld()
+    const isValidTld = await emailUtil.isValidTldAsync()
     // assert
     expect(isValidTld).toBe(true)
   })
@@ -225,7 +230,7 @@ describe('email.util', () => {
     // arrange
     emailUtil = new EmailUtil('test@example.invalid')
     // act
-    const isValidTld = await emailUtil.validateTld()
+    const isValidTld = await emailUtil.isValidTldAsync()
     // assert
     expect(isValidTld).toBe(false)
   })

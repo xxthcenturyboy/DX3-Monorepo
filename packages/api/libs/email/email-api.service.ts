@@ -132,8 +132,8 @@ export class EmailService {
 
     const emailUtil = new EmailUtil(email)
 
-    if (!emailUtil.validate()) {
-      if (emailUtil.isDisposableDomain()) {
+    if (!(await emailUtil.validateAsync())) {
+      if (await emailUtil.isDisposableDomainAsync()) {
         throw new Error(
           createApiErrorMessage(
             ERROR_CODES.EMAIL_INVALID,
@@ -142,12 +142,6 @@ export class EmailService {
         )
       }
 
-      throw new Error(
-        createApiErrorMessage(ERROR_CODES.EMAIL_INVALID, 'The email you provided is not valid.'),
-      )
-    }
-
-    if (!(await emailUtil.validateTld())) {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.EMAIL_INVALID, 'The email you provided is not valid.'),
       )

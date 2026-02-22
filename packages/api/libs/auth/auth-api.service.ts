@@ -76,8 +76,11 @@ export class AuthService {
 
       return result
     } catch (err) {
-      const msg = `Error in auth lookup handler: ${(err as Error).message}`
-      this.logger.logError(msg)
+      const msg = (err as Error).message ?? ''
+      if (msg.includes('already exists') || msg.includes('already in use')) {
+        return result
+      }
+      this.logger.logError(`Error in auth lookup handler: ${msg}`)
       throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
     }
   }
@@ -149,7 +152,7 @@ export class AuthService {
     let otpCode: string = ''
     try {
       const emailUtil = new EmailUtil(email)
-      if (emailUtil.validate()) {
+      if (await emailUtil.validateAsync()) {
         if (strict) {
           const existingNonDeletedEmail = await EmailModel.findByEmail(emailUtil.formattedEmail())
           if (!existingNonDeletedEmail) {

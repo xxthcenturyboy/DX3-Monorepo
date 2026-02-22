@@ -29,11 +29,11 @@ export class AuthSignupService {
     this.logger = ApiLoggingClass.instance
   }
 
-  private determineCreateAccountType(data: {
+  private async determineCreateAccountType(data: {
     emailUtil: EmailUtilType
     hasCode: boolean
     phoneUtil: PhoneUtilType
-  }): 'emailcode' | 'emailmagiclink' | 'phone' {
+  }): Promise<'emailcode' | 'emailmagiclink' | 'phone' | undefined> {
     const { emailUtil, hasCode, phoneUtil } = data
 
     if (
@@ -46,11 +46,12 @@ export class AuthSignupService {
       return 'phone'
     }
 
-    if (emailUtil.validate() && hasCode) {
+    const isValidEmail = await emailUtil.validateAsync()
+    if (isValidEmail && hasCode) {
       return 'emailcode'
     }
 
-    if (emailUtil.validate() && !hasCode) {
+    if (isValidEmail && !hasCode) {
       return 'emailmagiclink'
     }
   }
@@ -193,7 +194,7 @@ export class AuthSignupService {
 
     const emailUtil = new EmailUtil(value)
     const phoneUtil = new PhoneUtil(value, region || PHONE_DEFAULT_REGION_CODE, this.isDebug)
-    const signupType = this.determineCreateAccountType({ emailUtil, hasCode: !!code, phoneUtil })
+    const signupType = await this.determineCreateAccountType({ emailUtil, hasCode: !!code, phoneUtil })
 
     if (signupType === 'phone') {
       if (!phoneUtil.isValidMobile) {

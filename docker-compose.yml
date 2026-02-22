@@ -7,7 +7,7 @@
 #     - Use when developing this app in isolation
 #
 #   Integration Mode: make dev-integration
-#     - Starts only API + SendGrid + LocalStack (no local Redis/PostgreSQL)
+#     - Starts only API + SendGrid + MinIO (no local Redis/PostgreSQL)
 #     - Connects to ax-infrastructure: Redis (6380), TimescaleDB (5434), PostgreSQL (5435)
 #     - Requires ax-infrastructure running first: cd ~/Developer/ArteFX/ax-infrastructure ; make up
 #

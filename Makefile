@@ -108,7 +108,7 @@ dev-integration:
 	@echo "  → Local PostgreSQL (5433) - dx3's own database"
 	@echo "  → Shared Redis (6380) - ax-infrastructure"
 	@echo "  → Shared TimescaleDB (5434) - logging/metrics"
-	docker compose --env-file .env.integration up -d postgres sendgrid localstack
+	docker compose --env-file .env.integration up -d postgres sendgrid minio
 	@echo "Waiting for postgres to be healthy..."
 	@sleep 3
 	docker compose --env-file .env.integration up -d api-node-22-dx3
@@ -126,7 +126,7 @@ dev-integration:
 ## stop integration mode services (keeps ax-infrastructure running)
 dev-integration-down:
 	@echo "Stopping dx3 integration services..."
-	docker compose stop api-node-22-dx3 redis postgres sendgrid localstack
+	docker compose stop api-node-22-dx3 redis postgres sendgrid minio
 	@echo "Stopped. ax-infrastructure services still running."
 
 ## check integration mode services status

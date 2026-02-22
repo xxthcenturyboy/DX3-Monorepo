@@ -81,6 +81,9 @@ export const SENDGRID_API_KEY = getRequiredEnvVar('SENDGRID_API_KEY', 'SG.secret
 // OPTIONAL - Safe to have defaults
 export const MAXMIND_GEOIP_DB_PATH = resolveMaxmindGeoIpPath()
 export const POSTGRES_URI = getOptionalEnvVar('POSTGRES_URI', '')
+export const REFERENCE_DATA_API_URL = getOptionalEnvVar('REFERENCE_DATA_API_URL', '')
+export const REFERENCE_DATA_API_KEY = getOptionalEnvVar('REFERENCE_DATA_API_KEY', '')
+export const REFERENCE_DATA_API_SECRET = getOptionalEnvVar('REFERENCE_DATA_API_SECRET', '')
 export const S3_ACCESS_KEY_ID = getOptionalEnvVar('S3_ACCESS_KEY_ID', '')
 export const S3_APP_BUCKET_NAME = `${APP_PREFIX}-bucket`
 export const S3_ENDPOINT = getOptionalEnvVar('S3_ENDPOINT', '')
