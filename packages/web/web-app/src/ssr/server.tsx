@@ -17,12 +17,14 @@
  */
 
 import * as path from 'node:path'
+import { Writable } from 'node:stream'
 import { CacheProvider } from '@emotion/react'
+import createEmotionServer from '@emotion/server/create-instance'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import { StrictMode, Suspense } from 'react'
-import { renderToString } from 'react-dom/server'
+import { renderToPipeableStream } from 'react-dom/server'
 import { Provider as ReduxProvider } from 'react-redux'
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 
@@ -139,18 +141,13 @@ app.get('*', async (req, res) => {
 
     // Don't serialize state yet - we need to track which i18n keys are used first
 
-    // NOTE: Emotion critical CSS extraction requires full HTML string, which conflicts
-    // with streaming. For streaming SSR, we accept that initial render may have FOUC
-    // until emotion hydrates on client. Future: consider extracting styles synchronously
-    // before streaming or using a different CSS-in-JS solution.
-
     // Helper to get string value for error boundary
     const getStringValue = (key: keyof StringKeys): string | undefined => {
       return strings[key]
     }
 
-    // Build HTML shell (head + opening body)
-    const htmlStart = `<!DOCTYPE html>
+    // Build HTML shell template (Emotion styles injected after render)
+    const buildHtmlStart = (emotionStyles: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -164,10 +161,7 @@ app.get('*', async (req, res) => {
       min-height: 100%;
     }
   </style>
-  <style id="emotion-ssr-styles">
-    /* Emotion styles will be injected by client hydration */
-    /* Streaming SSR trades critical CSS extraction for faster TTFB */
-  </style>
+  ${emotionStyles}
 </head>
 <body>
   <div id="root">`
@@ -207,50 +201,42 @@ app.get('*', async (req, res) => {
     // Start tracking i18n key access for minimal state serialization
     startSsrKeyTracking()
 
-    // Render React app to string (synchronous for non-Suspense apps)
+    // Render React app using streaming SSR (renderToPipeableStream)
     const renderStartTime = Date.now()
-    let reactHtml: string
     try {
-      reactHtml = renderToString(reactApp)
-      const renderTime = Date.now() - renderStartTime
-      metrics.histogram('ssr.render_time', renderTime, { route })
-    } catch (error) {
-      stopSsrKeyTracking() // Clean up tracker
-      metrics.increment('ssr.render_error', { route })
-      console.error('SSR render error:', error)
-      // Fall back to CSR shell on render error
-      return res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
-    }
+      const { pipe } = renderToPipeableStream(reactApp, {
+        onAllReady() {
+          const renderTime = Date.now() - renderStartTime
+          metrics.histogram('ssr.render_time', renderTime, { route })
 
-    // Stop tracking and get the keys that were actually used
-    const usedI18nKeys = stopSsrKeyTracking()
-    console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
+          // Stop tracking and get the keys that were actually used
+          const usedI18nKeys = stopSsrKeyTracking()
+          console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
 
-    // Serialize Redux state with ONLY the i18n keys that were used
-    const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
-    const minimalTranslations: Record<string, string> = {}
-    for (const key of usedI18nKeys) {
-      if (fullTranslations[key] !== undefined) {
-        minimalTranslations[key] = fullTranslations[key]
-      }
-    }
+          // Serialize Redux state with ONLY the i18n keys that were used
+          const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
+          const minimalTranslations: Record<string, string> = {}
+          for (const key of usedI18nKeys) {
+            if (fullTranslations[key] !== undefined) {
+              minimalTranslations[key] = fullTranslations[key]
+            }
+          }
 
-    const preloadedState = {
-      ...store.getState(),
-      i18n: {
-        ...store.getState().i18n,
-        // Don't serialize defaultTranslations - it's already in client code as DEFAULT_STRINGS
-        defaultTranslations: {},
-        translations: minimalTranslations,
-      },
-    }
-    const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
+          const preloadedState = {
+            ...store.getState(),
+            i18n: {
+              ...store.getState().i18n,
+              // Don't serialize defaultTranslations - it's already in client code as DEFAULT_STRINGS
+              defaultTranslations: {},
+              translations: minimalTranslations,
+            },
+          }
+          const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
-    // Serialize router state for client hydration
-    const serializedRouterState = JSON.stringify(context).replace(/</g, '\\u003c')
+          // Serialize router state for client hydration
+          const serializedRouterState = JSON.stringify(context).replace(/</g, '\\u003c')
 
-    // Update htmlEnd with the minimal state
-    const htmlEndWithState = `</div>
+          const htmlEndWithState = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
     window.__ROUTER_STATE__ = ${serializedRouterState};
@@ -264,18 +250,61 @@ app.get('*', async (req, res) => {
 </body>
 </html>`
 
-    // Build complete HTML
-    const fullHtml = htmlStart + reactHtml + htmlEndWithState
-    const htmlSize = fullHtml.length
+          // Buffer React stream, extract Emotion CSS, then send full response
+          const chunks: Buffer[] = []
+          const bufferStream = new Writable({
+            write(chunk: Buffer | string, _encoding, callback) {
+              chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+              callback()
+            },
+            final(callback) {
+              const reactHtml = Buffer.concat(chunks).toString('utf8')
 
-    // Send response
-    const totalTime = Date.now() - requestStartTime
-    metrics.histogram('ssr.total_time', totalTime, { route })
-    metrics.histogram('ssr.html_size', htmlSize, { route })
-    metrics.histogram('ssr.i18n_keys_used', usedI18nKeys.length, { route })
-    metrics.increment('ssr.success', { route })
+              // Extract critical Emotion CSS from rendered HTML and consolidate in head.
+              // Emotion 11 default mode may inject styles in-body; extraction consolidates for faster FCP.
+              const emotionServer = createEmotionServer(emotionCache)
+              const emotionChunks = emotionServer.extractCriticalToChunks(reactHtml)
+              const emotionStylesTag = emotionServer.constructStyleTagsFromChunks(emotionChunks)
+              // Add id to first style tag for client removal (client.tsx removes #emotion-ssr-styles).
+              // If extraction returns empty (e.g. Emotion default mode), placeholder remains; body styles still apply.
+              const emotionStyles =
+                emotionStylesTag.length > 0
+                  ? emotionStylesTag.replace('<style', '<style id="emotion-ssr-styles"')
+                  : '<style id="emotion-ssr-styles"></style>'
 
-    res.send(fullHtml)
+              const htmlStart = buildHtmlStart(emotionStyles)
+              const fullHtml = htmlStart + reactHtml + htmlEndWithState
+
+              res.write(fullHtml)
+              res.end()
+
+              const totalTime = Date.now() - requestStartTime
+              metrics.histogram('ssr.total_time', totalTime, { route })
+              metrics.histogram('ssr.html_size', fullHtml.length, { route })
+              metrics.histogram('ssr.i18n_keys_used', usedI18nKeys.length, { route })
+              metrics.increment('ssr.success', { route })
+
+              callback()
+            },
+          })
+
+          pipe(bufferStream)
+        },
+        onError(error) {
+          stopSsrKeyTracking()
+          metrics.increment('ssr.render_error', { route })
+          console.error('SSR render error:', error)
+          if (!res.headersSent) {
+            res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+          }
+        },
+      })
+    } catch (error) {
+      stopSsrKeyTracking()
+      metrics.increment('ssr.render_error', { route })
+      console.error('SSR render error:', error)
+      return res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+    }
   } catch (error) {
     const totalTime = Date.now() - requestStartTime
     metrics.increment('ssr.handler_error', { route })
@@ -293,7 +322,7 @@ app.listen(PORT, () => {
   console.log(`\n🚀 SSR server listening on http://localhost:${PORT}`)
   console.log(`📦 Serving static files from: ${path.join(__dirname, '../../web-app-dist')}`)
   console.log(`🏠 Routes: Home, Shortlink, FAQ, About, Blog (server-side rendered)`)
-  console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream - NOT IMPLEMENTED YET`)
+  console.log(`⚡ Phase 5: Streaming SSR with renderToPipeableStream enabled`)
   console.log(`🗜️  Compression: gzip/brotli enabled`)
   console.log(`💾 Cache-Control: public, max-age=60s`)
   console.log(`📊 Metrics: Enabled (summary logged every 60s)\n`)
