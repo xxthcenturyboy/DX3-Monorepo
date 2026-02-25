@@ -8,6 +8,7 @@ import { fireEvent, screen } from '@testing-library/react'
 import { renderWithProviders } from '../../../../testing-render'
 import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import '../testing/blog-test-setup'
+
 import { BlogLinkEditDialog } from './blog-link-edit-dialog.component'
 
 const mockPublishWindowChange = jest.fn()
@@ -42,7 +43,6 @@ jest.mock('@mdxeditor/gurx', () => ({
   usePublisher: () => publisherMocks[usePublisherCallIndex++ % publisherMocks.length],
 }))
 
-
 describe('BlogLinkEditDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -66,11 +66,7 @@ describe('BlogLinkEditDialog', () => {
   })
 
   it('should return null when state is inactive', () => {
-    mockUseCellValues.mockReturnValue([
-      { type: 'inactive' },
-      null,
-      false,
-    ])
+    mockUseCellValues.mockReturnValue([{ type: 'inactive' }, null, false])
 
     const { container } = renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>

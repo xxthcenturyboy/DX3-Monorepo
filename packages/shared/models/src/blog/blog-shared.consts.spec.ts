@@ -1,8 +1,4 @@
-import {
-  BLOG_DEFAULTS,
-  BLOG_POST_STATUS,
-  BLOG_POST_STATUS_ARRAY,
-} from './blog-shared.consts'
+import { BLOG_DEFAULTS, BLOG_POST_STATUS, BLOG_POST_STATUS_ARRAY } from './blog-shared.consts'
 
 describe('BLOG_POST_STATUS', () => {
   it('should exist when imported', () => {

@@ -14,11 +14,16 @@ export type BlogPostMetaInputType = {
 
 const META_DESCRIPTION_MAX_LENGTH = 160
 
-const getOrCreateMeta = (
-  attrs: { content?: string; name?: string; property?: string },
-): HTMLMetaElement => {
-  const selector =
-    attrs.name ? `meta[name="${attrs.name}"]` : attrs.property ? `meta[property="${attrs.property}"]` : null
+const getOrCreateMeta = (attrs: {
+  content?: string
+  name?: string
+  property?: string
+}): HTMLMetaElement => {
+  const selector = attrs.name
+    ? `meta[name="${attrs.name}"]`
+    : attrs.property
+      ? `meta[property="${attrs.property}"]`
+      : null
   if (!selector) {
     const el = document.createElement('meta')
     if (attrs.name) el.setAttribute('name', attrs.name)
@@ -39,15 +44,15 @@ const getOrCreateMeta = (
 }
 
 const stripHtmlAndTruncate = (text: string, maxLen: number): string => {
-  const stripped = text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+  const stripped = text
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
   if (stripped.length <= maxLen) return stripped
   return `${stripped.slice(0, maxLen - 3)}...`
 }
 
-export const setBlogPostMeta = (
-  input: BlogPostMetaInputType,
-  baseUrl: string,
-): void => {
+export const setBlogPostMeta = (input: BlogPostMetaInputType, baseUrl: string): void => {
   if (typeof document === 'undefined') return
 
   const description =

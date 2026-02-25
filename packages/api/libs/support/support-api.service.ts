@@ -33,9 +33,6 @@ export class SupportService {
     userTimezone?: string,
   ): Promise<SupportRequestType> {
     try {
-      // Validate payload
-      this.validateCreatePayload(payload)
-
       // Check if user has too many open requests
       const openCount = await SupportRequestModel.getOpenRequestCountForUser(userId)
       if (openCount >= SUPPORT_VALIDATION.MAX_OPEN_REQUESTS_PER_DAY) {
@@ -213,47 +210,6 @@ export class SupportService {
       const msg = (err as Error).message
       this.logger.logError(`SupportService.bulkUpdateStatus: ${msg}`)
       throw new Error(createApiErrorMessage(ERROR_CODES.GENERIC_SERVER_ERROR, msg))
-    }
-  }
-
-  /**
-   * Validate create payload
-   */
-  private validateCreatePayload(payload: CreateSupportRequestPayloadType): void {
-    if (!payload.subject || payload.subject.trim().length === 0) {
-      throw new Error(
-        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Subject is required'),
-      )
-    }
-
-    if (payload.subject.length > SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH) {
-      throw new Error(
-        createApiErrorMessage(
-          ERROR_CODES.GENERIC_VALIDATION_FAILED,
-          `Subject must be ${SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH} characters or less`,
-        ),
-      )
-    }
-
-    if (!payload.message || payload.message.trim().length === 0) {
-      throw new Error(
-        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Message is required'),
-      )
-    }
-
-    if (payload.message.length > SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH) {
-      throw new Error(
-        createApiErrorMessage(
-          ERROR_CODES.GENERIC_VALIDATION_FAILED,
-          `Message must be ${SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH} characters or less`,
-        ),
-      )
-    }
-
-    if (!payload.category) {
-      throw new Error(
-        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Category is required'),
-      )
     }
   }
 

@@ -1,5 +1,5 @@
 import { resolveMx } from 'node:dns/promises'
-import Joi from 'joi'
+import { z } from 'zod'
 
 import type { DomainCheckResultType } from '@dx3/api-libs/reference-data/reference-data.types'
 import {
@@ -12,6 +12,7 @@ import { regexEmail } from '@dx3/utils-shared'
 import { ApiLoggingClass, type ApiLoggingClassType } from '../../../logger'
 import { DISPOSABLE_EMAIL_DOMAINS } from './disposable-email-providers'
 import { INVALID_EMAIL_NAMES } from './email-validation.const'
+import { INVALID_TLDS } from './invalid-tlds.const'
 
 export class EmailUtil {
   domainCheckResult: DomainCheckResultType | null = null
@@ -211,7 +212,7 @@ export class EmailUtil {
 
   /**
    * Async TLD validation. Uses Reference Data API (IANA list) when configured;
-   * otherwise falls back to Joi.
+   * otherwise falls back to Zod + static invalid TLD list.
    * Pass optional result from this.validateDomain() to avoid duplicate API call when used with validateAsync.
    */
   async isValidTldAsync(domainCheckResult?: { validTld: boolean } | null): Promise<boolean> {
@@ -225,13 +226,12 @@ export class EmailUtil {
       if (result) return result.validTld
     }
 
-    const validator = Joi.string().email().optional()
-    try {
-      const validRes = await validator.validateAsync(this.formattedEmail())
-      return !!validRes
-    } catch {
-      return false
-    }
+    const emailSchema = z.string().email()
+    const parseResult = emailSchema.safeParse(this.formattedEmail())
+    if (!parseResult.success) return false
+    if (INVALID_TLDS.some((invalid) => invalid === tld.toLowerCase())) return false
+
+    return true
   }
 
   whitelistedEmail() {
@@ -253,7 +253,7 @@ export class EmailUtil {
 
   /**
    * Async validation. Use when Reference Data API is configured (integration mode).
-   * Uses API for disposable + TLD when configured; otherwise static list + Joi.
+   * Uses API for disposable + TLD when configured; otherwise static list + Zod.
    * Single API call when configured (this.validateDomain() returns both disposable and validTld).
    */
   async validateAsync(): Promise<boolean> {

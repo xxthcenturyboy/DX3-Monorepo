@@ -8,14 +8,10 @@ const getBlogEditorSettingsState = (state: RootState) => state.blogEditorSetting
 
 export const selectBlogEditorBodyDirty = createSelector(
   [getBlogEditorBodyState],
-  (body) =>
-    body.title !== body.initialTitle || body.content !== body.initialContent,
+  (body) => body.title !== body.initialTitle || body.content !== body.initialContent,
 )
 
-export const selectBlogEditorContent = createSelector(
-  [getBlogEditorBodyState],
-  (s) => s.content,
-)
+export const selectBlogEditorContent = createSelector([getBlogEditorBodyState], (s) => s.content)
 
 export const selectBlogEditorFilterValue = createSelector(
   [getBlogEditorListState],
@@ -24,42 +20,23 @@ export const selectBlogEditorFilterValue = createSelector(
 
 export const selectBlogEditorIsDirty = createSelector(
   [getBlogEditorBodyState],
-  (body) =>
-    body.title !== body.initialTitle || body.content !== body.initialContent,
+  (body) => body.title !== body.initialTitle || body.content !== body.initialContent,
 )
 
-export const selectBlogEditorLimit = createSelector(
-  [getBlogEditorListState],
-  (s) => s.limit,
-)
+export const selectBlogEditorLimit = createSelector([getBlogEditorListState], (s) => s.limit)
 
-export const selectBlogEditorOffset = createSelector(
-  [getBlogEditorListState],
-  (s) => s.offset,
-)
+export const selectBlogEditorOffset = createSelector([getBlogEditorListState], (s) => s.offset)
 
-export const selectBlogEditorOrderBy = createSelector(
-  [getBlogEditorListState],
-  (s) => s.orderBy,
-)
+export const selectBlogEditorOrderBy = createSelector([getBlogEditorListState], (s) => s.orderBy)
 
-export const selectBlogEditorSortDir = createSelector(
-  [getBlogEditorListState],
-  (s) => s.sortDir,
-)
+export const selectBlogEditorSortDir = createSelector([getBlogEditorListState], (s) => s.sortDir)
 
-export const selectBlogEditorStatus = createSelector(
-  [getBlogEditorListState],
-  (s) => s.status,
-)
+export const selectBlogEditorStatus = createSelector([getBlogEditorListState], (s) => s.status)
 
 /** Plain selector - no createSelector needed when passing through the full slice */
 export const selectBlogEditorSettings = getBlogEditorSettingsState
 
-export const selectBlogEditorTitle = createSelector(
-  [getBlogEditorBodyState],
-  (s) => s.title,
-)
+export const selectBlogEditorTitle = createSelector([getBlogEditorBodyState], (s) => s.title)
 
 /**
  * Selector for RTK Query params - use with useGetBlogAdminPostsQuery

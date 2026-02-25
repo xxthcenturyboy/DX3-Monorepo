@@ -81,22 +81,6 @@ export const BlogController = {
     }
   },
 
-  getPostPreview: async (req: Request, res: Response) => {
-    logRequest({ req, type: 'getBlogPostPreview' })
-    try {
-      const id = req.params.id
-      if (!id) return sendBadRequest(req, res, 'Post ID is required')
-
-      const post = await blogService.getPostForPreview(id)
-      if (!post) return sendNotFound(req, res, 'Post not found')
-
-      return sendOK(req, res, post)
-    } catch (err) {
-      logRequest({ message: (err as Error)?.message, req, type: 'Failed getBlogPostPreview' })
-      sendBadRequest(req, res, (err as Error).message)
-    }
-  },
-
   getPostById: async (req: Request, res: Response) => {
     logRequest({ req, type: 'getBlogPostById' })
     try {
@@ -129,6 +113,22 @@ export const BlogController = {
       return sendOK(req, res, post)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getBlogPostBySlug' })
+      sendBadRequest(req, res, (err as Error).message)
+    }
+  },
+
+  getPostPreview: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'getBlogPostPreview' })
+    try {
+      const id = req.params.id
+      if (!id) return sendBadRequest(req, res, 'Post ID is required')
+
+      const post = await blogService.getPostForPreview(id)
+      if (!post) return sendNotFound(req, res, 'Post not found')
+
+      return sendOK(req, res, post)
+    } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed getBlogPostPreview' })
       sendBadRequest(req, res, (err as Error).message)
     }
   },
@@ -213,20 +213,6 @@ export const BlogController = {
     }
   },
 
-  unschedulePost: async (req: Request, res: Response) => {
-    logRequest({ req, type: 'unscheduleBlogPost' })
-    try {
-      const id = req.params.id
-      if (!id) return sendBadRequest(req, res, 'Post ID is required')
-
-      const post = await blogService.unschedulePost(id)
-      return sendOK(req, res, post)
-    } catch (err) {
-      logRequest({ message: (err as Error)?.message, req, type: 'Failed unscheduleBlogPost' })
-      sendBadRequest(req, res, (err as Error).message)
-    }
-  },
-
   unpublishPost: async (req: Request, res: Response) => {
     logRequest({ req, type: 'unpublishBlogPost' })
     try {
@@ -237,6 +223,20 @@ export const BlogController = {
       return sendOK(req, res, post)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed unpublishBlogPost' })
+      sendBadRequest(req, res, (err as Error).message)
+    }
+  },
+
+  unschedulePost: async (req: Request, res: Response) => {
+    logRequest({ req, type: 'unscheduleBlogPost' })
+    try {
+      const id = req.params.id
+      if (!id) return sendBadRequest(req, res, 'Post ID is required')
+
+      const post = await blogService.unschedulePost(id)
+      return sendOK(req, res, post)
+    } catch (err) {
+      logRequest({ message: (err as Error)?.message, req, type: 'Failed unscheduleBlogPost' })
       sendBadRequest(req, res, (err as Error).message)
     }
   },

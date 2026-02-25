@@ -11,8 +11,8 @@ import {
   useTheme,
 } from '@mui/material'
 import type React from 'react'
-import { BeatLoader } from 'react-spinners'
 import { useEffect, useMemo, useState } from 'react'
+import { BeatLoader } from 'react-spinners'
 
 import { type GetLogsQueryType, LOG_EVENT_TYPE_ARRAY, type LogEventType } from '@dx3/models-shared'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'

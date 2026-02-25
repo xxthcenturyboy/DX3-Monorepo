@@ -2,6 +2,12 @@ import { Router } from 'express'
 
 import { ensureLoggedIn } from '@dx3/api-libs/auth/middleware/ensure-logged-in.middleware'
 import { hasSuperAdminRole } from '@dx3/api-libs/auth/middleware/ensure-role.middleware'
+import {
+  createFeatureFlagBodySchema,
+  getFeatureFlagsListQuerySchema,
+  updateFeatureFlagBodySchema,
+} from '@dx3/api-libs/feature-flags/feature-flag-api.validation'
+import { validateRequest } from '@dx3/api-libs/validation/validate-request.middleware'
 
 import { FeatureFlagController } from './feature-flag-api.controller'
 
@@ -16,9 +22,24 @@ export class FeatureFlagRoutes {
     router.get('/', FeatureFlagController.getAllFlags)
 
     // Admin endpoints - requires SUPER_ADMIN role
-    router.get('/admin', hasSuperAdminRole, FeatureFlagController.getAdminFlags)
-    router.post('/admin', hasSuperAdminRole, FeatureFlagController.createFlag)
-    router.put('/admin', hasSuperAdminRole, FeatureFlagController.updateFlag)
+    router.get(
+      '/admin',
+      hasSuperAdminRole,
+      validateRequest({ query: getFeatureFlagsListQuerySchema }),
+      FeatureFlagController.getAdminFlags,
+    )
+    router.post(
+      '/admin',
+      hasSuperAdminRole,
+      validateRequest({ body: createFeatureFlagBodySchema }),
+      FeatureFlagController.createFlag,
+    )
+    router.put(
+      '/admin',
+      hasSuperAdminRole,
+      validateRequest({ body: updateFeatureFlagBodySchema }),
+      FeatureFlagController.updateFlag,
+    )
 
     return router
   }

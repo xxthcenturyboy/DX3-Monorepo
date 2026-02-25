@@ -18,8 +18,8 @@ import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component
 
 import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { blogEditorListActions } from './blog-admin-web-list.reducer'
 import { selectBlogEditorStatus } from './blog-admin-web.selectors'
+import { blogEditorListActions } from './blog-admin-web-list.reducer'
 
 type BlogAdminListHeaderComponentProps = {
   onCreateClick: () => void
@@ -59,9 +59,7 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
         onChange={(e) =>
           dispatch(
             blogEditorListActions.statusSet(
-              e.target.value as
-                | (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS]
-                | '',
+              e.target.value as (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS] | '',
             ),
           )
         }
@@ -69,18 +67,10 @@ export const BlogAdminListHeaderComponent: React.FC<BlogAdminListHeaderComponent
       >
         <MenuItem value="">{strings.ALL}</MenuItem>
         <MenuItem value={BLOG_POST_STATUS.DRAFT}>{strings.BLOG_STATUS_DRAFT}</MenuItem>
-        <MenuItem value={BLOG_POST_STATUS.PUBLISHED}>
-          {strings.BLOG_STATUS_PUBLISHED}
-        </MenuItem>
-        <MenuItem value={BLOG_POST_STATUS.SCHEDULED}>
-          {strings.BLOG_STATUS_SCHEDULED}
-        </MenuItem>
-        <MenuItem value={BLOG_POST_STATUS.UNPUBLISHED}>
-          {strings.BLOG_STATUS_UNPUBLISHED}
-        </MenuItem>
-        <MenuItem value={BLOG_POST_STATUS.ARCHIVED}>
-          {strings.BLOG_STATUS_ARCHIVED}
-        </MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.PUBLISHED}>{strings.BLOG_STATUS_PUBLISHED}</MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.SCHEDULED}>{strings.BLOG_STATUS_SCHEDULED}</MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.UNPUBLISHED}>{strings.BLOG_STATUS_UNPUBLISHED}</MenuItem>
+        <MenuItem value={BLOG_POST_STATUS.ARCHIVED}>{strings.BLOG_STATUS_ARCHIVED}</MenuItem>
       </Select>
     </FormControl>
   )

@@ -27,7 +27,8 @@ describe('blogEditorSettingsReducer', () => {
 
   describe('settingsFormLoad', () => {
     it('should load partial settings and merge with defaults', () => {
-      const state = blogEditorSettingsReducer(blogEditorSettingsInitialState,
+      const state = blogEditorSettingsReducer(
+        blogEditorSettingsInitialState,
         blogEditorSettingsActions.settingsFormLoad({
           excerpt: 'Short excerpt',
           slug: 'my-post',
@@ -42,11 +43,12 @@ describe('blogEditorSettingsReducer', () => {
     it('should reset to defaults when payload is undefined', () => {
       const modifiedState = {
         ...blogEditorSettingsInitialState,
-        slug: 'old-slug',
         excerpt: 'old excerpt',
+        slug: 'old-slug',
       }
 
-      const state = blogEditorSettingsReducer(modifiedState,
+      const state = blogEditorSettingsReducer(
+        modifiedState,
         blogEditorSettingsActions.settingsFormLoad(undefined),
       )
 
@@ -56,7 +58,8 @@ describe('blogEditorSettingsReducer', () => {
 
   describe('settingsSet', () => {
     it('should apply partial updates', () => {
-      const state = blogEditorSettingsReducer(blogEditorSettingsInitialState,
+      const state = blogEditorSettingsReducer(
+        blogEditorSettingsInitialState,
         blogEditorSettingsActions.settingsSet({
           excerpt: 'New excerpt',
           seoTitle: 'SEO Title',
@@ -69,10 +72,12 @@ describe('blogEditorSettingsReducer', () => {
     })
 
     it('should merge multiple updates', () => {
-      let state = blogEditorSettingsReducer(blogEditorSettingsInitialState,
+      let state = blogEditorSettingsReducer(
+        blogEditorSettingsInitialState,
         blogEditorSettingsActions.settingsSet({ slug: 'first' }),
       )
-      state = blogEditorSettingsReducer(state,
+      state = blogEditorSettingsReducer(
+        state,
         blogEditorSettingsActions.settingsSet({ excerpt: 'excerpt' }),
       )
 

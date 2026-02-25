@@ -1,5 +1,6 @@
 import { Box, Container, Fade, Grid, Typography, useTheme } from '@mui/material'
 import * as React from 'react'
+import { BeatLoader } from 'react-spinners'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
@@ -7,7 +8,6 @@ import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
 import { useStrings } from '../i18n'
-import { BeatLoader } from 'react-spinners'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { BlogPostCardComponent } from './blog-post-card.component'

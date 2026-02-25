@@ -26,10 +26,7 @@ describe('setBlogPostMeta', () => {
   })
 
   it('should use seoDescription when provided', () => {
-    setBlogPostMeta(
-      createInput({ seoDescription: 'Custom SEO desc' }),
-      baseUrl,
-    )
+    setBlogPostMeta(createInput({ seoDescription: 'Custom SEO desc' }), baseUrl)
     const desc = document.querySelector('meta[name="description"]')
     expect(desc?.getAttribute('content')).toBe('Custom SEO desc')
   })

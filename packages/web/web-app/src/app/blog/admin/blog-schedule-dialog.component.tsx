@@ -49,8 +49,7 @@ const SCHEDULE_TIMEZONE_OPTIONS = [
   'UTC',
 ]
 
-const USER_TIMEZONE =
-  Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC'
+const USER_TIMEZONE = Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC'
 
 function getTimezoneOptions(): string[] {
   if (USER_TIMEZONE && SCHEDULE_TIMEZONE_OPTIONS.includes(USER_TIMEZONE)) {
@@ -81,9 +80,13 @@ export type BlogScheduleDialogPropsType = {
  * Modal dialog for scheduling a blog post publish time.
  * Includes datetime picker, timezone selector, and "In your timezone" preview.
  */
-export const BlogScheduleDialogComponent: React.FC<
-  BlogScheduleDialogPropsType
-> = ({ onClose, onSuccess, open, postId, postTitle }) => {
+export const BlogScheduleDialogComponent: React.FC<BlogScheduleDialogPropsType> = ({
+  onClose,
+  onSuccess,
+  open,
+  postId,
+  postTitle,
+}) => {
   const theme = useTheme()
   const isMobileWidth = useMediaQuery(theme.breakpoints.down('sm'))
   const [schedulePost] = useScheduleBlogPostMutation()
@@ -112,18 +115,14 @@ export const BlogScheduleDialogComponent: React.FC<
       setScheduleView('form')
       setScheduleDateTime(dayjs().add(1, 'hour').format('YYYY-MM-DDTHH:mm'))
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
-      setScheduleTimezone(
-        SCHEDULE_TIMEZONE_OPTIONS.includes(tz) ? tz : 'UTC',
-      )
+      setScheduleTimezone(SCHEDULE_TIMEZONE_OPTIONS.includes(tz) ? tz : 'UTC')
     }
   }, [open])
 
   const handleConfirm = React.useCallback(async () => {
     if (!postId) return
     try {
-      const scheduledAt = dayjs
-        .tz(scheduleDateTime, scheduleTimezone)
-        .toISOString()
+      const scheduledAt = dayjs.tz(scheduleDateTime, scheduleTimezone).toISOString()
       await schedulePost({
         id: postId,
         payload: { scheduledAt },
@@ -146,135 +145,140 @@ export const BlogScheduleDialogComponent: React.FC<
           <SuccessLottie complete={handleSuccessLottieComplete} />
         ) : (
           <Box
-          sx={{
-            alignSelf: 'stretch',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 1.5,
-            height: '100%',
-            maxWidth: '100%',
-            minWidth: 280,
-            width: 320,
-          }}
-        >
-          <Typography
-            component="h2"
-            sx={{ textAlign: 'center' }}
-            variant="h6"
-          >
-            {strings.BLOG_SCHEDULE_PUBLISH}
-          </Typography>
-          {postTitle && (
-            <Box sx={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-              <Typography
-                component="p"
-                sx={{ color: 'text.secondary', fontSize: '0.75rem' }}
-                variant="caption"
-              >
-                {strings.BLOG_SCHEDULE_POST}
-              </Typography>
-              <Typography
-                component="p"
-                sx={{ fontWeight: 500 }}
-                variant="body2"
-              >
-                {postTitle}
-              </Typography>
-            </Box>
-          )}
-          <TextField
-            fullWidth
-            label={strings.BLOG_SCHEDULE_DATE}
-            sx={{ marginTop: 1 }}
-            onChange={(e) => setScheduleDateTime(e.target.value)}
-            type="datetime-local"
-            value={scheduleDateTime}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{
-              min: dayjs().format('YYYY-MM-DDTHH:mm'),
-            }}
-          />
-          <Autocomplete
-            getOptionLabel={(option) => option}
-            groupBy={(option) => getTimezoneGroupLabel(option)}
-            onChange={(_, value) => setScheduleTimezone(value ?? 'UTC')}
-            options={TIMEZONE_OPTIONS}
-            renderGroup={(params) => (
-              <li key={params.key}>
-                <ListSubheader
-                  component="div"
-                  sx={{
-                    backgroundColor: (t) =>
-                      t.palette.mode === 'dark'
-                        ? t.palette.background.paper
-                        : t.palette.grey[100],
-                    lineHeight: 2,
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 1,
-                  }}
-                >
-                  {params.group}
-                </ListSubheader>
-                <ul>{params.children}</ul>
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={strings.BLOG_SCHEDULE_TIMEZONE}
-                size="medium"
-              />
-            )}
-            size="medium"
-            value={scheduleTimezone}
-          />
-          <Box
             sx={{
-              minHeight: 32,
-              minWidth: 0,
-              overflowWrap: 'break-word',
-            }}
-          >
-            <Fade in={scheduleTimezone !== USER_TIMEZONE}>
-              <Typography
-                component="p"
-                sx={{
-                  color: 'text.secondary',
-                  fontSize: '0.875rem',
-                  overflowWrap: 'break-word',
-                  whiteSpace: 'pre-line',
-                  wordBreak: 'break-word',
-                }}
-                variant="body2"
-              >
-                {(strings.BLOG_SCHEDULE_IN_YOUR_TZ ??
-                  'In your timezone:\n{time}').replace(
-                  '{time}',
-                  dayjs
-                    .tz(scheduleDateTime, scheduleTimezone)
-                    .tz(USER_TIMEZONE)
-                    .format('dddd, MMM D, YYYY [at] h:mm A'),
-                )}
-              </Typography>
-            </Fade>
-          </Box>
-          <Box
-            sx={{
+              alignSelf: 'stretch',
               display: 'flex',
-              gap: 1,
-              justifyContent: 'flex-end',
-              marginTop: 'auto',
+              flexDirection: 'column',
+              gap: 1.5,
+              height: '100%',
+              maxWidth: '100%',
+              minWidth: 280,
+              width: 320,
             }}
           >
-            <Button onClick={onClose} variant="outlined">
-              {strings.CANCEL}
-            </Button>
-            <Button onClick={handleConfirm} variant="contained">
-              {strings.CONFIRM}
-            </Button>
+            <Typography
+              component="h2"
+              sx={{ textAlign: 'center' }}
+              variant="h6"
+            >
+              {strings.BLOG_SCHEDULE_PUBLISH}
+            </Typography>
+            {postTitle && (
+              <Box sx={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                <Typography
+                  component="p"
+                  sx={{ color: 'text.secondary', fontSize: '0.75rem' }}
+                  variant="caption"
+                >
+                  {strings.BLOG_SCHEDULE_POST}
+                </Typography>
+                <Typography
+                  component="p"
+                  sx={{ fontWeight: 500 }}
+                  variant="body2"
+                >
+                  {postTitle}
+                </Typography>
+              </Box>
+            )}
+            <TextField
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+              inputProps={{
+                min: dayjs().format('YYYY-MM-DDTHH:mm'),
+              }}
+              label={strings.BLOG_SCHEDULE_DATE}
+              onChange={(e) => setScheduleDateTime(e.target.value)}
+              sx={{ marginTop: 1 }}
+              type="datetime-local"
+              value={scheduleDateTime}
+            />
+            <Autocomplete
+              getOptionLabel={(option) => option}
+              groupBy={(option) => getTimezoneGroupLabel(option)}
+              onChange={(_, value) => setScheduleTimezone(value ?? 'UTC')}
+              options={TIMEZONE_OPTIONS}
+              renderGroup={(params) => (
+                <li key={params.key}>
+                  <ListSubheader
+                    component="div"
+                    sx={{
+                      backgroundColor: (t) =>
+                        t.palette.mode === 'dark'
+                          ? t.palette.background.paper
+                          : t.palette.grey[100],
+                      lineHeight: 2,
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1,
+                    }}
+                  >
+                    {params.group}
+                  </ListSubheader>
+                  <ul>{params.children}</ul>
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={strings.BLOG_SCHEDULE_TIMEZONE}
+                  size="medium"
+                />
+              )}
+              size="medium"
+              value={scheduleTimezone}
+            />
+            <Box
+              sx={{
+                minHeight: 32,
+                minWidth: 0,
+                overflowWrap: 'break-word',
+              }}
+            >
+              <Fade in={scheduleTimezone !== USER_TIMEZONE}>
+                <Typography
+                  component="p"
+                  sx={{
+                    color: 'text.secondary',
+                    fontSize: '0.875rem',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'pre-line',
+                    wordBreak: 'break-word',
+                  }}
+                  variant="body2"
+                >
+                  {(strings.BLOG_SCHEDULE_IN_YOUR_TZ ?? 'In your timezone:\n{time}').replace(
+                    '{time}',
+                    dayjs
+                      .tz(scheduleDateTime, scheduleTimezone)
+                      .tz(USER_TIMEZONE)
+                      .format('dddd, MMM D, YYYY [at] h:mm A'),
+                  )}
+                </Typography>
+              </Fade>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1,
+                justifyContent: 'flex-end',
+                marginTop: 'auto',
+              }}
+            >
+              <Button
+                onClick={onClose}
+                variant="outlined"
+              >
+                {strings.CANCEL}
+              </Button>
+              <Button
+                onClick={handleConfirm}
+                variant="contained"
+              >
+                {strings.CONFIRM}
+              </Button>
+            </Box>
           </Box>
-        </Box>
         )
       }
       closeDialog={onClose}

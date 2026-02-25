@@ -1,7 +1,4 @@
-import {
-  blogRehypePlugins,
-  blogRehypeSanitize,
-} from './blog-rehype-sanitize-schema'
+import { blogRehypePlugins, blogRehypeSanitize } from './blog-rehype-sanitize-schema'
 
 describe('blog-rehype-sanitize-schema', () => {
   describe('blogRehypeSanitize', () => {

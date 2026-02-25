@@ -8,11 +8,8 @@ import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
 
 import { renderWithProviders } from '../../../../testing-render'
-import {
-  clearStoreTranslations,
-  setStoreTranslations,
-} from '../testing/blog-test-mocks'
 import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
+import { clearStoreTranslations, setStoreTranslations } from '../testing/blog-test-mocks'
 import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
 
 const mockOnClose = jest.fn()

@@ -1,9 +1,5 @@
 import { USER_LOOKUPS } from '@dx3/models-shared'
-import {
-  TEST_EMAIL_ADMIN,
-  TEST_PHONE_1,
-  TEST_PHONE_IT_VALID,
-} from '@dx3/test-data'
+import { TEST_EMAIL_ADMIN, TEST_PHONE_1, TEST_PHONE_IT_VALID } from '@dx3/test-data'
 
 import { ApiLoggingClass } from '../logger'
 import { AuthService, type AuthServiceType } from './auth-api.service'

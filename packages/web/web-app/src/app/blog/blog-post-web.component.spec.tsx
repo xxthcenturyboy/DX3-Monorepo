@@ -9,16 +9,18 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { renderWithProviders } from '../../../testing-render'
 import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
 import './testing/blog-test-setup'
+
 import { BlogPostComponent } from './blog-post-web.component'
 
 const mockPost = {
-  id: 'post-1',
   authorDisplayName: 'John Doe',
   canonicalUrl: 'https://example.com/blog/hello',
+  categories: [{ id: 'c1', name: 'News' }],
   content: '# Hello\n\nBlog content here.',
   createdAt: '2025-01-10T00:00:00Z',
   excerpt: 'Short excerpt',
   featuredImageId: '',
+  id: 'post-1',
   isAnonymous: false,
   publishedAt: '2025-01-12T00:00:00Z',
   readingTimeMinutes: 2,
@@ -29,7 +31,6 @@ const mockPost = {
   tags: [],
   title: 'Hello World',
   updatedAt: '2025-01-12T00:00:00Z',
-  categories: [{ id: 'c1', name: 'News' }],
 }
 
 const mockUseGetBlogPostBySlugQuery = jest.fn()
@@ -37,10 +38,8 @@ const mockUseGetBlogRelatedPostsQuery = jest.fn()
 
 jest.mock('./blog-web.api', () => ({
   useGetBlogPostBySlugQuery: (slug: string) => mockUseGetBlogPostBySlugQuery(slug),
-  useGetBlogRelatedPostsQuery: (params: { id: string }) =>
-    mockUseGetBlogRelatedPostsQuery(params),
+  useGetBlogRelatedPostsQuery: (params: { id: string }) => mockUseGetBlogRelatedPostsQuery(params),
 }))
-
 
 describe('BlogPostComponent', () => {
   beforeEach(() => {
@@ -60,8 +59,8 @@ describe('BlogPostComponent', () => {
         <MemoryRouter initialEntries={['/blog']}>
           <Routes>
             <Route
-              path="/blog/:slug?"
               element={<BlogPostComponent />}
+              path="/blog/:slug?"
             />
           </Routes>
         </MemoryRouter>
@@ -83,8 +82,8 @@ describe('BlogPostComponent', () => {
         <MemoryRouter initialEntries={['/blog/hello']}>
           <Routes>
             <Route
-              path="/blog/:slug"
               element={<BlogPostComponent />}
+              path="/blog/:slug"
             />
           </Routes>
         </MemoryRouter>
@@ -106,8 +105,8 @@ describe('BlogPostComponent', () => {
         <MemoryRouter initialEntries={['/blog/hello']}>
           <Routes>
             <Route
-              path="/blog/:slug"
               element={<BlogPostComponent />}
+              path="/blog/:slug"
             />
           </Routes>
         </MemoryRouter>
@@ -131,8 +130,8 @@ describe('BlogPostComponent', () => {
         <MemoryRouter initialEntries={['/blog/bad-slug']}>
           <Routes>
             <Route
-              path="/blog/:slug"
               element={<BlogPostComponent />}
+              path="/blog/:slug"
             />
           </Routes>
         </MemoryRouter>

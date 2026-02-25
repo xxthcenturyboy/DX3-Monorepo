@@ -58,14 +58,20 @@ const BlogMarkdownImg: Components['img'] = ({ src, alt, title, ...props }) => {
 
   if (alignment === 'center') {
     return (
-      <Box component="figure" sx={{ margin: 0, textAlign: 'center' }}>
+      <Box
+        component="figure"
+        sx={{ margin: 0, textAlign: 'center' }}
+      >
         {imgEl}
       </Box>
     )
   }
   if (alignment === 'right') {
     return (
-      <Box component="figure" sx={{ margin: 0, textAlign: 'right' }}>
+      <Box
+        component="figure"
+        sx={{ margin: 0, textAlign: 'right' }}
+      >
         {imgEl}
       </Box>
     )

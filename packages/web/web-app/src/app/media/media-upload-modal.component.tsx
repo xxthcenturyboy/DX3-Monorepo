@@ -47,8 +47,7 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
   const allowUrlInput = config.allowUrlInput ?? false
   const allowedMimeTypes = config.allowedMimeTypes
   const mediaTypeKey = config.mediaTypeKey ?? 'MEDIA_TYPE_FILES'
-  const headerTitle =
-    config.title ?? t('MEDIA_UPLOAD_HEADER', { mediaType: t(mediaTypeKey) })
+  const headerTitle = config.title ?? t('MEDIA_UPLOAD_HEADER', { mediaType: t(mediaTypeKey) })
   const enableDragAndDrop = !isMobileWidth
   const isImageOnly =
     isMobileWidth &&
@@ -116,7 +115,15 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
       setErrorMessage((err as Error).message ?? strings.MEDIA_UPLOAD_FAILED)
       setUploadState('error')
     }
-  }, [config.public, closeDialog, onSuccess, onUpload, selectedFiles, strings.MEDIA_UPLOAD_FAILED, validateFiles])
+  }, [
+    config.public,
+    closeDialog,
+    onSuccess,
+    onUpload,
+    selectedFiles,
+    strings.MEDIA_UPLOAD_FAILED,
+    validateFiles,
+  ])
 
   const handleClose = useCallback(() => {
     closeDialog()
@@ -281,9 +288,7 @@ export const MediaUploadModal: React.FC<MediaUploadModalPropsType> = (props) => 
           }}
         >
           <input
-            accept={
-              isImageOnly ? 'image/*' : allowedMimeTypes.join(',')
-            }
+            accept={isImageOnly ? 'image/*' : allowedMimeTypes.join(',')}
             multiple={maxFiles > 1}
             onChange={handleInputChange}
             ref={inputRef}

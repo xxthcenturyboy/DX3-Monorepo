@@ -5,7 +5,9 @@ jest.mock('../logger', () => require('../testing/mocks/internal/logger.mock'))
 jest.mock('./blog-post-api.postgres-model')
 jest.mock('./blog-category-api.postgres-model')
 jest.mock('./blog-tag-api.postgres-model')
-jest.mock('@dx3/utils-shared', () => ({ slugify: (s: string) => s?.toLowerCase().replace(/\s+/g, '-') ?? '' }))
+jest.mock('@dx3/utils-shared', () => ({
+  slugify: (s: string) => s?.toLowerCase().replace(/\s+/g, '-') ?? '',
+}))
 
 describe('BlogService', () => {
   beforeAll(() => {

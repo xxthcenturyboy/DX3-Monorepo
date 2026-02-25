@@ -6,8 +6,6 @@ import { BLOG_POST_STATUS } from '@dx3/models-shared'
 
 import type { RootState } from '../../store/store-web.redux'
 import { setupStore } from '../../store/testing/testing.store'
-import { blogEditorBodyInitialState } from './blog-admin-web-body.reducer'
-import { blogEditorListInitialState } from './blog-admin-web-list.reducer'
 import {
   selectBlogEditorBodyDirty,
   selectBlogEditorContent,
@@ -22,6 +20,8 @@ import {
   selectBlogEditorStatus,
   selectBlogEditorTitle,
 } from './blog-admin-web.selectors'
+import { blogEditorBodyInitialState } from './blog-admin-web-body.reducer'
+import { blogEditorListInitialState } from './blog-admin-web-list.reducer'
 
 const createMockState = (
   bodyOverrides: Partial<typeof blogEditorBodyInitialState> = {},
@@ -154,14 +154,17 @@ describe('blog admin selectors', () => {
 
   describe('selectBlogEditorQueryParams', () => {
     it('should build query params object', () => {
-      const state = createMockState({}, {
-        filterValue: 'test',
-        limit: 10,
-        offset: 20,
-        orderBy: 'publishedAt',
-        sortDir: 'ASC',
-        status: BLOG_POST_STATUS.PUBLISHED,
-      })
+      const state = createMockState(
+        {},
+        {
+          filterValue: 'test',
+          limit: 10,
+          offset: 20,
+          orderBy: 'publishedAt',
+          sortDir: 'ASC',
+          status: BLOG_POST_STATUS.PUBLISHED,
+        },
+      )
       const params = selectBlogEditorQueryParams(state)
       expect(params).toEqual({
         filterValue: 'test',
@@ -174,14 +177,17 @@ describe('blog admin selectors', () => {
     })
 
     it('should convert empty filterValue and status to undefined', () => {
-      const state = createMockState({}, {
-        filterValue: '',
-        limit: 25,
-        offset: 0,
-        orderBy: 'createdAt',
-        sortDir: 'DESC',
-        status: '',
-      })
+      const state = createMockState(
+        {},
+        {
+          filterValue: '',
+          limit: 25,
+          offset: 0,
+          orderBy: 'createdAt',
+          sortDir: 'DESC',
+          status: '',
+        },
+      )
       const params = selectBlogEditorQueryParams(state)
       expect(params.filterValue).toBeUndefined()
       expect(params.status).toBeUndefined()

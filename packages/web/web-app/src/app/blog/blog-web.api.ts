@@ -131,14 +131,6 @@ export const apiWebBlog = apiWeb.injectEndpoints({
         url: `/blog/admin/posts/${id}/schedule`,
       }),
     }),
-    unscheduleBlogPost: build.mutation<BlogPostType, string>({
-      invalidatesTags: (_result, _error, id) => [{ id, type: 'BlogPost' }],
-      query: (id) => ({
-        headers: getCustomHeaders({ version: 1 }),
-        method: 'POST',
-        url: `/blog/admin/posts/${id}/unschedule`,
-      }),
-    }),
     unpublishBlogPost: build.mutation<BlogPostType, string>({
       invalidatesTags: (_result, _error, id) => [{ id, type: 'BlogPost' }],
       query: (id) => ({
@@ -147,7 +139,18 @@ export const apiWebBlog = apiWeb.injectEndpoints({
         url: `/blog/admin/posts/${id}/unpublish`,
       }),
     }),
-    updateBlogPost: build.mutation<BlogPostType, { id: string; payload: UpdateBlogPostPayloadType }>({
+    unscheduleBlogPost: build.mutation<BlogPostType, string>({
+      invalidatesTags: (_result, _error, id) => [{ id, type: 'BlogPost' }],
+      query: (id) => ({
+        headers: getCustomHeaders({ version: 1 }),
+        method: 'POST',
+        url: `/blog/admin/posts/${id}/unschedule`,
+      }),
+    }),
+    updateBlogPost: build.mutation<
+      BlogPostType,
+      { id: string; payload: UpdateBlogPostPayloadType }
+    >({
       invalidatesTags: (_result, _error, { id }) => [
         { id, type: 'BlogPost' },
         'BlogCategories',

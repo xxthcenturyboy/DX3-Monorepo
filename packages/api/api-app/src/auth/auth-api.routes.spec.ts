@@ -1,6 +1,18 @@
 import { AuthRoutes } from './auth-api.routes'
 
-jest.mock('../rate-limiters/rate-limiters.dx.ts')
+jest.mock('../rate-limiters/rate-limiters.dx.ts', () => {
+  const noop = (_req: unknown, _res: unknown, next: (err?: unknown) => void) => next()
+  return {
+    DxRateLimiters: {
+      accountCreation: () => noop,
+      authLookup: () => noop,
+      login: () => noop,
+      standard: () => noop,
+      strict: () => noop,
+      veryStrict: () => noop,
+    },
+  }
+})
 
 describe('AuthRoutes', () => {
   it('should exist when imported', () => {

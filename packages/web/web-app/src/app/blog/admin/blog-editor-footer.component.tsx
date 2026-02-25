@@ -4,10 +4,7 @@ import { BeatLoader } from 'react-spinners'
 
 import { useStrings } from '../../i18n'
 import { useAppSelector } from '../../store/store-web-redux.hooks'
-import {
-  selectBlogEditorIsDirty,
-  selectBlogEditorTitle,
-} from './blog-admin-web.selectors'
+import { selectBlogEditorIsDirty, selectBlogEditorTitle } from './blog-admin-web.selectors'
 
 export type BlogEditorFooterPropsType = {
   isNew?: boolean
@@ -31,13 +28,7 @@ export const BlogEditorFooterComponent: FC<BlogEditorFooterPropsType> = ({
 }) => {
   const isDirty = useAppSelector(selectBlogEditorIsDirty)
   const title = useAppSelector(selectBlogEditorTitle)
-  const strings = useStrings([
-    'CANCEL',
-    'CANCELING',
-    'CLOSE',
-    'CREATE',
-    'SAVE',
-  ])
+  const strings = useStrings(['CANCEL', 'CANCELING', 'CLOSE', 'CREATE', 'SAVE'])
 
   return (
     <Box
@@ -47,9 +38,7 @@ export const BlogEditorFooterComponent: FC<BlogEditorFooterPropsType> = ({
       marginTop={'24px'}
     >
       <Button
-        disabled={
-          isSaving || !isDirty || !title.trim() || !!isReadOnly
-        }
+        disabled={isSaving || !isDirty || !title.trim() || !!isReadOnly}
         onClick={onSave}
         variant="contained"
       >

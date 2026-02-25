@@ -266,8 +266,8 @@ export const AuthController = {
     logRequest({ req, type: 'rejectDevice' })
     try {
       const service = new DevicesService()
-      const { token } = req.params as { token: string }
-      const result = await service.rejectDevice(token)
+      const { id } = req.params as { id: string }
+      const result = await service.rejectDevice(id)
       sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed rejectDevice' })

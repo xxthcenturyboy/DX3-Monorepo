@@ -3,8 +3,8 @@ import type { FC } from 'react'
 
 import { useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
-import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
 import { selectBlogEditorTitle } from './blog-admin-web.selectors'
+import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
 
 export type BlogEditorTitleFieldPropsType = {
   disabled?: boolean

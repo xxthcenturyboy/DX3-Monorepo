@@ -21,9 +21,6 @@ import {
   useUnscheduleBlogPostMutation,
 } from '../blog-web.api'
 import { BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
-import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
-import { blogEditorListActions } from './blog-admin-web-list.reducer'
-import { blogEditorSettingsActions } from './blog-admin-web-settings.reducer'
 import {
   selectBlogEditorLimit,
   selectBlogEditorOffset,
@@ -31,11 +28,11 @@ import {
   selectBlogEditorQueryParams,
   selectBlogEditorSortDir,
 } from './blog-admin-web.selectors'
+import { blogEditorBodyActions } from './blog-admin-web-body.reducer'
+import { blogEditorListActions } from './blog-admin-web-list.reducer'
+import { BlogAdminWebListService, type BlogListActionsType } from './blog-admin-web-list.service'
 import { BlogAdminListHeaderComponent } from './blog-admin-web-list-header.component'
-import {
-  BlogAdminWebListService,
-  type BlogListActionsType,
-} from './blog-admin-web-list.service'
+import { blogEditorSettingsActions } from './blog-admin-web-settings.reducer'
 import { BlogScheduleDialogComponent } from './blog-schedule-dialog.component'
 
 export const BlogAdminListComponent: React.FC = () => {
@@ -162,12 +159,7 @@ export const BlogAdminListComponent: React.FC = () => {
       onUnpublish: handleUnpublishClick,
       onUnschedule: handleUnscheduleClick,
     }),
-    [
-      handlePublishClick,
-      handleScheduleClick,
-      handleUnpublishClick,
-      handleUnscheduleClick,
-    ],
+    [handlePublishClick, handleScheduleClick, handleUnpublishClick, handleUnscheduleClick],
   )
   const rows: TableRowType[] = React.useMemo(
     () => listService.getRows(data?.rows ?? [], listActions),

@@ -15,9 +15,9 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { BeatLoader } from 'react-spinners'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+import { BeatLoader } from 'react-spinners'
 
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 

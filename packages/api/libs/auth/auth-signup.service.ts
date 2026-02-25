@@ -194,7 +194,11 @@ export class AuthSignupService {
 
     const emailUtil = new EmailUtil(value)
     const phoneUtil = new PhoneUtil(value, region || PHONE_DEFAULT_REGION_CODE, this.isDebug)
-    const signupType = await this.determineCreateAccountType({ emailUtil, hasCode: !!code, phoneUtil })
+    const signupType = await this.determineCreateAccountType({
+      emailUtil,
+      hasCode: !!code,
+      phoneUtil,
+    })
 
     if (signupType === 'phone') {
       if (!phoneUtil.isValidMobile) {

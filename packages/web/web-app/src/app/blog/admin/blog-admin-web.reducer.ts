@@ -4,17 +4,17 @@
  */
 
 export {
+  type BlogEditorBodyStateType,
   blogEditorBodyActions,
   blogEditorBodyReducer,
-  type BlogEditorBodyStateType,
 } from './blog-admin-web-body.reducer'
 export {
+  type BlogEditorListStateType,
   blogEditorListActions,
   blogEditorListReducer,
-  type BlogEditorListStateType,
 } from './blog-admin-web-list.reducer'
 export {
+  type BlogEditorSettingsStateType,
   blogEditorSettingsActions,
   blogEditorSettingsReducer,
-  type BlogEditorSettingsStateType,
 } from './blog-admin-web-settings.reducer'

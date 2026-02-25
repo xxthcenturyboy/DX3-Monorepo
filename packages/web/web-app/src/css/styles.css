@@ -68,8 +68,8 @@ svg {
   min-width: min-content;
 }
 [data-testid="blog-editor-content"] .mdxeditor-root-contenteditable {
-  overflow-x: visible !important;
   min-width: min-content;
+  overflow-x: visible !important;
 }
 [data-testid="blog-editor-content"] .mdxeditor-toolbar {
   flex-shrink: 0;
@@ -78,8 +78,8 @@ svg {
 
 /* Blog editor: images scale to fit viewport */
 [data-testid="blog-editor-content"] .mdxeditor-root-contenteditable img {
-  height: auto;
   max-width: 100%;
+  height: auto;
 }
 
 /* Phone input label styling */

@@ -11,18 +11,8 @@ export const blogRehypeSanitize = rehypeSanitize({
   ...defaultSchema,
   attributes: {
     ...defaultSchema.attributes,
-    div: [
-      ...(defaultSchema.attributes?.div ?? []),
-      'className',
-      'class',
-    ],
-    img: [
-      ...(defaultSchema.attributes?.img ?? []),
-      'alt',
-      'height',
-      'title',
-      'width',
-    ],
+    div: [...(defaultSchema.attributes?.div ?? []), 'className', 'class'],
+    img: [...(defaultSchema.attributes?.img ?? []), 'alt', 'height', 'title', 'width'],
     p: [...(defaultSchema.attributes?.p ?? []), 'align'],
   },
   protocols: {

@@ -38,9 +38,7 @@ module.exports = {
    * @param {import('sequelize').Sequelize} Sequelize
    */
   up: async (queryInterface, Sequelize) => {
-    console.log(
-      '[Migration] Applying: Adding created_at/updated_at to blog junction tables',
-    )
+    console.log('[Migration] Applying: Adding created_at/updated_at to blog junction tables')
 
     await queryInterface.sequelize.query(`
       BEGIN;

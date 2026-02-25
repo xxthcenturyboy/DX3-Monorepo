@@ -36,9 +36,7 @@ export const BLOG_TEST_TAGS: BlogTagType[] = [
 export const BLOG_TEST_CATEGORIES_MINIMAL: BlogCategoryType[] = [
   { id: 'cat-1', name: 'Category A', slug: 'category-a' },
 ]
-export const BLOG_TEST_TAGS_MINIMAL: BlogTagType[] = [
-  { id: 'tag-1', name: 'Tag X', slug: 'tag-x' },
-]
+export const BLOG_TEST_TAGS_MINIMAL: BlogTagType[] = [{ id: 'tag-1', name: 'Tag X', slug: 'tag-x' }]
 
 /** Default blog editor settings shape */
 export const DEFAULT_BLOG_EDITOR_SETTINGS: BlogEditorSettingsType = {

@@ -20,10 +20,7 @@ const blogEditorBodySlice = createSlice({
   initialState: blogEditorBodyInitialState,
   name: BLOG_EDITOR_BODY_ENTITY_NAME,
   reducers: {
-    bodyFormLoad(
-      state,
-      action: PayloadAction<{ content: string; title: string }>,
-    ) {
+    bodyFormLoad(state, action: PayloadAction<{ content: string; title: string }>) {
       const { content, title } = action.payload
       state.content = content
       state.initialContent = content

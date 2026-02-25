@@ -71,8 +71,7 @@ export const BlogAdminSettingsComponent: React.FC<BlogAdminSettingsComponentProp
   tags,
 }) => {
   const dispatch = useAppDispatch()
-  const [updatePostPassive, { isLoading: isSettingsSaving }] =
-    useUpdateBlogPostPassiveMutation()
+  const [updatePostPassive, { isLoading: isSettingsSaving }] = useUpdateBlogPostPassiveMutation()
   const settings = useAppSelector(selectBlogEditorSettings)
   const isInitialSettingsLoad = React.useRef(true)
   const t = useTranslation()
@@ -102,9 +101,7 @@ export const BlogAdminSettingsComponent: React.FC<BlogAdminSettingsComponentProp
             },
           }).unwrap()
           if (slugifiedSlug) {
-            dispatch(
-              blogEditorSettingsActions.settingsSet({ slug: slugifiedSlug }),
-            )
+            dispatch(blogEditorSettingsActions.settingsSet({ slug: slugifiedSlug }))
           }
         } catch {
           // Error handled by RTK Query / toast

@@ -1,5 +1,5 @@
-import { BLOG_POST_STATUS } from '@dx3/models-shared'
 import type { BlogPostType } from '@dx3/models-shared'
+import { BLOG_POST_STATUS } from '@dx3/models-shared'
 
 import { BlogAdminWebListService } from './blog-admin-web-list.service'
 
@@ -66,9 +66,9 @@ describe('BlogAdminWebListService', () => {
       const posts = [createMockPost({ slug: 'test-slug', title: 'Test Title' })]
       const rows = service.getRows(posts)
 
-      const textColumns = rows[0].columns.filter(
-        (c) => typeof c.data === 'string',
-      ) as { data: string }[]
+      const textColumns = rows[0].columns.filter((c) => typeof c.data === 'string') as {
+        data: string
+      }[]
       const values = textColumns.map((c) => c.data)
       expect(values).toContain('Test Title')
       expect(values).toContain('test-slug')

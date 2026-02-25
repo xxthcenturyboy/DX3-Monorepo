@@ -24,13 +24,8 @@ const blogEditorSettingsSlice = createSlice({
   initialState: blogEditorSettingsInitialState,
   name: BLOG_EDITOR_SETTINGS_ENTITY_NAME,
   reducers: {
-    settingsFormLoad(
-      state,
-      action: PayloadAction<Partial<BlogEditorSettingsType> | undefined>,
-    ) {
-      const s = action.payload
-        ? { ...defaultSettings, ...action.payload }
-        : defaultSettings
+    settingsFormLoad(state, action: PayloadAction<Partial<BlogEditorSettingsType> | undefined>) {
+      const s = action.payload ? { ...defaultSettings, ...action.payload } : defaultSettings
       return s
     },
     settingsSet(state, action: PayloadAction<Partial<BlogEditorSettingsType>>) {

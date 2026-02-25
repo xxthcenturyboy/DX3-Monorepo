@@ -1,7 +1,4 @@
-import {
-  BLOG_EDITOR_ENTITY_NAME,
-  BLOG_EDITOR_ROUTES,
-} from './blog-admin-web.consts'
+import { BLOG_EDITOR_ENTITY_NAME, BLOG_EDITOR_ROUTES } from './blog-admin-web.consts'
 
 describe('blog-admin-web.consts', () => {
   describe('BLOG_EDITOR_ENTITY_NAME', () => {

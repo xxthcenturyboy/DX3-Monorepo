@@ -1,9 +1,6 @@
 import type { MediaUploadResponseType } from '@dx3/models-shared'
 
-export type MediaUploadMediaTypeKey =
-  | 'MEDIA_TYPE_FILES'
-  | 'MEDIA_TYPE_IMAGE'
-  | 'MEDIA_TYPE_PDF'
+export type MediaUploadMediaTypeKey = 'MEDIA_TYPE_FILES' | 'MEDIA_TYPE_IMAGE' | 'MEDIA_TYPE_PDF'
 
 export type MediaUploadConfigType = {
   allowedMimeTypes: string[]
@@ -21,10 +18,7 @@ export type MediaUploadModalPropsType = {
   config: MediaUploadConfigType
   isMobileWidth?: boolean
   onSuccess: (results: MediaUploadResultType[]) => void
-  onUpload: (params: {
-    files: File[]
-    public: boolean
-  }) => Promise<MediaUploadResultType[]>
+  onUpload: (params: { files: File[]; public: boolean }) => Promise<MediaUploadResultType[]>
   onUrlInsert?: (url: string) => void
   windowHeight?: number
 }

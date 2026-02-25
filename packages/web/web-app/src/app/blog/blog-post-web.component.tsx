@@ -5,11 +5,10 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { useParams } from 'react-router'
-import type { PluggableList } from 'unified'
-import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { BeatLoader } from 'react-spinners'
+import remarkGfm from 'remark-gfm'
+import type { PluggableList } from 'unified'
 
 import { MEDIA_VARIANTS } from '@dx3/models-shared'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
@@ -17,16 +16,17 @@ import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.compone
 import { NoDataLottie } from '@dx3/web-libs/ui/lottie/no-data.lottie'
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
-import { WebConfigService } from '../config/config-web.service'
 import { selectIsAuthenticated } from '../auth/auth-web.selector'
+import { WebConfigService } from '../config/config-web.service'
 import { useStrings } from '../i18n'
 import { getPublicMediaUrl } from '../media/media-web.util'
 import { useAppSelector } from '../store/store-web-redux.hooks'
-import { setBlogPostMeta } from './blog-web-set-meta'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { blogMarkdownComponents } from './blog-markdown-components'
 import { BlogPostCardComponent } from './blog-post-card.component'
+import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { useGetBlogPostBySlugQuery, useGetBlogRelatedPostsQuery } from './blog-web.api'
+import { setBlogPostMeta } from './blog-web-set-meta'
 
 dayjs.extend(localizedFormat)
 
@@ -213,9 +213,9 @@ export const BlogPostComponent: React.FC = () => {
             >
               <ReactMarkdown
                 components={blogMarkdownComponents}
+                rehypePlugins={blogRehypePlugins as PluggableList}
                 remarkPlugins={[remarkGfm]}
                 remarkRehypeOptions={{ allowDangerousHtml: true }}
-                rehypePlugins={blogRehypePlugins as PluggableList}
               >
                 {post.content}
               </ReactMarkdown>

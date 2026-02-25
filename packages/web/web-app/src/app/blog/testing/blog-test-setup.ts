@@ -6,11 +6,7 @@
  */
 /// <reference types="jest" />
 
-import {
-  BLOG_CONFIG_MOCK,
-  createI18nMock,
-  createStoreMock,
-} from './blog-test-mocks'
+import { BLOG_CONFIG_MOCK, createI18nMock, createStoreMock } from './blog-test-mocks'
 
 jest.mock('../../data/rtk-query')
 jest.mock('../../i18n', () => createI18nMock())

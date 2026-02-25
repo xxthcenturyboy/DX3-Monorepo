@@ -1,8 +1,4 @@
-import {
-  closeImageDialog$,
-  imageDialogState$,
-  saveImage$,
-} from '@mdxeditor/editor'
+import { closeImageDialog$, imageDialogState$, saveImage$ } from '@mdxeditor/editor'
 import { useCellValues, usePublisher } from '@mdxeditor/gurx'
 import Close from '@mui/icons-material/Close'
 import {
@@ -66,9 +62,7 @@ export const BlogImageEditDialog: React.FC = () => {
   React.useEffect(() => {
     if (state.type === 'editing') {
       setAltText(state.initialValues.altText ?? '')
-      const { alignment: a, title: t } = parseTitleForAlignment(
-        state.initialValues.title ?? '',
-      )
+      const { alignment: a, title: t } = parseTitleForAlignment(state.initialValues.title ?? '')
       setAlignment(a)
       setTitle(t)
     }
@@ -82,8 +76,7 @@ export const BlogImageEditDialog: React.FC = () => {
 
   const handleSave = React.useCallback(() => {
     if (state.type === 'editing') {
-      const titleWithAlign =
-        alignment === 'left' ? title : `align:${alignment}|${title}`
+      const titleWithAlign = alignment === 'left' ? title : `align:${alignment}|${title}`
       saveImage({
         altText,
         src: state.initialValues.src ?? '',
@@ -188,17 +181,16 @@ export const BlogImageEditDialog: React.FC = () => {
             value={altText}
             variant="outlined"
           />
-          <FormControl fullWidth size="small">
-            <InputLabel id="blog-image-align-label">
-              {strings.IMAGE_EDIT_ALIGNMENT}
-            </InputLabel>
+          <FormControl
+            fullWidth
+            size="small"
+          >
+            <InputLabel id="blog-image-align-label">{strings.IMAGE_EDIT_ALIGNMENT}</InputLabel>
             <Select
               id="blog-image-align"
               label={strings.IMAGE_EDIT_ALIGNMENT}
               labelId="blog-image-align-label"
-              onChange={(e) =>
-                setAlignment(e.target.value as 'left' | 'center' | 'right')
-              }
+              onChange={(e) => setAlignment(e.target.value as 'left' | 'center' | 'right')}
               value={alignment}
             >
               <MenuItem value="left">{strings.IMAGE_ALIGN_LEFT}</MenuItem>

@@ -12,15 +12,7 @@ import { useCellValues, usePublisher } from '@mdxeditor/gurx'
 import Close from '@mui/icons-material/Close'
 import ContentCopy from '@mui/icons-material/ContentCopy'
 import LinkOff from '@mui/icons-material/LinkOff'
-import {
-  Box,
-  Button,
-  IconButton,
-  Paper,
-  Popper,
-  TextField,
-  Tooltip,
-} from '@mui/material'
+import { Box, Button, IconButton, Paper, Popper, TextField, Tooltip } from '@mui/material'
 import * as React from 'react'
 
 import { useStrings } from '../../i18n'
@@ -132,23 +124,23 @@ export const BlogLinkEditDialog: React.FC = () => {
   const handleSave = React.useCallback(
     (e: React.FormEvent) => {
       e.preventDefault()
-      updateLink({ text: text.trim() || undefined, title: title.trim() || undefined, url: url.trim() || undefined })
+      updateLink({
+        text: text.trim() || undefined,
+        title: title.trim() || undefined,
+        url: url.trim() || undefined,
+      })
     },
     [text, title, updateLink, url],
   )
 
   const handleCopyUrl = React.useCallback(() => {
     const urlToCopy =
-      linkDialogState.type === 'edit'
-        ? url
-        : (linkDialogState as { url?: string }).url
+      linkDialogState.type === 'edit' ? url : (linkDialogState as { url?: string }).url
     if (urlToCopy) {
-      window.navigator.clipboard
-        .writeText(urlToCopy)
-        .then(() => {
-          setCopyTooltipOpen(true)
-          setTimeout(() => setCopyTooltipOpen(false), 1000)
-        })
+      window.navigator.clipboard.writeText(urlToCopy).then(() => {
+        setCopyTooltipOpen(true)
+        setTimeout(() => setCopyTooltipOpen(false), 1000)
+      })
     }
   }, [linkDialogState, url])
 
@@ -177,13 +169,23 @@ export const BlogLinkEditDialog: React.FC = () => {
       placement="bottom-start"
       sx={{ zIndex: 1400 }}
     >
-      <Paper elevation={8} sx={{ minWidth: 280, p: 2 }}>
+      <Paper
+        elevation={8}
+        sx={{ minWidth: 280, p: 2 }}
+      >
         <Box
           component="form"
           onSubmit={handleSave}
           sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-          <Box sx={{ alignItems: 'center', display: 'flex', gap: 0.5, justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              gap: 0.5,
+              justifyContent: 'space-between',
+            }}
+          >
             <Tooltip title={strings.CLOSE}>
               <IconButton
                 aria-label={strings.CLOSE}
@@ -194,31 +196,29 @@ export const BlogLinkEditDialog: React.FC = () => {
               </IconButton>
             </Tooltip>
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Tooltip
-              open={copyTooltipOpen}
-              title={
-                copyTooltipOpen
-                  ? strings.LINK_EDIT_COPIED
-                  : strings.LINK_EDIT_COPY_TO_CLIPBOARD
-              }
-            >
-              <IconButton
-                aria-label={strings.LINK_EDIT_COPY_TO_CLIPBOARD}
-                onClick={handleCopyUrl}
-                size="small"
+              <Tooltip
+                open={copyTooltipOpen}
+                title={
+                  copyTooltipOpen ? strings.LINK_EDIT_COPIED : strings.LINK_EDIT_COPY_TO_CLIPBOARD
+                }
               >
-                <ContentCopy fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={strings.LINK_EDIT_REMOVE_LINK}>
-              <IconButton
-                aria-label={strings.LINK_EDIT_REMOVE_LINK}
-                onClick={() => removeLink()}
-                size="small"
-              >
-                <LinkOff fontSize="small" />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  aria-label={strings.LINK_EDIT_COPY_TO_CLIPBOARD}
+                  onClick={handleCopyUrl}
+                  size="small"
+                >
+                  <ContentCopy fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={strings.LINK_EDIT_REMOVE_LINK}>
+                <IconButton
+                  aria-label={strings.LINK_EDIT_REMOVE_LINK}
+                  onClick={() => removeLink()}
+                  size="small"
+                >
+                  <LinkOff fontSize="small" />
+                </IconButton>
+              </Tooltip>
             </Box>
           </Box>
           <TextField

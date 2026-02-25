@@ -9,9 +9,9 @@ import * as React from 'react'
 import { BLOG_POST_STATUS, type BlogPostType } from '@dx3/models-shared'
 import type { TableHeaderItem, TableMeta, TableRowType } from '@dx3/web-libs/ui/table/types'
 
-import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
 import { DEFAULT_STRINGS } from '../../i18n/i18n.consts'
 import { store } from '../../store/store-web.redux'
+import { BlogPostStatusChipComponent } from './blog-post-status-chip.component'
 
 export type BlogListActionsType = {
   onPublish: (id: string) => void

@@ -6,11 +6,11 @@ import { logRequest } from '@dx3/api-libs/logger/log-request.util'
 import { MediaApiService } from '@dx3/api-libs/media/media-api.service'
 import { MetricsService } from '@dx3/api-libs/metrics/metrics-api.service'
 import {
-  MIME_TYPES,
   MEDIA_SUB_TYPES,
   METRIC_FEATURE_NAME,
   type MediaDataType,
   type MediaUploadResponseType,
+  MIME_TYPES,
   type UploadMediaHandlerParams,
 } from '@dx3/models-shared'
 
@@ -44,10 +44,7 @@ export const MediaApiController = {
       }
       if (meta.mediaType === MIME_TYPES.FILE.PDF) {
         const safeName = meta.originalFileName.replace(/[^\w.-]/g, '_')
-        res.set(
-          'Content-Disposition',
-          `attachment; filename="${safeName}"`,
-        )
+        res.set('Content-Disposition', `attachment; filename="${safeName}"`)
       }
       await service.getSystemContent(meta.key, res)
     } catch (err) {

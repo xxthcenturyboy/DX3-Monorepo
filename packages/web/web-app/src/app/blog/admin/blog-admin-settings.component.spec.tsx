@@ -2,8 +2,9 @@
  * Blog Admin Settings Component Tests
  */
 
-import { BLOG_POST_STATUS } from '@dx3/models-shared'
 import { ThemeProvider } from '@mui/material/styles'
+
+import { BLOG_POST_STATUS } from '@dx3/models-shared'
 
 import '../testing/blog-test-setup'
 import { fireEvent, screen } from '@testing-library/react'
@@ -12,18 +13,15 @@ import { renderWithProviders } from '../../../../testing-render'
 import {
   BLOG_TEST_CATEGORIES,
   BLOG_TEST_TAGS,
-  DEFAULT_BLOG_EDITOR_SETTINGS,
   BLOG_TEST_THEME,
+  DEFAULT_BLOG_EDITOR_SETTINGS,
 } from '../testing/blog-test.fixtures'
 import { BlogAdminSettingsComponent } from './blog-admin-settings.component'
 
 const mockUpdatePostPassive = jest.fn().mockResolvedValue({})
 
 jest.mock('../blog-web.api', () => ({
-  useUpdateBlogPostPassiveMutation: () => [
-    mockUpdatePostPassive,
-    { isLoading: false },
-  ],
+  useUpdateBlogPostPassiveMutation: () => [mockUpdatePostPassive, { isLoading: false }],
 }))
 
 describe('BlogAdminSettingsComponent', () => {

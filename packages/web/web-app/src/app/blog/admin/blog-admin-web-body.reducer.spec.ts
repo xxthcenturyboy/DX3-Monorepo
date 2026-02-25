@@ -22,7 +22,8 @@ describe('blogEditorBodyReducer', () => {
 
   describe('bodyFormLoad', () => {
     it('should load content and title into state and initial values', () => {
-      const state = blogEditorBodyReducer(blogEditorBodyInitialState,
+      const state = blogEditorBodyReducer(
+        blogEditorBodyInitialState,
         blogEditorBodyActions.bodyFormLoad({
           content: '# Hello\n\nParagraph',
           title: 'My Post',
@@ -38,10 +39,12 @@ describe('blogEditorBodyReducer', () => {
 
   describe('contentSet', () => {
     it('should update content without changing initial', () => {
-      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+      const loadedState = blogEditorBodyReducer(
+        blogEditorBodyInitialState,
         blogEditorBodyActions.bodyFormLoad({ content: 'Original', title: 'T' }),
       )
-      const state = blogEditorBodyReducer(loadedState,
+      const state = blogEditorBodyReducer(
+        loadedState,
         blogEditorBodyActions.contentSet('Edited content'),
       )
 
@@ -52,24 +55,22 @@ describe('blogEditorBodyReducer', () => {
 
   describe('titleSet', () => {
     it('should update title without changing initial', () => {
-      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+      const loadedState = blogEditorBodyReducer(
+        blogEditorBodyInitialState,
         blogEditorBodyActions.bodyFormLoad({ content: 'C', title: 'Original Title' }),
       )
-      const state = blogEditorBodyReducer(loadedState,
-        blogEditorBodyActions.titleSet('New Title'),
-      )
+      const state = blogEditorBodyReducer(loadedState, blogEditorBodyActions.titleSet('New Title'))
 
       expect(state.title).toBe('New Title')
       expect(state.initialTitle).toBe('Original Title')
     })
 
     it('should allow empty title', () => {
-      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+      const loadedState = blogEditorBodyReducer(
+        blogEditorBodyInitialState,
         blogEditorBodyActions.bodyFormLoad({ content: 'C', title: 'T' }),
       )
-      const state = blogEditorBodyReducer(loadedState,
-        blogEditorBodyActions.titleSet(''),
-      )
+      const state = blogEditorBodyReducer(loadedState, blogEditorBodyActions.titleSet(''))
 
       expect(state.title).toBe('')
       expect(state.initialTitle).toBe('T')
@@ -78,12 +79,13 @@ describe('blogEditorBodyReducer', () => {
 
   describe('unknown action', () => {
     it('should return current state for unknown action', () => {
-      const loadedState = blogEditorBodyReducer(blogEditorBodyInitialState,
+      const loadedState = blogEditorBodyReducer(
+        blogEditorBodyInitialState,
         blogEditorBodyActions.bodyFormLoad({ content: 'X', title: 'Y' }),
       )
       const state = blogEditorBodyReducer(loadedState, {
-        type: 'unknown/action',
         payload: undefined,
+        type: 'unknown/action',
       } as never)
 
       expect(state).toBe(loadedState)

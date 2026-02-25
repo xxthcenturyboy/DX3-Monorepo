@@ -6,14 +6,11 @@ import type { DomainCheckResultType } from '../../reference-data/reference-data.
  * Default: isReferenceDataApiConfigured returns false (API not configured).
  */
 
-export const mockCheckDomain = jest.fn<
-  Promise<DomainCheckResultType | null>,
-  [domain: string]
->()
+export const mockCheckDomain = jest.fn<Promise<DomainCheckResultType | null>, [domain: string]>()
 
 export const mockIsReferenceDataApiConfigured = jest.fn<boolean, []>()
 
-// Default: API not configured, so EmailUtil uses static list + Joi fallback
+// Default: API not configured, so EmailUtil uses static list + Zod fallback
 mockIsReferenceDataApiConfigured.mockReturnValue(false)
 
 // Re-export as real module names for jest.mock factory

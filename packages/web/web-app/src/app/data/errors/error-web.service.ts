@@ -22,8 +22,7 @@ import type { CustomResponseErrorType } from '../rtk-query'
  * Default fallback error message.
  * Uses optional chaining for test environments where i18n may not be fully initialized.
  */
-const DEFAULT_ERROR_MESSAGE =
-  DEFAULT_STRINGS?.OOPS_SOMETHING_WENT_WRONG ?? 'Something went wrong'
+const DEFAULT_ERROR_MESSAGE = DEFAULT_STRINGS?.OOPS_SOMETHING_WENT_WRONG ?? 'Something went wrong'
 
 export const getErrorStringFromApiResponse = (res?: CustomResponseErrorType | SerializedError) => {
   if (res) {

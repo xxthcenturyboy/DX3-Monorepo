@@ -8,6 +8,7 @@ import { fireEvent, screen } from '@testing-library/react'
 import { renderWithProviders } from '../../../../testing-render'
 import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import '../testing/blog-test-setup'
+
 import { BlogImageEditDialog } from './blog-image-edit-dialog.component'
 
 const mockSaveImage = jest.fn()
@@ -29,7 +30,6 @@ jest.mock('@mdxeditor/gurx', () => ({
     return usePublisherCallCount === 1 ? mockSaveImage : mockCloseImageDialog
   },
 }))
-
 
 describe('BlogImageEditDialog', () => {
   beforeEach(() => {

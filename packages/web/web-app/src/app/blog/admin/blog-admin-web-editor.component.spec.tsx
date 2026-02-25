@@ -9,10 +9,7 @@ import { screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { renderWithProviders } from '../../../../testing-render'
-import {
-  AUTH_PRELOADED_STATE,
-  BLOG_TEST_THEME,
-} from '../testing/blog-test.fixtures'
+import { AUTH_PRELOADED_STATE, BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import { BlogAdminEditorComponent } from './blog-admin-web-editor.component'
 
 const mockCreatePost = jest.fn()
@@ -72,8 +69,8 @@ describe('BlogAdminEditorComponent', () => {
         <MemoryRouter initialEntries={['/blog-editor/new']}>
           <Routes>
             <Route
-              path="/blog-editor/new"
               element={<BlogAdminEditorComponent />}
+              path="/blog-editor/new"
             />
           </Routes>
         </MemoryRouter>

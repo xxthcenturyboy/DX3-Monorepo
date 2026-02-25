@@ -9,27 +9,28 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { renderWithProviders } from '../../../../testing-render'
 import { BLOG_TEST_THEME } from '../testing/blog-test.fixtures'
 import '../testing/blog-test-setup'
+
 import { BlogPostPreviewComponent } from './blog-post-preview-web.component'
 
 const mockPost = {
-  id: 'post-1',
   authorDisplayName: 'Jane Doe',
+  canonicalUrl: '',
+  categories: [{ id: 'cat-1', name: 'Tech' }],
   content: '# Hello World\n\nParagraph content.',
   createdAt: '2025-01-15T10:00:00Z',
-  slug: 'hello-world',
-  status: 'draft',
-  title: 'Hello World',
-  updatedAt: '2025-01-15T10:00:00Z',
-  categories: [{ id: 'cat-1', name: 'Tech' }],
-  canonicalUrl: '',
   excerpt: 'Excerpt',
   featuredImageId: '',
+  id: 'post-1',
   isAnonymous: false,
   publishedAt: null,
   readingTimeMinutes: 3,
   seoDescription: '',
   seoTitle: '',
+  slug: 'hello-world',
+  status: 'draft',
   tags: [{ id: 'tag-1', name: 'React' }],
+  title: 'Hello World',
+  updatedAt: '2025-01-15T10:00:00Z',
 }
 
 const mockUseGetBlogPostPreviewQuery = jest.fn()
@@ -37,7 +38,6 @@ const mockUseGetBlogPostPreviewQuery = jest.fn()
 jest.mock('../blog-web.api', () => ({
   useGetBlogPostPreviewQuery: (id: string) => mockUseGetBlogPostPreviewQuery(id),
 }))
-
 
 describe('BlogPostPreviewComponent', () => {
   beforeEach(() => {
@@ -56,8 +56,8 @@ describe('BlogPostPreviewComponent', () => {
         <MemoryRouter initialEntries={['/blog-editor/preview']}>
           <Routes>
             <Route
-              path="/blog-editor/preview"
               element={<BlogPostPreviewComponent />}
+              path="/blog-editor/preview"
             />
           </Routes>
         </MemoryRouter>
@@ -79,8 +79,8 @@ describe('BlogPostPreviewComponent', () => {
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route
-              path="/blog-editor/preview/:id"
               element={<BlogPostPreviewComponent />}
+              path="/blog-editor/preview/:id"
             />
           </Routes>
         </MemoryRouter>
@@ -102,8 +102,8 @@ describe('BlogPostPreviewComponent', () => {
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route
-              path="/blog-editor/preview/:id"
               element={<BlogPostPreviewComponent />}
+              path="/blog-editor/preview/:id"
             />
           </Routes>
         </MemoryRouter>
@@ -129,8 +129,8 @@ describe('BlogPostPreviewComponent', () => {
         <MemoryRouter initialEntries={['/blog-editor/preview/post-1']}>
           <Routes>
             <Route
-              path="/blog-editor/preview/:id"
               element={<BlogPostPreviewComponent />}
+              path="/blog-editor/preview/:id"
             />
           </Routes>
         </MemoryRouter>
