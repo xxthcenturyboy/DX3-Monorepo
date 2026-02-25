@@ -60,6 +60,7 @@ import {
   useGetBlogCategoriesQuery,
   useGetBlogTagsQuery,
   useUpdateBlogPostMutation,
+  useUpdateBlogPostPassiveMutation,
 } from '../blog-web.api'
 import {
   BlogAdminSettingsDrawerComponent,
@@ -186,6 +187,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
   const { data: tags = [] } = useGetBlogTagsQuery()
   const [createPost, { isLoading: isCreating }] = useCreateBlogPostMutation()
   const [updatePost, { isLoading: isUpdating }] = useUpdateBlogPostMutation()
+  const [updatePostPassive] = useUpdateBlogPostPassiveMutation()
   const [uploadContent] = useUploadContentMutation()
   const apiUrl = WebConfigService.getWebUrls().API_URL
 
@@ -253,13 +255,39 @@ export const BlogAdminEditorComponent: React.FC = () => {
     [],
   )
   const handleFeaturedImageSuccess = React.useCallback(
-    (results: MediaUploadResponseType[]) => {
+    async (results: MediaUploadResponseType[]) => {
       const first = results[0]
       if (!first?.ok || !first.data?.id) return
       dispatch(blogEditorSettingsActions.settingsSet({ featuredImageId: first.data.id }))
       setFeaturedImageModalOpen(false)
+      // Persist immediately: settings drawer closes before modal opens, so
+      // BlogAdminSettingsComponent (debounced auto-save) is unmounted and never runs.
+      if (id && post?.id) {
+        const settings = selectBlogEditorSettings(store.getState())
+        const slugifiedSlug = settings.slug
+          ? slugify(settings.slug).trim() || undefined
+          : undefined
+        try {
+          await updatePostPassive({
+            id,
+            payload: {
+              canonicalUrl: settings.canonicalUrl || null,
+              categories: settings.categories,
+              excerpt: settings.excerpt || null,
+              featuredImageId: first.data.id,
+              isAnonymous: settings.isAnonymous,
+              seoDescription: settings.seoDescription || null,
+              seoTitle: settings.seoTitle || null,
+              slug: slugifiedSlug,
+              tags: settings.tags,
+            },
+          }).unwrap()
+        } catch {
+          // Error handled by RTK Query / toast
+        }
+      }
     },
-    [dispatch],
+    [dispatch, id, post?.id, store, updatePostPassive],
   )
   const handleFeaturedImageUpload = React.useCallback(
     async ({
