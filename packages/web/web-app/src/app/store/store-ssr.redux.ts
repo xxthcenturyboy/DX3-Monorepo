@@ -5,12 +5,12 @@
  * This store is created fresh for each SSR request to avoid cross-request state pollution.
  *
  * IMPORTANT:
- * - Do NOT include any persisted user data (auth, userProfile, privileges, etc.)
- * - Do NOT include ephemeral/session-scoped data (apiWeb RTK Query cache)
- * - Only include public data that is safe to serialize and send to all users
+ * - Do NOT include auth (Login/Signup are CSR-only - auth components cause Emotion hydration errors)
+ * - Do NOT include persisted user data (userProfile, privileges, etc.)
  *
  * Current included reducers:
  * - i18n: Translations and locale (public, safe to share)
+ * - ui: Theme, window size (public)
  *
  * The client will rehydrate persisted data after initial render using redux-persist.
  */
@@ -30,9 +30,7 @@ export const createSsrStore = () => {
   return configureStore({
     reducer: {
       i18n: i18nReducer,
-      ui: uiReducer, // Public UI state (theme, window size, menu) - no user data
-      // Add other public-only reducers as needed
-      // Do NOT add: auth, userProfile, privileges, media, stats, userAdmin, etc.
+      ui: uiReducer,
     },
   })
 }

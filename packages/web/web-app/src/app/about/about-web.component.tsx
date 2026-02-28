@@ -18,7 +18,8 @@ import { ABOUT_CONTENT } from './about-web-content.consts'
 export const AboutComponent: React.FC = () => {
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
   const aboutSections = ABOUT_CONTENT.sections
-  const [fadeIn, setFadeIn] = React.useState(false)
+  // Use true so content is visible on SSR (Fade in=false renders opacity 0 = invisible).
+  const fadeIn = true
 
   // Gather all required string keys from content structure
   const stringKeys = React.useMemo(() => {
@@ -32,10 +33,6 @@ export const AboutComponent: React.FC = () => {
   React.useEffect(() => {
     setDocumentTitle(strings.ABOUT_PAGE_TITLE || strings.ABOUT)
   }, [strings.ABOUT, strings.ABOUT_PAGE_TITLE])
-
-  React.useEffect(() => {
-    setFadeIn(true)
-  }, [])
 
   const headerTitle = `${strings.ABOUT} ${APP_NAME}`
 

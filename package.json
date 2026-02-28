@@ -10,6 +10,7 @@
     "dev:mobile": "pnpm --filter @dx3/mobile start",
     "build": "pnpm -r --filter './{packages/api/api-app,packages/shared,packages/mobile,packages/web/web-app}/**' build",
     "build:api-app": "pnpm -r --filter './packages/shared/**' --filter './packages/api/src/api-app' build",
+    "build:web:ssr": "pnpm -r --filter './packages/shared/**' build ; pnpm --filter @dx3/web-app build:ssr",
     "build:web": "pnpm -r --filter './packages/shared/**' --filter './packages/web/web-app' build",
     "build:mobile": "pnpm -r --filter './packages/shared/**' --filter './packages/mobile/**' build",
     "test": "pnpm -r test",

@@ -25,6 +25,10 @@ module.exports = {
   externalsPresets: {
     node: true, // Allows using Node built-ins like 'fs', 'path', 'crypto'
   },
+  ignoreWarnings: [
+    // Express view.js uses dynamic require() for template engines; we don't use views
+    /Critical dependency: the request of a dependency is an expression/,
+  ],
   mode: isProduction ? 'production' : 'development',
   module: {
     rules: [

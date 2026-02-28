@@ -1,3 +1,4 @@
+import type { BlogPostWithAuthorType } from '@dx3/models-shared'
 import { Container, Fade, Typography, useTheme } from '@mui/material'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
@@ -5,7 +6,7 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
-import { useParams } from 'react-router'
+import { Await, useLoaderData, useNavigate, useParams } from 'react-router'
 import { BeatLoader } from 'react-spinners'
 import remarkGfm from 'remark-gfm'
 import type { PluggableList } from 'unified'
@@ -23,6 +24,7 @@ import { getPublicMediaUrl } from '../media/media-web.util'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { blogMarkdownComponents } from './blog-markdown-components'
+import { BlogImageWithPlaceholder } from './blog-image-with-placeholder.component'
 import { BlogPostCardComponent } from './blog-post-card.component'
 import { blogRehypePlugins } from './blog-rehype-sanitize-schema'
 import { useGetBlogPostBySlugQuery, useGetBlogRelatedPostsQuery } from './blog-web.api'
@@ -30,30 +32,29 @@ import { setBlogPostMeta } from './blog-web-set-meta'
 
 dayjs.extend(localizedFormat)
 
-export const BlogPostComponent: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>()
-  const isAuthenticated = useAppSelector(selectIsAuthenticated)
-  const [fadeIn, setFadeIn] = React.useState(false)
-  const theme = useTheme()
-  const strings = useStrings([
-    'BLOG',
-    'BLOG_FEATURED_IMAGE',
-    'BLOG_POST_NOT_FOUND',
-    'BLOG_READING_TIME_MIN',
-    'BLOG_RELATED_POSTS',
-  ])
+type BlogPostLoaderDataResolved = {
+  post: BlogPostWithAuthorType
+  relatedPosts: BlogPostWithAuthorType[]
+}
 
+type BlogPostLoaderData = {
+  data: BlogPostLoaderDataResolved | Promise<BlogPostLoaderDataResolved>
+}
+
+/** CSR fallback when no loader (e.g. AppRouter without loaders). Uses RTK Query - fetches on mount. */
+const BlogPostComponentWithRtk: React.FC<{ slug: string }> = ({ slug }) => {
   const {
-    data: post,
-    isLoading,
-    isError,
-  } = useGetBlogPostBySlugQuery(slug ?? '', {
-    skip: !slug,
-  })
-  const { data: relatedPosts = [] } = useGetBlogRelatedPostsQuery(
-    { id: post?.id ?? '', limit: 3 },
-    { skip: !post?.id },
+    data: rtkPost,
+    isError: isRtkError,
+    isLoading: isRtkLoading,
+  } = useGetBlogPostBySlugQuery(slug, { skip: !slug })
+  const { data: rtkRelatedPosts = [] } = useGetBlogRelatedPostsQuery(
+    { id: rtkPost?.id ?? '', limit: 3 },
+    { skip: !rtkPost?.id },
   )
+
+  const post = rtkPost
+  const relatedPosts = (rtkRelatedPosts ?? []) as BlogPostWithAuthorType[]
 
   React.useEffect(() => {
     if (post && slug) {
@@ -73,71 +74,109 @@ export const BlogPostComponent: React.FC = () => {
     }
   }, [post, slug])
 
-  React.useEffect(() => {
-    setFadeIn(true)
-  }, [])
+  if (!slug || isRtkError) {
+    return <BlogPostErrorState />
+  }
 
-  if (!slug || isError) {
+  if (isRtkLoading || !post) {
+    return <BlogPostLoadingState />
+  }
+
+  return (
+    <BlogPostContent
+      post={post}
+      relatedPosts={relatedPosts}
+      slug={slug}
+    />
+  )
+}
+
+export const BlogPostComponent: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>()
+  const loaderData = useLoaderData() as BlogPostLoaderData | undefined
+
+  // CSR without loaders (e.g. AppRouter): use RTK Query
+  if (loaderData?.data === undefined) {
+    return <BlogPostComponentWithRtk slug={slug ?? ''} />
+  }
+
+  // SSR: data already resolved (serializable)
+  if (!(loaderData.data instanceof Promise)) {
     return (
-      <ContentWrapper
-        contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
-        contentTopOffset={isAuthenticated ? '82px' : undefined}
-        spacerDiv={isAuthenticated}
-      >
-        {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
-        <Box
-          alignItems="center"
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          minHeight={200}
-          sx={{ paddingTop: 4 }}
-        >
-          <NoDataLottie />
-          <Typography
-            color="textSecondary"
-            sx={{ marginTop: 2 }}
-          >
-            {strings.BLOG_POST_NOT_FOUND}
-          </Typography>
-        </Box>
-      </ContentWrapper>
+      <BlogPostContent
+        post={loaderData.data.post}
+        relatedPosts={loaderData.data.relatedPosts ?? []}
+        slug={slug ?? ''}
+      />
     )
   }
 
-  if (isLoading || !post) {
-    return (
-      <ContentWrapper
-        contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
-        contentTopOffset={isAuthenticated ? '82px' : undefined}
-        spacerDiv={isAuthenticated}
+  // Client nav with loader: data is a promise - use Await + Suspense
+  return (
+    <React.Suspense fallback={<BlogPostLoadingState />}>
+      <Await
+        errorElement={<BlogPostErrorState />}
+        resolve={loaderData.data}
       >
-        {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
-        <Box
-          alignItems="center"
-          display="flex"
-          justifyContent="center"
-          minHeight={200}
-        >
-          <BeatLoader
-            color={theme.palette.secondary.main}
-            margin="2px"
-            size={24}
+        {(resolved) => (
+          <BlogPostContent
+            post={resolved.post}
+            relatedPosts={resolved.relatedPosts ?? []}
+            slug={slug ?? ''}
           />
-        </Box>
-      </ContentWrapper>
+        )}
+      </Await>
+    </React.Suspense>
+  )
+}
+
+/** Presentational component - no RTK Query. Safe for SSR. */
+const BlogPostContent: React.FC<{
+  post: BlogPostWithAuthorType
+  relatedPosts: BlogPostWithAuthorType[]
+  slug: string
+}> = ({ post, relatedPosts, slug }) => {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const fadeIn = true
+  const navigate = useNavigate()
+  const strings = useStrings([
+    'BACK',
+    'BLOG',
+    'BLOG_FEATURED_IMAGE',
+    'BLOG_POST_NOT_FOUND',
+    'BLOG_READING_TIME_MIN',
+    'BLOG_RELATED_POSTS',
+  ])
+
+  React.useEffect(() => {
+    setDocumentTitle(post.seoTitle ?? post.title)
+    setBlogPostMeta(
+      {
+        canonicalUrl: post.canonicalUrl,
+        content: post.content,
+        excerpt: post.excerpt,
+        seoDescription: post.seoDescription,
+        seoTitle: post.seoTitle,
+        slug,
+        title: post.title,
+      },
+      WebConfigService.getWebUrls().WEB_APP_URL,
     )
-  }
+  }, [post, slug])
 
   const publishedDate = post.publishedAt ? dayjs(post.publishedAt).format('LL') : ''
 
   return (
     <ContentWrapper
       contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
-      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      contentTopOffset={isAuthenticated ? '82px' : '114px'}
       spacerDiv={isAuthenticated}
     >
-      {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
+      <ContentHeader
+        headerTitle={strings.BLOG}
+        navigation={() => navigate(WebConfigService.getWebRoutes().BLOG)}
+        tooltip={strings.BACK}
+      />
 
       <Fade
         in={fadeIn}
@@ -149,9 +188,13 @@ export const BlogPostComponent: React.FC = () => {
         >
           <article>
             {post.featuredImageId && (
-              <Box
+              <BlogImageWithPlaceholder
                 alt={strings.BLOG_FEATURED_IMAGE}
-                component="img"
+                height={400}
+                imgSx={{
+                  maxHeight: 400,
+                  objectFit: 'cover',
+                }}
                 src={getPublicMediaUrl(
                   WebConfigService.getWebUrls().API_URL,
                   post.featuredImageId,
@@ -160,8 +203,7 @@ export const BlogPostComponent: React.FC = () => {
                 sx={{
                   borderRadius: 1,
                   marginBottom: 2,
-                  maxHeight: 400,
-                  objectFit: 'cover',
+                  overflow: 'hidden',
                   width: '100%',
                 }}
               />
@@ -176,6 +218,7 @@ export const BlogPostComponent: React.FC = () => {
             <Typography
               color="textSecondary"
               gutterBottom
+              suppressHydrationWarning
               variant="body2"
             >
               {post.authorDisplayName} · {publishedDate}
@@ -242,6 +285,65 @@ export const BlogPostComponent: React.FC = () => {
           )}
         </Container>
       </Fade>
+    </ContentWrapper>
+  )
+}
+
+const BlogPostErrorState: React.FC = () => {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const strings = useStrings(['BLOG', 'BLOG_POST_NOT_FOUND'])
+
+  return (
+    <ContentWrapper
+      contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
+      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      spacerDiv={isAuthenticated}
+    >
+      {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
+      <Box
+        alignItems="center"
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        minHeight={200}
+        sx={{ paddingTop: 4 }}
+      >
+        <NoDataLottie />
+        <Typography
+          color="textSecondary"
+          sx={{ marginTop: 2 }}
+        >
+          {strings.BLOG_POST_NOT_FOUND}
+        </Typography>
+      </Box>
+    </ContentWrapper>
+  )
+}
+
+const BlogPostLoadingState: React.FC = () => {
+  const theme = useTheme()
+  const isAuthenticated = useAppSelector(selectIsAuthenticated)
+  const strings = useStrings(['BLOG'])
+
+  return (
+    <ContentWrapper
+      contentHeight={isAuthenticated ? 'calc(100vh - 80px)' : undefined}
+      contentTopOffset={isAuthenticated ? '82px' : undefined}
+      spacerDiv={isAuthenticated}
+    >
+      {isAuthenticated && <ContentHeader headerTitle={strings.BLOG} />}
+      <Box
+        alignItems="center"
+        display="flex"
+        justifyContent="center"
+        minHeight={200}
+      >
+        <BeatLoader
+          color={theme.palette.secondary.main}
+          margin="2px"
+          size={24}
+        />
+      </Box>
     </ContentWrapper>
   )
 }

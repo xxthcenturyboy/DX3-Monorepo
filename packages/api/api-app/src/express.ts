@@ -10,7 +10,11 @@ import helmet from 'helmet'
 import { handleError } from '@dx3/api-libs/error-handler/error-handler'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 
-import { isProd, isStaging, webUrl } from './config/config-api.service'
+import {
+  allowedCorsOrigins,
+  isProd,
+  isStaging,
+} from './config/config-api.service'
 
 type DxApiSettingsType = {
   DEBUG: boolean
@@ -18,7 +22,7 @@ type DxApiSettingsType = {
 }
 
 export async function configureExpress(app: Express, _settings: DxApiSettingsType) {
-  const allowedOrigin = webUrl()
+  const allowedOrigins = allowedCorsOrigins()
 
   // Trust the first proxy only when in production/staging
   // This ensures req.ip reflects the real client IP when behind a load balancer
@@ -58,7 +62,16 @@ export async function configureExpress(app: Express, _settings: DxApiSettingsTyp
   app.use(
     cors({
       credentials: true,
-      origin: allowedOrigin,
+      origin:
+        allowedOrigins.length === 1
+          ? allowedOrigins[0]
+          :             (origin, cb) => {
+              if (!origin || allowedOrigins.includes(origin)) {
+                cb(null, true)
+              } else {
+                cb(null, false)
+              }
+            },
     }),
   )
   // Support json & urlencoded requests.

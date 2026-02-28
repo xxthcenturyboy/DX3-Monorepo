@@ -1,22 +1,42 @@
 import Box from '@mui/material/Box'
 import type { Components } from 'react-markdown'
 
+import { WebConfigService } from '../config/config-web.service'
+
+import { BlogImageWithPlaceholder } from './blog-image-with-placeholder.component'
+
 /**
- * Custom link component: adds download attribute for PDF links
- * so the file downloads instead of opening in-browser.
+ * Resolves relative /api/ URLs to absolute so they work in SSR (no same-origin proxy).
+ * Links go directly to API; target="_blank" ensures Content-Disposition triggers download.
+ */
+const resolveHref = (href: string | undefined): string | undefined => {
+  if (!href) return href
+  if (href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:')) {
+    return href
+  }
+  if (href.startsWith('/api/')) {
+    const apiBase = WebConfigService.getWebUrls().API_URL?.replace(/\/$/, '')
+    return apiBase ? `${apiBase}${href}` : href
+  }
+  return href
+}
+
+/**
+ * Custom link component: PDF/media links use absolute API URL + target="_blank"
+ * so Content-Disposition triggers download (avoids proxy returning HTML).
  */
 const BlogMarkdownLink: Components['a'] = ({ href, ...props }) => {
-  const isPdf =
-    href?.toLowerCase().endsWith('.pdf') ||
-    (typeof href === 'string' && /\/api\/media\/pub\/[^/]+\/ORIGINAL/.test(href))
+  const resolvedHref = resolveHref(href)
+  const isMediaOrPdf =
+    resolvedHref?.toLowerCase().endsWith('.pdf') ||
+    (typeof resolvedHref === 'string' && /\/api\/media\/pub\/[^/]+\/ORIGINAL/.test(resolvedHref))
 
   return (
     <a
       {...props}
-      download={isPdf}
-      href={href}
-      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-      target={href?.startsWith('http') ? '_blank' : undefined}
+      href={resolvedHref}
+      rel={resolvedHref?.startsWith('http') ? 'noopener noreferrer' : undefined}
+      target={isMediaOrPdf || resolvedHref?.startsWith('http') ? '_blank' : undefined}
     />
   )
 }
@@ -41,18 +61,18 @@ function parseImageTitle(raw: string | undefined): {
 
 /**
  * Custom img component: parses title for alignment (align:center| or align:right|),
- * applies wrapper for center/right. Images scale to viewport via parent CSS.
+ * applies wrapper for center/right. Uses BlogImageWithPlaceholder for loading state.
  */
-const BlogMarkdownImg: Components['img'] = ({ src, alt, title, ...props }) => {
+const BlogMarkdownImg: Components['img'] = ({ alt, height, src, title, width }) => {
   const { alignment, title: displayTitle } = parseImageTitle(title)
 
   const imgEl = (
-    <img
-      {...props}
+    <BlogImageWithPlaceholder
       alt={alt ?? ''}
-      loading="lazy"
+      height={height}
       src={src ?? ''}
       title={displayTitle || undefined}
+      width={width}
     />
   )
 

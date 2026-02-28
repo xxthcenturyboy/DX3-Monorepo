@@ -16,13 +16,10 @@ export const FaqComponent: React.FC = () => {
   // SSR-safe: selector handles missing auth reducer in SSR store
   // SSR always shows public FAQs only (authenticated users get CSR anyway)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
-  const [fadeIn, setFadeIn] = React.useState(false)
+  // Use true so content is visible on SSR (Fade in=false renders opacity 0 = invisible).
+  const fadeIn = true
 
   const strings = useStrings(['FAQ', 'FAQ_PAGE_TITLE'])
-
-  React.useEffect(() => {
-    setFadeIn(true)
-  }, [])
 
   React.useEffect(() => {
     setDocumentTitle(strings.FAQ_PAGE_TITLE || strings.FAQ)

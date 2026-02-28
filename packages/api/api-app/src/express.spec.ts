@@ -22,6 +22,11 @@ jest.mock('helmet', () => () => (req: unknown, res: unknown, next: () => void) =
 jest.mock('@dx3/api-libs/logger', () => require('@dx3/api-libs/testing/mocks/internal/logger.mock'))
 jest.mock('./data/redis/dx-redis.cache')
 jest.mock('@dx3/api-libs/error-handler/error-handler')
+jest.mock('./config/config-api.service', () => ({
+  allowedCorsOrigins: jest.fn(() => ['']),
+  isProd: jest.fn(() => false),
+  isStaging: jest.fn(() => false),
+}))
 
 describe('configureExpress', () => {
   // const logInfoSpy = jest.spyOn(ApiLoggingClass.prototype, 'logInfo');
@@ -49,6 +54,7 @@ describe('configureExpress', () => {
     // @ts-expect-error -ok
     expect(JSON.stringify(app.use.mock.calls)).toEqual(
       JSON.stringify([
+        [helmet({ contentSecurityPolicy: false })],
         [
           cors({
             credentials: true,
@@ -63,13 +69,7 @@ describe('configureExpress', () => {
             winstonInstance: ApiLoggingClass.instance.logger,
           }),
         ],
-        // [session({
-        //   resave: false,
-        //   saveUninitialized: false,
-        //   secret: 'test-secret'
-        // })],
         [() => handleError],
-        [helmet({ contentSecurityPolicy: false })],
       ]),
     )
     // assert

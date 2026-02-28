@@ -24,6 +24,10 @@ module.exports = {
   entry: {
     client: './src/client.tsx',
   },
+  ignoreWarnings: [
+    // Dotenv and Rspack mode both define process.env.NODE_ENV; mode (from --mode) takes precedence
+    /Conflicting values for 'process\.env\.NODE_ENV'/,
+  ],
   mode: isProduction ? 'production' : 'development',
   module: {
     rules: [
@@ -41,6 +45,7 @@ module.exports = {
               parser: { syntax: 'typescript', tsx: true },
               transform: {
                 react: {
+                  development: false, // Use jsx not jsxDEV - avoids "jsxDEV is not a function" with split chunks
                   runtime: 'automatic',
                 },
               },

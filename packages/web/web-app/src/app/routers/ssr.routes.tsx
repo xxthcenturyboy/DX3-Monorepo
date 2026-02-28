@@ -26,11 +26,13 @@ import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 import { RateLimitComponent } from '@dx3/web-libs/ui/global/rate-limit.component'
 
 import { AboutComponent } from '../about/about-web.component'
+import { WebAuthWrapper } from '../auth/auth-web-wrapper.component'
 import { BlogPostComponent } from '../blog/blog-post-web.component'
 import { BlogComponent } from '../blog/blog-web.component'
 import { WebConfigService } from '../config/config-web.service'
 import { FaqComponent } from '../faq/faq-web.component'
 import { HomeComponent } from '../home/home-web.component'
+import { AuthenticatedRouter } from '../routers/authenticated.router'
 import { ShortlinkComponent } from '../shortlink/shortlink-web.component'
 import { useAppSelector } from '../store/store-web-redux.hooks'
 import { AppNavBarSsr } from '../ui/menus/app-nav-bar-ssr.menu'
@@ -91,9 +93,18 @@ const SsrRoot: React.FC = () => {
  * @param strings - i18n translations object passed from SSR or CSR context
  * @returns Route configuration for public (non-authenticated) routes
  */
+/** Absolute API base URL for SSR fetch (Node fetch requires absolute URLs). Fallback when env is empty. */
+const getSsrApiBaseUrl = (): string => {
+  const url =
+    WebConfigService.getWebUrls().API_URL?.trim() ||
+    (typeof process !== 'undefined' && process.env?.API_URL?.trim()) ||
+    'http://localhost:4000'
+  return url.replace(/\/$/, '')
+}
+
 export const createPublicRoutes = (strings: Record<string, string>): RouteObject[] => {
+  const API_BASE = getSsrApiBaseUrl()
   const ROUTES = WebConfigService.getWebRoutes()
-  const URLS = WebConfigService.getWebUrls()
 
   return [
     {
@@ -103,12 +114,32 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
           element: <HomeComponent />,
           path: ROUTES.MAIN,
         },
-        // NOTE: Auth routes (/login, /signup) remain CSR-only
-        // Reason: Auth components deeply depend on Redux auth state (username, token, OTP, etc.)
-        // which doesn't exist in SSR Redux store. Since auth forms provide no SEO value and
-        // require client-side interaction anyway, CSR is the standard pattern for auth flows.
-        // Socket.IO refactor (Phase 3) was completed successfully with dynamic imports.
-        //
+        // Auth routes (Login, Signup) - under SsrRoot so they get navbar. CSR-rendered content.
+        {
+          children: [
+            {
+              element: <WebAuthWrapper route="login" />,
+              errorElement: (
+                <NotFoundComponent
+                  notFoundHeader={strings?.NOT_FOUND}
+                  notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+                />
+              ),
+              path: ROUTES.AUTH.LOGIN,
+            },
+            {
+              element: <WebAuthWrapper route="signup" />,
+              errorElement: (
+                <NotFoundComponent
+                  notFoundHeader={strings?.NOT_FOUND}
+                  notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+                />
+              ),
+              path: ROUTES.AUTH.SIGNUP,
+            },
+          ],
+          element: <AuthenticatedRouter />,
+        },
         // Shortlink route with SSR loader
         {
           element: <ShortlinkComponent />,
@@ -120,7 +151,7 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
           ),
           loader: async ({ params }) => {
             // SSR loader for shortlink data fetching
-            const API_URL = `${URLS.API_URL}/api/`
+            const apiBase = `${API_BASE}/api/`
             const token = params.token
 
             if (!token) {
@@ -128,7 +159,7 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
             }
 
             try {
-              const response = await fetch(`${API_URL}shortlink/${token}`, {
+              const response = await fetch(`${apiBase}shortlink/${token}`, {
                 headers: {
                   [HEADER_API_VERSION_PROP]: '1',
                   'Content-Type': 'application/json',
@@ -159,13 +190,77 @@ export const createPublicRoutes = (strings: Record<string, string>): RouteObject
           element: <AboutComponent />,
           path: ROUTES.ABOUT,
         },
-        // Blog route (Phase 4)
+        // Blog route (Phase 4) - SSR: await for serializable hydrationData; client nav: return promise for non-blocking
         {
           element: <BlogComponent />,
+          loader: async () => {
+            const apiBase = `${API_BASE}/api/`
+            const postsPromise = fetch(`${apiBase}blog/posts`, {
+              headers: {
+                [HEADER_API_VERSION_PROP]: '1',
+                'Content-Type': 'application/json',
+              },
+              method: 'GET',
+            })
+              .then((res) => (res.ok ? res.json() : { posts: [] }))
+              .then((data: { posts?: unknown[] }) => data.posts ?? [])
+              .catch((error) => {
+                console.error('Blog list loader error:', error)
+                return []
+              })
+            if (typeof window === 'undefined') {
+              return { posts: await postsPromise }
+            }
+            return { posts: postsPromise }
+          },
           path: ROUTES.BLOG,
         },
         {
           element: <BlogPostComponent />,
+          errorElement: (
+            <NotFoundComponent
+              notFoundHeader={strings?.NOT_FOUND}
+              notFoundText={strings?.WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR}
+            />
+          ),
+          loader: async ({ params }) => {
+            const slug = params.slug
+            if (!slug) throw new Response('Not Found', { status: 404 })
+
+            const apiBase = `${API_BASE}/api/`
+            const dataPromise = fetch(`${apiBase}blog/posts/${slug}`, {
+              headers: {
+                [HEADER_API_VERSION_PROP]: '1',
+                'Content-Type': 'application/json',
+              },
+              method: 'GET',
+            })
+              .then((res) => {
+                if (!res.ok) throw new Response('Not Found', { status: 404 })
+                return res.json()
+              })
+              .then(async (post: { id?: string }) => {
+                if (!post?.id) throw new Response('Not Found', { status: 404 })
+                const relatedRes = await fetch(`${apiBase}blog/posts/${post.id}/related?limit=3`, {
+                  headers: {
+                    [HEADER_API_VERSION_PROP]: '1',
+                    'Content-Type': 'application/json',
+                  },
+                  method: 'GET',
+                })
+                const relatedPosts = relatedRes.ok ? ((await relatedRes.json()) as unknown[]) : []
+                return { post, relatedPosts }
+              })
+              .catch((error) => {
+                if (error instanceof Response) throw error
+                console.error('Blog post loader error:', error)
+                throw new Response('Not Found', { status: 404 })
+              })
+            if (typeof window === 'undefined') {
+              return { data: await dataPromise }
+            }
+            return { data: dataPromise }
+          },
           path: `${ROUTES.BLOG}/:slug`,
         },
       ],

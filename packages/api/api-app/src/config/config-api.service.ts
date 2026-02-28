@@ -69,3 +69,31 @@ export function webUrl() {
 
   return ''
 }
+
+/**
+ * Returns allowed CORS origins. In dev, includes both the main web app URL and
+ * the SSR server URL so client-side fetches from the SSR origin (e.g. localhost:3001)
+ * are allowed. Uses WEB_APP_SSR_PORT if set, otherwise defaults to 3001 when web app
+ * is on 3000 (common local SSR setup).
+ */
+export function allowedCorsOrigins(): string[] {
+  const base = webUrl()
+  if (!base) return []
+
+  const origins = [base]
+
+  if (isDev() || isTest()) {
+    const ENV = getEnvironment()
+    const ssrPort = ENV?.WEB_APP_SSR_PORT || '3001'
+    const match = base.match(/^(https?:\/\/[^/:]+)(?::\d+)?\/?$/)
+    if (match) {
+      const host = match[1]
+      const ssrOrigin = `${host}:${ssrPort}`
+      if (!origins.includes(ssrOrigin)) {
+        origins.push(ssrOrigin)
+      }
+    }
+  }
+
+  return origins
+}

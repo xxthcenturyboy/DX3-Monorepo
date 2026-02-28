@@ -13,7 +13,7 @@
 
 import { CacheProvider } from '@emotion/react'
 import { StrictMode, Suspense } from 'react'
-import { hydrateRoot } from 'react-dom/client'
+import { createRoot, hydrateRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { PersistGate } from 'reduxjs-toolkit-persist/integration/react'
@@ -31,6 +31,19 @@ import { createClientOnlyRoutes, createPublicRoutes } from './app/routers/ssr.ro
 import { getPersistor, store } from './app/store/store-web.redux'
 import { ErrorBoundary } from './app/ui/error-boundary/error-boundary.component'
 import { uiActions } from './app/ui/store/ui-web.reducer'
+
+// Fade out SSR hydration loader, then remove - visible until client.js runs
+const loader = document.getElementById('ssr-hydration-loader')
+if (loader) {
+  loader.classList.add('ssr-hydration-loader--fade-out')
+  loader.addEventListener(
+    'transitionend',
+    () => {
+      loader.parentNode?.removeChild(loader)
+    },
+    { once: true },
+  )
+}
 
 // Rehydrate Redux store from SSR preloaded state
 interface PreloadedState {
@@ -110,9 +123,6 @@ const router = createBrowserRouter(
   [
     ...createPublicRoutes(strings),
     ...createClientOnlyRoutes(strings),
-    // Phase 2+: Add auth routes and private routes
-    // ...AuthWebRouterConfig.getRouter(),
-    // ...PrivateWebRouterConfig.getRouter(),
   ],
   {
     // Pass hydration data from SSR to avoid hydration mismatch
@@ -122,17 +132,47 @@ const router = createBrowserRouter(
 
 // Create app component tree
 // Note: PersistGate is skipped during SSR hydration to match server structure
+// Note: Suspense removed for SSR - causes hydration mismatch (React 418 at Suspense boundary)
 const AppContent = (
   <CacheProvider value={emotionCache}>
-    <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+    {isSSR ? (
       <RouterProvider router={router} />
-    </Suspense>
+    ) : (
+      <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+        <RouterProvider router={router} />
+      </Suspense>
+    )}
   </CacheProvider>
 )
 
-// Hydrate the app
-hydrateRoot(
-  document.getElementById('root') as HTMLElement,
+// CSR fallback (index.html): root is empty - use createRoot to avoid hydration mismatch (React 418)
+// SSR: root has server-rendered HTML - use hydrateRoot
+const rootElement = document.getElementById('root') as HTMLElement
+// StrictMode disabled during SSR hydration - double-render can cause Emotion class name order mismatch
+const app = isSSR ? (
+  <ErrorBoundary
+        fallback={
+        <NotFoundComponent
+          notFoundHeader={getStringValue('NOT_FOUND')}
+          notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+        />
+        }
+      >
+        <Provider store={store}>
+        {isSSR ? (
+          // SSR hydration: Skip PersistGate to match server structure
+          AppContent
+        ) : (
+          <PersistGate
+            loading={<UiLoadingComponent pastDelay={true} />}
+            persistor={persistor!}
+          >
+            {AppContent}
+          </PersistGate>
+        )}
+        </Provider>
+      </ErrorBoundary>
+) : (
   <StrictMode>
     <ErrorBoundary
       fallback={
@@ -143,36 +183,40 @@ hydrateRoot(
       }
     >
       <Provider store={store}>
-        {isSSR ? (
-          // SSR hydration: Skip PersistGate to match server structure
-          // Persistor will be initialized after hydration completes
-          AppContent
-        ) : (
-          // CSR: Include PersistGate for redux-persist
-          <PersistGate
-            loading={<UiLoadingComponent pastDelay={true} />}
-            persistor={persistor!}
-          >
-            {AppContent}
-          </PersistGate>
-        )}
+        <PersistGate
+          loading={<UiLoadingComponent pastDelay={true} />}
+          persistor={persistor!}
+        >
+          {AppContent}
+        </PersistGate>
       </Provider>
     </ErrorBoundary>
-  </StrictMode>,
+  </StrictMode>
 )
+
+if (isSSR) {
+  hydrateRoot(rootElement, app, {
+    onRecoverableError: (error, { componentStack }) => {
+      // Log full hydration error for debugging React 418
+      console.error('[SSR Hydration] Recoverable error:', error)
+      if (componentStack) {
+        console.error('[SSR Hydration] Component stack:', componentStack)
+      }
+    },
+  })
+} else {
+  createRoot(rootElement).render(app)
+}
 
 // Post-hydration cleanup and initialization for SSR
 if (isSSR) {
   // Use setTimeout to ensure this runs after hydration completes
   setTimeout(() => {
-    // Remove server-side injected emotion styles
-    const ssrStyles = document.getElementById('emotion-ssr-styles')
-    if (ssrStyles) {
-      ssrStyles.remove()
-    }
+    // Do NOT remove emotion-ssr-styles: Emotion cache holds internal references to
+    // container children. Removing them causes insertBefore errors when navigating
+    // to routes that add new styles (e.g. Login). Duplicate styles are acceptable.
 
     // Now that hydration is complete, initialize redux-persist
-    // This allows localStorage rehydration without interfering with SSR hydration
     getPersistor()
   }, 0)
 }

@@ -1,10 +1,12 @@
 /**
  * Blog Post (Public) Component Tests
+ *
+ * Uses createMemoryRouter with loader returning defer() - matches SSR/CSR behavior.
  */
 
 import { ThemeProvider } from '@mui/material/styles'
 import { screen } from '@testing-library/react'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 
 import { renderWithProviders } from '../../../testing-render'
 import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
@@ -33,111 +35,58 @@ const mockPost = {
   updatedAt: '2025-01-12T00:00:00Z',
 }
 
-const mockUseGetBlogPostBySlugQuery = jest.fn()
-const mockUseGetBlogRelatedPostsQuery = jest.fn()
-
-jest.mock('./blog-web.api', () => ({
-  useGetBlogPostBySlugQuery: (slug: string) => mockUseGetBlogPostBySlugQuery(slug),
-  useGetBlogRelatedPostsQuery: (params: { id: string }) => mockUseGetBlogRelatedPostsQuery(params),
-}))
+function createBlogPostRouter(
+  data:
+    | { post: typeof mockPost; relatedPosts: unknown[] }
+    | Promise<{ post: typeof mockPost; relatedPosts: unknown[] }>,
+) {
+  const dataPromise = data instanceof Promise ? data : Promise.resolve(data)
+  return createMemoryRouter(
+    [
+      {
+        element: <BlogPostComponent />,
+        loader: () => ({ data: dataPromise }),
+        path: '/blog/:slug',
+      },
+    ],
+    { initialEntries: ['/blog/hello'] },
+  )
+}
 
 describe('BlogPostComponent', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    mockUseGetBlogRelatedPostsQuery.mockReturnValue({ data: [] })
-  })
-
-  it('should show post not found when no slug', () => {
-    mockUseGetBlogPostBySlugQuery.mockReturnValue({
-      data: undefined,
-      isError: false,
-      isLoading: false,
-    })
-
-    renderWithProviders(
-      <ThemeProvider theme={BLOG_TEST_THEME}>
-        <MemoryRouter initialEntries={['/blog']}>
-          <Routes>
-            <Route
-              element={<BlogPostComponent />}
-              path="/blog/:slug?"
-            />
-          </Routes>
-        </MemoryRouter>
-      </ThemeProvider>,
-    )
-
-    expect(screen.getByText('Post not found')).toBeTruthy()
-  })
-
   it('should show loading state', () => {
-    mockUseGetBlogPostBySlugQuery.mockReturnValue({
-      data: undefined,
-      isError: false,
-      isLoading: true,
-    })
-
+    const router = createBlogPostRouter(new Promise(() => {}))
     renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
-        <MemoryRouter initialEntries={['/blog/hello']}>
-          <Routes>
-            <Route
-              element={<BlogPostComponent />}
-              path="/blog/:slug"
-            />
-          </Routes>
-        </MemoryRouter>
+        <RouterProvider router={router} />
       </ThemeProvider>,
     )
-
     expect(screen.queryByText('Hello World')).toBeNull()
   })
 
-  it('should render post content when loaded', () => {
-    mockUseGetBlogPostBySlugQuery.mockReturnValue({
-      data: mockPost,
-      isError: false,
-      isLoading: false,
-    })
-
+  it('should render post content when loaded', async () => {
+    const router = createBlogPostRouter({ post: mockPost, relatedPosts: [] })
     renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
-        <MemoryRouter initialEntries={['/blog/hello']}>
-          <Routes>
-            <Route
-              element={<BlogPostComponent />}
-              path="/blog/:slug"
-            />
-          </Routes>
-        </MemoryRouter>
+        <RouterProvider router={router} />
       </ThemeProvider>,
     )
-
+    await screen.findByText('Hello World')
     expect(screen.getByText('Hello World')).toBeTruthy()
     expect(screen.getByText(/John Doe/)).toBeTruthy()
     expect(screen.getByText('News')).toBeTruthy()
   })
 
-  it('should show post not found when isError', () => {
-    mockUseGetBlogPostBySlugQuery.mockReturnValue({
-      data: undefined,
-      isError: true,
-      isLoading: false,
-    })
-
+  it('should show post not found when loader throws', async () => {
+    const router = createBlogPostRouter(
+      Promise.reject(new Response('Not Found', { status: 404 })),
+    )
     renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
-        <MemoryRouter initialEntries={['/blog/bad-slug']}>
-          <Routes>
-            <Route
-              element={<BlogPostComponent />}
-              path="/blog/:slug"
-            />
-          </Routes>
-        </MemoryRouter>
+        <RouterProvider router={router} />
       </ThemeProvider>,
     )
-
+    await screen.findByText('Post not found')
     expect(screen.getByText('Post not found')).toBeTruthy()
   })
 })

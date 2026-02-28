@@ -100,8 +100,12 @@ export const AppNavBarSsr: React.FC = () => {
   }
 
   const getPublicNavButtonColor = (route: string): ButtonOwnProps['color'] => {
+    // Blog has child routes (/blog/:slug) - highlight when on list or any post
+    const isActive =
+      pathname === route || (route === ROUTES.BLOG && pathname.startsWith(`${ROUTES.BLOG}/`))
+
     if (theme.palette.mode === 'dark') {
-      if (pathname === route) {
+      if (isActive) {
         return 'primary'
       }
 
@@ -110,7 +114,7 @@ export const AppNavBarSsr: React.FC = () => {
     }
 
     if (theme.palette.mode === 'light') {
-      if (pathname === route) {
+      if (isActive) {
         return 'secondary'
       }
 
@@ -216,7 +220,7 @@ export const AppNavBarSsr: React.FC = () => {
             mountOnEnter
             unmountOnExit
           >
-            <span>
+            <Box component="span" sx={{ display: 'inline-flex', gap: 1 }}>
               <Button
                 color={getAuthButtonColor('login')}
                 component={Link}
@@ -242,7 +246,7 @@ export const AppNavBarSsr: React.FC = () => {
               >
                 {strings.SIGNUP}
               </Button>
-            </span>
+            </Box>
           </Slide>
           {mobileBreak && (
             <IconButton

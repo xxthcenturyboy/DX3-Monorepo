@@ -1,3 +1,4 @@
+import { CacheProvider } from '@emotion/react'
 import { StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
@@ -10,6 +11,7 @@ import './css/styles.css'
 import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
+import { createEmotionCache } from './app/emotion-cache'
 import type { StringKeyName } from './app/i18n'
 import { AppRouter } from './app/routers/app.router'
 import { getPersistor, store } from './app/store/store-web.redux'
@@ -19,6 +21,9 @@ window.store = store
 
 // Create persistor for CSR (no SSR state to apply first)
 const persistor = getPersistor()
+
+// Emotion cache with container - avoids MUI insertBefore DOM errors (index.html has #emotion-insertion-point)
+const emotionCache = createEmotionCache()
 
 const root = createRoot(document.getElementById('root') as HTMLElement)
 
@@ -36,24 +41,26 @@ const getStringValue = (value: StringKeyName): string | undefined => {
 
 root.render(
   <StrictMode>
-    <ErrorBoundary
-      fallback={
-        <NotFoundComponent
-          notFoundHeader={getStringValue('NOT_FOUND')}
-          notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
-        />
-      }
-    >
-      <Provider store={store}>
-        <PersistGate
-          loading={<UiLoadingComponent pastDelay={true} />}
-          persistor={persistor}
-        >
-          <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-            <RouterProvider router={router} />
-          </Suspense>
-        </PersistGate>
-      </Provider>
-    </ErrorBoundary>
+    <CacheProvider value={emotionCache}>
+      <ErrorBoundary
+        fallback={
+          <NotFoundComponent
+            notFoundHeader={getStringValue('NOT_FOUND')}
+            notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+          />
+        }
+      >
+        <Provider store={store}>
+          <PersistGate
+            loading={<UiLoadingComponent pastDelay={true} />}
+            persistor={persistor}
+          >
+            <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
+              <RouterProvider router={router} />
+            </Suspense>
+          </PersistGate>
+        </Provider>
+      </ErrorBoundary>
+    </CacheProvider>
   </StrictMode>,
 )

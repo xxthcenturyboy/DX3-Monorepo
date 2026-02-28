@@ -23,7 +23,7 @@ import FormatAlignCenter from '@mui/icons-material/FormatAlignCenter'
 import FormatAlignLeft from '@mui/icons-material/FormatAlignLeft'
 import FormatAlignRight from '@mui/icons-material/FormatAlignRight'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import { Box, Button, IconButton, Tooltip, useTheme } from '@mui/material'
+import { Alert, Box, Button, IconButton, Tooltip, Typography, useTheme } from '@mui/material'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router'
@@ -38,6 +38,7 @@ import {
   MIME_TYPES,
 } from '@dx3/models-shared'
 import { slugify } from '@dx3/utils-shared'
+import { AccessDeniedLottie } from '@dx3/web-libs/ui/lottie/access-denied.lottie'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
@@ -169,6 +170,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
     'BLOG_INSERT_PDF',
     'BLOG_NEW_POST_TITLE',
     'BLOG_PDF_UPLOAD_SAVE_POST_FIRST',
+    'BLOG_PUBLISHED_READ_ONLY_BANNER',
     'BLOG_UNPUBLISH_TO_EDIT',
     'BLOG_UPLOAD_FEATURED_IMAGE',
     'CANCEL',
@@ -570,37 +572,58 @@ export const BlogAdminEditorComponent: React.FC = () => {
       />
 
       <Box padding={'0px 24px 24px'}>
-        <BlogEditorTitleFieldComponent disabled={!!isReadOnly || isSaving} />
-
-        <Box
-          data-testid="blog-editor-content"
-          data-theme-mode={theme.palette.mode}
-          sx={{
-            border: '1px solid',
-            borderColor: 'divider',
-            borderRadius: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 200,
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <Box
-            sx={{
-              height: editorHeight,
-              minHeight: 200,
-              overflow: 'auto',
-            }}
-          >
+        {isReadOnly ? (
+          <>
+            <Alert
+              severity="info"
+              sx={{ marginBottom: 3 }}
+            >
+              <Typography variant="body2">{strings.BLOG_PUBLISHED_READ_ONLY_BANNER}</Typography>
+            </Alert>
             <Box
+              alignItems="center"
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              minHeight={300}
+              sx={{ padding: 4 }}
+            >
+              <AccessDeniedLottie loop={true} />
+            </Box>
+          </>
+        ) : (
+          <>
+            <BlogEditorTitleFieldComponent disabled={!!isSaving} />
+
+            <Box
+              data-testid="blog-editor-content"
+              data-theme-mode={theme.palette.mode}
               sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                minWidth: 'min-content',
+                minHeight: 200,
+                overflow: 'hidden',
+                position: 'relative',
               }}
             >
-              <MDXEditor
+              <Box
+                sx={{
+                  height: editorHeight,
+                  minHeight: 200,
+                  overflow: 'auto',
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minWidth: 'min-content',
+                  }}
+                >
+                  <MDXEditor
                 key={isNew ? 'new' : id}
                 markdown={editorMarkdown}
                 onChange={handleEditorChange}
@@ -719,33 +742,35 @@ export const BlogAdminEditorComponent: React.FC = () => {
                 ]}
                 readOnly={!!isReadOnly || isSaving}
                 ref={editorRef}
+                  />
+                </Box>
+              </Box>
+              <Button
+                aria-label="Resize editor"
+                onMouseDown={handleResizeStart}
+                style={{
+                  backgroundColor: theme.palette.divider,
+                  border: 'none',
+                  cursor: 'ns-resize',
+                  flexShrink: 0,
+                  height: 8,
+                  padding: 0,
+                  width: '100%',
+                }}
+                title="Drag to resize"
+                type="button"
               />
             </Box>
-          </Box>
-          <Button
-            aria-label="Resize editor"
-            onMouseDown={handleResizeStart}
-            style={{
-              backgroundColor: theme.palette.divider,
-              border: 'none',
-              cursor: 'ns-resize',
-              flexShrink: 0,
-              height: 8,
-              padding: 0,
-              width: '100%',
-            }}
-            title="Drag to resize"
-            type="button"
-          />
-        </Box>
 
-        <BlogEditorFooterComponent
-          isNew={isNew}
-          isReadOnly={!!isReadOnly}
-          isSaving={isSaving}
-          onCancel={handleCancel}
-          onSave={handleSave}
-        />
+            <BlogEditorFooterComponent
+              isNew={isNew}
+              isReadOnly={!!isReadOnly}
+              isSaving={isSaving}
+              onCancel={handleCancel}
+              onSave={handleSave}
+            />
+          </>
+        )}
       </Box>
 
       <BlogAdminSettingsDrawerComponent

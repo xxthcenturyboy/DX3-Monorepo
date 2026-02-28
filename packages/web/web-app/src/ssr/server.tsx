@@ -17,22 +17,26 @@
  */
 
 import * as path from 'node:path'
+
+import { config as loadDotenv } from 'dotenv'
+
+// Load .env so API_URL and other vars are available for SSR loaders (blog, shortlink)
+loadDotenv({ path: path.join(__dirname, '../../web-app/.env') })
 import { Writable } from 'node:stream'
 import { CacheProvider } from '@emotion/react'
 import createEmotionServer from '@emotion/server/create-instance'
 import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
-import { StrictMode, Suspense } from 'react'
 import { renderToPipeableStream } from 'react-dom/server'
 import { Provider as ReduxProvider } from 'react-redux'
 import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router'
 
-import { UiLoadingComponent } from '@dx3/web-libs/ui/global/loading.component'
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import { createEmotionCache } from '../app/emotion-cache'
-import type { StringKeys } from '../app/i18n'
+import { DEFAULT_LOCALE } from '../app/i18n'
+import type { LocaleCode, StringKeys } from '../app/i18n'
 import { i18nActions } from '../app/i18n/i18n.reducer'
 import { i18nService } from '../app/i18n/i18n.service'
 import { startSsrKeyTracking, stopSsrKeyTracking } from '../app/i18n/i18n-ssr-tracker'
@@ -46,6 +50,30 @@ const app = express()
 // Middleware
 app.use(compression()) // Enable gzip/brotli compression (Phase 5)
 app.use(cookieParser())
+
+// Proxy media requests BEFORE static - so /api/media/pub/* links work same-origin (download attribute)
+// CSR uses Rspack devServer proxy; SSR needs this for links in blog posts
+const API_BASE = process.env.API_URL?.replace(/\/$/, '') || 'http://localhost:4000'
+app.get('/api/media/pub/:mediaId/:variant', async (req, res) => {
+  const { mediaId, variant } = req.params
+  const url = `${API_BASE}/api/media/pub/${mediaId}/${variant}`
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      return res.status(response.status).send(response.statusText)
+    }
+    const contentType = response.headers.get('content-type')
+    if (contentType) res.setHeader('Content-Type', contentType)
+    const contentDisposition = response.headers.get('content-disposition')
+    if (contentDisposition) res.setHeader('Content-Disposition', contentDisposition)
+    const buffer = Buffer.from(await response.arrayBuffer())
+    res.send(buffer)
+  } catch (error) {
+    console.error('[SSR] Media proxy error:', error)
+    res.status(502).send('Bad Gateway')
+  }
+})
+
 // Serve static assets but not index.html (SSR handles all routes)
 app.use(express.static(path.join(__dirname, '../../web-app-dist'), { index: false }))
 
@@ -71,6 +99,9 @@ app.get('/metrics', (_req, res) => {
   })
 })
 
+// Auth routes: skip SSR - auth components cause Emotion insertBefore hydration errors
+const CSR_ONLY_PATHS = ['/login', '/signup']
+
 // SSR handler
 app.get('*', async (req, res) => {
   const requestStartTime = Date.now()
@@ -80,9 +111,21 @@ app.get('*', async (req, res) => {
   metrics.increment('ssr.request', { route })
 
   try {
+    // Skip non-app paths (Chrome DevTools, etc.)
+    if (route.startsWith('/.well-known/')) {
+      return res.status(404).send('Not Found')
+    }
+
     // Skip SSR if auth cookie present (authenticated users get CSR)
     if (req.cookies?.dx3_session) {
       metrics.increment('ssr.csr_fallback', { reason: 'authenticated', route })
+      console.log(`[SSR] Route ${route} → CSR fallback (authenticated)`)
+      return res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+    }
+
+    if (CSR_ONLY_PATHS.includes(route)) {
+      metrics.increment('ssr.csr_fallback', { reason: 'auth_routes', route })
+      console.log(`[SSR] Route ${route} → CSR fallback (auth route)`)
       return res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
     }
 
@@ -97,7 +140,8 @@ app.get('*', async (req, res) => {
       const translations = await i18nService.loadLocale(locale)
       metrics.histogram('ssr.i18n_load_time', Date.now() - i18nStartTime, { locale, route })
       store.dispatch(i18nActions.setTranslations(translations))
-      store.dispatch(i18nActions.setCurrentLocale(locale as any))
+      const localeCode: LocaleCode = locale === 'en' ? 'en' : DEFAULT_LOCALE
+      store.dispatch(i18nActions.setCurrentLocale(localeCode))
       store.dispatch(i18nActions.setInitialized(true))
     } catch (error) {
       metrics.increment('ssr.i18n_error', { locale, route })
@@ -147,12 +191,16 @@ app.get('*', async (req, res) => {
     }
 
     // Build HTML shell template (Emotion styles injected after render)
+    // Container div for Emotion - must be in body (div not valid in head)
     const buildHtmlStart = (emotionStyles: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DX3</title>
+  <link rel="preload" href="/static/js/runtime.js" as="script">
+  <link rel="preload" href="/static/js/vendor.react.js" as="script">
+  <link rel="preload" href="/static/js/client.js" as="script">
   <style>
     /* Critical CSS - applied immediately before external stylesheets load */
     html, body {
@@ -160,42 +208,67 @@ app.get('*', async (req, res) => {
       padding: 0;
       min-height: 100%;
     }
+    /* SSR hydration loader - visible until client.js runs, fades out then removed by client */
+    #ssr-hydration-loader {
+      align-items: center;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      inset: 0;
+      justify-content: center;
+      opacity: 1;
+      position: fixed;
+      transition: opacity 0.3s ease-out;
+      z-index: 99999;
+    }
+    #ssr-hydration-loader.ssr-hydration-loader--fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #ssr-hydration-loader::after {
+      animation: ssr-spin 0.8s linear infinite;
+      border: 3px solid #e0e0e0;
+      border-radius: 50%;
+      border-top-color: #1976d2;
+      content: '';
+      height: 40px;
+      width: 40px;
+    }
+    @keyframes ssr-spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
-  ${emotionStyles}
 </head>
 <body>
+  <div id="ssr-hydration-loader" aria-hidden="true"></div>
+  <div id="emotion-insertion-point">${emotionStyles}</div>
   <div id="root">`
 
-    // Set response headers
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate') // 60s TTL
+    // Do NOT set headers here - defer until we know success (onAllReady) or error (onError).
+    // Setting headers early causes "Can't set headers after they are sent" when onError tries sendFile.
 
     // Create React element to render - MUST match client.tsx hydration structure
     // Note: ThemeProvider is inside SsrRoot component (in routes), not at top level
+    // StrictMode disabled - double-render can cause Emotion class name order mismatch (React 418)
     const reactApp = (
-      <StrictMode>
-        <ErrorBoundary
-          fallback={
+      <ErrorBoundary
+            fallback={
             <NotFoundComponent
               notFoundHeader={getStringValue('NOT_FOUND')}
               notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
             />
-          }
-        >
-          <ReduxProvider store={store}>
+            }
+          >
+            <ReduxProvider store={store}>
             {/* Note: PersistGate skipped in SSR - no persisted data to rehydrate on server */}
+            {/* Note: No Suspense - causes hydration mismatch (React 418) */}
             <CacheProvider value={emotionCache}>
-              <Suspense fallback={<UiLoadingComponent pastDelay={true} />}>
-                <StaticRouterProvider
-                  context={context}
-                  router={router}
-                />
-              </Suspense>
+              <StaticRouterProvider
+                context={context}
+                router={router}
+              />
             </CacheProvider>
           </ReduxProvider>
         </ErrorBoundary>
-      </StrictMode>
     )
 
     // Start tracking i18n key access for minimal state serialization
@@ -203,60 +276,61 @@ app.get('*', async (req, res) => {
 
     // Render React app using streaming SSR (renderToPipeableStream)
     const renderStartTime = Date.now()
+    let responseSent = false
+    const safeSendResponse = (fn: () => void) => {
+      if (responseSent) return
+      responseSent = true
+      fn()
+    }
     try {
       const { pipe } = renderToPipeableStream(reactApp, {
         onAllReady() {
-          const renderTime = Date.now() - renderStartTime
+          safeSendResponse(() => {
+            const renderTime = Date.now() - renderStartTime
           metrics.histogram('ssr.render_time', renderTime, { route })
 
           // Stop tracking and get the keys that were actually used
           const usedI18nKeys = stopSsrKeyTracking()
           console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
 
-          // Serialize Redux state with ONLY the i18n keys that were used
+          // Serialize full translations for hydration (minimal caused empty content on client)
           const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
-          const minimalTranslations: Record<string, string> = {}
-          for (const key of usedI18nKeys) {
-            if (fullTranslations[key] !== undefined) {
-              minimalTranslations[key] = fullTranslations[key]
-            }
-          }
 
           const preloadedState = {
             ...store.getState(),
             i18n: {
               ...store.getState().i18n,
-              // Don't serialize defaultTranslations - it's already in client code as DEFAULT_STRINGS
               defaultTranslations: {},
-              translations: minimalTranslations,
+              translations: fullTranslations,
             },
           }
           const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
-          // Serialize router state for client hydration
-          const serializedRouterState = JSON.stringify(context).replace(/</g, '\\u003c')
+          // Serialize hydration data: loaderData, actionData, errors (createBrowserRouter format)
+          const hydrationData = {
+            actionData: (context as { actionData?: unknown }).actionData,
+            errors: (context as { errors?: unknown }).errors,
+            loaderData: (context as { loaderData?: unknown }).loaderData,
+          }
+          const serializedRouterState = JSON.stringify(hydrationData).replace(/</g, '\\u003c')
 
           const htmlEndWithState = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
     window.__ROUTER_STATE__ = ${serializedRouterState};
   </script>
-  <script src="/static/js/runtime.js"></script>
-  <script src="/static/js/vendor.react.js"></script>
-  <script src="/static/js/vendor.mui.js"></script>
-  <script src="/static/js/lib.js"></script>
-  <script src="/static/js/vendor.main.js"></script>
-  <script src="/static/js/client.js"></script>
+  <script defer src="/static/js/runtime.js"></script>
+  <script defer src="/static/js/vendor.react.js"></script>
+  <script defer src="/static/js/vendor.mui.js"></script>
+  <script defer src="/static/js/lib.js"></script>
+  <script defer src="/static/js/vendor.main.js"></script>
+  <script defer src="/static/js/client.js"></script>
 </body>
 </html>`
 
           // Buffer React stream, extract Emotion CSS, then send full response
           const chunks: Buffer[] = []
           const bufferStream = new Writable({
-            write(chunk: Buffer | string, _encoding, callback) {
-              chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
-              callback()
-            },
             final(callback) {
               const reactHtml = Buffer.concat(chunks).toString('utf8')
 
@@ -275,6 +349,9 @@ app.get('*', async (req, res) => {
               const htmlStart = buildHtmlStart(emotionStyles)
               const fullHtml = htmlStart + reactHtml + htmlEndWithState
 
+              res.statusCode = 200
+              res.setHeader('Content-Type', 'text/html; charset=utf-8')
+              res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate')
               res.write(fullHtml)
               res.end()
 
@@ -286,24 +363,42 @@ app.get('*', async (req, res) => {
 
               callback()
             },
+            write(chunk: Buffer | string, _encoding, callback) {
+              chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+              callback()
+            },
           })
 
           pipe(bufferStream)
+          })
         },
         onError(error) {
           stopSsrKeyTracking()
           metrics.increment('ssr.render_error', { route })
           console.error('SSR render error:', error)
-          if (!res.headersSent) {
-            res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
-          }
+          safeSendResponse(() => {
+            if (!res.headersSent) {
+              try {
+                res.status(500)
+                res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+              } catch (sendError) {
+                if (!res.headersSent) throw sendError
+              }
+            }
+          })
         },
       })
     } catch (error) {
       stopSsrKeyTracking()
       metrics.increment('ssr.render_error', { route })
       console.error('SSR render error:', error)
-      return res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+      if (!res.headersSent) {
+        try {
+          return res.status(500).sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+        } catch (sendError) {
+          if (!res.headersSent) throw sendError
+        }
+      }
     }
   } catch (error) {
     const totalTime = Date.now() - requestStartTime
@@ -311,9 +406,14 @@ app.get('*', async (req, res) => {
     metrics.histogram('ssr.error_time', totalTime, { route })
 
     console.error('SSR handler error:', error)
-    // Fall back to CSR shell on any error
-    res.status(500)
-    res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+    if (!res.headersSent) {
+      try {
+        res.status(500)
+        res.sendFile(path.join(__dirname, '../../web-app-dist/index.html'))
+      } catch (sendError) {
+        if (!res.headersSent) throw sendError
+      }
+    }
   }
 })
 
