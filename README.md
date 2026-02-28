@@ -387,4 +387,4 @@ pnpm test
 
 - [AX-Infrastructure Setup](docs/AX-INFRASTRUCTURE-SETUP.md) — Shared infrastructure setup guide
 - [Multi-App Ecosystem Architecture](docs/MULTI-APP-ECOSYSTEM-ARCHITECTURE.md) — Architecture overview
-- [Implementation Roadmap](docs/IMPLEMENTATION-ROADMAP.md) — Development phases and tasks
+- [Implementation Roadmap](docs/archive/IMPLEMENTATION-ROADMAP.md) — Development phases and tasks

@@ -339,7 +339,7 @@ CREATE TABLE logs (
   app_id VARCHAR(64) NOT NULL,  -- 'finance-tracker', 'task-manager', etc.
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   event_type VARCHAR(64) NOT NULL,
-  -- ... other columns from LOGGING-TABLE-IMPLEMENTATION.md
+  -- ... other columns from archive/LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md
 );
 
 -- Hypertable with space partitioning by app_id
@@ -505,7 +505,7 @@ GRANT ALL PRIVILEGES ON DATABASE dan_underwood_com TO axuser;
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create logs table (schema from LOGGING-TABLE-IMPLEMENTATION.md)
+-- Create logs table (schema from archive/LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md)
 CREATE TABLE IF NOT EXISTS logs (
   id UUID DEFAULT uuid_generate_v4() NOT NULL,
   app_id VARCHAR(64) NOT NULL,
@@ -895,7 +895,7 @@ TIMESCALE_URI=postgresql://axuser:axpassword@timescale-host:5432/ax_logs
 
 ## README.md Update Instructions
 
-**When to Update:** After implementing Phase 0 and Phase 1 of the implementation roadmap (see `IMPLEMENTATION-ROADMAP.md`), the main README.md should be updated to reflect the template nature and ecosystem architecture.
+**When to Update:** After implementing Phase 0 and Phase 1 of the implementation roadmap (see `archive/IMPLEMENTATION-ROADMAP.md`), the main README.md should be updated to reflect the template nature and ecosystem architecture.
 
 ### Required Updates to README.md
 
@@ -1194,10 +1194,10 @@ The README should communicate:
 
 ## Related Documentation
 
-- **Implementation Roadmap**: See `IMPLEMENTATION-ROADMAP.md` for phase-by-phase implementation plan
-- **Logging Implementation**: See `LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md` for logging details
-- **Metrics Implementation**: See `METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md` for metrics details
-- **Blog CMS Implementation**: See `BLOG-CMS-IMPLEMENTATION.md` for blog/CMS details
+- **Implementation Roadmap**: See `archive/IMPLEMENTATION-ROADMAP.md` for phase-by-phase implementation plan
+- **Logging Implementation**: See `archive/LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md` for logging details
+- **Metrics Implementation**: See `archive/METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md` for metrics details
+- **Blog CMS Implementation**: See `archive/BLOG-CMS-IMPLEMENTATION.md` for blog/CMS details
 
 ---
 

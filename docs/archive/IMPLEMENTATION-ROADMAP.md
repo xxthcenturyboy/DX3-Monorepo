@@ -554,7 +554,7 @@ const IS_PARENT_DASHBOARD = APP_ID === 'ax-admin'
 **Duration:** 5-7 days
 **Priority:** HIGH - Foundation for Phase 2
 **Dependencies:** Phase 0 must be complete
-**Reference:** `docs/LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md`
+**Reference:** `LOGGING-TABLE-IMPLEMENTATION-CORRECTED.md`
 
 ### Overview
 
@@ -1083,7 +1083,7 @@ if (data.success === false) {
 **Duration:** 3-5 days
 **Priority:** MEDIUM - Business analytics
 **Dependencies:** Phase 1 (uses LoggingService)
-**Reference:** `docs/METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md`
+**Reference:** `METRICS-TRACKING-IMPLEMENTATION-CORRECTED.md`
 
 ### Overview
 
@@ -1283,7 +1283,7 @@ document.head.appendChild(script)
 **Duration:** 3-5 days
 **Priority:** LOW - Can be deferred if needed
 **Dependencies:** None (completely independent)
-**Reference:** `docs/BLOG-CMS-IMPLEMENTATION.md`
+**Reference:** `BLOG-CMS-IMPLEMENTATION.md`
 
 ### Overview
 

@@ -344,7 +344,7 @@ All services communicate via `dx3-network` bridge network:
 - Apps can run in **standalone mode** (default, uses own containers)
 - Apps can run in **integration mode** (connects to shared infrastructure)
 - Shared infrastructure managed via separate `ax-infrastructure` repository
-- See `docs/IMPLEMENTATION-ROADMAP.md` for phased rollout strategy
+- See `docs/archive/IMPLEMENTATION-ROADMAP.md` for phased rollout strategy
 - Key constants:
   - `APP_ID` - Unique identifier for this app in the ecosystem (env var)
   - `IS_PARENT_DASHBOARD_APP` - Boolean flag for parent dashboard detection
