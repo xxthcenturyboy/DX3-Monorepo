@@ -1,5 +1,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: Acceptable */
-import { Checkbox, Chip, Tooltip } from '@mui/material'
+import Checkbox from '@mui/material/Checkbox'
+import Chip from '@mui/material/Chip'
+import Tooltip from '@mui/material/Tooltip'
 
 import {
   SUPPORT_STATUS_COLORS,

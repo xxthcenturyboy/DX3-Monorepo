@@ -1,15 +1,13 @@
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
-import {
-  Box,
-  Button,
-  Fade,
-  FormControl,
-  Grid,
-  InputLabel,
-  OutlinedInput,
-  useTheme,
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import Grid from '@mui/material/Grid'
+import InputLabel from '@mui/material/InputLabel'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import { useTheme } from '@mui/material/styles'
 import { type CountryCode, isValidPhoneNumber } from 'libphonenumber-js'
 import React from 'react'
 import type { CountryData } from 'react-phone-input-2'

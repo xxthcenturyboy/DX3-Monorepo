@@ -1,5 +1,8 @@
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import { Box, Button, Fade, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
 import { BeatLoader } from 'react-spinners'
 

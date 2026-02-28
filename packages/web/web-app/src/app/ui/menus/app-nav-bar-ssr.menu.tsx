@@ -1,16 +1,12 @@
 import Menu from '@mui/icons-material/Menu'
-import {
-  AppBar,
-  Box,
-  Button,
-  type ButtonOwnProps,
-  Icon,
-  IconButton,
-  Slide,
-  styled,
-  Toolbar,
-  useTheme,
-} from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import Box from '@mui/material/Box'
+import Button, { type ButtonProps } from '@mui/material/Button'
+import Icon from '@mui/material/Icon'
+import IconButton from '@mui/material/IconButton'
+import Slide from '@mui/material/Slide'
+import Toolbar from '@mui/material/Toolbar'
+import { styled, useTheme } from '@mui/material/styles'
 import React from 'react'
 import { Link, useLocation } from 'react-router'
 
@@ -70,7 +66,7 @@ export const AppNavBarSsr: React.FC = () => {
     setPublicMenuOpen(false)
   }
 
-  const getAuthButtonColor = (type: 'login' | 'signup'): ButtonOwnProps['color'] => {
+  const getAuthButtonColor = (type: 'login' | 'signup'): ButtonProps['color'] => {
     if (theme.palette.mode === 'dark') {
       if (pathname === ROUTES.AUTH.LOGIN && type === 'login') {
         return 'primary'
@@ -99,7 +95,7 @@ export const AppNavBarSsr: React.FC = () => {
     return 'inherit'
   }
 
-  const getPublicNavButtonColor = (route: string): ButtonOwnProps['color'] => {
+  const getPublicNavButtonColor = (route: string): ButtonProps['color'] => {
     // Blog has child routes (/blog/:slug) - highlight when on list or any post
     const isActive =
       pathname === route || (route === ROUTES.BLOG && pathname.startsWith(`${ROUTES.BLOG}/`))

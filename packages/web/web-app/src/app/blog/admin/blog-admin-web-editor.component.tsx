@@ -23,7 +23,13 @@ import FormatAlignCenter from '@mui/icons-material/FormatAlignCenter'
 import FormatAlignLeft from '@mui/icons-material/FormatAlignLeft'
 import FormatAlignRight from '@mui/icons-material/FormatAlignRight'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import { Alert, Box, Button, IconButton, Tooltip, Typography, useTheme } from '@mui/material'
+import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import * as React from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router'
@@ -38,11 +44,11 @@ import {
   MIME_TYPES,
 } from '@dx3/models-shared'
 import { slugify } from '@dx3/utils-shared'
-import { AccessDeniedLottie } from '@dx3/web-libs/ui/lottie/access-denied.lottie'
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'
 import { ConfirmationDialog } from '@dx3/web-libs/ui/dialog/confirmation.dialog'
 import { CustomDialog } from '@dx3/web-libs/ui/dialog/dialog.component'
+import { AccessDeniedLottie } from '@dx3/web-libs/ui/lottie/access-denied.lottie'
 import { MODAL_ROOT_ELEM_ID } from '@dx3/web-libs/ui/ui.consts'
 import { debounce } from '@dx3/web-libs/utils/debounce'
 
@@ -173,6 +179,9 @@ export const BlogAdminEditorComponent: React.FC = () => {
     'BLOG_PUBLISHED_READ_ONLY_BANNER',
     'BLOG_UNPUBLISH_TO_EDIT',
     'BLOG_UPLOAD_FEATURED_IMAGE',
+    'ARIA_DRAG_TO_RESIZE',
+    'ARIA_RESIZE_EDITOR',
+    'BLOG_DOWNLOAD_PDF',
     'CANCEL',
     'CANCELING',
     'DISCARD',
@@ -266,9 +275,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
       // BlogAdminSettingsComponent (debounced auto-save) is unmounted and never runs.
       if (id && post?.id) {
         const settings = selectBlogEditorSettings(store.getState())
-        const slugifiedSlug = settings.slug
-          ? slugify(settings.slug).trim() || undefined
-          : undefined
+        const slugifiedSlug = settings.slug ? slugify(settings.slug).trim() || undefined : undefined
         try {
           await updatePostPassive({
             id,
@@ -317,12 +324,12 @@ export const BlogAdminEditorComponent: React.FC = () => {
     (results: MediaUploadResponseType[]) => {
       const first = results[0]
       if (!first?.ok || !first.data?.id) return
-      const fileName = first.data.originalFileName ?? 'Download PDF'
+      const fileName = first.data.originalFileName ?? strings.BLOG_DOWNLOAD_PDF
       const url = getPublicMediaUrl(apiUrl, first.data.id, MEDIA_VARIANTS.ORIGINAL)
       editorRef.current?.insertMarkdown(`[${fileName}](${url})`)
       setPdfModalOpen(false)
     },
-    [apiUrl],
+    [apiUrl, strings.BLOG_DOWNLOAD_PDF],
   )
 
   const handlePdfUpload = React.useCallback(
@@ -624,124 +631,126 @@ export const BlogAdminEditorComponent: React.FC = () => {
                   }}
                 >
                   <MDXEditor
-                key={isNew ? 'new' : id}
-                markdown={editorMarkdown}
-                onChange={handleEditorChange}
-                plugins={[
-                  headingsPlugin(),
-                  imagePlugin({
-                    ImageDialog: BlogImageEditDialog,
-                    imageUploadHandler,
-                  }),
-                  listsPlugin(),
-                  quotePlugin(),
-                  thematicBreakPlugin(),
-                  linkPlugin(),
-                  linkDialogPlugin({ LinkDialog: () => <BlogLinkEditDialog /> }),
-                  toolbarPlugin({
-                    toolbarContents: () => (
-                      <>
-                        <UndoRedo />
-                        <BoldItalicUnderlineToggles />
-                        <BlockTypeSelect />
-                        <ListsToggle />
-                        <CreateLink />
-                        <Tooltip
-                          title={
-                            isReadOnly
-                              ? strings.BLOG_UNPUBLISH_TO_EDIT
-                              : !post?.id
-                                ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST
-                                : strings.BLOG_INSERT_IMAGE
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              aria-label={strings.BLOG_INSERT_IMAGE}
-                              disabled={!!isReadOnly || !post?.id || isSaving}
-                              onClick={() => setImageModalOpen(true)}
-                              size="small"
+                    key={isNew ? 'new' : id}
+                    markdown={editorMarkdown}
+                    onChange={handleEditorChange}
+                    plugins={[
+                      headingsPlugin(),
+                      imagePlugin({
+                        ImageDialog: BlogImageEditDialog,
+                        imageUploadHandler,
+                      }),
+                      listsPlugin(),
+                      quotePlugin(),
+                      thematicBreakPlugin(),
+                      linkPlugin(),
+                      linkDialogPlugin({ LinkDialog: () => <BlogLinkEditDialog /> }),
+                      toolbarPlugin({
+                        toolbarContents: () => (
+                          <>
+                            <UndoRedo />
+                            <BoldItalicUnderlineToggles />
+                            <BlockTypeSelect />
+                            <ListsToggle />
+                            <CreateLink />
+                            <Tooltip
+                              title={
+                                isReadOnly
+                                  ? strings.BLOG_UNPUBLISH_TO_EDIT
+                                  : !post?.id
+                                    ? strings.BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST
+                                    : strings.BLOG_INSERT_IMAGE
+                              }
                             >
-                              <AddPhotoAlternateOutlined fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip
-                          title={
-                            isReadOnly
-                              ? strings.BLOG_UNPUBLISH_TO_EDIT
-                              : !post?.id
-                                ? strings.BLOG_PDF_UPLOAD_SAVE_POST_FIRST
-                                : strings.BLOG_INSERT_PDF
-                          }
-                        >
-                          <span>
-                            <IconButton
-                              aria-label={strings.BLOG_INSERT_PDF}
-                              disabled={!!isReadOnly || !post?.id || isSaving}
-                              onClick={() => setPdfModalOpen(true)}
-                              size="small"
+                              <span>
+                                <IconButton
+                                  aria-label={strings.BLOG_INSERT_IMAGE}
+                                  disabled={!!isReadOnly || !post?.id || isSaving}
+                                  onClick={() => setImageModalOpen(true)}
+                                  size="small"
+                                >
+                                  <AddPhotoAlternateOutlined fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip
+                              title={
+                                isReadOnly
+                                  ? strings.BLOG_UNPUBLISH_TO_EDIT
+                                  : !post?.id
+                                    ? strings.BLOG_PDF_UPLOAD_SAVE_POST_FIRST
+                                    : strings.BLOG_INSERT_PDF
+                              }
                             >
-                              <PictureAsPdfOutlined fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <InsertThematicBreak />
-                        <Tooltip title={strings.ALIGN_LEFT}>
-                          <span>
-                            <IconButton
-                              aria-label={strings.ALIGN_LEFT}
-                              onClick={() => {
-                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
-                                editorRef.current?.insertMarkdown?.(
-                                  sel ? `<p align="left">${sel}</p>` : '<p align="left"></p>',
-                                )
-                              }}
-                              size="small"
-                            >
-                              <FormatAlignLeft fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip title={strings.ALIGN_CENTER}>
-                          <span>
-                            <IconButton
-                              aria-label={strings.ALIGN_CENTER}
-                              onClick={() => {
-                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
-                                editorRef.current?.insertMarkdown?.(
-                                  sel ? `<p align="center">${sel}</p>` : '<p align="center"></p>',
-                                )
-                              }}
-                              size="small"
-                            >
-                              <FormatAlignCenter fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <Tooltip title={strings.ALIGN_RIGHT}>
-                          <span>
-                            <IconButton
-                              aria-label={strings.ALIGN_RIGHT}
-                              onClick={() => {
-                                const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
-                                editorRef.current?.insertMarkdown?.(
-                                  sel ? `<p align="right">${sel}</p>` : '<p align="right"></p>',
-                                )
-                              }}
-                              size="small"
-                            >
-                              <FormatAlignRight fontSize="small" />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                      </>
-                    ),
-                  }),
-                  markdownShortcutPlugin(),
-                ]}
-                readOnly={!!isReadOnly || isSaving}
-                ref={editorRef}
+                              <span>
+                                <IconButton
+                                  aria-label={strings.BLOG_INSERT_PDF}
+                                  disabled={!!isReadOnly || !post?.id || isSaving}
+                                  onClick={() => setPdfModalOpen(true)}
+                                  size="small"
+                                >
+                                  <PictureAsPdfOutlined fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <InsertThematicBreak />
+                            <Tooltip title={strings.ALIGN_LEFT}>
+                              <span>
+                                <IconButton
+                                  aria-label={strings.ALIGN_LEFT}
+                                  onClick={() => {
+                                    const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                    editorRef.current?.insertMarkdown?.(
+                                      sel ? `<p align="left">${sel}</p>` : '<p align="left"></p>',
+                                    )
+                                  }}
+                                  size="small"
+                                >
+                                  <FormatAlignLeft fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={strings.ALIGN_CENTER}>
+                              <span>
+                                <IconButton
+                                  aria-label={strings.ALIGN_CENTER}
+                                  onClick={() => {
+                                    const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                    editorRef.current?.insertMarkdown?.(
+                                      sel
+                                        ? `<p align="center">${sel}</p>`
+                                        : '<p align="center"></p>',
+                                    )
+                                  }}
+                                  size="small"
+                                >
+                                  <FormatAlignCenter fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title={strings.ALIGN_RIGHT}>
+                              <span>
+                                <IconButton
+                                  aria-label={strings.ALIGN_RIGHT}
+                                  onClick={() => {
+                                    const sel = editorRef.current?.getSelectionMarkdown?.() ?? ''
+                                    editorRef.current?.insertMarkdown?.(
+                                      sel ? `<p align="right">${sel}</p>` : '<p align="right"></p>',
+                                    )
+                                  }}
+                                  size="small"
+                                >
+                                  <FormatAlignRight fontSize="small" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </>
+                        ),
+                      }),
+                      markdownShortcutPlugin(),
+                    ]}
+                    readOnly={!!isReadOnly || isSaving}
+                    ref={editorRef}
                   />
                 </Box>
               </Box>
@@ -757,7 +766,7 @@ export const BlogAdminEditorComponent: React.FC = () => {
                   padding: 0,
                   width: '100%',
                 }}
-                title="Drag to resize"
+                title={strings.ARIA_DRAG_TO_RESIZE}
                 type="button"
               />
             </Box>

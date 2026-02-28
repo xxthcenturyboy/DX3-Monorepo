@@ -1,5 +1,9 @@
 import Cached from '@mui/icons-material/Cached'
-import { Grid, IconButton, Tooltip, useMediaQuery, useTheme } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'

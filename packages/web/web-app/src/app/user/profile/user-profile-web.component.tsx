@@ -1,4 +1,10 @@
-import { Box, Button, Divider, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
 import { createPortal } from 'react-dom'
 

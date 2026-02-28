@@ -3,20 +3,16 @@ import Apps from '@mui/icons-material/Apps'
 import Menu from '@mui/icons-material/Menu'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Notifications from '@mui/icons-material/Notifications'
-import {
-  AppBar,
-  Badge,
-  Box,
-  Button,
-  type ButtonOwnProps,
-  Icon,
-  IconButton,
-  Slide,
-  styled,
-  Toolbar,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import Badge from '@mui/material/Badge'
+import Box from '@mui/material/Box'
+import Button, { type ButtonProps } from '@mui/material/Button'
+import Icon from '@mui/material/Icon'
+import IconButton from '@mui/material/IconButton'
+import Slide from '@mui/material/Slide'
+import { styled, useTheme } from '@mui/material/styles'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
@@ -55,7 +51,18 @@ export const AppNavBar: React.FC = () => {
   const notificationCount = useAppSelector((state) => selectNotificationCount(state))
   const publicMenuOpen = useAppSelector((state) => state.ui.publicMenuOpen)
   const ROUTES = WebConfigService.getWebRoutes()
-  const strings = useStrings(['ABOUT', 'BLOG', 'FAQ', 'HOME', 'LOGIN', 'SIGNUP'])
+  const strings = useStrings([
+    'ABOUT',
+    'ARIA_ACCOUNT_MENU',
+    'ARIA_MENU',
+    'ARIA_PUBLIC_MENU',
+    'ARIA_SHOW_NOTIFICATIONS',
+    'BLOG',
+    'FAQ',
+    'HOME',
+    'LOGIN',
+    'SIGNUP',
+  ])
   const theme = useTheme()
 
   React.useEffect(() => {
@@ -105,7 +112,7 @@ export const AppNavBar: React.FC = () => {
     dispatch(uiActions.togglePublicMenuSet(!publicMenuOpen))
   }
 
-  const getAuthButtonColor = (type: 'login' | 'signup'): ButtonOwnProps['color'] => {
+  const getAuthButtonColor = (type: 'login' | 'signup'): ButtonProps['color'] => {
     if (theme.palette.mode === 'dark') {
       if (pathname === ROUTES.AUTH.LOGIN && type === 'login') {
         return 'primary'
@@ -134,7 +141,7 @@ export const AppNavBar: React.FC = () => {
     return 'inherit'
   }
 
-  const getPublicNavButtonColor = (route: string): ButtonOwnProps['color'] => {
+  const getPublicNavButtonColor = (route: string): ButtonProps['color'] => {
     if (theme.palette.mode === 'dark') {
       if (pathname === route) {
         return 'primary'
@@ -298,7 +305,7 @@ export const AppNavBar: React.FC = () => {
               <IconButton
                 aria-controls="notification-menu-appbar"
                 aria-haspopup="true"
-                aria-label="show notifications"
+                aria-label={strings.ARIA_SHOW_NOTIFICATIONS}
                 className="toolbar-icons"
                 onClick={handleClickNotificationMenu}
                 size="large"
@@ -313,7 +320,7 @@ export const AppNavBar: React.FC = () => {
               <IconButton
                 aria-controls="account-menu-appbar"
                 aria-haspopup="true"
-                aria-label="account menu for current user"
+                aria-label={strings.ARIA_ACCOUNT_MENU}
                 className="toolbar-icons"
                 onClick={handleClickAccountMenu}
                 size="large"
@@ -360,7 +367,7 @@ export const AppNavBar: React.FC = () => {
           </Slide>
           {mobileBreak && !isAuthenticated && (
             <IconButton
-              aria-label="public menu"
+              aria-label={strings.ARIA_PUBLIC_MENU}
               color="inherit"
               edge="end"
               onClick={handlePublicMenuToggle}

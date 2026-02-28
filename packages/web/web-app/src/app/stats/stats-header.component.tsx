@@ -1,5 +1,6 @@
 import { Cached } from '@mui/icons-material'
-import { IconButton, Tooltip } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import type * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'

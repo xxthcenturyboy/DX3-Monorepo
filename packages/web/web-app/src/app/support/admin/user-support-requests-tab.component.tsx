@@ -1,4 +1,6 @@
-import { Box, Chip, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
+import { useTheme } from '@mui/material/styles'
 import * as React from 'react'
 import { useNavigate } from 'react-router'
 

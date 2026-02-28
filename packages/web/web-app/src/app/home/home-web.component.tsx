@@ -1,4 +1,9 @@
-import { Button, Fade, Grid, Typography, useMediaQuery, useTheme } from '@mui/material'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import Grid from '@mui/material/Grid'
+import { useTheme } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import * as React from 'react'
 import { useNavigate } from 'react-router'
 

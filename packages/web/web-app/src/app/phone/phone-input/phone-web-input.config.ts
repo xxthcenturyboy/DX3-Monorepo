@@ -1,4 +1,4 @@
-import type { Theme } from '@mui/material'
+import type { Theme } from '@mui/material/styles'
 import type React from 'react'
 
 import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'

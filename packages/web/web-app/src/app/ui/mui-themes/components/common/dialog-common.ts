@@ -1,4 +1,4 @@
-import type { Components } from '@mui/material'
+import type { Components } from '@mui/material/styles'
 
 export const dialogOverridesCommon: Components['MuiDialog'] = {
   defaultProps: {},

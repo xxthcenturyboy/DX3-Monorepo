@@ -1,16 +1,13 @@
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  type SelectChangeEvent,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import Button from '@mui/material/Button'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { BeatLoader } from 'react-spinners'
@@ -58,7 +55,17 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
   const [status, setStatus] = useState<FeatureFlagStatusType>(FEATURE_FLAG_STATUS.DISABLED)
   const [target, setTarget] = useState<FeatureFlagTargetType>(FEATURE_FLAG_TARGET.ALL)
   const [percentage, setPercentage] = useState<number | ''>('')
-  const strings = useStrings(['CREATE_FEATURE_FLAG', 'CANCEL', 'CREATE', 'CLOSE'])
+  const strings = useStrings([
+    'CANCEL',
+    'CLOSE',
+    'CREATE',
+    'CREATE_FEATURE_FLAG',
+    'DESCRIPTION',
+    'NAME',
+    'PERCENTAGE',
+    'STATUS',
+    'TARGET',
+  ])
 
   const [
     createFlag,
@@ -137,7 +144,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
           >
             <InputLabel>Name</InputLabel>
             <Select
-              label="Name"
+              label={strings.NAME}
               onChange={(e: SelectChangeEvent) => setName(e.target.value as FeatureFlagNameType)}
               value={name}
             >
@@ -159,7 +166,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
             <InputLabel htmlFor="description">Description</InputLabel>
             <OutlinedInput
               id="description"
-              label="Description"
+              label={strings.DESCRIPTION}
               multiline
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
@@ -173,7 +180,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
           >
             <InputLabel>Status</InputLabel>
             <Select
-              label="Status"
+              label={strings.STATUS}
               onChange={(e: SelectChangeEvent) =>
                 setStatus(e.target.value as FeatureFlagStatusType)
               }
@@ -196,7 +203,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
           >
             <InputLabel>Target</InputLabel>
             <Select
-              label="Target"
+              label={strings.TARGET}
               onChange={(e: SelectChangeEvent) =>
                 setTarget(e.target.value as FeatureFlagTargetType)
               }
@@ -223,7 +230,7 @@ export const FeatureFlagAdminCreateDialog: React.FC<CreateDialogPropsType> = (pr
               <OutlinedInput
                 id="percentage"
                 inputProps={{ max: 100, min: 0 }}
-                label="Percentage"
+                label={strings.PERCENTAGE}
                 onChange={(e) => setPercentage(e.target.value === '' ? '' : Number(e.target.value))}
                 type="number"
                 value={percentage}

@@ -1,4 +1,4 @@
-import type { Components } from '@mui/material'
+import type { Components } from '@mui/material/styles'
 
 import { WEB_APP_COLOR_PALETTE } from '../../mui.palette'
 import { listItemButtonOverridesCommon, listItemOverridesCommon } from '../common/list-common'

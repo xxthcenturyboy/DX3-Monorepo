@@ -1,4 +1,5 @@
-import { Button, Grid } from '@mui/material'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import { styled, type Theme } from '@mui/material/styles'
 
 import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'

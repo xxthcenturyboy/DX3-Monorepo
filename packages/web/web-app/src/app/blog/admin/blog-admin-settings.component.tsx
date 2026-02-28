@@ -1,13 +1,11 @@
-import {
-  Alert,
-  Autocomplete,
-  Box,
-  Button,
-  FormControlLabel,
-  Switch,
-  TextField,
-  Typography,
-} from '@mui/material'
+import Alert from '@mui/material/Alert'
+import Autocomplete from '@mui/material/Autocomplete'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import dayjs from 'dayjs'
 import * as React from 'react'
 

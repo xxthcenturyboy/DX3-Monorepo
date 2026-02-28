@@ -1,4 +1,4 @@
-import type { PaletteMode } from '@mui/material'
+import type { PaletteMode } from '@mui/material/styles'
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import autoMergeLevel1 from 'reduxjs-toolkit-persist/lib/stateReconciler/autoMergeLevel1'
 import storage from 'reduxjs-toolkit-persist/lib/storage'

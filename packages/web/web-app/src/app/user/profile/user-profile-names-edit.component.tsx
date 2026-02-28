@@ -1,18 +1,16 @@
 import Edit from '@mui/icons-material/Edit'
-import {
-  Box,
-  Button,
-  Fade,
-  FormControl,
-  Grid,
-  IconButton,
-  InputLabel,
-  OutlinedInput,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Fade from '@mui/material/Fade'
+import FormControl from '@mui/material/FormControl'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
 import { toast } from 'react-toastify'
 

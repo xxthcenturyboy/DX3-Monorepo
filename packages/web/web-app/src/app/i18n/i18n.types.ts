@@ -115,6 +115,15 @@ export type StringKeys = {
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_EMAIL: string
   ARE_YOU_SURE_YOU_WANT_TO_DELETE_THE_PHONE: string
   ARE_YOU_SURE_YOU_WANT_TO_LOG_OUT: string
+  ARIA_ACCOUNT_MENU: string
+  ARIA_ADD_FEATURE_FLAG: string
+  ARIA_DRAG_TO_RESIZE: string
+  ARIA_MENU: string
+  ARIA_PUBLIC_MENU: string
+  ARIA_RESIZE_EDITOR: string
+  ARIA_SHOW_NOTIFICATIONS: string
+  ARIA_USER_EMAILS: string
+  ARIA_USER_PHONES_TABLE: string
   ARRAY_BUFFERS: string
   AUTH_FAILED: string
   AUTH_INCOMPLETE_BIOMETRIC: string
@@ -134,6 +143,7 @@ export type StringKeys = {
   BLOG: string
   BLOG_CONTENT: string
   BLOG_DISCARD_CHANGES_CONFIRM: string
+  BLOG_DOWNLOAD_PDF: string
   BLOG_CREATE_NEW_POST: string
   BLOG_ANONYMOUS: string
   BLOG_CANONICAL_URL: string
@@ -165,6 +175,7 @@ export type StringKeys = {
   BLOG_IMAGE_UPLOAD_SAVE_POST_FIRST: string
   BLOG_INSERT_IMAGE: string
   BLOG_INSERT_PDF: string
+  BLOG_LOAD_FAILED: string
   BLOG_LOADING: string
   BLOG_NEW_POST_TITLE: string
   BLOG_NO_POSTS: string
@@ -176,6 +187,7 @@ export type StringKeys = {
   BLOG_PUBLISH_CONFIRM: string
   BLOG_PUBLISH_NOW: string
   BLOG_PUBLISHED_ON: string
+  BLOG_PUBLISHED_READ_ONLY_BANNER: string
   BLOG_PUBLISHING: string
   BLOG_SCHEDULED_TO_POST_ON: string
   BLOG_UNPUBLISHED_PREVIOUSLY_ON: string

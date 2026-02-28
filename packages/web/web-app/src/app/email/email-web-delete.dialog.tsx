@@ -1,5 +1,6 @@
 // import DialogTitle from '@mui/material/DialogTitle';
-import { Button, useTheme } from '@mui/material'
+import Button from '@mui/material/Button'
+import { useTheme } from '@mui/material/styles'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import React, { type ReactElement } from 'react'

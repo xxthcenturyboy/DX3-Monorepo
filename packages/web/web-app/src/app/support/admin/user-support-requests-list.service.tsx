@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: Acceptable */
-import { Chip, Tooltip } from '@mui/material'
+import Chip from '@mui/material/Chip'
+import Tooltip from '@mui/material/Tooltip'
 
 import {
   SUPPORT_STATUS_COLORS,

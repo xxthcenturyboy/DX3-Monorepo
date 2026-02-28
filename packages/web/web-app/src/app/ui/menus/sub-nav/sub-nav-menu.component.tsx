@@ -1,4 +1,8 @@
-import { AppBar, List, Toolbar, useMediaQuery, useTheme } from '@mui/material'
+import AppBar from '@mui/material/AppBar'
+import List from '@mui/material/List'
+import Toolbar from '@mui/material/Toolbar'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 
 import type { SubMenuConfigType } from '../app-menu.types'

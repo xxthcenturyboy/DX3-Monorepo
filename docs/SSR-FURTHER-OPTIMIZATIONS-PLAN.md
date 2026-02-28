@@ -117,7 +117,9 @@ Tree-shake MUI and import only what’s needed. Reduce `vendor.mui.js` size and 
 | 3 | Consolidate icon imports | Icon-heavy components | Ensure no duplicate or unused icons |
 | 4 | Run `ANALYZE=1` build | `rspack.config.client.js` | Compare `vendor.mui.js` before/after |
 | 5 | Verify MUI `sideEffects` | `node_modules/@mui/material` | Should have `"sideEffects": false` for tree-shaking |
-| 6 | Consider `@mui/system` only where applicable | Optional | If only `sx`/`Box` needed, evaluate lighter alternatives |
+| 6 | Consider `@mui/system` only where applicable | Skipped | No Box-only usage; `@mui/system` already bundled via `@mui/material`. No reduction expected. |
+
+**Status (2026-02-25):** Option 4 complete. Steps 1–5 done: barrel→path imports, icon audit, ANALYZE build, `sideEffects: false` confirmed. Step 6 skipped (unnecessary). Bundle: client.js ~65kb, vendor.mui ~82kb, vendor.react ~84kb gzipped.
 
 ### Files to Update (MUI imports)
 

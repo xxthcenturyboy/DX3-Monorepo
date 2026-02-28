@@ -1,4 +1,9 @@
-import { Box, Card, CardContent, CircularProgress, Typography, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 
 type StatCardProps = {

@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material'
+import Chip from '@mui/material/Chip'
 import type * as React from 'react'
 
 import { BLOG_POST_STATUS } from '@dx3/models-shared'

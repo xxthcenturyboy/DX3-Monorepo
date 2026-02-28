@@ -1,5 +1,8 @@
-import PhotoCamera from '@mui/icons-material/Photo'
-import { Avatar, Badge, Grid, IconButton } from '@mui/material'
+import PhotoCamera from '@mui/icons-material/PhotoCamera'
+import Avatar from '@mui/material/Avatar'
+import Badge from '@mui/material/Badge'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 import React from 'react'
 

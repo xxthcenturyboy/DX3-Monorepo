@@ -1,4 +1,5 @@
-import { Grid, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import { MuiOtpInput } from 'mui-one-time-password-input'
 import React, { type ReactElement } from 'react'
 

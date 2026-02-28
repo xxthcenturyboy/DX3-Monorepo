@@ -1,5 +1,8 @@
 import ClearIcon from '@mui/icons-material/Clear'
-import { Divider, IconButton, ListSubheader, Typography } from '@mui/material'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
+import ListSubheader from '@mui/material/ListSubheader'
+import Typography from '@mui/material/Typography'
 import React, { useEffect, useState } from 'react'
 
 import {

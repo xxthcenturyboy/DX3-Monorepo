@@ -1,4 +1,6 @@
-import { Chip, useMediaQuery, useTheme } from '@mui/material'
+import Chip from '@mui/material/Chip'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import { grey, lightBlue } from '@mui/material/colors'
 import type * as React from 'react'
 import { useNavigate } from 'react-router'

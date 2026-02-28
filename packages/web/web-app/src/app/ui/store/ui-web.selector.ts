@@ -1,4 +1,4 @@
-import type { PaletteMode } from '@mui/material'
+import type { PaletteMode } from '@mui/material/styles'
 import type { Theme as ToastifyTheme } from 'react-toastify'
 import { createSelector } from 'reselect'
 

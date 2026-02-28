@@ -1,4 +1,5 @@
-import { List, ListItem } from '@mui/material'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
 import Menu from '@mui/material/Menu'
 import { styled } from '@mui/material/styles'
 

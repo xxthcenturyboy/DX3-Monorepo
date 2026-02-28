@@ -8,6 +8,7 @@
     "build": "rspack build --mode production",
     "build:analyze": "ANALYZE=true rspack build --mode production",
     "build:ssr": "rspack build --config rspack.config.server.js --mode production && rspack build --config rspack.config.client.js --mode production",
+    "build:ssr:analyze": "rspack build --config rspack.config.server.js --mode production && ANALYZE=1 rspack build --config rspack.config.client.js --mode production",
     "build:ssr:client": "rspack build --config rspack.config.client.js --mode development",
     "build:ssr:server": "rspack build --config rspack.config.server.js --mode development",
     "dev": "rspack serve --mode development",

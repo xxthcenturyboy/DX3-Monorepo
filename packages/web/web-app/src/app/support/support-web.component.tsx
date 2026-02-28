@@ -1,4 +1,7 @@
-import { Box, Container, Divider, Fade } from '@mui/material'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import Divider from '@mui/material/Divider'
+import Fade from '@mui/material/Fade'
 import * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'

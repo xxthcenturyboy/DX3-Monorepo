@@ -1,5 +1,7 @@
 import LogoutIcon from '@mui/icons-material/Logout'
-import { Button, Grid, Typography } from '@mui/material'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import React from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'

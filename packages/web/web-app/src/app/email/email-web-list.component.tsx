@@ -1,22 +1,19 @@
 import Delete from '@mui/icons-material/Delete'
-import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  Grid,
-  Paper,
-  styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import { styled, useTheme } from '@mui/material/styles'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableRow from '@mui/material/TableRow'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import React from 'react'
 import { createPortal } from 'react-dom'
 
@@ -44,6 +41,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
   const theme = useTheme()
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const strings = useStrings([
+    'ARIA_USER_EMAILS',
     'DEFAULT',
     'EMAILS',
     'NEW_EMAIL',
@@ -145,7 +143,7 @@ export const EmailList: React.FC<EmailListPropsType> = (props) => {
         <Divider />
         <TableContainer component={Box}>
           <Table
-            aria-label="User-Emails"
+            aria-label={strings.ARIA_USER_EMAILS}
             id="table-user-emails"
             size="small"
             stickyHeader

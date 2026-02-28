@@ -1,4 +1,6 @@
-import { Box, LinearProgress, type LinearProgressProps, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import LinearProgress, { type LinearProgressProps } from '@mui/material/LinearProgress'
+import Typography from '@mui/material/Typography'
 import type React from 'react'
 
 type UploadProgressComponentPropsType = {

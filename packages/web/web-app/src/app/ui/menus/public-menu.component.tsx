@@ -1,5 +1,6 @@
 import ClearIcon from '@mui/icons-material/Clear'
-import { Divider, IconButton } from '@mui/material'
+import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
 import React from 'react'
 
 import { CloseViewItem, StyledList } from '@dx3/web-libs/ui/dialog/drawer-menu.ui'

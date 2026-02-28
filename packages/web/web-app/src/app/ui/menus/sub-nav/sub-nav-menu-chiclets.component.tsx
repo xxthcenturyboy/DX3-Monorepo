@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import type React from 'react'
 import { useMatch, useNavigate } from 'react-router'
 

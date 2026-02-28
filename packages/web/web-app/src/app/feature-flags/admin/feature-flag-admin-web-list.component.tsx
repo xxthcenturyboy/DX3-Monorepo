@@ -1,7 +1,9 @@
 import AddIcon from '@mui/icons-material/Add'
-import { Grid, useMediaQuery, useTheme } from '@mui/material'
 import Fab from '@mui/material/Fab'
+import Grid from '@mui/material/Grid'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import Zoom from '@mui/material/Zoom'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -15,7 +17,7 @@ import type { TableRowType } from '@dx3/web-libs/ui/table/types'
 import { MODAL_ROOT_ELEM_ID, TIMEOUT_DUR_500 } from '@dx3/web-libs/ui/ui.consts'
 
 import { getErrorStringFromApiResponse } from '../../data/errors/error-web.service'
-import { useString } from '../../i18n'
+import { useString, useStrings } from '../../i18n'
 import { useAppDispatch, useAppSelector } from '../../store/store-web-redux.hooks'
 import { uiActions } from '../../ui/store/ui-web.reducer'
 import { selectIsMobileWidth } from '../../ui/store/ui-web.selector'
@@ -38,6 +40,7 @@ export const FeatureFlagAdminList: React.FC = () => {
   const MD_BREAK = useMediaQuery(theme.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(theme.breakpoints.down('sm'))
   const pageTitle = useString('FEATURE_FLAGS')
+  const strings = useStrings(['ARIA_ADD_FEATURE_FLAG'])
 
   // Selectors
   const filterValue = useAppSelector((state) => state.featureFlagsAdmin.filterValue)
@@ -224,7 +227,7 @@ export const FeatureFlagAdminList: React.FC = () => {
         unmountOnExit
       >
         <Fab
-          aria-label="add feature flag"
+          aria-label={strings.ARIA_ADD_FEATURE_FLAG}
           color="secondary"
           onClick={() => setCreateDialogOpen(true)}
           size="large"

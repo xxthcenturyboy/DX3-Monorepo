@@ -1,4 +1,7 @@
-import { Container, Fade, Grid, Typography } from '@mui/material'
+import Container from '@mui/material/Container'
+import Fade from '@mui/material/Fade'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 import * as React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'

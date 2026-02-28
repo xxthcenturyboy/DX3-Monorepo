@@ -1,4 +1,6 @@
-import { Container, Fade, Typography } from '@mui/material'
+import Container from '@mui/material/Container'
+import Fade from '@mui/material/Fade'
+import Typography from '@mui/material/Typography'
 import * as React from 'react'
 
 import { ContentHeader } from '@dx3/web-libs/ui/content/content-header.component'

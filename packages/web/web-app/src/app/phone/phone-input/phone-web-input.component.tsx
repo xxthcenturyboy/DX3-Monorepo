@@ -1,5 +1,7 @@
-import { useTheme } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
+
+import { useStrings } from '../../i18n'
 import PhoneInput, { type CountryData } from 'react-phone-input-2'
 // import 'react-phone-input-2/lib/style.css';
 // import 'react-phone-input-2/lib/high-res.css';
@@ -9,6 +11,7 @@ import { getDefaultStyles } from './phone-web-input.config'
 import type { PhoneInputProps } from './phone-web-input.types'
 
 export const PhoneNumberInput: React.FC<PhoneInputProps> = (props): React.ReactElement => {
+  const strings = useStrings(['PHONE'])
   const {
     defaultCountry,
     defaultValue,
@@ -150,7 +153,7 @@ export const PhoneNumberInput: React.FC<PhoneInputProps> = (props): React.ReactE
       onKeyDown={onKeyDown}
       preferredCountries={preferredCountries}
       searchStyle={searchStyle}
-      specialLabel={label || 'Phone'}
+      specialLabel={label || strings.PHONE}
       value={value || defaultValue}
     />
   )

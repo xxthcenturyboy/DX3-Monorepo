@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import {
-  ListItemButton,
-  // ListItemIcon,
-  ListItemText,
-  useTheme,
-} from '@mui/material'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
+import { useTheme } from '@mui/material/styles'
 import type React from 'react'
 import { useState } from 'react'
 import { useLocation, useMatch, useNavigate } from 'react-router'

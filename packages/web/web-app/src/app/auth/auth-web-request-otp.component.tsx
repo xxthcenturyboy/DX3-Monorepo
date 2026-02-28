@@ -1,4 +1,6 @@
-import { Box, Fade, Grid } from '@mui/material'
+import Box from '@mui/material/Box'
+import Fade from '@mui/material/Fade'
+import Grid from '@mui/material/Grid'
 import React from 'react'
 
 import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'

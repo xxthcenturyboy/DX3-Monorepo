@@ -1,4 +1,9 @@
-import { Box, Fade, Grid, Paper, useMediaQuery, useTheme } from '@mui/material'
+import Box from '@mui/material/Box'
+import Fade from '@mui/material/Fade'
+import Grid from '@mui/material/Grid'
+import Paper from '@mui/material/Paper'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import React from 'react'
 
 import { BORDER_RADIUS, FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'

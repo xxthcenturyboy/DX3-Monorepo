@@ -1,14 +1,11 @@
-import {
-  Chip,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  tableCellClasses,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import Chip from '@mui/material/Chip'
+import Grid from '@mui/material/Grid'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import { green, grey, red } from '@mui/material/colors'
 import { styled } from '@mui/material/styles'
 import type React from 'react'
@@ -46,6 +43,7 @@ export const StatsWebSsrHealthComponent: React.FC = () => {
     'DOWN',
     'HEAP_TOTAL',
     'HEAP_USED',
+    'LOADING',
     'OK',
     'RSS',
     'SSR_SERVER',
@@ -111,7 +109,7 @@ export const StatsWebSsrHealthComponent: React.FC = () => {
         }}
         headerContent={
           <Chip
-            label={isLoading ? 'Loading...' : status}
+            label={isLoading ? strings.LOADING : status}
             sx={{
               backgroundColor: status === 'OK' ? green[500] : red[600],
               color: grey[50],

@@ -1,14 +1,11 @@
-import {
-  Chip,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  tableCellClasses,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import Chip from '@mui/material/Chip'
+import Grid from '@mui/material/Grid'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 import { green, grey, red } from '@mui/material/colors'
 import { styled } from '@mui/material/styles'
 import type React from 'react'

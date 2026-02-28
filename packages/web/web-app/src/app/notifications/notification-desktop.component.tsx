@@ -1,5 +1,7 @@
 import GradingIcon from '@mui/icons-material/Grading'
-import { Fade, Grid, IconButton } from '@mui/material'
+import Fade from '@mui/material/Fade'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 import Collapse from '@mui/material/Collapse'
 import Typography from '@mui/material/Typography'
 import React from 'react'

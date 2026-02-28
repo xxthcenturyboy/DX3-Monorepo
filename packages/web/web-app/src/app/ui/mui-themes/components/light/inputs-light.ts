@@ -1,4 +1,4 @@
-import type { Components } from '@mui/material'
+import type { Components } from '@mui/material/styles'
 
 import { BORDER_RADIUS } from '@dx3/web-libs/ui/ui.consts'
 

@@ -1,4 +1,8 @@
-import { Box, Button, Divider, TextField, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
 import type React from 'react'
 import { useCallback, useRef, useState } from 'react'
 
