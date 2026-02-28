@@ -152,7 +152,7 @@ CSR-only (lower priority for initial load, but still improves overall bundle):
 
 ## Verification
 
-- **Lighthouse** (Mobile, Slow 3G) – TTI, FCP, LCP
+- **Lighthouse** (Mobile, Slow 3G) – TTI, FCP, LCP. See `docs/LIGHTHOUSE-BLOG-POST-ANALYSIS.md` for blog post analysis (2026-02-25).
 - **Bundle analyzer** – `pnpm build:web:ssr` with `ANALYZE=1`
 - **Manual testing** – Home, Blog, Login, authenticated routes
 - **SSR hydration** – No new hydration mismatches after changes
