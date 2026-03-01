@@ -32,9 +32,9 @@ describe('EMAIL_MODEL_OPTIONS ', () => {
     expect(EMAIL_MODEL_OPTIONS.attributes).toEqual([
       'id',
       'default',
+      'emailObfuscated',
       'isVerified',
       'label',
-      'email',
       'verifiedAt',
       'deletedAt',
     ])
