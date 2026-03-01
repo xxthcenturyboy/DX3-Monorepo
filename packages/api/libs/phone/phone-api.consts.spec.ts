@@ -35,7 +35,7 @@ describe('PHONE_MODEL_OPTIONS ', () => {
       'default',
       'isVerified',
       'label',
-      'phone',
+      'phoneObfuscated',
       'phoneFormatted',
       'verifiedAt',
       'deletedAt',
