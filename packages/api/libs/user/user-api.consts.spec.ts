@@ -42,6 +42,7 @@ describe('USER_FIND_ATTRIBUTES ', () => {
   it('should have correct value', () => {
     expect(USER_FIND_ATTRIBUTES).toEqual([
       'id',
+      'createdAt',
       'firstName',
       'lastName',
       'fullName',
@@ -64,6 +65,14 @@ describe('USER_SORT_FIELDS ', () => {
   })
 
   it('should have correct value', () => {
-    expect(USER_SORT_FIELDS).toEqual(['firstName', 'lastName', 'optInBeta'])
+    expect(USER_SORT_FIELDS).toEqual([
+      'firstName',
+      'fullName',
+      'isAdmin',
+      'isSuperAdmin',
+      'optInBeta',
+      'restrictions',
+      'username',
+    ])
   })
 })

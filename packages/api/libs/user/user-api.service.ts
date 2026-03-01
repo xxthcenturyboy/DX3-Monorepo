@@ -21,6 +21,7 @@ import {
   type UpdateUsernamePayloadType,
   type UpdateUserPayloadType,
   type UpdateUserResponseType,
+  type UserType,
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
@@ -38,6 +39,16 @@ import { createApiErrorMessage } from '../utils/lib/error/api-error.utils'
 import { USER_FIND_ATTRIBUTES, USER_SORT_FIELDS } from './user-api.consts'
 import { UserModel, type UserModelType } from './user-api.postgres-model'
 import { getUserProfileState } from './user-profile-api'
+
+/**
+ * Plain object from UserModel.toJSON().
+ * Sequelize serializes Date to ISO string at runtime; TypeScript may infer Date from model.
+ */
+type UserModelJsonType = Omit<UserType, 'createdAt' | 'emails' | 'phones'> & {
+  createdAt: Date | string
+  emails: EmailModelType[]
+  phones: PhoneModelType[]
+}
 
 export class UserService {
   private DEBUG = isDebug()
@@ -97,7 +108,7 @@ export class UserService {
     }
   }
 
-  private hidePiiFromUser(user: UserModelType): UserModelType {
+  private hidePiiFromUser(user: UserModelJsonType): UserType {
     user.emails = user.emails.map((email) => {
       const { emailObfuscated, ...rest } = email
       email = { ...rest, email: emailObfuscated } as EmailModelType
@@ -110,10 +121,11 @@ export class UserService {
       return phone
     })
 
-    return user
+    // Sequelize toJSON() serializes Date to ISO string at runtime
+    return user as UserType
   }
 
-  private formatPii(user: UserModelType): UserModelType {
+  private formatPii(user: UserModelJsonType): UserType {
     user.emails = user.emails.map((emailData) => {
       // biome-ignore lint/correctness/noUnusedVariables: we're pulling this out to remove from object
       const { email, emailObfuscated, ...rest } = emailData
@@ -127,7 +139,8 @@ export class UserService {
       return phoneData
     })
 
-    return user
+    // Sequelize toJSON() serializes Date to ISO string at runtime
+    return user as UserType
   }
 
   private shouldHidePii(loggedInUser: UserModelType | null): boolean {
@@ -353,7 +366,7 @@ export class UserService {
     }
 
     try {
-      const userJson = user.toJSON()
+      const userJson = user.toJSON() as UserModelJsonType
       if (this.shouldHidePii(loggedInUser)) {
         return this.hidePiiFromUser(userJson)
       }
@@ -392,16 +405,12 @@ export class UserService {
     }
 
     try {
-      let count = 0
-      const rows: UserModelType[] = []
+      const rows: UserType[] = []
       for (const user of users.rows) {
-        const userJson = user.toJSON()
+        const userJson = user.toJSON() as UserModelJsonType
         rows.push(this.hidePiiFromUser(userJson))
-        count += 1
       }
-      users.rows = rows
-      users.count = count
-      return users
+      return { count: users.count, rows }
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)
