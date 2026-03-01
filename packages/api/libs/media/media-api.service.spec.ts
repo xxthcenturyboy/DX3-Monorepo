@@ -28,12 +28,12 @@ describe('MediaApiService', () => {
     expect(MediaApiService).toBeDefined()
   })
 
-  it('should return undefined when userContentUpload is called in test.', async () => {
+  it('should return undefined when contentUpload is called in test.', async () => {
     // Arrange
     const service = new MediaApiService()
     // Act
     try {
-      const result = await service.userContentUpload({
+      const result = await service.contentUpload({
         altText: 'test-alt-text',
         filePath: 'test-path',
         fileSize: 2,
@@ -84,7 +84,7 @@ describe('MediaApiService', () => {
     } catch (err) {
       // Assert
       expect(err).toBeDefined()
-      expect((err as Error).message).toEqual('105 Could not retrieve file.')
+      expect((err as Error).message).toEqual('903 The specified key does not exist.')
     }
   })
 })
