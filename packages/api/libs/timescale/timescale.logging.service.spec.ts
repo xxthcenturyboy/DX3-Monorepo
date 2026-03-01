@@ -4,6 +4,12 @@ import { TimescaleConnection } from './timescale.connection'
 import { LoggingService } from './timescale.logging.service'
 
 // Mock dependencies
+jest.mock('./auth-failure-tracker', () => ({
+  AuthFailureTracker: jest.fn().mockImplementation(() => ({
+    setAlertCallback: jest.fn(),
+  })),
+}))
+
 jest.mock('./timescale.connection', () => ({
   TimescaleConnection: {
     instance: null,
