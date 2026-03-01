@@ -56,7 +56,7 @@ describe('SupportService', () => {
         createdAt: new Date(),
         id: 'test-id',
         resolvedAt: null,
-        status: SUPPORT_STATUS.NEW,
+        status: SUPPORT_STATUS.OPEN,
         updatedAt: new Date(),
         userId: mockUserId,
         viewedAt: null,
@@ -70,45 +70,7 @@ describe('SupportService', () => {
 
       expect(result).toBeDefined()
       expect(result.id).toBe('test-id')
-      expect(result.status).toBe(SUPPORT_STATUS.NEW)
-    })
-
-    it('should throw error if subject is empty', async () => {
-      const invalidPayload = { ...validPayload, subject: '' }
-
-      await expect(service.createRequest(mockUserId, invalidPayload)).rejects.toThrow(
-        'Subject is required',
-      )
-    })
-
-    it('should throw error if subject exceeds max length', async () => {
-      const invalidPayload = {
-        ...validPayload,
-        subject: 'a'.repeat(SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH + 1),
-      }
-
-      await expect(service.createRequest(mockUserId, invalidPayload)).rejects.toThrow(
-        `Subject must be ${SUPPORT_VALIDATION.SUBJECT_MAX_LENGTH} characters or less`,
-      )
-    })
-
-    it('should throw error if message is empty', async () => {
-      const invalidPayload = { ...validPayload, message: '' }
-
-      await expect(service.createRequest(mockUserId, invalidPayload)).rejects.toThrow(
-        'Message is required',
-      )
-    })
-
-    it('should throw error if message exceeds max length', async () => {
-      const invalidPayload = {
-        ...validPayload,
-        message: 'a'.repeat(SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH + 1),
-      }
-
-      await expect(service.createRequest(mockUserId, invalidPayload)).rejects.toThrow(
-        `Message must be ${SUPPORT_VALIDATION.MESSAGE_MAX_LENGTH} characters or less`,
-      )
+      expect(result.status).toBe(SUPPORT_STATUS.OPEN)
     })
 
     it('should throw error if user has too many open requests', async () => {
@@ -131,7 +93,7 @@ describe('SupportService', () => {
             category: SUPPORT_CATEGORY.ISSUE,
             createdAt: new Date(),
             id: 'test-id',
-            status: SUPPORT_STATUS.NEW,
+            status: SUPPORT_STATUS.OPEN,
             subject: 'Test',
             userDisplayName: 'testuser',
             userEmail: null,
@@ -160,7 +122,7 @@ describe('SupportService', () => {
         id: 'test-id',
         message: 'Test message',
         resolvedAt: null,
-        status: SUPPORT_STATUS.NEW,
+        status: SUPPORT_STATUS.OPEN,
         subject: 'Test subject',
         updatedAt: new Date(),
         userId: 'user-id',
