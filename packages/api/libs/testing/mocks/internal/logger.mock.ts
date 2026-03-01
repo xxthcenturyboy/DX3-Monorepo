@@ -16,11 +16,11 @@ export class ApiLoggingClass {
     return ApiLoggingClass.#instance
   }
 
-  public logInfo() {
+  public logData() {
     return true
   }
 
-  public logWarn() {
+  public logDebug() {
     return true
   }
 
@@ -28,7 +28,11 @@ export class ApiLoggingClass {
     return true
   }
 
-  public logDebug() {
+  public logInfo() {
+    return true
+  }
+
+  public logWarn() {
     return true
   }
 }
