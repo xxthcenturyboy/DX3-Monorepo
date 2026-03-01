@@ -17,9 +17,9 @@ describe('profane.util', () => {
     expect(isProfane).toBe(true)
   })
 
-  test('should return true when passed a custom profane word in a string', () => {
-    // arrange
-    const isProfane = profaneUtil.isProfane('That person is a custom-test.')
+  test('should return true when passed another profane word in a string', () => {
+    // arrange - uses different phrase with word from obscenity built-in dataset
+    const isProfane = profaneUtil.isProfane('You are such an asshole.')
     // act
     // assert
     expect(isProfane).toBe(true)
