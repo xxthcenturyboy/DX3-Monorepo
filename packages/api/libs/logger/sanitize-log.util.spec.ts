@@ -6,7 +6,7 @@ describe('sanitize-log.util', () => {
       const input = { email: 'test@example.com', password: 'secret123' }
       const result = sanitizeForLogging(input)
 
-      expect(result.email).toBe('test@example.com')
+      expect(result.email).toBe('[REDACTED]')
       expect(result.password).toBe('[REDACTED]')
     })
 
@@ -23,7 +23,7 @@ describe('sanitize-log.util', () => {
       const input = { code: '123456', email: 'test@example.com', otpCode: '654321' }
       const result = sanitizeForLogging(input)
 
-      expect(result.email).toBe('test@example.com')
+      expect(result.email).toBe('[REDACTED]')
       expect(result.code).toBe('[REDACTED]')
       expect(result.otpCode).toBe('[REDACTED]')
     })
@@ -40,7 +40,7 @@ describe('sanitize-log.util', () => {
       }
       const result = sanitizeForLogging(input)
 
-      expect(result.user.email).toBe('test@example.com')
+      expect(result.user.email).toBe('[REDACTED]')
       expect(result.user.password).toBe('[REDACTED]')
       expect(result.session.token).toBe('[REDACTED]')
     })
@@ -54,9 +54,9 @@ describe('sanitize-log.util', () => {
       }
       const result = sanitizeForLogging(input)
 
-      expect((result.users[0] as Record<string, string>).email).toBe('test1@example.com')
+      expect((result.users[0] as Record<string, string>).email).toBe('[REDACTED]')
       expect((result.users[0] as Record<string, string>).password).toBe('[REDACTED]')
-      expect((result.users[1] as Record<string, string>).email).toBe('test2@example.com')
+      expect((result.users[1] as Record<string, string>).email).toBe('[REDACTED]')
       expect((result.users[1] as Record<string, string>).password).toBe('[REDACTED]')
     })
 
@@ -78,7 +78,6 @@ describe('sanitize-log.util', () => {
 
     it('should preserve non-sensitive fields', () => {
       const input = {
-        email: 'test@example.com',
         firstName: 'John',
         id: '12345',
         lastName: 'Doe',
@@ -94,13 +93,13 @@ describe('sanitize-log.util', () => {
       const input = { email: 'test@example.com', password: 'secret' }
       const result = safeStringify(input)
 
-      expect(result).toContain('"email":"test@example.com"')
+      expect(result).toContain('"email":"[REDACTED]"')
       expect(result).toContain('"password":"[REDACTED]"')
       expect(result).not.toContain('secret')
     })
 
     it('should support pretty printing', () => {
-      const input = { email: 'test@example.com', password: 'secret' }
+      const input = { name: 'test' }
       const result = safeStringify(input, 2)
 
       expect(result).toContain('\n')
