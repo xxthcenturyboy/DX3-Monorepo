@@ -111,25 +111,30 @@ describe('SupportService', () => {
       expect(result.count).toBe(1)
       expect(result.rows).toHaveLength(1)
     })
+
+    it('should throw server error when getList fails', async () => {
+      ;(SupportRequestModel.getList as jest.Mock).mockRejectedValue(new Error('DB error'))
+      await expect(service.getList({ limit: 10, offset: 0 })).rejects.toThrow('DB error')
+    })
   })
 
   describe('getById', () => {
-    it('should return request by id', async () => {
-      const mockRequest = {
-        assignedTo: null,
-        category: SUPPORT_CATEGORY.ISSUE,
-        createdAt: new Date(),
-        id: 'test-id',
-        message: 'Test message',
-        resolvedAt: null,
-        status: SUPPORT_STATUS.OPEN,
-        subject: 'Test subject',
-        updatedAt: new Date(),
-        userId: 'user-id',
-        viewedAt: null,
-        viewedByAdmin: false,
-      }
+    const mockRequest = {
+      assignedTo: null,
+      category: SUPPORT_CATEGORY.ISSUE,
+      createdAt: new Date(),
+      id: 'test-id',
+      message: 'Test message',
+      resolvedAt: null,
+      status: SUPPORT_STATUS.OPEN,
+      subject: 'Test subject',
+      updatedAt: new Date(),
+      userId: 'user-id',
+      viewedAt: null,
+      viewedByAdmin: false,
+    }
 
+    it('should return request by id', async () => {
       ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue(mockRequest)
 
       const result = await service.getById('test-id')
@@ -138,10 +143,66 @@ describe('SupportService', () => {
       expect(result.id).toBe('test-id')
     })
 
+    it('should map user display fields when user has first and last name', async () => {
+      ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue({
+        ...mockRequest,
+        user: { firstName: 'John', lastName: 'Doe', username: 'jdoe' },
+      })
+      const result = await service.getById('test-id')
+      expect(result.userFullName).toBe('John Doe')
+      expect(result.userDisplayName).toBe('jdoe')
+    })
+
+    it('should map user display fields when user has only firstName', async () => {
+      ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue({
+        ...mockRequest,
+        user: { firstName: 'Jane' },
+      })
+      const result = await service.getById('test-id')
+      expect(result.userFullName).toBe('Jane')
+    })
+
+    it('should map user display fields as Unknown when no user info', async () => {
+      ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue({
+        ...mockRequest,
+        user: {},
+      })
+      const result = await service.getById('test-id')
+      expect(result.userDisplayName).toBe('Unknown')
+    })
+
     it('should throw error if request not found', async () => {
       ;(SupportRequestModel.getById as jest.Mock).mockResolvedValue(null)
 
       await expect(service.getById('non-existent-id')).rejects.toThrow('Support request not found')
+    })
+  })
+
+  describe('getByUserId', () => {
+    it('should return requests for user', async () => {
+      const mockRequest = {
+        assignedTo: null,
+        category: SUPPORT_CATEGORY.ISSUE,
+        createdAt: new Date(),
+        id: 'req-1',
+        message: 'Help me',
+        resolvedAt: null,
+        status: SUPPORT_STATUS.OPEN,
+        subject: 'Issue',
+        updatedAt: new Date(),
+        userId: 'user-id',
+        viewedAt: null,
+        viewedByAdmin: false,
+      }
+      ;(SupportRequestModel.getByUserId as jest.Mock).mockResolvedValue([mockRequest])
+      const result = await service.getByUserId('user-id')
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('req-1')
+    })
+
+    it('should throw server error when getByUserId fails', async () => {
+      ;(SupportRequestModel.getByUserId as jest.Mock).mockRejectedValue(new Error('Query failed'))
+      await expect(service.getByUserId('user-id')).rejects.toThrow('Query failed')
     })
   })
 
@@ -174,6 +235,13 @@ describe('SupportService', () => {
       await expect(
         service.updateStatus('test-id', { status: SUPPORT_STATUS.IN_PROGRESS }),
       ).rejects.toThrow('Assignment is required before changing status to in_progress')
+    })
+
+    it('should throw not found when updateStatus returns 0 updated rows', async () => {
+      ;(SupportRequestModel.updateStatus as jest.Mock).mockResolvedValue([0])
+      await expect(
+        service.updateStatus('missing-id', { status: SUPPORT_STATUS.OPEN }),
+      ).rejects.toThrow('Support request not found')
     })
 
     it('should allow in_progress with assignment', async () => {
@@ -213,6 +281,13 @@ describe('SupportService', () => {
 
       expect(result.count).toBe(5)
     })
+
+    it('should throw server error when getUnviewedCount fails', async () => {
+      ;(SupportRequestModel.getUnviewedCount as jest.Mock).mockRejectedValue(
+        new Error('Count query failed'),
+      )
+      await expect(service.getUnviewedCount()).rejects.toThrow('Count query failed')
+    })
   })
 
   describe('markAsViewed', () => {
@@ -222,6 +297,13 @@ describe('SupportService', () => {
       const result = await service.markAsViewed('test-id')
 
       expect(result.success).toBe(true)
+    })
+
+    it('should throw server error when markAsViewed fails', async () => {
+      ;(SupportRequestModel.markAsViewed as jest.Mock).mockRejectedValue(
+        new Error('Mark viewed failed'),
+      )
+      await expect(service.markAsViewed('test-id')).rejects.toThrow('Mark viewed failed')
     })
   })
 
@@ -233,6 +315,13 @@ describe('SupportService', () => {
 
       expect(result.success).toBe(true)
     })
+
+    it('should throw server error when markAllAsViewed fails', async () => {
+      ;(SupportRequestModel.markAllAsViewed as jest.Mock).mockRejectedValue(
+        new Error('Mark all viewed failed'),
+      )
+      await expect(service.markAllAsViewed()).rejects.toThrow('Mark all viewed failed')
+    })
   })
 
   describe('bulkUpdateStatus', () => {
@@ -243,6 +332,15 @@ describe('SupportService', () => {
 
       expect(result.success).toBe(true)
       expect(result.updated).toBe(3)
+    })
+
+    it('should throw server error when bulkUpdateStatus fails', async () => {
+      ;(SupportRequestModel.updateStatus as jest.Mock).mockRejectedValue(
+        new Error('Bulk update failed'),
+      )
+      await expect(service.bulkUpdateStatus(['id-1'], SUPPORT_STATUS.CLOSED)).rejects.toThrow(
+        'Bulk update failed',
+      )
     })
   })
 })

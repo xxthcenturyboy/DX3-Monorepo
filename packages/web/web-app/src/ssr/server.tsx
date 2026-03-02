@@ -17,11 +17,11 @@
  */
 
 import * as path from 'node:path'
-
 import { config as loadDotenv } from 'dotenv'
 
 // Load .env so API_URL and other vars are available for SSR loaders (blog, shortlink)
 loadDotenv({ path: path.join(__dirname, '../../web-app/.env') })
+
 import { Writable } from 'node:stream'
 import { CacheProvider } from '@emotion/react'
 import createEmotionServer from '@emotion/server/create-instance'
@@ -35,8 +35,8 @@ import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'r
 import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 
 import { createEmotionCache } from '../app/emotion-cache'
-import { DEFAULT_LOCALE } from '../app/i18n'
 import type { LocaleCode, StringKeys } from '../app/i18n'
+import { DEFAULT_LOCALE } from '../app/i18n'
 import { i18nActions } from '../app/i18n/i18n.reducer'
 import { i18nService } from '../app/i18n/i18n.service'
 import { startSsrKeyTracking, stopSsrKeyTracking } from '../app/i18n/i18n-ssr-tracker'
@@ -251,24 +251,24 @@ app.get('*', async (req, res) => {
     // StrictMode disabled - double-render can cause Emotion class name order mismatch (React 418)
     const reactApp = (
       <ErrorBoundary
-            fallback={
-            <NotFoundComponent
-              notFoundHeader={getStringValue('NOT_FOUND')}
-              notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+        fallback={
+          <NotFoundComponent
+            notFoundHeader={getStringValue('NOT_FOUND')}
+            notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+          />
+        }
+      >
+        <ReduxProvider store={store}>
+          {/* Note: PersistGate skipped in SSR - no persisted data to rehydrate on server */}
+          {/* Note: No Suspense - causes hydration mismatch (React 418) */}
+          <CacheProvider value={emotionCache}>
+            <StaticRouterProvider
+              context={context}
+              router={router}
             />
-            }
-          >
-            <ReduxProvider store={store}>
-            {/* Note: PersistGate skipped in SSR - no persisted data to rehydrate on server */}
-            {/* Note: No Suspense - causes hydration mismatch (React 418) */}
-            <CacheProvider value={emotionCache}>
-              <StaticRouterProvider
-                context={context}
-                router={router}
-              />
-            </CacheProvider>
-          </ReduxProvider>
-        </ErrorBoundary>
+          </CacheProvider>
+        </ReduxProvider>
+      </ErrorBoundary>
     )
 
     // Start tracking i18n key access for minimal state serialization
@@ -287,34 +287,34 @@ app.get('*', async (req, res) => {
         onAllReady() {
           safeSendResponse(() => {
             const renderTime = Date.now() - renderStartTime
-          metrics.histogram('ssr.render_time', renderTime, { route })
+            metrics.histogram('ssr.render_time', renderTime, { route })
 
-          // Stop tracking and get the keys that were actually used
-          const usedI18nKeys = stopSsrKeyTracking()
-          console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
+            // Stop tracking and get the keys that were actually used
+            const usedI18nKeys = stopSsrKeyTracking()
+            console.log(`[SSR] Route ${route} used ${usedI18nKeys.length} i18n keys:`, usedI18nKeys)
 
-          // Serialize full translations for hydration (minimal caused empty content on client)
-          const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
+            // Serialize full translations for hydration (minimal caused empty content on client)
+            const fullTranslations = store.getState().i18n?.translations || ({} as StringKeys)
 
-          const preloadedState = {
-            ...store.getState(),
-            i18n: {
-              ...store.getState().i18n,
-              defaultTranslations: {},
-              translations: fullTranslations,
-            },
-          }
-          const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
+            const preloadedState = {
+              ...store.getState(),
+              i18n: {
+                ...store.getState().i18n,
+                defaultTranslations: {},
+                translations: fullTranslations,
+              },
+            }
+            const serializedState = JSON.stringify(preloadedState).replace(/</g, '\\u003c')
 
-          // Serialize hydration data: loaderData, actionData, errors (createBrowserRouter format)
-          const hydrationData = {
-            actionData: (context as { actionData?: unknown }).actionData,
-            errors: (context as { errors?: unknown }).errors,
-            loaderData: (context as { loaderData?: unknown }).loaderData,
-          }
-          const serializedRouterState = JSON.stringify(hydrationData).replace(/</g, '\\u003c')
+            // Serialize hydration data: loaderData, actionData, errors (createBrowserRouter format)
+            const hydrationData = {
+              actionData: (context as { actionData?: unknown }).actionData,
+              errors: (context as { errors?: unknown }).errors,
+              loaderData: (context as { loaderData?: unknown }).loaderData,
+            }
+            const serializedRouterState = JSON.stringify(hydrationData).replace(/</g, '\\u003c')
 
-          const htmlEndWithState = `</div>
+            const htmlEndWithState = `</div>
   <script>
     window.__PRELOADED_STATE__ = ${serializedState};
     window.__ROUTER_STATE__ = ${serializedRouterState};
@@ -328,48 +328,48 @@ app.get('*', async (req, res) => {
 </body>
 </html>`
 
-          // Buffer React stream, extract Emotion CSS, then send full response
-          const chunks: Buffer[] = []
-          const bufferStream = new Writable({
-            final(callback) {
-              const reactHtml = Buffer.concat(chunks).toString('utf8')
+            // Buffer React stream, extract Emotion CSS, then send full response
+            const chunks: Buffer[] = []
+            const bufferStream = new Writable({
+              final(callback) {
+                const reactHtml = Buffer.concat(chunks).toString('utf8')
 
-              // Extract critical Emotion CSS from rendered HTML and consolidate in head.
-              // Emotion 11 default mode may inject styles in-body; extraction consolidates for faster FCP.
-              const emotionServer = createEmotionServer(emotionCache)
-              const emotionChunks = emotionServer.extractCriticalToChunks(reactHtml)
-              const emotionStylesTag = emotionServer.constructStyleTagsFromChunks(emotionChunks)
-              // Add id to first style tag for client removal (client.tsx removes #emotion-ssr-styles).
-              // If extraction returns empty (e.g. Emotion default mode), placeholder remains; body styles still apply.
-              const emotionStyles =
-                emotionStylesTag.length > 0
-                  ? emotionStylesTag.replace('<style', '<style id="emotion-ssr-styles"')
-                  : '<style id="emotion-ssr-styles"></style>'
+                // Extract critical Emotion CSS from rendered HTML and consolidate in head.
+                // Emotion 11 default mode may inject styles in-body; extraction consolidates for faster FCP.
+                const emotionServer = createEmotionServer(emotionCache)
+                const emotionChunks = emotionServer.extractCriticalToChunks(reactHtml)
+                const emotionStylesTag = emotionServer.constructStyleTagsFromChunks(emotionChunks)
+                // Add id to first style tag for client removal (client.tsx removes #emotion-ssr-styles).
+                // If extraction returns empty (e.g. Emotion default mode), placeholder remains; body styles still apply.
+                const emotionStyles =
+                  emotionStylesTag.length > 0
+                    ? emotionStylesTag.replace('<style', '<style id="emotion-ssr-styles"')
+                    : '<style id="emotion-ssr-styles"></style>'
 
-              const htmlStart = buildHtmlStart(emotionStyles)
-              const fullHtml = htmlStart + reactHtml + htmlEndWithState
+                const htmlStart = buildHtmlStart(emotionStyles)
+                const fullHtml = htmlStart + reactHtml + htmlEndWithState
 
-              res.statusCode = 200
-              res.setHeader('Content-Type', 'text/html; charset=utf-8')
-              res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate')
-              res.write(fullHtml)
-              res.end()
+                res.statusCode = 200
+                res.setHeader('Content-Type', 'text/html; charset=utf-8')
+                res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate')
+                res.write(fullHtml)
+                res.end()
 
-              const totalTime = Date.now() - requestStartTime
-              metrics.histogram('ssr.total_time', totalTime, { route })
-              metrics.histogram('ssr.html_size', fullHtml.length, { route })
-              metrics.histogram('ssr.i18n_keys_used', usedI18nKeys.length, { route })
-              metrics.increment('ssr.success', { route })
+                const totalTime = Date.now() - requestStartTime
+                metrics.histogram('ssr.total_time', totalTime, { route })
+                metrics.histogram('ssr.html_size', fullHtml.length, { route })
+                metrics.histogram('ssr.i18n_keys_used', usedI18nKeys.length, { route })
+                metrics.increment('ssr.success', { route })
 
-              callback()
-            },
-            write(chunk: Buffer | string, _encoding, callback) {
-              chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
-              callback()
-            },
-          })
+                callback()
+              },
+              write(chunk: Buffer | string, _encoding, callback) {
+                chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+                callback()
+              },
+            })
 
-          pipe(bufferStream)
+            pipe(bufferStream)
           })
         },
         onError(error) {

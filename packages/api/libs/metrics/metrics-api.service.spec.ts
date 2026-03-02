@@ -5,6 +5,13 @@ import { METRIC_EVENT_TYPE } from '@dx3/models-shared'
 import { ApiLoggingClass } from '../logger'
 import { MetricsService } from './metrics-api.service'
 
+// Override IS_PARENT_DASHBOARD_APP so that IS_PARENT_DASHBOARD_APP branches are reachable
+jest.mock('@dx3/models-shared', () => ({
+  ...jest.requireActual('@dx3/models-shared'),
+  APP_ID: 'test-app-id',
+  IS_PARENT_DASHBOARD_APP: true,
+}))
+
 const mockLog = jest.fn()
 const mockQueryRaw = jest.fn()
 const mockIsAvailable = jest.fn()
@@ -70,7 +77,6 @@ describe('MetricsService', () => {
       metricsService = new MetricsService()
       expect(metricsService.isAvailable()).toBe(false)
     })
-
   })
 
   describe('record', () => {
@@ -366,6 +372,482 @@ describe('MetricsService', () => {
         { date: '2025-01-01', dau: 10 },
         { date: '2025-01-02', dau: 15 },
       ])
+    })
+
+    it('should return empty array when no rows', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getDailyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-02'),
+      )
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('static instance getter', () => {
+    it('should return the most recently constructed instance', () => {
+      const svc = new MetricsService()
+      expect(MetricsService.instance).toBe(svc)
+    })
+  })
+
+  describe('detectSource via recordSignup (no explicit signupSource)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should detect "mobile" when user-agent includes mobile identifier', async () => {
+      const mobileReq = {
+        ...createMockRequest(),
+        headers: { 'user-agent': 'DX3Mobile/1.0' },
+      } as unknown as IRequest
+
+      await metricsService.recordSignup({
+        method: 'email',
+        req: mobileReq,
+        userId: 'user-mobile',
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupSource: 'mobile' }),
+        }),
+      )
+    })
+
+    it('should detect "web" when origin includes localhost', async () => {
+      const webReq = {
+        ...createMockRequest(),
+        headers: { origin: 'http://localhost:3000', 'user-agent': 'Mozilla/5.0' },
+      } as unknown as IRequest
+
+      await metricsService.recordSignup({
+        method: 'email',
+        req: webReq,
+        userId: 'user-web',
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupSource: 'web' }),
+        }),
+      )
+    })
+
+    it('should detect "api" as default when no mobile identifier or web origin', async () => {
+      const apiReq = {
+        ...createMockRequest(),
+        headers: { origin: 'https://external.com', 'user-agent': 'curl/7.0' },
+      } as unknown as IRequest
+
+      await metricsService.recordSignup({
+        method: 'email',
+        req: apiReq,
+        userId: 'user-api',
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupSource: 'api' }),
+        }),
+      )
+    })
+  })
+
+  describe('recordLogout - fallback to req.user.id', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should use req.user.id when userId is not provided', async () => {
+      const reqWithUser = {
+        ...createMockRequest(),
+        user: { id: 'req-user-id' },
+      } as unknown as IRequest
+
+      await metricsService.recordLogout({ req: reqWithUser })
+
+      expect(mockLog).toHaveBeenCalledWith(expect.objectContaining({ userId: 'req-user-id' }))
+    })
+  })
+
+  describe('recordSessionStart - auto-detect platform', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should auto-detect platform when none provided', async () => {
+      await metricsService.recordSessionStart({ req, userId: 'user-1' })
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({ eventType: METRIC_EVENT_TYPE.METRIC_SESSION_START }),
+      )
+    })
+  })
+
+  describe('recordSessionEnd - fallback userId', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should use req.user.id when userId is omitted', async () => {
+      const reqWithUser = {
+        ...createMockRequest(),
+        user: { id: 'session-user-id' },
+      } as unknown as IRequest
+
+      await metricsService.recordSessionEnd({ req: reqWithUser })
+
+      expect(mockLog).toHaveBeenCalledWith(expect.objectContaining({ userId: 'session-user-id' }))
+    })
+  })
+
+  describe('getWeeklyActiveUsers', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should return parsed rows with wau and weekEnd', async () => {
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ wau: '75', week_end: '2025-01-07' }],
+      })
+
+      const result = await metricsService.getWeeklyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-08'),
+      )
+
+      expect(result).toEqual([{ wau: 75, weekEnd: '2025-01-07' }])
+    })
+
+    it('should return empty array when no rows', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getWeeklyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-08'),
+      )
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getMonthlyActiveUsers', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should return parsed rows with mau and monthEnd', async () => {
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ mau: '300', month_end: '2025-01-31' }],
+      })
+
+      const result = await metricsService.getMonthlyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-02-01'),
+      )
+
+      expect(result).toEqual([{ mau: 300, monthEnd: '2025-01-31' }])
+    })
+
+    it('should return empty array when no rows', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getMonthlyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-02-01'),
+      )
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getSignupsByMethod', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should return parsed rows with count and method', async () => {
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 2,
+        rows: [
+          { count: '50', method: 'email' },
+          { count: '20', method: 'phone' },
+        ],
+      })
+
+      const result = await metricsService.getSignupsByMethod(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+      )
+
+      expect(result).toEqual([
+        { count: 50, method: 'email' },
+        { count: 20, method: 'phone' },
+      ])
+    })
+
+    it('should return empty array when no rows', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getSignupsByMethod(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+      )
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getFeatureUsage', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should return parsed rows with count and featureName', async () => {
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ count: '15', feature_name: 'export-csv' }],
+      })
+
+      const result = await metricsService.getFeatureUsage(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+      )
+
+      expect(result).toEqual([{ count: 15, featureName: 'export-csv' }])
+    })
+
+    it('should return empty array when no rows', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getFeatureUsage(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+      )
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('getAppsWithMetrics', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should query DB for all app IDs when IS_PARENT_DASHBOARD_APP is true', async () => {
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 2,
+        rows: [{ app_id: 'app-alpha' }, { app_id: 'app-beta' }],
+      })
+      const result = await metricsService.getAppsWithMetrics()
+      expect(result).toEqual(['app-alpha', 'app-beta'])
+    })
+
+    it('should return empty array when no apps in DB', async () => {
+      mockQueryRaw.mockResolvedValue({ rowCount: 0, rows: [] })
+      const result = await metricsService.getAppsWithMetrics()
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('record - with req headers', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should include fingerprint from HEADER_DEVICE_ID_PROP header', async () => {
+      const reqWithDevice = {
+        ...createMockRequest(),
+        headers: {
+          'user-agent': 'DX3Mobile/1.0',
+          'x-device-id': 'device-fingerprint-123',
+        },
+        user: { id: 'user-with-device' },
+      } as unknown as IRequest
+
+      await metricsService.record({
+        eventType: METRIC_EVENT_TYPE.METRIC_LOGIN,
+        req: reqWithDevice,
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-with-device',
+        }),
+      )
+    })
+  })
+
+  describe('detectSource via recordSignup - dx3 origin detection', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+    })
+
+    it('should detect "web" when origin includes dx3', async () => {
+      const dx3Req = {
+        ...createMockRequest(),
+        headers: { origin: 'https://app.dx3.io', 'user-agent': 'Mozilla/5.0 Chrome' },
+      } as unknown as IRequest
+
+      await metricsService.recordSignup({
+        method: 'email',
+        req: dx3Req,
+        userId: 'user-dx3',
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupSource: 'web' }),
+        }),
+      )
+    })
+
+    it('should detect mobile via HEADER_DEVICE_ID_PROP even without mobile user-agent', async () => {
+      const deviceReq = {
+        ...createMockRequest(),
+        headers: {
+          origin: 'https://external.com',
+          'user-agent': 'Mozilla/5.0',
+          'x-device-id': 'some-device-id',
+        },
+      } as unknown as IRequest
+
+      await metricsService.recordSignup({
+        method: 'phone',
+        req: deviceReq,
+        userId: 'user-device',
+      })
+
+      expect(mockLog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({ signupSource: 'mobile' }),
+        }),
+      )
+    })
+  })
+
+  describe('getRealTimeActiveUsers - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({ rowCount: 1, rows: [{ count: '7' }] })
+    })
+
+    it('should add app_id param when appId is provided and IS_PARENT_DASHBOARD_APP=true', async () => {
+      const result = await metricsService.getRealTimeActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-02'),
+        'specific-app',
+      )
+      expect(result).toBe(7)
+      // IS_PARENT_DASHBOARD_APP=true with appId → filter with 3 params
+      expect(mockQueryRaw).toHaveBeenCalledWith(
+        expect.stringContaining('app_id'),
+        expect.arrayContaining(['specific-app']),
+      )
+    })
+
+    it('should not add app_id param when no appId (IS_PARENT_DASHBOARD_APP=true, no filter)', async () => {
+      const result = await metricsService.getRealTimeActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-02'),
+      )
+      expect(result).toBe(7)
+    })
+  })
+
+  describe('getSignupCount - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({ rowCount: 1, rows: [{ count: '99' }] })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getSignupCount(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+        'app-123',
+      )
+      expect(result).toBe(99)
+    })
+  })
+
+  describe('getDailyActiveUsers - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({ rowCount: 1, rows: [{ date: '2025-01-01', dau: '5' }] })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getDailyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-02'),
+        'app-456',
+      )
+      expect(result).toEqual([{ date: '2025-01-01', dau: 5 }])
+    })
+  })
+
+  describe('getWeeklyActiveUsers - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({ rowCount: 1, rows: [{ wau: '50', week_end: '2025-01-07' }] })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getWeeklyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-01-08'),
+        'app-weekly',
+      )
+      expect(result).toEqual([{ wau: 50, weekEnd: '2025-01-07' }])
+    })
+  })
+
+  describe('getMonthlyActiveUsers - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ mau: '200', month_end: '2025-01-31' }],
+      })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getMonthlyActiveUsers(
+        new Date('2025-01-01'),
+        new Date('2025-02-01'),
+        'app-monthly',
+      )
+      expect(result).toEqual([{ mau: 200, monthEnd: '2025-01-31' }])
+    })
+  })
+
+  describe('getSignupsByMethod - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({ rowCount: 1, rows: [{ count: '10', method: 'email' }] })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getSignupsByMethod(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+        'app-signups',
+      )
+      expect(result).toEqual([{ count: 10, method: 'email' }])
+    })
+  })
+
+  describe('getFeatureUsage - with appId (IS_PARENT_DASHBOARD_APP=true)', () => {
+    beforeEach(() => {
+      metricsService = new MetricsService()
+      mockQueryRaw.mockResolvedValue({
+        rowCount: 1,
+        rows: [{ count: '3', feature_name: 'dark-mode' }],
+      })
+    })
+
+    it('should add app_id param when appId is provided', async () => {
+      const result = await metricsService.getFeatureUsage(
+        new Date('2025-01-01'),
+        new Date('2025-01-31'),
+        'app-features',
+      )
+      expect(result).toEqual([{ count: 3, featureName: 'dark-mode' }])
     })
   })
 })

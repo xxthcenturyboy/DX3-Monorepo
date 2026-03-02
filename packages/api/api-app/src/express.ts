@@ -10,11 +10,7 @@ import helmet from 'helmet'
 import { handleError } from '@dx3/api-libs/error-handler/error-handler'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 
-import {
-  allowedCorsOrigins,
-  isProd,
-  isStaging,
-} from './config/config-api.service'
+import { allowedCorsOrigins, isProd, isStaging } from './config/config-api.service'
 
 type DxApiSettingsType = {
   DEBUG: boolean
@@ -65,7 +61,7 @@ export async function configureExpress(app: Express, _settings: DxApiSettingsTyp
       origin:
         allowedOrigins.length === 1
           ? allowedOrigins[0]
-          :             (origin, cb) => {
+          : (origin, cb) => {
               if (!origin || allowedOrigins.includes(origin)) {
                 cb(null, true)
               } else {

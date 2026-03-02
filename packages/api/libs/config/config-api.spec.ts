@@ -63,18 +63,47 @@ describe('getApiConfig', () => {
 
 describe('getRedisConfig', () => {
   it('should exist when imported', () => {
-    // arrange
-    // act
-    // assert
     expect(getRedisConfig).toBeDefined()
   })
+
   it('should have the correct values', () => {
-    // arrange
-    // act
     const settings = getRedisConfig()
-    // assert
     expect(settings.port).toEqual(process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379)
     expect(settings.prefix).toEqual(APP_PREFIX)
     expect(settings.url).toContain(process.env.REDIS_URL)
+  })
+
+  it('should default redis port to 6379 when REDIS_PORT is not set', () => {
+    const originalPort = process.env.REDIS_PORT
+    delete process.env.REDIS_PORT
+    const settings = getRedisConfig()
+    expect(settings.port).toBe(6379)
+    process.env.REDIS_PORT = originalPort
+  })
+})
+
+describe('getApiConfig - dev host branch', () => {
+  it('should use 0.0.0.0 as host when in dev mode', () => {
+    jest.isolateModules(() => {
+      jest.mock('./config-api.service', () => ({
+        ...jest.requireActual('./config-api.service'),
+        getEnvironment: () => ({
+          ...process.env,
+          API_PORT: '4000',
+          NODE_ENV: 'development',
+        }),
+        isDebug: () => false,
+        isDev: () => true,
+      }))
+      var { getApiConfig: getApiConfigDev } = require('./config-api') as {
+        getApiConfig: typeof import('./config-api').getApiConfig
+      }
+      const cfg = getApiConfigDev(
+        {} as Parameters<typeof import('./config-api').getApiConfig>[0],
+        {} as Parameters<typeof import('./config-api').getApiConfig>[1],
+        {} as Parameters<typeof import('./config-api').getApiConfig>[2],
+      )
+      expect(cfg.host).toBe('0.0.0.0')
+    })
   })
 })

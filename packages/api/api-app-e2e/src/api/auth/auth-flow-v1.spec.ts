@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 
 import { dxRsaGenerateKeyPair, dxRsaSignPayload } from '@dx3/encryption'
 import type {

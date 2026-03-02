@@ -1,8 +1,8 @@
 import type { Request as IRequest, Response as IResponse } from 'express'
-import { z } from 'zod'
 import { next } from 'jest-express/lib/next'
 import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
+import { z } from 'zod'
 
 import { ERROR_CODES } from '@dx3/models-shared'
 
@@ -89,19 +89,22 @@ describe('validateRequest', () => {
   })
 
   describe('query validation', () => {
-    const querySchema = z.object({ page: z.coerce.number().min(1), limit: z.coerce.number().max(100) })
+    const querySchema = z.object({
+      limit: z.coerce.number().max(100),
+      page: z.coerce.number().min(1),
+    })
 
     it('should call next when query is valid', () => {
-      req.query = { page: '1', limit: '10' }
+      req.query = { limit: '10', page: '1' }
       const middleware = validateRequest({ query: querySchema })
       middleware(req, res, next)
       expect(next).toHaveBeenCalled()
       expect(sendBadRequestWithCode).not.toHaveBeenCalled()
-      expect(req.query).toEqual({ page: 1, limit: 10 })
+      expect(req.query).toEqual({ limit: 10, page: 1 })
     })
 
     it('should call sendBadRequestWithCode when query is invalid', () => {
-      req.query = { page: '-1', limit: '10' }
+      req.query = { limit: '10', page: '-1' }
       const middleware = validateRequest({ query: querySchema })
       middleware(req, res, next)
       expect(sendBadRequestWithCode).toHaveBeenCalledWith(
@@ -149,7 +152,11 @@ describe('validateRequest', () => {
       req.body = { value: 'test' }
       req.query = { type: 'a' }
       req.params = { id: '123' }
-      const middleware = validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })
+      const middleware = validateRequest({
+        body: bodySchema,
+        params: paramsSchema,
+        query: querySchema,
+      })
       middleware(req, res, next)
       expect(next).toHaveBeenCalled()
       expect(sendBadRequestWithCode).not.toHaveBeenCalled()
@@ -159,7 +166,11 @@ describe('validateRequest', () => {
       req.body = {}
       req.query = { type: 'a' }
       req.params = { id: '123' }
-      const middleware = validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })
+      const middleware = validateRequest({
+        body: bodySchema,
+        params: paramsSchema,
+        query: querySchema,
+      })
       middleware(req, res, next)
       expect(sendBadRequestWithCode).toHaveBeenCalledTimes(1)
       expect(next).not.toHaveBeenCalled()
@@ -196,6 +207,58 @@ describe('validateRequest', () => {
         res,
         ERROR_CODES.GENERIC_VALIDATION_FAILED,
         expect.stringMatching(/Custom validation error|Validation failed/),
+      )
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should use Validation failed fallback when thrown error has no message', () => {
+      const throwingSchema = z.object({
+        value: z.string().refine(() => {
+          // eslint-disable-next-line no-throw-literal
+          throw null
+        }),
+      })
+      req.body = { value: 'test' }
+      const middleware = validateRequest({ body: throwingSchema })
+      middleware(req, res, next)
+      expect(sendBadRequestWithCode).toHaveBeenCalledWith(
+        req,
+        res,
+        ERROR_CODES.GENERIC_VALIDATION_FAILED,
+        'Validation failed',
+      )
+      expect(next).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('formatZodError edge cases', () => {
+    it('should return "Invalid request" when ZodError has zero issues', () => {
+      const emptyZodError = new z.ZodError([])
+      const mockSchema = {
+        safeParse: jest.fn().mockReturnValue({ error: emptyZodError, success: false }),
+      } as unknown as z.ZodSchema
+      const middleware = validateRequest({ body: mockSchema })
+      middleware(req, res, next)
+      expect(sendBadRequestWithCode).toHaveBeenCalledWith(
+        req,
+        res,
+        ERROR_CODES.GENERIC_VALIDATION_FAILED,
+        'Invalid request',
+      )
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should not include path prefix when issue path is empty (top-level validation)', () => {
+      // z.string() validates req.body as a string directly, producing issues with path []
+      const stringSchema = z.string().min(10)
+      req.body = 'short'
+      const middleware = validateRequest({ body: stringSchema })
+      middleware(req, res, next)
+      expect(sendBadRequestWithCode).toHaveBeenCalledWith(
+        req,
+        res,
+        ERROR_CODES.GENERIC_VALIDATION_FAILED,
+        expect.stringMatching(/^Invalid request: /),
       )
       expect(next).not.toHaveBeenCalled()
     })

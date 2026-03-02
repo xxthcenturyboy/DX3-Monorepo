@@ -34,7 +34,9 @@ export const updateUserBodySchema = z.object({
   firstName: z.string().optional(),
   id: z.string().min(1),
   lastName: z.string().optional(),
-  restrictions: z.array(z.enum(ACCOUNT_RESTRICTIONS_ARRAY as unknown as [string, ...string[]])).optional(),
+  restrictions: z
+    .array(z.enum(ACCOUNT_RESTRICTIONS_ARRAY as unknown as [string, ...string[]]))
+    .optional(),
   roles: z.array(z.enum(USER_ROLE_ARRAY as unknown as [string, ...string[]])).optional(),
   timezone: z.string().optional(),
 })

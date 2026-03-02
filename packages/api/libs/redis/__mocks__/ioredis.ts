@@ -34,8 +34,12 @@ if (typeof ioredisMockModule === 'function') {
 }
 
 // Create the Redis export with Cluster as a static property (matching real ioredis)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Redis = IORedisMock as any
+type RedisConstructorWithCluster = (new (
+  ...args: unknown[]
+) => unknown) & {
+  Cluster?: new (...args: unknown[]) => unknown
+}
+const Redis = IORedisMock as RedisConstructorWithCluster
 Redis.Cluster = ClusterClass
 
 // Shared instance for clearing mock store (avoids creating new instances with listeners)

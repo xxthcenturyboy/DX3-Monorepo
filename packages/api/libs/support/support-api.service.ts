@@ -156,7 +156,15 @@ export class SupportService {
       }
 
       const request = await SupportRequestModel.getById(id)
-      return this.mapModelToType(request!)
+      if (!request) {
+        throw new Error(
+          createApiErrorMessage(
+            ERROR_CODES.GENERIC_NOT_FOUND,
+            'Support request not found after update',
+          ),
+        )
+      }
+      return this.mapModelToType(request)
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(`SupportService.updateStatus: ${msg}`)

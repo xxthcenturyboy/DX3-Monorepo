@@ -3,7 +3,31 @@ import { pathsToModuleNameMapper } from 'ts-jest'
 import { compilerOptions } from '../../tsconfig.base.json'
 
 export default {
+  collectCoverageFrom: [
+    'libs/**/*.{js,ts}',
+    '!libs/**/*.d.ts',
+    '!libs/**/*.types.ts',
+    '!libs/**/index.ts',
+    '!libs/**/*.mock.ts',
+    '!libs/**/*.spec.ts',
+    '!libs/**/*.test.ts',
+    '!libs/**/node_modules/**',
+    // Exclude postgres models, migrations, seeders (integration/E2E scope)
+    '!libs/**/*.postgres-model.ts',
+    '!libs/pg/migrations/**',
+    '!libs/pg/seed/**',
+    // Exclude test infrastructure helpers (not application code)
+    '!libs/testing/**',
+  ],
   coverageDirectory: '../../coverage/api/api',
+  // Belt-and-suspenders: regex exclusions (paths can be absolute; preset may override collectCoverageFrom)
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '\\.mock\\.ts$',
+    '\\.postgres-model\\.ts$',
+    '/libs/pg/migrations/',
+    '/libs/pg/seed/',
+  ],
   displayName: 'api-libs',
   // Force exit after tests complete to avoid hanging on open handles
   forceExit: true,

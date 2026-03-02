@@ -55,7 +55,6 @@ export const ContentHeader: React.FC<ContentHeaderPropsType> = (props) => {
     // topOffset
   } = props
   const THEME = useTheme()
-  const MD_BREAK = useMediaQuery(THEME.breakpoints.down('md'))
   const SM_BREAK = useMediaQuery(THEME.breakpoints.down('sm'))
 
   const renderHeaderNavigation = (): React.ReactElement => {

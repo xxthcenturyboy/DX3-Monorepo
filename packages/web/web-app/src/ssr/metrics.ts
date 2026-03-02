@@ -169,7 +169,7 @@ class SsrMetrics {
     const uptime = this.getUptime()
     const memory = this.getMemoryUsage()
 
-    console.log('\n' + '='.repeat(60))
+    console.log(`\n${'='.repeat(60)}`)
     console.log('SSR METRICS SUMMARY')
     console.log('='.repeat(60))
     console.log(`Uptime: ${Math.floor(uptime)}s`)
@@ -238,7 +238,7 @@ class SsrMetrics {
       console.log('')
     }
 
-    console.log('='.repeat(60) + '\n')
+    console.log(`${'='.repeat(60)}\n`)
   }
 
   /**

@@ -41,11 +41,11 @@ let consoleSpy: ConsoleSpy | null = null
 
 // Global test lifecycle hooks
 beforeAll(() => {
-  // Suppress console output unless DEBUG_TESTS is set
-  if (process.env.DEBUG_TESTS === 'false') {
-    consoleSpy = setupConsoleSpy(true)
-  } else {
+  // Suppress console output by default; set DEBUG_TESTS=true to see it
+  if (process.env.DEBUG_TESTS === 'true') {
     console.log('🧪 Test suite initializing...')
+  } else {
+    consoleSpy = setupConsoleSpy(true)
   }
 })
 

@@ -5,8 +5,8 @@ import Button, { type ButtonProps } from '@mui/material/Button'
 import Icon from '@mui/material/Icon'
 import IconButton from '@mui/material/IconButton'
 import Slide from '@mui/material/Slide'
-import Toolbar from '@mui/material/Toolbar'
 import { styled, useTheme } from '@mui/material/styles'
+import Toolbar from '@mui/material/Toolbar'
 import React from 'react'
 import { Link, useLocation } from 'react-router'
 
@@ -216,7 +216,10 @@ export const AppNavBarSsr: React.FC = () => {
             mountOnEnter
             unmountOnExit
           >
-            <Box component="span" sx={{ display: 'inline-flex', gap: 1 }}>
+            <Box
+              component="span"
+              sx={{ display: 'inline-flex', gap: 1 }}
+            >
               <Button
                 color={getAuthButtonColor('login')}
                 component={Link}

@@ -12,6 +12,7 @@
  */
 
 import { CacheProvider } from '@emotion/react'
+import type { PaletteMode } from '@mui/material/styles'
 import { StrictMode, Suspense } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
@@ -27,6 +28,7 @@ import { NotFoundComponent } from '@dx3/web-libs/ui/global/not-found.component'
 import { createEmotionCache } from './app/emotion-cache'
 import type { StringKeyName, StringKeys } from './app/i18n'
 import { i18nActions } from './app/i18n/i18n.reducer'
+import type { LocaleCode } from './app/i18n/i18n.types'
 import { createClientOnlyRoutes, createPublicRoutes } from './app/routers/ssr.routes'
 import { getPersistor, store } from './app/store/store-web.redux'
 import { ErrorBoundary } from './app/ui/error-boundary/error-boundary.component'
@@ -58,15 +60,15 @@ interface PreloadedState {
   }
   ui?: {
     theme?: string
-    [key: string]: any
+    [key: string]: unknown
   }
-  [key: string]: any
+  [key: string]: unknown
 }
 
 declare global {
   interface Window {
     __PRELOADED_STATE__?: PreloadedState
-    __ROUTER_STATE__?: any
+    __ROUTER_STATE__?: unknown
     store: typeof store
   }
 }
@@ -83,7 +85,7 @@ if (preloadedState) {
       store.dispatch(i18nActions.setTranslations(preloadedState.i18n.translations))
     }
     if (preloadedState.i18n.currentLocale) {
-      store.dispatch(i18nActions.setCurrentLocale(preloadedState.i18n.currentLocale as any))
+      store.dispatch(i18nActions.setCurrentLocale(preloadedState.i18n.currentLocale as LocaleCode))
     }
     if (preloadedState.i18n.isInitialized !== undefined) {
       store.dispatch(i18nActions.setInitialized(preloadedState.i18n.isInitialized))
@@ -91,7 +93,7 @@ if (preloadedState) {
   }
   // Apply UI state (especially theme) to match server rendering
   if (preloadedState.ui?.theme) {
-    store.dispatch(uiActions.themeModeSet(preloadedState.ui.theme as any))
+    store.dispatch(uiActions.themeModeSet(preloadedState.ui.theme as PaletteMode))
   }
   delete window.__PRELOADED_STATE__
   delete window.__ROUTER_STATE__
@@ -120,10 +122,7 @@ const getStringValue = (value: StringKeyName): string | undefined => {
 // Create router using SSR-compatible route factories
 const strings = store.getState()?.i18n?.translations || {}
 const router = createBrowserRouter(
-  [
-    ...createPublicRoutes(strings),
-    ...createClientOnlyRoutes(strings),
-  ],
+  [...createPublicRoutes(strings), ...createClientOnlyRoutes(strings)],
   {
     // Pass hydration data from SSR to avoid hydration mismatch
     hydrationData: routerState || undefined,
@@ -151,27 +150,18 @@ const rootElement = document.getElementById('root') as HTMLElement
 // StrictMode disabled during SSR hydration - double-render can cause Emotion class name order mismatch
 const app = isSSR ? (
   <ErrorBoundary
-        fallback={
-        <NotFoundComponent
-          notFoundHeader={getStringValue('NOT_FOUND')}
-          notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
-        />
-        }
-      >
-        <Provider store={store}>
-        {isSSR ? (
-          // SSR hydration: Skip PersistGate to match server structure
-          AppContent
-        ) : (
-          <PersistGate
-            loading={<UiLoadingComponent pastDelay={true} />}
-            persistor={persistor!}
-          >
-            {AppContent}
-          </PersistGate>
-        )}
-        </Provider>
-      </ErrorBoundary>
+    fallback={
+      <NotFoundComponent
+        notFoundHeader={getStringValue('NOT_FOUND')}
+        notFoundText={getStringValue('WE_COULDNT_FIND_WHAT_YOURE_LOOKING_FOR')}
+      />
+    }
+  >
+    <Provider store={store}>
+      {/* SSR hydration: PersistGate is intentionally skipped to match server-rendered structure */}
+      {AppContent}
+    </Provider>
+  </ErrorBoundary>
 ) : (
   <StrictMode>
     <ErrorBoundary
@@ -183,12 +173,16 @@ const app = isSSR ? (
       }
     >
       <Provider store={store}>
-        <PersistGate
-          loading={<UiLoadingComponent pastDelay={true} />}
-          persistor={persistor!}
-        >
-          {AppContent}
-        </PersistGate>
+        {persistor ? (
+          <PersistGate
+            loading={<UiLoadingComponent pastDelay={true} />}
+            persistor={persistor}
+          >
+            {AppContent}
+          </PersistGate>
+        ) : (
+          AppContent
+        )}
       </Provider>
     </ErrorBoundary>
   </StrictMode>

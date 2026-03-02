@@ -21,7 +21,7 @@ import { getGlobalAuthHeaders, getGlobalAuthResponse } from '../../support/test-
 
 describe('v1 Phone Routes', () => {
   let idToUpdate: string
-  let idToUpdateItaly: string
+  let _idToUpdateItaly: string
 
   describe('POST /api/v1/phone/validate', () => {
     test('should return an error when phone is not valid', async () => {
@@ -245,7 +245,7 @@ describe('v1 Phone Routes', () => {
       expect(response.data).toBeDefined()
       expect(response.data.id).toBeDefined()
 
-      idToUpdateItaly = response.data.id
+      _idToUpdateItaly = response.data.id
     })
 
     test('should return 200 when successfuly creates phone', async () => {

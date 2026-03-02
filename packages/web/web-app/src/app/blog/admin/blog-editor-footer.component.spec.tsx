@@ -36,7 +36,7 @@ describe('BlogEditorFooterComponent', () => {
 
   it('should call onSave when Save clicked', () => {
     const onSave = jest.fn()
-    const { store } = renderWithProviders(
+    renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogEditorFooterComponent
           onCancel={jest.fn()}

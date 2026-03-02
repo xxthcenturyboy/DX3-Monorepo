@@ -58,6 +58,7 @@ export class ApiLoggingClass {
     return winston.createLogger({
       level: process.env.NODE_ENV === 'production' ? 'info' : 'data',
       levels: WINSTON_LOG_LEVELS,
+      silent: process.env.NODE_ENV === 'test',
       transports: ApiLoggingClass.getTransports(appName),
     })
   }

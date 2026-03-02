@@ -131,5 +131,33 @@ describe('UserPrivilegeSetCache', () => {
       expect(result).toHaveLength(3)
       expect(result.sort((a, b) => a.order - b.order)).toEqual([data0, data1, data2])
     })
+
+    test('should return null and log error when getAllNamespace throws', async () => {
+      jest.spyOn(cache.cache, 'getAllNamespace').mockRejectedValueOnce(new Error('Redis error'))
+
+      const result = await cache.getAllPrivilegeSets()
+
+      expect(result).toBeNull()
+    })
+  })
+
+  describe('setCache error handling', () => {
+    test('should return false and log error when setCacheItem throws', async () => {
+      jest.spyOn(cache.cache, 'setCacheItem').mockRejectedValueOnce(new Error('Redis write error'))
+
+      const result = await cache.setCache(data0.name, data0)
+
+      expect(result).toBe(false)
+    })
+  })
+
+  describe('getCache error handling', () => {
+    test('should return null and log error when getCacheItem throws', async () => {
+      jest.spyOn(cache.cache, 'getCacheItem').mockRejectedValueOnce(new Error('Redis read error'))
+
+      const result = await cache.getCache(data0.name)
+
+      expect(result).toBeNull()
+    })
   })
 })

@@ -18,7 +18,7 @@ export const DashboardHeaderComponent: React.FC = () => {
           sm: 7,
         },
       }}
-      headerContent={<></>}
+      headerContent={null}
       headerTitle={title}
     />
   )

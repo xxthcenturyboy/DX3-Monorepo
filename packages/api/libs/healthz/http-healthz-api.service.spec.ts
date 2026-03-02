@@ -46,4 +46,23 @@ describe('HttpHealthzService', () => {
     expect(httpHealthzService.healthCheck).toBeDefined()
     expect(httpResponse).toEqual(expectedResult)
   })
+
+  test('should return HEALTHZ_STATUS_ERROR when fetch returns non-200 status', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ status: 503 })
+    const result = await httpHealthzService.healthCheck()
+    expect(result).not.toEqual(HEALTHZ_STATUS_OK)
+  })
+
+  test('should return error message when fetch throws', async () => {
+    ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+    const result = await httpHealthzService.healthCheck()
+    expect(result).toBe('Network error')
+  })
+
+  test('should accept a custom URL for health check', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ status: 200 })
+    const result = await httpHealthzService.healthCheck('http://custom-host/health')
+    expect(global.fetch).toHaveBeenCalledWith('http://custom-host/health')
+    expect(result).toEqual(HEALTHZ_STATUS_OK)
+  })
 })

@@ -44,7 +44,7 @@ describe('redis.environment', () => {
 
       const url = getRedisUrlForEnvironment()
 
-      expect(url).toBe('redis://localhost:6379/')
+      expect(url).toBe('redis://localhost:6379')
     })
 
     it('should handle redis URL without port', () => {
@@ -52,7 +52,7 @@ describe('redis.environment', () => {
 
       const url = getRedisUrlForEnvironment()
 
-      expect(url).toBe('redis://localhost/')
+      expect(url).toBe('redis://localhost')
     })
 
     it('should preserve password and other components', () => {
@@ -68,7 +68,7 @@ describe('redis.environment', () => {
 
       const url = getRedisUrlForEnvironment({ envVar: 'CUSTOM_REDIS' })
 
-      expect(url).toBe('redis://localhost:6379/')
+      expect(url).toBe('redis://localhost:6379')
     })
 
     it('should throw on invalid URL', () => {

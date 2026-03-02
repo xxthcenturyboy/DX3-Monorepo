@@ -1,8 +1,8 @@
 import { useTheme } from '@mui/material/styles'
 import React from 'react'
+import PhoneInput, { type CountryData } from 'react-phone-input-2'
 
 import { useStrings } from '../../i18n'
-import PhoneInput, { type CountryData } from 'react-phone-input-2'
 // import 'react-phone-input-2/lib/style.css';
 // import 'react-phone-input-2/lib/high-res.css';
 import 'react-phone-input-2/lib/material.css'

@@ -1,9 +1,6 @@
 import axios from 'axios'
 
-import {
-  checkDomain,
-  isReferenceDataApiConfigured,
-} from './reference-data-api.client'
+import { checkDomain, isReferenceDataApiConfigured } from './reference-data-api.client'
 
 const configValues = {
   key: '',
@@ -182,6 +179,24 @@ describe('reference-data-api.client', () => {
       const result = await checkDomain('example.com')
 
       expect(result).toBeNull()
+    })
+
+    it('validateStatus callback should return true for status < 500 and false for >= 500', async () => {
+      configValues.url = 'https://api.example.com'
+      configValues.key = 'k'
+      configValues.secret = 's'
+      mockAxiosGet.mockResolvedValue({ data: { disposable: false, validTld: true }, status: 200 })
+
+      await checkDomain('example.com')
+
+      const callOptions = mockAxiosGet.mock.calls[0][1] as {
+        validateStatus: (s: number) => boolean
+      }
+      expect(callOptions.validateStatus(200)).toBe(true)
+      expect(callOptions.validateStatus(404)).toBe(true)
+      expect(callOptions.validateStatus(499)).toBe(true)
+      expect(callOptions.validateStatus(500)).toBe(false)
+      expect(callOptions.validateStatus(503)).toBe(false)
     })
   })
 })

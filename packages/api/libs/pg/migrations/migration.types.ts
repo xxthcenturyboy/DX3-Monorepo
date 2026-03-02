@@ -8,7 +8,7 @@
  * @module @dx3/api/pg/migrations/types
  */
 
-import type { QueryInterface, Sequelize } from 'sequelize'
+import type { QueryInterface, Sequelize as SequelizeConstructor } from 'sequelize'
 
 /**
  * Migration direction enumeration
@@ -23,7 +23,7 @@ export type MigrationDirection = 'down' | 'up'
  */
 export type MigrationFunction = (
   queryInterface: QueryInterface,
-  Sequelize: typeof Sequelize,
+  Sequelize: typeof SequelizeConstructor,
 ) => Promise<void>
 
 /**

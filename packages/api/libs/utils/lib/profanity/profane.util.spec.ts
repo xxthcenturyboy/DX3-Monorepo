@@ -5,8 +5,8 @@ describe('profane.util', () => {
   let profaneUtil: ProfanityFilterType
 
   beforeAll(() => {
-    profaneUtil = new ProfanityFilter()
     new ApiLoggingClass({ appName: 'test' })
+    profaneUtil = new ProfanityFilter()
   })
 
   test('should return true when passed a profane word in a string', () => {
@@ -39,5 +39,33 @@ describe('profane.util', () => {
     // act
     // assert
     expect(isProfane).toBe(false)
+  })
+
+  test('isProfane should return false when passed an empty string', () => {
+    const isProfane = profaneUtil.isProfane('')
+    expect(isProfane).toBe(false)
+  })
+
+  test('isProfane should return false and log error when filter throws', () => {
+    jest.spyOn(profaneUtil.filter, 'hasMatch').mockImplementation(() => {
+      throw new Error('filter crash')
+    })
+
+    const isProfane = profaneUtil.isProfane('test string')
+    expect(isProfane).toBe(false)
+  })
+
+  test('cleanProfanity should return empty string when passed an empty string', () => {
+    const cleaned = profaneUtil.cleanProfanity('')
+    expect(cleaned).toBe('')
+  })
+
+  test('cleanProfanity should return empty string and log error when getAllMatches throws', () => {
+    jest.spyOn(profaneUtil.filter, 'getAllMatches').mockImplementation(() => {
+      throw new Error('getAllMatches crash')
+    })
+
+    const cleaned = profaneUtil.cleanProfanity('test string')
+    expect(cleaned).toBe('')
   })
 })

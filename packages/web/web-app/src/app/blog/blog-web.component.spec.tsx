@@ -29,8 +29,7 @@ const mockPosts = [
 ]
 
 function createBlogRouter(posts: typeof mockPosts | Promise<typeof mockPosts>) {
-  const postsPromise =
-    posts instanceof Promise ? posts : Promise.resolve(posts)
+  const postsPromise = posts instanceof Promise ? posts : Promise.resolve(posts)
   return createMemoryRouter(
     [
       {

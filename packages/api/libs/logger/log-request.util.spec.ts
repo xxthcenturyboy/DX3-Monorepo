@@ -60,38 +60,28 @@ describe('logRequest', () => {
   })
 
   it('should include method and ip in log output', () => {
-    const req = createMockRequest({ method: 'POST', ip: '192.168.1.1' })
+    const req = createMockRequest({ ip: '192.168.1.1', method: 'POST' })
     logRequest({ req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('method: POST'),
-    )
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('ip: 192.168.1.1'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('method: POST'))
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('ip: 192.168.1.1'))
   })
 
   it('should include userId when req.user is set', () => {
     const req = createMockRequest({ user: { id: 'user-123' } })
     logRequest({ req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('userId: user-123'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('userId: user-123'))
   })
 
   it('should include logged-out when req.user is not set', () => {
     const req = createMockRequest()
     logRequest({ req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('logged-out'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('logged-out'))
   })
 
   it('should include fingerprint when req.fingerprint is set', () => {
     const req = createMockRequest({ fingerprint: 'fp-abc123' })
     logRequest({ req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('fingerprint: fp-abc123'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('fingerprint: fp-abc123'))
   })
 
   it('should include geo summary when req.geo has data', () => {
@@ -111,9 +101,7 @@ describe('logRequest', () => {
   it('should include message when provided', () => {
     const req = createMockRequest()
     logRequest({ message: 'Custom message', req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('msg: Custom message'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('msg: Custom message'))
   })
 
   it('should use X-Forwarded-For when present', () => {
@@ -122,8 +110,6 @@ describe('logRequest', () => {
       ip: '127.0.0.1',
     })
     logRequest({ req, type: 'TEST' })
-    expect(mockLogInfo).toHaveBeenCalledWith(
-      expect.stringContaining('ip: 10.0.0.1'),
-    )
+    expect(mockLogInfo).toHaveBeenCalledWith(expect.stringContaining('ip: 10.0.0.1'))
   })
 })

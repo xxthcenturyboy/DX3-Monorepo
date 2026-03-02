@@ -1,8 +1,8 @@
 // import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button'
-import { useTheme } from '@mui/material/styles'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
+import { useTheme } from '@mui/material/styles'
 import React, { type ReactElement } from 'react'
 import { BeatLoader } from 'react-spinners'
 

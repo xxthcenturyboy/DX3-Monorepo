@@ -7,7 +7,11 @@ import type {
 
 import { ApiLoggingClass } from '../../logger'
 import type { UserSessionType } from '../../user/user-api.types'
-import { ensureLoggedInSocket, getUserIdFromHandshake } from './socket-api-handshake.service'
+import {
+  ensureLoggedInSocket,
+  getUserIdFromHandshake,
+  getUserRolesFromHandshake,
+} from './socket-api-handshake.service'
 
 jest.mock('../../logger', () => require('../../testing/mocks/internal/logger.mock'))
 jest.unmock('../../headers/header.service')
@@ -91,6 +95,46 @@ describe('socket-api-handshake.service', () => {
       // assert
       expect(getUserIdFromHandshake).toBeDefined()
     })
-    // Everything in this function is tested by the previous test
+
+    it('should return empty string when token decodes to a non-UUID userId', () => {
+      const { TokenService } = require('../../auth/tokens/token.service')
+      jest.spyOn(TokenService, 'getUserIdFromToken').mockReturnValueOnce('not-a-valid-uuid')
+      const result = getUserIdFromHandshake(handshakeMock)
+      expect(result).toBe('')
+    })
+  })
+
+  describe('getUserRolesFromHandshake', () => {
+    it('should exist when imported', () => {
+      expect(getUserRolesFromHandshake).toBeDefined()
+    })
+
+    it('should return empty array when userId is empty (no token in handshake)', async () => {
+      const noTokenHandshake = { ...handshakeMock, auth: {}, headers: {} }
+      const roles = await getUserRolesFromHandshake(noTokenHandshake)
+      expect(Array.isArray(roles)).toBe(true)
+      expect(roles).toEqual([])
+    })
+
+    it('should return roles when user is found in the database', async () => {
+      const { UserModel } = require('../../user/user-api.postgres-model')
+      jest.spyOn(UserModel, 'findByPk').mockResolvedValueOnce({ roles: ['USER', 'ADMIN'] })
+      const roles = await getUserRolesFromHandshake(handshakeMock)
+      expect(roles).toEqual(['USER', 'ADMIN'])
+    })
+
+    it('should return empty array when user is not found in the database', async () => {
+      const { UserModel } = require('../../user/user-api.postgres-model')
+      jest.spyOn(UserModel, 'findByPk').mockResolvedValueOnce(null)
+      const roles = await getUserRolesFromHandshake(handshakeMock)
+      expect(roles).toEqual([])
+    })
+
+    it('should return empty array when database throws an error', async () => {
+      const { UserModel } = require('../../user/user-api.postgres-model')
+      jest.spyOn(UserModel, 'findByPk').mockRejectedValueOnce(new Error('DB connection failed'))
+      const roles = await getUserRolesFromHandshake(handshakeMock)
+      expect(roles).toEqual([])
+    })
   })
 })

@@ -130,4 +130,50 @@ describe('GeoIpService', () => {
     expect(mockMaxmindOpen).toHaveBeenCalledTimes(1)
     expect(mockReaderGet).toHaveBeenCalledTimes(2)
   })
+
+  it('should reuse pending promise when concurrent lookups race', async () => {
+    configValues.dbPath = '/path/to/db.mmdb'
+    mockReaderGet.mockReturnValue({ city: { names: { en: 'Test City' } } })
+
+    let resolveOpen!: (value: unknown) => void
+    const slowOpenPromise = new Promise((resolve) => {
+      resolveOpen = resolve
+    })
+    mockMaxmindOpen.mockReturnValue(slowOpenPromise)
+
+    const GeoIpService = await getGeoIpService()
+
+    const p1 = GeoIpService.lookup('1.2.3.4')
+    const p2 = GeoIpService.lookup('5.6.7.8')
+
+    resolveOpen({ get: mockReaderGet })
+
+    await p1
+    await p2
+
+    expect(mockMaxmindOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('should handle non-Error thrown during lookup', async () => {
+    configValues.dbPath = '/path/to/db.mmdb'
+    mockReaderGet.mockImplementation(() => {
+      throw 'string error'
+    })
+    mockMaxmindOpen.mockResolvedValue({ get: mockReaderGet } as never)
+
+    const GeoIpService = await getGeoIpService()
+    const result = await GeoIpService.lookup('1.2.3.4')
+
+    expect(result).toBeNull()
+  })
+
+  it('should handle non-Error thrown during maxmind open', async () => {
+    configValues.dbPath = '/path/to/db.mmdb'
+    mockMaxmindOpen.mockRejectedValue('string open error')
+
+    const GeoIpService = await getGeoIpService()
+    const result = await GeoIpService.lookup('1.2.3.4')
+
+    expect(result).toBeNull()
+  })
 })

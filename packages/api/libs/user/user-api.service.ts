@@ -25,7 +25,7 @@ import {
 } from '@dx3/models-shared'
 
 import { OtpService } from '../auth/otp/otp.service'
-import { isDebug, isProd } from '../config/config-api.service'
+import { isProd } from '../config/config-api.service'
 import { EMAIL_MODEL_OPTIONS } from '../email/email-api.consts'
 import { EmailModel, type EmailModelType } from '../email/email-api.postgres-model'
 import { EmailService } from '../email/email-api.service'
@@ -51,7 +51,6 @@ type UserModelJsonType = Omit<UserType, 'createdAt' | 'emails' | 'phones'> & {
 }
 
 export class UserService {
-  private DEBUG = isDebug()
   private logger: ApiLoggingClassType
 
   constructor() {

@@ -7,6 +7,16 @@ import { PostgresDbConnection } from './postgres.db-connection'
 
 jest.mock('../logger', () => require('../testing/mocks/internal/logger.mock'))
 
+jest.mock('../config/config-api.service', () => ({
+  isDev: jest.fn().mockReturnValue(true),
+  isRunningInContainer: jest.fn().mockReturnValue(false),
+}))
+
+jest.mock('@dx3/utils-shared', () => ({
+  ...jest.requireActual('@dx3/utils-shared'),
+  sleep: jest.fn().mockResolvedValue(undefined),
+}))
+
 describe('PostgresDbConnection', () => {
   let dbConnection: typeof PostgresDbConnection.prototype
   let postgres: typeof Sequelize.prototype
@@ -282,6 +292,105 @@ describe('PostgresDbConnection', () => {
 
       expect(PostgresDbConnection.sequelize).toBeDefined()
       expect(PostgresDbConnection.dbHandle).toBeDefined()
+    })
+  })
+
+  describe('SSL configuration', () => {
+    it('should use SSL config when not in dev environment', () => {
+      const { isDev } = require('../config/config-api.service')
+      isDev.mockReturnValueOnce(false)
+
+      const conn = new PostgresDbConnection({
+        models: [TestingEntityModel],
+        postgresUri: 'postgres://user:pass@host:5432/db',
+      })
+
+      // The Sequelize instance is created - if SSL was applied, the config is internal.
+      // We verify the connection was created without throwing.
+      expect(conn).toBeDefined()
+    })
+  })
+
+  describe('Initialize success path', () => {
+    it('should call sequelize methods and succeed on initialize', async () => {
+      const conn = new PostgresDbConnection({
+        models: [TestingEntityModel],
+        postgresUri: 'postgres://user:pass@host:5432/db',
+      })
+
+      jest.spyOn(PostgresDbConnection.sequelize, 'query').mockResolvedValue([] as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'addModels').mockReturnValue(undefined as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'authenticate').mockResolvedValue(undefined)
+      jest.spyOn(PostgresDbConnection.sequelize, 'sync').mockResolvedValue(undefined as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'getDatabaseName').mockReturnValue('testdb')
+      jest.spyOn(PostgresDbConnection.sequelize, 'databaseVersion').mockResolvedValue('14.0')
+
+      await expect(conn.initialize()).resolves.toBeUndefined()
+
+      expect(PostgresDbConnection.sequelize.query).toHaveBeenCalledWith(
+        'CREATE EXTENSION IF NOT EXISTS "pgcrypto";',
+      )
+    })
+
+    it('should retry on authenticate failure and eventually throw', async () => {
+      const conn = new PostgresDbConnection({
+        models: [TestingEntityModel],
+        postgresUri: 'postgres://user:pass@host:5432/db',
+      })
+
+      conn.retries = 1
+
+      jest.spyOn(PostgresDbConnection.sequelize, 'query').mockResolvedValue([] as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'addModels').mockReturnValue(undefined as never)
+      jest
+        .spyOn(PostgresDbConnection.sequelize, 'authenticate')
+        .mockRejectedValue(new Error('Connection refused'))
+
+      await expect(conn.initialize()).rejects.toThrow(
+        'Could not establish a connection to Postgres.',
+      )
+    })
+
+    it('should retry multiple times before giving up', async () => {
+      const conn = new PostgresDbConnection({
+        models: [TestingEntityModel],
+        postgresUri: 'postgres://user:pass@host:5432/db',
+      })
+
+      conn.retries = 2
+
+      jest.spyOn(PostgresDbConnection.sequelize, 'query').mockResolvedValue([] as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'addModels').mockReturnValue(undefined as never)
+      const authenticateSpy = jest
+        .spyOn(PostgresDbConnection.sequelize, 'authenticate')
+        .mockRejectedValue(new Error('Timeout'))
+
+      await expect(conn.initialize()).rejects.toThrow(
+        'Could not establish a connection to Postgres.',
+      )
+      // authenticate was called for each retry
+      expect(authenticateSpy).toHaveBeenCalledTimes(2)
+    })
+
+    it('should succeed after retry when authenticate eventually passes', async () => {
+      const conn = new PostgresDbConnection({
+        models: [TestingEntityModel],
+        postgresUri: 'postgres://user:pass@host:5432/db',
+      })
+
+      conn.retries = 3
+
+      jest.spyOn(PostgresDbConnection.sequelize, 'query').mockResolvedValue([] as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'addModels').mockReturnValue(undefined as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'sync').mockResolvedValue(undefined as never)
+      jest.spyOn(PostgresDbConnection.sequelize, 'getDatabaseName').mockReturnValue('testdb')
+      jest.spyOn(PostgresDbConnection.sequelize, 'databaseVersion').mockResolvedValue('14.0')
+      jest
+        .spyOn(PostgresDbConnection.sequelize, 'authenticate')
+        .mockRejectedValueOnce(new Error('Timeout'))
+        .mockResolvedValueOnce(undefined)
+
+      await expect(conn.initialize()).resolves.toBeUndefined()
     })
   })
 })

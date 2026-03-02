@@ -18,12 +18,21 @@ jest.mock('../logger', () => require('../testing/mocks/internal/logger.mock'))
 
 // Import after jest.unmock
 import {
+  endpointNotFound,
   send400,
+  sendBadRequest,
   sendBadRequestWithCode,
   sendFile,
+  sendForbidden,
   sendForbiddenWithCode,
+  sendMethodNotAllowed,
+  sendNoContent,
+  sendNotFound,
   sendNotFoundWithCode,
   sendOK,
+  sendServiceUnavailable,
+  sendTooManyRequests,
+  sendUnauthorized,
   sendUnauthorizedWithCode,
 } from './http-responses'
 
@@ -47,13 +56,8 @@ describe('HttpResponses', () => {
 
   describe('sendOK', () => {
     it('should send a success response with data', () => {
-      // arrange
       const data = { test: 'data' }
-
-      // act
       sendOK(req, res, data)
-
-      // assert
       expect(res.status).toHaveBeenCalledWith(StatusCodes.OK)
       expect(res.send).toHaveBeenCalled()
       expect(res.send).toHaveBeenCalledWith(data)
@@ -61,17 +65,180 @@ describe('HttpResponses', () => {
     })
   })
 
+  describe('sendNoContent', () => {
+    it('should send a 204 No Content response', () => {
+      sendNoContent(req, res, null)
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.NO_CONTENT)
+      expect(res.send).toHaveBeenCalledWith(null)
+      expect(res.end).toHaveBeenCalled()
+    })
+  })
+
   describe('sendFile', () => {
-    it('should send a file response', () => {
-      // arrange
-      const filePath = '/download'
+    it('should invoke res.download with the correct path and fileName', () => {
+      const filePath = '/tmp/file.png'
       const fileName = 'test.png'
-
-      // act
       sendFile(req, res, filePath, fileName)
+      expect(res.download).toHaveBeenCalledWith(filePath, fileName, expect.any(Function))
+    })
 
-      // assert
-      expect(res.download).toHaveBeenCalled()
+    it('should log an error when res.download callback receives an error', () => {
+      const logErrorSpy = jest.spyOn(ApiLoggingClass.instance, 'logError')
+      const fileName = 'test.png'
+      const downloadError = new Error('disk read failure')
+      // Simulate res.download invoking its callback with an error
+      ;(res.download as jest.Mock).mockImplementationOnce(
+        (_path: string, _name: string, cb: (err?: Error) => void) => {
+          cb(downloadError)
+        },
+      )
+      sendFile(req, res, '/tmp/file.png', fileName)
+      expect(logErrorSpy).toHaveBeenCalledWith('Send file error', downloadError)
+    })
+
+    it('should log info when res.download callback succeeds (no error)', () => {
+      const logInfoSpy = jest.spyOn(ApiLoggingClass.instance, 'logInfo')
+      const fileName = 'success.pdf'
+      ;(res.download as jest.Mock).mockImplementationOnce(
+        (_path: string, _name: string, cb: (err?: Error) => void) => {
+          cb(undefined)
+        },
+      )
+      sendFile(req, res, '/tmp/file.pdf', fileName)
+      expect(logInfoSpy).toHaveBeenCalledWith(`File sent to client: ${fileName}`)
+    })
+  })
+
+  describe('sendMethodNotAllowed', () => {
+    it('should send a 405 Method Not Allowed response', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendMethodNotAllowed(req, res, 'Method not allowed.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('No Method'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.METHOD_NOT_ALLOWED)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Method not allowed.',
+          status: StatusCodes.METHOD_NOT_ALLOWED,
+        }),
+      )
+    })
+  })
+
+  describe('sendTooManyRequests', () => {
+    it('should send a 429 Too Many Requests response', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendTooManyRequests(req, res, 'Rate limit exceeded.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Too many requests'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.TOO_MANY_REQUESTS)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Rate limit exceeded.',
+          status: StatusCodes.TOO_MANY_REQUESTS,
+        }),
+      )
+    })
+  })
+
+  describe('endpointNotFound', () => {
+    it('should send a 405 response for missing endpoints', () => {
+      const logErrorSpy = jest.spyOn(ApiLoggingClass.instance, 'logError')
+      const next = jest.fn()
+      endpointNotFound(req, res, next)
+      expect(logErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Endpoint not found'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.METHOD_NOT_ALLOWED)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'API endpoint not found.',
+        }),
+      )
+    })
+  })
+
+  describe('sendBadRequest', () => {
+    it('should send a 400 response when given a string error', () => {
+      sendBadRequest(req, res, 'Something went wrong.')
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Something went wrong.',
+          status: StatusCodes.BAD_REQUEST,
+        }),
+      )
+    })
+
+    it('should send a 400 response when given an Error object', () => {
+      sendBadRequest(req, res, new Error('Validation error'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.BAD_REQUEST)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Validation error', status: StatusCodes.BAD_REQUEST }),
+      )
+    })
+  })
+
+  describe('sendUnauthorized', () => {
+    it('should send a 401 response and log the url', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendUnauthorized(req, res, 'Not authenticated.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Unauthorized'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.UNAUTHORIZED)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Not authenticated.',
+          status: StatusCodes.UNAUTHORIZED,
+        }),
+      )
+    })
+
+    it('should fallback to "unavailable" when req.user is absent', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      // req.user is undefined by default in jest-express Request
+      sendUnauthorized(req, res, 'No user context.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('unavailable'))
+    })
+  })
+
+  describe('sendForbidden', () => {
+    it('should send a 403 response', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendForbidden(req, res, 'Access denied.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Forbidden'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.FORBIDDEN)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Access denied.', status: StatusCodes.FORBIDDEN }),
+      )
+    })
+
+    it('should fallback to "unavailable" when req.user is absent', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendForbidden(req, res, 'No user context.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('unavailable'))
+    })
+  })
+
+  describe('sendNotFound', () => {
+    it('should send a 404 response', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendNotFound(req, res, 'Resource not found.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Not Found'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.NOT_FOUND)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Resource not found.', status: StatusCodes.NOT_FOUND }),
+      )
+    })
+  })
+
+  describe('sendServiceUnavailable', () => {
+    it('should send a 503 response', () => {
+      const logWarnSpy = jest.spyOn(ApiLoggingClass.instance, 'logWarn')
+      sendServiceUnavailable(req, res, 'Service unavailable.')
+      expect(logWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Service Unavailable'))
+      expect(res.status).toHaveBeenCalledWith(StatusCodes.SERVICE_UNAVAILABLE)
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Service unavailable.',
+          status: StatusCodes.SERVICE_UNAVAILABLE,
+        }),
+      )
     })
   })
 

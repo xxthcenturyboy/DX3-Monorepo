@@ -27,6 +27,10 @@ jest.mock('./phone-api.postgres-model', () => ({
       }
       return Promise.resolve(null)
     }),
+    findByPk: jest.fn().mockResolvedValue({
+      countryCode: '1',
+      phoneFormatted: '+15551234567',
+    }),
     isPhoneAvailable: jest.fn().mockImplementation((phone: string, countryCode: string) => {
       // Mock logic: existing phone is not available, others are available
       return Promise.resolve(!(phone === TEST_PHONE_1 && countryCode === TEST_PHONE_COUNTRY_CODE))

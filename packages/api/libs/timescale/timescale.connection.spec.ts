@@ -136,5 +136,87 @@ describe('TimescaleConnection', () => {
       const pool = connection.getPool()
       expect(pool).toBeDefined()
     })
+
+    it('should return null when pool is not initialized', () => {
+      const pool = connection.getPool()
+      expect(pool).toBeNull()
+    })
+  })
+
+  describe('instance getter', () => {
+    it('should return the current instance after construction', () => {
+      const instance = TimescaleConnection.instance
+      expect(instance).toBe(connection)
+    })
+  })
+
+  describe('initialize re-entry', () => {
+    it('should return true immediately when already initialized', async () => {
+      mockIsTimescaleEnabled.mockReturnValue(true)
+      mockGetTimescaleUriForEnvironment.mockReturnValue('postgresql://user:pass@localhost:5434/db')
+
+      await connection.initialize()
+      const result = await connection.initialize()
+
+      expect(result).toBe(true)
+    })
+
+    it('should return false and log error when pool.connect() throws', async () => {
+      const { ApiLoggingClass } = require('../logger')
+      mockIsTimescaleEnabled.mockReturnValue(true)
+      mockGetTimescaleUriForEnvironment.mockReturnValue('postgresql://user:pass@localhost:5434/db')
+
+      const mockBrokenPool = {
+        connect: jest.fn().mockRejectedValue(new Error('Connection refused')),
+        end: jest.fn().mockResolvedValue(undefined),
+      }
+      MockPool.mockImplementationOnce(() => mockBrokenPool as never)
+
+      const result = await connection.initialize()
+
+      expect(result).toBe(false)
+      expect(ApiLoggingClass.instance.logError).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to initialize'),
+        expect.any(Object),
+      )
+    })
+  })
+
+  describe('getClient', () => {
+    it('should return null when pool is not initialized', async () => {
+      const client = await connection.getClient()
+      expect(client).toBeNull()
+    })
+
+    it('should return a client when pool is initialized', async () => {
+      mockIsTimescaleEnabled.mockReturnValue(true)
+      mockGetTimescaleUriForEnvironment.mockReturnValue('postgresql://user:pass@localhost:5434/db')
+      await connection.initialize()
+
+      const client = await connection.getClient()
+      expect(client).toBeDefined()
+    })
+
+    it('should return null and log error when pool.connect() throws in getClient', async () => {
+      const { ApiLoggingClass } = require('../logger')
+      mockIsTimescaleEnabled.mockReturnValue(true)
+      mockGetTimescaleUriForEnvironment.mockReturnValue('postgresql://user:pass@localhost:5434/db')
+
+      // First initialize with a working pool
+      await connection.initialize()
+
+      // Now make the pool's connect throw
+      const pool = connection.getPool()
+      expect(pool).not.toBeNull()
+      if (!pool) throw new Error('Pool should be initialized at this point')
+      jest.spyOn(pool, 'connect').mockRejectedValueOnce(new Error('Client error'))
+
+      const client = await connection.getClient()
+      expect(client).toBeNull()
+      expect(ApiLoggingClass.instance.logError).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to get TimescaleDB client'),
+        expect.any(Object),
+      )
+    })
   })
 })

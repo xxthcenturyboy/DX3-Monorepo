@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid'
+import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
 import * as React from 'react'
 
 import { ContentWrapper } from '@dx3/web-libs/ui/content/content-wrapper.component'

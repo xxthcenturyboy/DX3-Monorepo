@@ -3,8 +3,8 @@ import { ACCOUNT_RESTRICTIONS, USER_ROLE } from '@dx3/models-shared'
 import {
   checkUsernameAvailabilityQuerySchema,
   createUserBodySchema,
-  getUsersListQuerySchema,
   getUserParamsSchema,
+  getUsersListQuerySchema,
   updatePasswordBodySchema,
   updateUserBodySchema,
   updateUsernameBodySchema,

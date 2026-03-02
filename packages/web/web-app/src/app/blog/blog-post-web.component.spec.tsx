@@ -78,9 +78,7 @@ describe('BlogPostComponent', () => {
   })
 
   it('should show post not found when loader throws', async () => {
-    const router = createBlogPostRouter(
-      Promise.reject(new Response('Not Found', { status: 404 })),
-    )
+    const router = createBlogPostRouter(Promise.reject(new Response('Not Found', { status: 404 })))
     renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
         <RouterProvider router={router} />

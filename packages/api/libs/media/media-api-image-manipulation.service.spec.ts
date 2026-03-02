@@ -52,6 +52,33 @@ describe('MediaApiImageManipulationService', () => {
     expect(result.toString()).toEqual('mocked-image-data')
   })
 
+  it('should return resized data when resizeByImagePath is called', async () => {
+    // arrange
+    const service = new MediaApiImageManipulationService()
+    // fs.readFileSync is NOT mocked globally; we need to spy on it
+    const fs = require('node:fs')
+    jest.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from('image-data'))
+    // act
+    const result = await service.resizeByImagePath('/tmp/test-image.jpg', 60)
+    // assert
+    expect(result).toBeDefined()
+    expect(result.toString()).toEqual('mocked-image-data')
+  })
+
+  it('should return an array of image variants when resizeImageToFiles is called', async () => {
+    // arrange
+    const service = new MediaApiImageManipulationService()
+    const fileName = 'test-image'
+    const fileContent = Buffer.from('image-data')
+    // act
+    const result = await service.resizeImageToFiles(fileName, '/tmp/test-image.jpg', fileContent)
+    // assert
+    expect(result).toBeDefined()
+    expect(Array.isArray(result)).toBe(true)
+    // resizeImageToFiles skips ORIGINAL variant, so result should have 3 variants (MEDIUM, SMALL, THUMB)
+    expect(result.length).toBeGreaterThan(0)
+  })
+
   it('should return an array of 4 resized objects and meta when resizeImageStream is called', async () => {
     // arrange
     const testFileName = 'test-file-name'

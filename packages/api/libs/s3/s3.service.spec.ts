@@ -666,4 +666,62 @@ describe('s3.service', () => {
       expect(consoleLogSpy).toBeDefined()
     })
   })
+
+  describe('getS3ConfigForProvider', () => {
+    it('should return spaces config when provider is spaces', () => {
+      const result = S3Service.getS3ConfigForProvider({
+        accessKeyId: 'spaces-key',
+        endpoint: 'https://nyc3.digitaloceanspaces.com',
+        provider: 'spaces',
+        region: 'nyc3',
+        secretAccessKey: 'spaces-secret',
+      })
+      expect(result.forcePathStyle).toBe(false)
+      expect(result.endpoint).toBe('https://nyc3.digitaloceanspaces.com')
+      expect((result.credentials as { accessKeyId: string }).accessKeyId).toBe('spaces-key')
+    })
+
+    it('should return default AWS config for unknown provider', () => {
+      const result = S3Service.getS3ConfigForProvider({
+        accessKeyId: 'aws-key',
+        endpoint: '',
+        provider: 'aws',
+        region: 'us-west-2',
+        secretAccessKey: 'aws-secret',
+      })
+      expect(result.forcePathStyle).toBe(false)
+      expect(result.region).toBe('us-west-2')
+    })
+  })
+
+  describe('doesBucketExist (via instantiate)', () => {
+    afterEach(() => {
+      s3Mock.reset()
+    })
+
+    it('should return false when ListBuckets response has no Buckets property', async () => {
+      s3Mock.on(ListBucketsCommand).resolves({})
+      s3Mock.on(CreateBucketCommand).resolves({ Location: '/test-bucket-test-dir' })
+      await service.instantiate(testBucketName, [testDir])
+      expect(s3Mock.commandCalls(CreateBucketCommand).length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('getContentType', () => {
+    afterEach(() => {
+      s3Mock.reset()
+    })
+
+    it('should return the ContentType when HeadObject succeeds', async () => {
+      s3Mock.on(HeadObjectCommand).resolves({ ContentType: 'image/jpeg' })
+      const result = await service.getContentType(testBucketName, 'images/photo.jpg')
+      expect(result).toBe('image/jpeg')
+    })
+
+    it('should return empty string when HeadObject throws', async () => {
+      s3Mock.on(HeadObjectCommand).rejects(new Error('Object not found'))
+      const result = await service.getContentType(testBucketName, 'images/missing.jpg')
+      expect(result).toBe('')
+    })
+  })
 })

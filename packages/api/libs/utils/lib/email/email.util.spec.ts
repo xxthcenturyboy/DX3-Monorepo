@@ -263,4 +263,207 @@ describe('email.util', () => {
     expect(mxRecords).toBeTruthy()
     expect(emailUtil.mxData).toBeTruthy()
   })
+
+  test('should resolve getMx in constructor when getMx is true', async () => {
+    const { mockResolveMx } = require('../../../testing/mocks/node-dns.promises.mock')
+    mockResolveMx.mockResolvedValueOnce([{ exchange: 'mx.gmail.com', priority: 5 }])
+
+    emailUtil = new EmailUtil('test@gmail.com', true)
+    // Give the async getMxRecords time to complete
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(mockResolveMx).toHaveBeenCalled()
+  })
+
+  test('should log error in constructor getMx catch block', async () => {
+    const { mockResolveMx } = require('../../../testing/mocks/node-dns.promises.mock')
+    mockResolveMx.mockRejectedValueOnce(new Error('DNS failure'))
+
+    emailUtil = new EmailUtil('test@gmail.com', true)
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(mockResolveMx).toHaveBeenCalled()
+  })
+
+  test('isEmail getter should return true for valid email', () => {
+    emailUtil = new EmailUtil('test@gmail.com')
+    expect(emailUtil.isEmail).toBe(true)
+  })
+
+  test('isEmail getter should return false for invalid email', () => {
+    emailUtil = new EmailUtil('not-an-email')
+    expect(emailUtil.isEmail).toBe(false)
+  })
+
+  test('isValid getter should proxy validate()', () => {
+    emailUtil = new EmailUtil('test@gmail.com')
+    expect(emailUtil.isValid).toBe(emailUtil.validate())
+  })
+
+  test('should return empty string from getMxRecords when no records returned', async () => {
+    const { mockResolveMx } = require('../../../testing/mocks/node-dns.promises.mock')
+    mockResolveMx.mockResolvedValueOnce([])
+
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.getMxRecords()
+
+    expect(result).toBe('')
+  })
+
+  test('should return empty string from getMxRecords on DNS error', async () => {
+    const { mockResolveMx } = require('../../../testing/mocks/node-dns.promises.mock')
+    mockResolveMx.mockRejectedValueOnce(new Error('DNS error'))
+
+    emailUtil = new EmailUtil('test@nodomain.xyz')
+    const result = await emailUtil.getMxRecords()
+
+    expect(result).toBe('')
+  })
+
+  test('validateDomain should call checkDomain when reference data API is configured', async () => {
+    const {
+      mockReferenceDataApiClient,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: false, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.validateDomain()
+
+    expect(result).toEqual({ disposable: false, validTld: true })
+    resetReferenceDataApiClientMock()
+  })
+
+  test('validateDomain should return cached result on second call', async () => {
+    const {
+      mockReferenceDataApiClient,
+      mockCheckDomain,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: false, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@gmail.com')
+    await emailUtil.validateDomain()
+    const result = await emailUtil.validateDomain()
+
+    expect(mockCheckDomain).toHaveBeenCalledTimes(1)
+    expect(result).toEqual({ disposable: false, validTld: true })
+    resetReferenceDataApiClientMock()
+  })
+
+  test('isDisposableDomainAsync should use reference data API when configured', async () => {
+    const {
+      mockReferenceDataApiClient,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: true, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@disposable.com')
+    const result = await emailUtil.isDisposableDomainAsync()
+
+    expect(result).toBe(true)
+    resetReferenceDataApiClientMock()
+  })
+
+  test('isDisposableDomainAsync should fall back to static list when API not configured', async () => {
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.isDisposableDomainAsync()
+    expect(result).toBe(false)
+  })
+
+  test('isValidTldAsync should use domainCheckResult when provided', async () => {
+    emailUtil = new EmailUtil('test@example.com')
+    const result = await emailUtil.isValidTldAsync({ validTld: false })
+    expect(result).toBe(false)
+  })
+
+  test('isValidTldAsync should use reference data API when configured', async () => {
+    const {
+      mockReferenceDataApiClient,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: false, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@example.com')
+    const result = await emailUtil.isValidTldAsync()
+
+    expect(result).toBe(true)
+    resetReferenceDataApiClientMock()
+  })
+
+  test('isValidTldAsync should return false when tld is missing', async () => {
+    emailUtil = new EmailUtil('test@')
+    const result = await emailUtil.isValidTldAsync()
+    expect(result).toBe(false)
+  })
+
+  test('validateAsync should return true for a valid email', async () => {
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.validateAsync()
+    expect(result).toBe(true)
+  })
+
+  test('validateAsync should return false when common validation fails', async () => {
+    emailUtil = new EmailUtil('not-an-email')
+    const result = await emailUtil.validateAsync()
+    expect(result).toBe(false)
+  })
+
+  test('validateAsync should return false when domain is disposable', async () => {
+    emailUtil = new EmailUtil('test@027168.com')
+    const result = await emailUtil.validateAsync()
+    expect(result).toBe(false)
+  })
+
+  test('validateAsync should use reference data API when configured', async () => {
+    const {
+      mockReferenceDataApiClient,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: false, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.validateAsync()
+
+    expect(result).toBe(true)
+    resetReferenceDataApiClientMock()
+  })
+
+  test('validateAsync should return false when reference data says disposable', async () => {
+    const {
+      mockReferenceDataApiClient,
+      resetReferenceDataApiClientMock,
+    } = require('../../../testing/mocks/reference-data-api.client.mock')
+
+    mockReferenceDataApiClient({
+      checkDomainResult: { disposable: true, validTld: true },
+      configured: true,
+    })
+
+    emailUtil = new EmailUtil('test@gmail.com')
+    const result = await emailUtil.validateAsync()
+
+    expect(result).toBe(false)
+    resetReferenceDataApiClientMock()
+  })
 })

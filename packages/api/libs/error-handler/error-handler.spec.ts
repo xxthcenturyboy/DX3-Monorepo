@@ -58,15 +58,42 @@ describe('handleError', () => {
   })
 
   it('should send bad request when error has code and message', () => {
-    // arrange
     const message = 'test message'
-    const error = {
-      code: StatusCodes.BAD_REQUEST,
-      message,
-    }
-    // act
+    const error = { code: StatusCodes.BAD_REQUEST, message }
     handleError(req, res, error)
-    // assert
     expect(sendBadRequest).toHaveBeenCalled()
+  })
+
+  it('should set custom status code when code is provided', () => {
+    const mockStatus = jest.spyOn(res, 'status')
+    handleError(req, res, new Error('err'), undefined, 500)
+    expect(mockStatus).toHaveBeenCalledWith(500)
+  })
+
+  it('should default to 400 when no code is provided', () => {
+    const mockStatus = jest.spyOn(res, 'status')
+    handleError(req, res, new Error('err'))
+    expect(mockStatus).toHaveBeenCalledWith(400)
+  })
+
+  it('should send bad request with err.message when no override message for Error', () => {
+    const error = new Error('raw error message')
+    handleError(req, res, error)
+    expect(sendBadRequest).toHaveBeenCalledWith(req, res, 'raw error message')
+  })
+
+  it('should send bad request with string error when message override is provided', () => {
+    handleError(req, res, 'string-error', 'override message')
+    expect(sendBadRequest).toHaveBeenCalledWith(req, res, 'override message')
+  })
+
+  it('should send bad request with the string itself when no message override', () => {
+    handleError(req, res, 'plain string error')
+    expect(sendBadRequest).toHaveBeenCalledWith(req, res, 'plain string error')
+  })
+
+  it('should send generic bad request when error is not object, Error, or string', () => {
+    handleError(req, res, null as never)
+    expect(sendBadRequest).toHaveBeenCalledWith(req, res, 'Bad Request')
   })
 })

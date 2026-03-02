@@ -7,7 +7,12 @@ import { AuthService, type AuthServiceType } from './auth-api.service'
 jest.mock('@dx3/api-libs/reference-data/reference-data-api.client', () =>
   require('../testing/mocks/reference-data-api.client.mock'),
 )
+jest.mock('../config/config-api.service', () => ({
+  isDebug: jest.fn().mockReturnValue(false),
+  isProd: jest.fn().mockReturnValue(false),
+}))
 jest.mock('../logger', () => require('../testing/mocks/internal/logger.mock'))
+jest.mock('../mail/mail-api-sendgrid')
 
 import { mockEmailModel } from '../email/email-api.postgres-model.mock'
 import { mockPhoneModel } from '../phone/phone-api.postgres-model.mock'
@@ -159,5 +164,54 @@ describe('AuthService', () => {
     expect(svc.sendOtpToPhone).toBeDefined()
     expect(svc.sentOtpById).toBeDefined()
     expect(svc.validateEmail).toBeDefined()
+  })
+
+  describe('sendOtpToEmail', () => {
+    it('should throw when email is empty', async () => {
+      await expect(authService.sendOtpToEmail('')).rejects.toThrow('No email sent')
+    })
+
+    it('should return code when email is valid', async () => {
+      const result = await authService.sendOtpToEmail('valid@example.com')
+      expect(result).toHaveProperty('code')
+    })
+  })
+
+  describe('sendOtpToPhone', () => {
+    it('should throw when phone is empty', async () => {
+      await expect(authService.sendOtpToPhone('')).rejects.toThrow('No value supplied')
+    })
+
+    it('should return code when phone is valid', async () => {
+      const result = await authService.sendOtpToPhone('+15551234567', 'US')
+      expect(result).toHaveProperty('code')
+    })
+  })
+
+  describe('sentOtpById', () => {
+    it('should send OTP to phone when type is PHONE', async () => {
+      const result = await authService.sentOtpById('phone-id', 'PHONE')
+      expect(result).toHaveProperty('code')
+    })
+
+    it('should send OTP to email when type is EMAIL', async () => {
+      const result = await authService.sentOtpById('email-id', 'EMAIL')
+      expect(result).toHaveProperty('code')
+    })
+  })
+
+  describe('validateEmail', () => {
+    it('should throw when token is empty', async () => {
+      await expect(authService.validateEmail('')).rejects.toThrow('No value supplied')
+    })
+
+    it('should return email when token is valid', async () => {
+      const mockEmail = { toJSON: () => ({ email: 'a@b.com', verified: true }) }
+      const { EmailModel } = require('../email/email-api.postgres-model')
+      ;(EmailModel.validateEmailWithToken as jest.Mock).mockResolvedValue(mockEmail)
+
+      const result = await authService.validateEmail('valid-token')
+      expect(result).toMatchObject({ email: 'a@b.com', verified: true })
+    })
   })
 })

@@ -73,6 +73,19 @@ describe('file-system.util', () => {
       expect(errArg).toBeInstanceOf(Error)
       expect(errArg.message).toBe('rm-fail')
     })
+
+    test('falls back to console.error when logger is null and fs.rmSync throws', () => {
+      ;(winston.createLogger as jest.Mock).mockReturnValueOnce(null)
+      jest.spyOn(fs, 'rmSync').mockImplementation(() => {
+        throw new Error('rm-fail-no-logger')
+      })
+      jest.spyOn(fs, 'mkdirSync').mockImplementation(() => undefined)
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const result = emptyDirectory('/path')
+      expect(result).toBe(false)
+      expect(consoleSpy).toHaveBeenCalled()
+    })
   })
 
   describe('readFileLocal', () => {
@@ -114,6 +127,18 @@ describe('file-system.util', () => {
       const errArg = logger.error.mock.calls[0][0]
       expect(errArg).toBeInstanceOf(Error)
       expect(errArg.message).toBe('read-fail')
+    })
+
+    test('falls back to console.error when logger is null and fs.readFileSync throws', () => {
+      ;(winston.createLogger as jest.Mock).mockReturnValueOnce(null)
+      jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        throw new Error('read-fail-no-logger')
+      })
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const result = readFileLocal('/path')
+      expect(result).toBe(false)
+      expect(consoleSpy).toHaveBeenCalled()
     })
   })
 })

@@ -8,12 +8,12 @@ import '../testing/blog-test-setup'
 
 import { BlogEditorTitleFieldComponent } from './blog-editor-title-field.component'
 
-const renderWithTheme = (ui: React.ReactElement) =>
+const _renderWithTheme = (ui: React.ReactElement) =>
   render(<ThemeProvider theme={BLOG_TEST_THEME}>{ui}</ThemeProvider>)
 
 describe('BlogEditorTitleFieldComponent', () => {
   it('should render title field', () => {
-    const { store } = renderWithProviders(
+    renderWithProviders(
       <ThemeProvider theme={BLOG_TEST_THEME}>
         <BlogEditorTitleFieldComponent />
       </ThemeProvider>,

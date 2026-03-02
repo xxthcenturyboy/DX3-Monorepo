@@ -33,6 +33,13 @@ Runs a specific test in the libs directory
 pnpm --filter @dx3/api test --testPathPattern="libs/auth/auth-api.service.spec"
 ```
 
+Run libs tests with coverage (libs only; no api-app tests)
+```Bash
+pnpm --filter @dx3/api test:libs:coverage
+```
+
+Coverage is limited to `libs/**` via `collectCoverageFrom` in `jest.config.ts`.
+
 ## S3
 
 ```Bash

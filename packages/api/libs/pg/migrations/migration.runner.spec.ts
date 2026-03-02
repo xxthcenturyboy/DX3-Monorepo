@@ -14,9 +14,11 @@ jest.mock('node:fs', () => ({
 const mockExistsSync = fs.existsSync as jest.MockedFunction<typeof fs.existsSync>
 const mockReaddirSync = fs.readdirSync as unknown as jest.Mock<string[]>
 
-function createMockSequelize(overrides?: Partial<{
-  queryResults: unknown[][]
-}>) {
+function createMockSequelize(
+  overrides?: Partial<{
+    queryResults: unknown[][]
+  }>,
+) {
   const queryResults = overrides?.queryResults ?? [[[{ exists: true }]], [[]]]
   const mockQuery = jest.fn()
   queryResults.forEach((result) => {
@@ -28,14 +30,14 @@ function createMockSequelize(overrides?: Partial<{
   })
 
   return {
+    _mockQuery: mockQuery,
+    constructor: {},
     getQueryInterface: jest.fn().mockReturnValue({
       sequelize: {
         query: mockQuery,
       },
     }),
     transaction: mockTransaction,
-    constructor: {},
-    _mockQuery: mockQuery,
   }
 }
 
@@ -118,7 +120,9 @@ describe('MigrationRunner', () => {
 
       const result = runner.discoverMigrations('/migrations')
 
-      expect(result[0].filepath).toBe(path.join('/migrations', '20251227130000-test-migration-column.js'))
+      expect(result[0].filepath).toBe(
+        path.join('/migrations', '20251227130000-test-migration-column.js'),
+      )
     })
 
     it('should support .ts migration files', () => {
@@ -166,7 +170,7 @@ describe('MigrationRunner', () => {
       const sequelize = createMockSequelize({
         queryResults: [
           [[{ exists: true }]],
-          [[{ name: '20260125120000-add-user-timezone.js', appliedAt: new Date() }]],
+          [[{ appliedAt: new Date(), name: '20260125120000-add-user-timezone.js' }]],
         ],
       })
       const runner = new MigrationRunner(sequelize as never)
@@ -187,7 +191,7 @@ describe('MigrationRunner', () => {
       const sequelize = createMockSequelize({
         queryResults: [
           [[{ exists: true }]],
-          [[{ name: '20260125120000-add-user-timezone.js', appliedAt: new Date() }]],
+          [[{ appliedAt: new Date(), name: '20260125120000-add-user-timezone.js' }]],
         ],
       })
       const runner = new MigrationRunner(sequelize as never)
@@ -208,10 +212,7 @@ describe('MigrationRunner', () => {
         '20260125120100-add-support-request-user-timezone.js',
       ])
       const sequelize = createMockSequelize({
-        queryResults: [
-          [[{ exists: true }]],
-          [[]],
-        ],
+        queryResults: [[[{ exists: true }]], [[]]],
       })
       const runner = new MigrationRunner(sequelize as never)
 

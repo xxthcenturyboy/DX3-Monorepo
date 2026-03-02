@@ -58,6 +58,15 @@ export class RedisService {
     })
   }
 
+  public async getCacheItemSimple(key: string) {
+    if (!key) return null
+    return this.cacheHandle.get(key)
+  }
+
+  public async getKeys(prefix: string) {
+    return this.cacheHandle.keys(prefix)
+  }
+
   public async deleteCacheItem(key: string) {
     return new Promise((resolve) => {
       resolve(!!key)

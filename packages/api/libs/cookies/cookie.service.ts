@@ -61,8 +61,8 @@ export class CookeiService {
   }
 
   public static getCookie(req: Request, cookeiName: string): string {
-    const cookie = req?.cookies[cookeiName]
-    return cookie || ''
+    const cookie = req?.cookies?.[cookeiName]
+    return cookie ?? ''
   }
 
   public static clearCookies(res: Response) {

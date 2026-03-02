@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'node:events'
 
 import { ApiLoggingClass } from '../logger'
 import { clearMockStore } from './__mocks__/ioredis'

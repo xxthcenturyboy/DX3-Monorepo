@@ -308,9 +308,9 @@ async function runSeeders(options: SeederOptions): Promise<SeedSummary> {
 
   console.log(`${colors.blue}Options:${colors.reset}`)
   console.log(
-    `  Reset:      ${options.reset ? colors.yellow + 'Yes' : colors.green + 'No'}${colors.reset}`,
+    `  Reset:      ${options.reset ? `${colors.yellow}Yes` : `${colors.green}No`}${colors.reset}`,
   )
-  console.log(`  Verbose:    ${options.verbose ? colors.green + 'Yes' : 'No'}${colors.reset}\n`)
+  console.log(`  Verbose:    ${options.verbose ? `${colors.green}Yes` : 'No'}${colors.reset}\n`)
 
   for (const seeder of seeders) {
     const seederStartTime = Date.now()

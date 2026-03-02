@@ -22,7 +22,7 @@ export class NotificationService {
   public async getNotificationsByUserId(
     userId: string,
   ): Promise<{ system: NotificationModel[]; user: NotificationModel[] }> {
-    if (!userId && typeof userId !== 'string') {
+    if (!userId || typeof userId !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing userId'),
       )
@@ -192,7 +192,7 @@ export class NotificationService {
   }
 
   public async markAllAsRead(userId: string): Promise<[number]> {
-    if (!userId && typeof userId !== 'string') {
+    if (!userId || typeof userId !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
       )
@@ -209,7 +209,7 @@ export class NotificationService {
   }
 
   public async markViewed(userId: string): Promise<[number]> {
-    if (!userId && typeof userId !== 'string') {
+    if (!userId || typeof userId !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
       )
@@ -225,7 +225,7 @@ export class NotificationService {
   }
 
   public async markAsRead(id: string): Promise<[number]> {
-    if (!id && typeof id !== 'string') {
+    if (!id || typeof id !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
       )
@@ -241,7 +241,7 @@ export class NotificationService {
   }
 
   public async markAllDismissed(userId: string): Promise<[number]> {
-    if (!userId && typeof userId !== 'string') {
+    if (!userId || typeof userId !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
       )
@@ -258,7 +258,7 @@ export class NotificationService {
   }
 
   public async markAsDismissed(id: string): Promise<[number]> {
-    if (!id && typeof id !== 'string') {
+    if (!id || typeof id !== 'string') {
       throw new Error(
         createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
       )

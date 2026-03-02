@@ -47,33 +47,38 @@ svg {
 
 /* Radix poppers (e.g. link edit popover) often portal to body - ensure above drawer */
 .mdxeditor-popup-container {
+  /* biome-ignore lint/complexity/noImportantStyles: must override MDXEditor's z-index to appear above MUI drawer */
   z-index: 1400 !important;
+}
+
+/* Blog editor: toolbar and content scroll together when horizontal overflow (e.g. large image) */
+/* Lower-specificity rules intentionally placed first; theme rules below increase specificity */
+[data-testid="blog-editor-content"] .mdxeditor {
+  min-width: min-content;
+}
+[data-testid="blog-editor-content"] .mdxeditor-root-contenteditable {
+  min-width: min-content;
+  /* biome-ignore lint/complexity/noImportantStyles: must override MDXEditor's overflow to allow horizontal scroll */
+  overflow-x: visible !important;
+}
+[data-testid="blog-editor-content"] .mdxeditor-toolbar {
+  flex-shrink: 0;
+  min-width: min-content;
 }
 
 /* Blog editor: MDXEditor borders match MUI TextField/divider */
 [data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor,
 [data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor-root-contenteditable,
 [data-testid="blog-editor-content"][data-theme-mode="light"] .mdxeditor-toolbar {
+  /* biome-ignore lint/complexity/noImportantStyles: must override MDXEditor's internal border-color */
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
 [data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor,
 [data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor-root-contenteditable,
 [data-testid="blog-editor-content"][data-theme-mode="dark"] .mdxeditor-toolbar {
+  /* biome-ignore lint/complexity/noImportantStyles: must override MDXEditor's internal border-color */
   border-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-/* Blog editor: toolbar and content scroll together when horizontal overflow (e.g. large image) */
-[data-testid="blog-editor-content"] .mdxeditor {
-  min-width: min-content;
-}
-[data-testid="blog-editor-content"] .mdxeditor-root-contenteditable {
-  min-width: min-content;
-  overflow-x: visible !important;
-}
-[data-testid="blog-editor-content"] .mdxeditor-toolbar {
-  flex-shrink: 0;
-  min-width: min-content;
 }
 
 /* Blog editor: images scale to fit viewport */

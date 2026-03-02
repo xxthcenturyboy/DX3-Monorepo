@@ -25,6 +25,9 @@ jest.mock('./email-api.postgres-model', () => ({
       }
       return Promise.resolve(null)
     }),
+    findByPk: jest.fn().mockResolvedValue({
+      email: 'test@example.com',
+    }),
     isEmailAvailable: jest.fn().mockImplementation((email: string) => {
       // Mock logic: existing email is not available, others are available
       return Promise.resolve(email !== TEST_EMAIL_ADMIN)

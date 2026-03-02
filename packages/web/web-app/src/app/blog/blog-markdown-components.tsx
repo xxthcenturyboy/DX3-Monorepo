@@ -2,7 +2,6 @@ import Box from '@mui/material/Box'
 import type { Components } from 'react-markdown'
 
 import { WebConfigService } from '../config/config-web.service'
-
 import { BlogImageWithPlaceholder } from './blog-image-with-placeholder.component'
 
 /**
