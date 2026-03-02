@@ -2,14 +2,23 @@ import type { Request as IRequest, Response as IResponse } from 'express'
 import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
-import { sendBadRequest } from '@dx3/api-libs/http-response/http-responses'
+import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
 
 import { ShortlinkController } from './shortlink-api.controller'
 
-jest.mock('@dx3/api-libs/shortlink/shortlink-api.service.ts')
-jest.mock('@dx3/api-libs/http-response/http-responses.ts', () => ({
+const mockShortlinkServiceInstance = {
+  getShortlinkTarget: jest.fn(),
+}
+
+jest.mock('@dx3/api-libs/shortlink/shortlink-api.service', () => ({
+  ShortlinkService: jest.fn(() => mockShortlinkServiceInstance),
+}))
+jest.mock('@dx3/api-libs/http-response/http-responses', () => ({
   sendBadRequest: jest.fn(),
   sendOK: jest.fn(),
+}))
+jest.mock('@dx3/api-libs/logger/log-request.util', () => ({
+  logRequest: jest.fn(),
 }))
 
 describe('ShortlinkController', () => {
@@ -17,27 +26,34 @@ describe('ShortlinkController', () => {
   let res: IResponse
 
   beforeEach(() => {
+    jest.clearAllMocks()
     req = new Request() as unknown as IRequest
     res = new Response() as unknown as IResponse
-  })
-
-  afterEach(() => {
-    jest.resetAllMocks()
+    req.params = {}
   })
 
   it('should exist when imported', () => {
-    // arrange
-    // act
-    // assert
     expect(ShortlinkController).toBeDefined()
   })
 
   describe('getTarget', () => {
-    test('should send bad request when invoked with a bad id', async () => {
+    test('should call sendOK with target on success', async () => {
       // arrange
-      req.params = {
-        id: 'test-id',
-      }
+      const mockResult = { target: 'https://example.com/full-url' }
+      mockShortlinkServiceInstance.getShortlinkTarget.mockResolvedValueOnce(mockResult)
+      req.params = { id: 'abc123' }
+      // act
+      await ShortlinkController.getTarget(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+
+    test('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockShortlinkServiceInstance.getShortlinkTarget.mockRejectedValueOnce(
+        new Error('Shortlink not found'),
+      )
+      req.params = { id: 'bad-id' }
       // act
       await ShortlinkController.getTarget(req, res)
       // assert

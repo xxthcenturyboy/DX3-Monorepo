@@ -175,4 +175,64 @@ describe('NotificationController', () => {
       expect(sendOK).toHaveBeenCalled()
     })
   })
+
+  describe('createAppNotification', () => {
+    it('should exist', () => {
+      expect(NotificationController.createAppNotification).toBeDefined()
+    })
+
+    test('should sendOK when invoked', async () => {
+      // arrange
+      // act
+      await NotificationController.createAppNotification(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalled()
+    })
+
+    test('should sendBadRequest when service throws', async () => {
+      // arrange
+      const { sendBadRequest } = jest.requireMock('@dx3/api-libs/http-response/http-responses')
+      const { NotificationService } = jest.requireMock(
+        '@dx3/api-libs/notifications/notification-api.service',
+      )
+      NotificationService.mockImplementationOnce(() => ({
+        createAndSendAppUpdate: jest.fn().mockRejectedValueOnce(new Error('Push failed')),
+      }))
+      // act
+      await NotificationController.createAppNotification(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
+    })
+  })
+
+  describe('testSocket', () => {
+    it('should exist', () => {
+      expect(NotificationController.testSocket).toBeDefined()
+    })
+
+    test('should sendOK when invoked with userId', async () => {
+      // arrange
+      req.params = { userId: 'user-1' }
+      // act
+      await NotificationController.testSocket(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, 'OK')
+    })
+
+    test('should sendBadRequest when service throws', async () => {
+      // arrange
+      const { sendBadRequest } = jest.requireMock('@dx3/api-libs/http-response/http-responses')
+      const { NotificationService } = jest.requireMock(
+        '@dx3/api-libs/notifications/notification-api.service',
+      )
+      NotificationService.mockImplementationOnce(() => ({
+        testSockets: jest.fn().mockRejectedValueOnce(new Error('Socket error')),
+      }))
+      req.params = { userId: 'user-1' }
+      // act
+      await NotificationController.testSocket(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
+    })
+  })
 })

@@ -3,6 +3,20 @@ import { pathsToModuleNameMapper } from 'ts-jest'
 import { compilerOptions } from '../../../tsconfig.base.json'
 
 export default {
+  collectCoverageFrom: [
+    '**/*.{js,ts}',
+    '!**/*.d.ts',
+    '!**/index.ts',
+    '!**/*.spec.ts',
+    '!**/*.test.ts',
+    '!**/node_modules/**',
+    '!**/dist/**',
+    // Exclude test infrastructure, build tooling, and application entry point
+    '!src/testing/**',
+    '!esbuild.config.js',
+    '!jest.config.ts',
+    '!src/main.ts',
+  ],
   coverageDirectory: '../../../coverage/api/api-app',
   displayName: 'api-app',
   // Force exit after tests complete to avoid hanging on open handles

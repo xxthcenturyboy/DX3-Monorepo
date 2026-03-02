@@ -49,7 +49,9 @@ describe('UserController', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    // clearAllMocks resets call counts without stripping jest.fn() implementations,
+    // preserving the jest.fn(() => mockUserServiceInstance) factory binding.
+    jest.clearAllMocks()
   })
 
   it('should exist when imported', () => {
@@ -212,6 +214,95 @@ describe('UserController', () => {
       await UserController.updateUser(req, res)
       // assert
       expect(sendBadRequest).toHaveBeenCalled()
+    })
+
+    test('should call sendOK on success', async () => {
+      // arrange
+      const mockResult = { firstName: 'Test', id: TEST_UUID }
+      mockUserServiceInstance.updateUser.mockResolvedValueOnce(mockResult)
+      req.params = { id: TEST_UUID }
+      req.body = { firstName: 'Test' }
+      // act
+      await UserController.updateUser(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+  })
+
+  describe('getUsersList happy path', () => {
+    test('should call sendOK when service resolves', async () => {
+      // arrange
+      const mockResult = { items: [{ id: TEST_UUID }], total: 1 }
+      mockUserServiceInstance.getUserList.mockResolvedValueOnce(mockResult)
+      req.query = {}
+      // act
+      await UserController.getUsersList(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+  })
+
+  describe('updateUserName happy path', () => {
+    test('should call sendOK on success', async () => {
+      // arrange
+      const mockResult = { id: TEST_UUID, username: 'newname' }
+      mockUserServiceInstance.updateUserName.mockResolvedValueOnce(mockResult)
+      req.params = { id: TEST_UUID }
+      req.body = { code: 'valid-code', username: 'newname' }
+      // act
+      await UserController.updateUserName(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+  })
+
+  describe('updateRolesRestrictions privilege-escalation guard', () => {
+    test('should call sendBadRequest when non-SUPER_ADMIN tries to add ADMIN role', async () => {
+      // arrange
+      // currentUser is NOT a super admin
+      req.user = { id: 'editor-id', isSuperAdmin: false } as IRequest['user']
+      req.params = { id: TEST_UUID }
+      // payload tries to add ADMIN role
+      req.body = { roles: ['USER', 'ADMIN'] }
+      // target user currently only has USER role
+      mockUserServiceInstance.getUser.mockResolvedValueOnce({ roles: ['USER'] })
+      // act
+      await UserController.updateRolesRestrictions(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalledWith(
+        req,
+        res,
+        'Only SUPER_ADMIN users can modify ADMIN or SUPER_ADMIN roles',
+      )
+    })
+
+    test('should call sendBadRequest when non-SUPER_ADMIN tries to remove ADMIN role', async () => {
+      // arrange
+      req.user = { id: 'editor-id', isSuperAdmin: false } as IRequest['user']
+      req.params = { id: TEST_UUID }
+      req.body = { roles: ['USER'] }
+      // target user currently has ADMIN role
+      mockUserServiceInstance.getUser.mockResolvedValueOnce({ roles: ['USER', 'ADMIN'] })
+      // act
+      await UserController.updateRolesRestrictions(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalledWith(
+        req,
+        res,
+        'Only SUPER_ADMIN users can modify ADMIN or SUPER_ADMIN roles',
+      )
+    })
+
+    test('should call sendOK when SUPER_ADMIN modifies privileged roles', async () => {
+      // arrange
+      req.user = { id: 'super-id', isSuperAdmin: true } as IRequest['user']
+      req.params = { id: TEST_UUID }
+      req.body = { roles: ['USER', 'ADMIN'] }
+      mockUserServiceInstance.updateRolesAndRestrictions.mockResolvedValueOnce({ id: TEST_UUID })
+      // act
+      await UserController.updateRolesRestrictions(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalled()
     })
   })
 })

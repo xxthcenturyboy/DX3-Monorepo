@@ -7,6 +7,7 @@
  */
 
 // Define mock functions first (alphabetically sorted)
+const mockEndpointNotFound = jest.fn()
 const mockSendAccepted = jest.fn()
 const mockSendBadRequest = jest.fn()
 const mockSendBadRequestWithCode = jest.fn()
@@ -27,6 +28,7 @@ const mockSendUnprocessableEntity = jest.fn()
 
 // Always mock HTTP response functions for controller tests
 jest.mock('./http-responses', () => ({
+  endpointNotFound: mockEndpointNotFound,
   sendAccepted: mockSendAccepted,
   sendBadRequest: mockSendBadRequest,
   sendBadRequestWithCode: mockSendBadRequestWithCode,
@@ -59,6 +61,7 @@ export const mockHttpResponses = () => {
  * expect(httpResponseMock.sendOK).toHaveBeenCalledWith(res, data);
  */
 export const httpResponseMock = {
+  endpointNotFound: mockEndpointNotFound,
   sendAccepted: mockSendAccepted,
   sendBadRequest: mockSendBadRequest,
   sendBadRequestWithCode: mockSendBadRequestWithCode,

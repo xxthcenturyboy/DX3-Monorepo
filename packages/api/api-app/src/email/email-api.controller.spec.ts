@@ -2,17 +2,26 @@ import type { Request as IRequest, Response as IResponse } from 'express'
 import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
-// import { TEST_EMAIL, TEST_EXISTING_USER_ID } from '@dx/config';
-import { sendBadRequest } from '@dx3/api-libs/http-response/http-responses'
+import { sendBadRequest, sendOK } from '@dx3/api-libs/http-response/http-responses'
 
 import { EmailController } from './email-api.controller'
 
-// import { CreateEmailPayloadType } from '@dx/email-shared';
+const mockEmailServiceInstance = {
+  createEmail: jest.fn(),
+  deleteEmail: jest.fn(),
+  isEmailAvailableAndValid: jest.fn(),
+  updateEmail: jest.fn(),
+}
 
-jest.mock('@dx3/api-libs/email/email-api.service.ts')
+jest.mock('@dx3/api-libs/email/email-api.service', () => ({
+  EmailService: jest.fn(() => mockEmailServiceInstance),
+}))
 jest.mock('@dx3/api-libs/http-response/http-responses', () => ({
   sendBadRequest: jest.fn(),
   sendOK: jest.fn(),
+}))
+jest.mock('@dx3/api-libs/logger/log-request.util', () => ({
+  logRequest: jest.fn(),
 }))
 
 describe('EmailController', () => {
@@ -20,72 +29,143 @@ describe('EmailController', () => {
   let res: IResponse
 
   beforeEach(() => {
+    jest.clearAllMocks()
     req = new Request() as unknown as IRequest
     res = new Response() as unknown as IResponse
-  })
-
-  afterEach(() => {
-    jest.resetAllMocks()
+    req.params = {}
+    req.body = {}
   })
 
   it('should exist when imported', () => {
-    // arrange
-    // act
-    // assert
     expect(EmailController).toBeDefined()
   })
 
-  describe('createEmail', () => {
-    test('should call sendBadRequest when sent without proper payload', async () => {
+  // ─── checkAvailability ─────────────────────────────────────────────────────
+
+  describe('checkAvailability', () => {
+    it('should call sendOK with isAvailable true on success', async () => {
       // arrange
+      mockEmailServiceInstance.isEmailAvailableAndValid.mockResolvedValueOnce(undefined)
+      req.body = { email: 'test@example.com' }
       // act
+      await EmailController.checkAvailability(req, res)
       // assert
-      try {
-        expect(await EmailController.createEmail(req, res)).toThrow()
-      } catch (_err) {
-        expect(sendBadRequest).toHaveBeenCalled()
-      }
+      expect(sendOK).toHaveBeenCalledWith(req, res, { isAvailable: true })
     })
 
-    // test('should call sendOK when sent with proper payload', async () => {
-    //   // arrange
-    //   const payload: CreateEmailPayloadType = {
-    //     def: false,
-    //     email: TEST_EMAIL,
-    //     label: 'Work',
-    //     userId: TEST_EXISTING_USER_ID
-    //   };
-    //   req.body = payload;
-    //   // act
-    //   await EmailController.createEmail(req, res)
-    //   // assert
-    //   expect(sendOK).toHaveBeenCalled();
-    // });
+    it('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockEmailServiceInstance.isEmailAvailableAndValid.mockRejectedValueOnce(
+        new Error('Email taken'),
+      )
+      req.body = { email: 'taken@example.com' }
+      // act
+      await EmailController.checkAvailability(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
+    })
   })
+
+  // ─── createEmail ───────────────────────────────────────────────────────────
+
+  describe('createEmail', () => {
+    it('should call sendOK with created email on success', async () => {
+      // arrange
+      const mockResult = { id: 'email-1', value: 'test@example.com' }
+      mockEmailServiceInstance.createEmail.mockResolvedValueOnce(mockResult)
+      req.body = { email: 'test@example.com', userId: 'user-1' }
+      // act
+      await EmailController.createEmail(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+
+    it('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockEmailServiceInstance.createEmail.mockRejectedValueOnce(new Error('Duplicate email'))
+      req.body = { email: 'test@example.com' }
+      // act
+      await EmailController.createEmail(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
+    })
+  })
+
+  // ─── updateEmail ───────────────────────────────────────────────────────────
 
   describe('updateEmail', () => {
-    test('should call sendBadRequest when sent without proper params', async () => {
+    it('should call sendOK with updated email on success', async () => {
       // arrange
+      const mockResult = { id: 'email-1', label: 'Work' }
+      mockEmailServiceInstance.updateEmail.mockResolvedValueOnce(mockResult)
+      req.params = { id: 'email-1' }
+      req.body = { label: 'Work' }
       // act
+      await EmailController.updateEmail(req, res)
       // assert
-      try {
-        expect(await EmailController.updateEmail(req, res)).toThrow()
-      } catch (_err) {
-        expect(sendBadRequest).toHaveBeenCalled()
-      }
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+
+    it('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockEmailServiceInstance.updateEmail.mockRejectedValueOnce(new Error('Not found'))
+      req.params = { id: 'bad-id' }
+      req.body = { label: 'Work' }
+      // act
+      await EmailController.updateEmail(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
     })
   })
 
+  // ─── deleteEmail ───────────────────────────────────────────────────────────
+
   describe('deleteEmail', () => {
-    test('should call sendBadRequest when sent without proper query params', async () => {
+    it('should call sendOK with deleted result on success', async () => {
       // arrange
+      const mockResult = { deleted: true }
+      mockEmailServiceInstance.deleteEmail.mockResolvedValueOnce(mockResult)
+      req.params = { id: 'email-1' }
       // act
+      await EmailController.deleteEmail(req, res)
       // assert
-      try {
-        expect(await EmailController.deleteEmail(req, res)).toThrow()
-      } catch (_err) {
-        expect(sendBadRequest).toHaveBeenCalled()
-      }
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+
+    it('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockEmailServiceInstance.deleteEmail.mockRejectedValueOnce(new Error('Not found'))
+      req.params = { id: 'bad-id' }
+      // act
+      await EmailController.deleteEmail(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
+    })
+  })
+
+  // ─── deleteEmailUserProfile ────────────────────────────────────────────────
+
+  describe('deleteEmailUserProfile', () => {
+    it('should call sendOK on success (user-scoped delete)', async () => {
+      // arrange
+      const mockResult = { deleted: true }
+      mockEmailServiceInstance.deleteEmail.mockResolvedValueOnce(mockResult)
+      req.params = { id: 'email-1' }
+      req.user = { id: 'user-1' } as IRequest['user']
+      // act
+      await EmailController.deleteEmailUserProfile(req, res)
+      // assert
+      expect(sendOK).toHaveBeenCalledWith(req, res, mockResult)
+    })
+
+    it('should call sendBadRequest when service throws', async () => {
+      // arrange
+      mockEmailServiceInstance.deleteEmail.mockRejectedValueOnce(new Error('Not found'))
+      req.params = { id: 'bad-id' }
+      // act
+      await EmailController.deleteEmailUserProfile(req, res)
+      // assert
+      expect(sendBadRequest).toHaveBeenCalled()
     })
   })
 })

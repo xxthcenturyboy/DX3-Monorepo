@@ -24,6 +24,12 @@ jest.mock('./data/redis/dx-redis.cache')
 jest.mock('@dx3/api-libs/error-handler/error-handler')
 jest.mock('./config/config-api.service', () => ({
   allowedCorsOrigins: jest.fn(() => ['']),
+  // allowsDevFallbacks and getEnvironment are called at module scope in config-api.consts.ts
+  // when dx-redis.cache is loaded during auto-mocking. getEnvironment must return a plain object
+  // (dict of env vars) and allowsDevFallbacks must return true so getRequiredEnvVar uses dev
+  // fallbacks instead of throwing for missing secrets.
+  allowsDevFallbacks: jest.fn(() => true),
+  getEnvironment: jest.fn(() => ({ NODE_ENV: 'test' })),
   isProd: jest.fn(() => false),
   isStaging: jest.fn(() => false),
 }))
