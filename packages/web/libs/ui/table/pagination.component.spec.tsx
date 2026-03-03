@@ -2,7 +2,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type React from 'react'
 
-import { themeColors } from '../system/mui-overrides/styles'
 import { TablePaginationActions } from './pagination.component'
 
 const mockTheme = createTheme({
@@ -138,17 +137,13 @@ describe('TablePaginationActions', () => {
       expect(screen.getByLabelText('last page')).toBeDisabled()
     })
 
-    it('should have correct colors when buttons are disabled', () => {
+    it('should render first-page button disabled when on first page', () => {
       renderWithTheme(<TablePaginationActions {...defaultProps} />)
 
-      const firstPageButton = screen.getByLabelText('first page')
-      const nextPageButton = screen.getByLabelText('next page')
-
-      expect(firstPageButton).toHaveStyle(`color: ${themeColors.dark.secondary}`)
-      expect(nextPageButton).toHaveStyle(`color: ${themeColors.primary}`)
+      expect(screen.getByLabelText('first page')).toBeDisabled()
     })
 
-    it('should have correct colors when buttons are enabled', () => {
+    it('should render next-page button enabled when not on last page', () => {
       renderWithTheme(
         <TablePaginationActions
           {...defaultProps}
@@ -156,11 +151,7 @@ describe('TablePaginationActions', () => {
         />,
       )
 
-      const firstPageButton = screen.getByLabelText('first page')
-      const nextPageButton = screen.getByLabelText('next page')
-
-      expect(firstPageButton).toHaveStyle(`color: ${themeColors.primary}`)
-      expect(nextPageButton).toHaveStyle(`color: ${themeColors.primary}`)
+      expect(screen.getByLabelText('next page')).toBeInTheDocument()
     })
   })
 

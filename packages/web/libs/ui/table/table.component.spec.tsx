@@ -2,7 +2,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type React from 'react'
 
-import { IconNames } from '../system/icons'
+import { IconNames } from '../icons'
 import { TableComponent } from './table.component'
 import type { TableHeaderItem, TableRowType } from './types'
 
@@ -21,8 +21,8 @@ jest.mock('react-spinners', () => ({
 }))
 
 // Mock getIcon
-jest.mock('../system/icons', () => ({
-  ...jest.requireActual('../system/icons'),
+jest.mock('../icons', () => ({
+  ...jest.requireActual('../icons'),
   getIcon: jest.fn((iconName: string, color?: string) => (
     <span
       data-color={color}

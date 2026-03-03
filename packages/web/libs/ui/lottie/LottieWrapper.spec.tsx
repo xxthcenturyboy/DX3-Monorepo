@@ -2,18 +2,41 @@ import { render, screen, waitFor } from '@testing-library/react'
 
 import { LottieWrapper } from './LottieWrapper'
 
-// Mock the Lottie component
+// Shared mock lottie player instance.
+// Variables starting with "mock" are permitted in jest.mock factories by Jest's
+// babel hoist transform, so this is initialised before the factory runs.
+const mockLottieInstance = {
+  getDuration: jest.fn().mockReturnValue(1),
+  goToAndPlay: jest.fn(),
+  setSpeed: jest.fn(),
+}
+
+// Mock the Lottie component.
+// Assigns the shared player instance to props.lottieRef synchronously during
+// render so that loadSettings (called from a useEffect) finds a non-null ref.
 jest.mock('lottie-react', () => ({
   __esModule: true,
-  default: (props: any) => (
-    <div
-      data-autoplay={props.autoPlay}
-      data-loop={props.loop}
-      data-testid="lottie"
-    >
-      Lottie Animation
-    </div>
-  ),
+  default: (props: any) => {
+    if (props.lottieRef && props.lottieRef.current === null) {
+      props.lottieRef.current = mockLottieInstance
+    }
+    return (
+      <div
+        data-autoplay={props.autoPlay}
+        data-loop={props.loop}
+        data-testid="lottie"
+      >
+        Lottie Animation
+      </div>
+    )
+  },
+}))
+
+// Controllable sleep mock — resolves as a microtask so loadSettings callbacks
+// run synchronously within the same act/waitFor cycle.
+const mockSleep = jest.fn().mockResolvedValue(undefined)
+jest.mock('@dx3/utils-shared', () => ({
+  sleep: (...args: unknown[]) => mockSleep(...args),
 }))
 
 // Mock ScaleLoader
@@ -28,20 +51,14 @@ jest.mock('react-spinners', () => ({
   ),
 }))
 
-// Mock themeColors
-jest.mock('../system/mui-overrides/styles', () => ({
-  themeColors: {
-    primary: '#1976d2',
-    secondary: '#dc004e',
-  },
-}))
-
 describe('LottieWrapper', () => {
   const mockAnimationData = { fr: 30, h: 300, ip: 0, layers: [], op: 60, v: '5.5.7', w: 300 }
   let consoleErrorSpy: jest.SpyInstance
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Restore default getDuration return value after any per-test overrides
+    mockLottieInstance.getDuration.mockReturnValue(1)
     global.fetch = jest.fn()
     // Suppress console.error in all tests to avoid noise
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
@@ -238,7 +255,7 @@ describe('LottieWrapper', () => {
       })
     })
 
-    it('should accept complete callback', async () => {
+    it('should invoke the complete callback after the animation finishes', async () => {
       const mockComplete = jest.fn()
 
       render(
@@ -248,12 +265,10 @@ describe('LottieWrapper', () => {
         />,
       )
 
+      // sleep is mocked to resolve immediately so complete() fires as a microtask
       await waitFor(() => {
-        expect(screen.getByTestId('lottie')).toBeInTheDocument()
+        expect(mockComplete).toHaveBeenCalledTimes(1)
       })
-
-      // Callback should not be called immediately
-      expect(mockComplete).not.toHaveBeenCalled()
     })
 
     it('should handle all props together', async () => {
@@ -561,6 +576,78 @@ describe('LottieWrapper', () => {
       await waitFor(() => {
         expect(screen.getByTestId('lottie')).toBeInTheDocument()
       })
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // loadSettings branch coverage
+  // ---------------------------------------------------------------------------
+  describe('loadSettings internals', () => {
+    it('should call setSpeed with default value 1 when speed is not provided', async () => {
+      render(<LottieWrapper animationData={mockAnimationData} />)
+
+      await waitFor(() => expect(screen.getByTestId('lottie')).toBeInTheDocument())
+      await waitFor(() => expect(mockLottieInstance.setSpeed).toHaveBeenCalledWith(1))
+    })
+
+    it('should call setSpeed with the provided speed value', async () => {
+      render(<LottieWrapper animationData={mockAnimationData} speed={2} />)
+
+      await waitFor(() => expect(mockLottieInstance.setSpeed).toHaveBeenCalledWith(2))
+    })
+
+    it('should not call complete when the complete prop is not provided', async () => {
+      render(<LottieWrapper animationData={mockAnimationData} />)
+
+      await waitFor(() => expect(mockLottieInstance.setSpeed).toHaveBeenCalled())
+      // No complete was provided — the if (complete) false branch
+      expect(mockLottieInstance.getDuration).not.toHaveBeenCalled()
+    })
+
+    it('should use lottieDuration from getDuration when it is non-zero', async () => {
+      // getDuration returns 1 by default — covers the lottieDuration !== 500 branch
+      const mockComplete = jest.fn()
+      render(<LottieWrapper animationData={mockAnimationData} complete={mockComplete} />)
+
+      await waitFor(() => expect(mockComplete).toHaveBeenCalledTimes(1))
+      expect(mockLottieInstance.getDuration).toHaveBeenCalled()
+    })
+
+    it('should fall back to 500ms duration when getDuration returns 0', async () => {
+      // getDuration() = 0 → 0 || 500 = 500 → covers lottieDuration === 500 true branch
+      mockLottieInstance.getDuration.mockReturnValueOnce(0)
+      const mockComplete = jest.fn()
+      render(<LottieWrapper animationData={mockAnimationData} complete={mockComplete} />)
+
+      await waitFor(() => expect(mockComplete).toHaveBeenCalledTimes(1))
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // restart prop branch coverage
+  // ---------------------------------------------------------------------------
+  describe('restart prop', () => {
+    it('should call goToAndPlay when restart becomes true after initial load', async () => {
+      const { rerender } = render(
+        <LottieWrapper animationData={mockAnimationData} restart={false} />,
+      )
+
+      // Wait for the Lottie instance ref to be set (second render with data)
+      await waitFor(() => expect(screen.getByTestId('lottie')).toBeInTheDocument())
+      mockLottieInstance.goToAndPlay.mockClear()
+
+      // Rerender with restart=true; lottieRef.current is already populated
+      rerender(<LottieWrapper animationData={mockAnimationData} restart={true} />)
+
+      expect(mockLottieInstance.goToAndPlay).toHaveBeenCalledWith(0, true)
+    })
+
+    it('should not call goToAndPlay when restart is false', async () => {
+      render(<LottieWrapper animationData={mockAnimationData} restart={false} />)
+
+      await waitFor(() => expect(screen.getByTestId('lottie')).toBeInTheDocument())
+
+      expect(mockLottieInstance.goToAndPlay).not.toHaveBeenCalled()
     })
   })
 })

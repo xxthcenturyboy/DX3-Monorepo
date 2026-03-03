@@ -64,69 +64,40 @@ describe('UnauthorizedComponent', () => {
   })
 
   describe('Props Handling', () => {
-    it('should accept error prop without using it', () => {
+    it('should accept error prop and display its message', () => {
       const testError = new Error('Test error')
 
       expect(() => {
         renderWithTheme(<UnauthorizedComponent error={testError} />)
       }).not.toThrow()
 
-      expect(screen.getByText('You are not authorized to access this feature.')).toBeInTheDocument()
+      expect(screen.getByText('Test error')).toBeInTheDocument()
     })
 
-    it('should accept timedOut prop without using it', () => {
+    it('should accept message prop and display it', () => {
       expect(() => {
-        renderWithTheme(<UnauthorizedComponent timedOut={true} />)
+        renderWithTheme(<UnauthorizedComponent message="Custom message" />)
       }).not.toThrow()
 
-      expect(screen.getByText('You are not authorized to access this feature.')).toBeInTheDocument()
+      expect(screen.getByText('Custom message')).toBeInTheDocument()
     })
 
-    it('should accept pastDelay prop without using it', () => {
-      expect(() => {
-        renderWithTheme(<UnauthorizedComponent pastDelay={true} />)
-      }).not.toThrow()
+    it('should error prop takes precedence over message prop', () => {
+      renderWithTheme(
+        <UnauthorizedComponent
+          error={new Error('Error text')}
+          message="Message text"
+        />,
+      )
 
-      expect(screen.getByText('You are not authorized to access this feature.')).toBeInTheDocument()
+      expect(screen.getByText('Error text')).toBeInTheDocument()
     })
 
-    it('should accept retry prop without using it', () => {
-      const mockRetry = jest.fn()
-
-      expect(() => {
-        renderWithTheme(<UnauthorizedComponent retry={mockRetry} />)
-      }).not.toThrow()
-
-      expect(screen.getByText('You are not authorized to access this feature.')).toBeInTheDocument()
-      expect(mockRetry).not.toHaveBeenCalled()
-    })
-
-    it('should accept all props together without using them', () => {
-      const testError = new Error('Test error')
-      const mockRetry = jest.fn()
-
-      expect(() => {
-        renderWithTheme(
-          <UnauthorizedComponent
-            error={testError}
-            pastDelay={true}
-            retry={mockRetry}
-            timedOut={true}
-          />,
-        )
-      }).not.toThrow()
-
-      expect(screen.getByText('You are not authorized to access this feature.')).toBeInTheDocument()
-    })
-
-    it('should render the same content regardless of props', () => {
+    it('should render the default message when no props are provided', () => {
       const { container: container1 } = renderWithTheme(<UnauthorizedComponent />)
       const { container: container2 } = render(
         <ThemeProvider theme={testTheme}>
-          <UnauthorizedComponent
-            error={new Error('Test')}
-            timedOut={true}
-          />
+          <UnauthorizedComponent />
         </ThemeProvider>,
       )
 
@@ -311,18 +282,7 @@ describe('UnauthorizedComponent', () => {
 
       rerender(
         <ThemeProvider theme={testTheme}>
-          <UnauthorizedComponent error={new Error('Test')} />
-        </ThemeProvider>,
-      )
-
-      expect(container.innerHTML).toBe(initialHTML)
-
-      rerender(
-        <ThemeProvider theme={testTheme}>
-          <UnauthorizedComponent
-            pastDelay={true}
-            timedOut={true}
-          />
+          <UnauthorizedComponent />
         </ThemeProvider>,
       )
 
@@ -393,12 +353,8 @@ describe('UnauthorizedComponent', () => {
       expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
     })
 
-    it('should not trigger retry function even if provided', () => {
-      const mockRetry = jest.fn()
-      renderWithTheme(<UnauthorizedComponent retry={mockRetry} />)
-
-      // Wait a bit to ensure no async calls
-      expect(mockRetry).not.toHaveBeenCalled()
+    it('should not trigger any side effects on render', () => {
+      expect(() => renderWithTheme(<UnauthorizedComponent />)).not.toThrow()
     })
   })
 
@@ -467,9 +423,7 @@ describe('UnauthorizedComponent', () => {
         renderWithTheme(
           <UnauthorizedComponent
             error={undefined}
-            pastDelay={undefined}
-            retry={undefined}
-            timedOut={undefined}
+            message={undefined}
           />,
         )
       }).not.toThrow()

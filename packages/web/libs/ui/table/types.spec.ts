@@ -1,7 +1,7 @@
 import type { PrimitiveTypes } from '@dx3/utils-shared'
 
 // removed runtime IconNames import (icons are a type-only export now)
-import { IconNames } from '../system/icons'
+import { IconNames } from '../icons'
 import type {
   CellAlignment,
   ComponentType,
@@ -26,7 +26,7 @@ describe('table types', () => {
 
   describe('ComponentType', () => {
     it('should accept valid component type values', () => {
-      const componentTypes: ComponentType[] = ['text', 'icon', 'checkbox', 'none']
+      const componentTypes: ComponentType[] = ['text', 'icon', 'component', 'none']
       componentTypes.forEach((type) => {
         expect(type).toBeDefined()
       })
@@ -208,7 +208,7 @@ describe('table types', () => {
       }
 
       const booleanCell: TableCellData = {
-        componentType: 'checkbox',
+        componentType: 'component',
         data: true,
         dataType: 'boolean',
       }

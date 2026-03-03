@@ -16,9 +16,9 @@ describe('enums', () => {
       expect(IconNames.STATS).toBe('STATS')
     })
 
-    it('should have exactly 11 icon names', () => {
+    it('should have exactly 21 icon names', () => {
       const keys = Object.keys(IconNames)
-      expect(keys.length).toBe(11)
+      expect(keys.length).toBe(21)
     })
 
     it('should have unique values', () => {
@@ -39,7 +39,7 @@ describe('enums', () => {
       const result = getIconNameSelect()
 
       expect(Array.isArray(result)).toBe(true)
-      expect(result.length).toBe(11)
+      expect(result.length).toBe(21)
     })
 
     it('should return all IconNames enum values', () => {

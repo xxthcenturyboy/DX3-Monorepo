@@ -18,14 +18,6 @@ jest.mock('react-spinners', () => ({
   ),
 }))
 
-// Mock theme colors
-jest.mock('../system/mui-overrides/styles', () => ({
-  themeColors: {
-    primary: '#1976d2',
-    secondary: '#dc004e',
-  },
-}))
-
 // Create a test theme
 const testTheme = createTheme()
 
@@ -56,7 +48,7 @@ describe('GlobalAwaiter', () => {
       renderWithTheme(<GlobalAwaiter {...defaultProps} />)
 
       const loader = screen.getByTestId('beat-loader')
-      expect(loader).toHaveAttribute('data-color', '#dc004e')
+      expect(loader).toHaveAttribute('data-color', '#1976d2')
       expect(loader).toHaveAttribute('data-size', '30')
       expect(loader).toHaveAttribute('data-margin', '2px')
     })

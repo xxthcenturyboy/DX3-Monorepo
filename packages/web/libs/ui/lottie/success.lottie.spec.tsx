@@ -39,11 +39,11 @@ describe('SuccessLottie', () => {
     expect(wrapper).toHaveAttribute('data-loop', 'false')
   })
 
-  it('should use speed of 2', () => {
+  it('should use speed of 1', () => {
     const { getByTestId } = render(<SuccessLottie />)
     const wrapper = getByTestId('lottie-wrapper')
 
-    expect(wrapper).toHaveAttribute('data-speed', '2')
+    expect(wrapper).toHaveAttribute('data-speed', '1')
   })
 
   it('should accept complete callback', () => {

@@ -3,7 +3,23 @@ import { pathsToModuleNameMapper } from 'ts-jest'
 import { compilerOptions } from '../../tsconfig.base.json'
 
 export default {
+  collectCoverageFrom: [
+    '<rootDir>/libs/**/*.{ts,tsx}',
+    '!<rootDir>/libs/**/*.spec.{ts,tsx}',
+    '!<rootDir>/libs/**/*.d.ts',
+    '!<rootDir>/libs/**/index.{ts,tsx}',
+    // test-setup.ts is a jest helper entry-point, not production code
+    '!<rootDir>/libs/ui/test-setup.ts',
+  ],
   coverageDirectory: '../../coverage/web/web-app',
+  coverageThreshold: {
+    './libs/**': {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
   displayName: 'web-libs',
   // Force exit after tests complete to avoid hanging on open handles
   forceExit: true,
@@ -24,6 +40,7 @@ export default {
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jsdom',
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/web-app-dist/', '<rootDir>/web-app-e2e/'],
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
