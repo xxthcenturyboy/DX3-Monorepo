@@ -2,5 +2,8 @@
   "folders": [
     { "name": "dx3-monorepo", "path": "." },
     { "name": "ax-infrastructure", "path": "../../ArteFX/ax-infrastructure" }
-  ]
+  ],
+  "settings": {
+    "makefile.configureOnOpen": false
+  }
 }

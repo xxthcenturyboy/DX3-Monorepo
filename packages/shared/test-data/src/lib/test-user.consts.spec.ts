@@ -186,7 +186,7 @@ describe('Test User Constants (test-user.consts.ts)', () => {
       })
 
       it('should have correct id', () => {
-        expect(admin.id).toBe(TEST_EXISTING_USER_ID)
+        expect(admin.id).toBe(TEST_EXISTING_ADMIN_USER_ID)
       })
 
       it('should have correct password from env', () => {
@@ -394,5 +394,80 @@ describe('Test User Constants (test-user.consts.ts)', () => {
         expect(lockedUser.roles?.length).toBe(1)
       })
     })
+  })
+})
+
+describe('Environment variable fallback branches (test-user.consts.ts lines 19-24)', () => {
+  // These tests use jest.isolateModules to reload the module under different env conditions,
+  // ensuring both sides of each ?? operator are exercised for full branch coverage.
+
+  const ENV_KEYS = [
+    'SEED_USER_ADMIN_USERNAME',
+    'SEED_USER_ADMIN_PASSWORD',
+    'SEED_USER_SUPERADMIN_USERNAME',
+    'SEED_USER_SUPERADMIN_PASSWORD',
+    'SEED_USER_TEST_USERNAME',
+    'SEED_USER_TEST_PASSWORD',
+  ] as const
+
+  it('should use hardcoded fallback defaults when all env vars are absent', () => {
+    // arrange — save then delete all relevant env vars
+    const saved: Partial<Record<(typeof ENV_KEYS)[number], string>> = {}
+    for (const key of ENV_KEYS) {
+      saved[key] = process.env[key]
+      delete process.env[key]
+    }
+
+    // act — reload module fresh without env vars
+    let mod: typeof import('./test-user.consts')
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      mod = require('./test-user.consts')
+    })
+
+    // assert — right-hand side of ?? is taken
+    expect(mod!.TEST_ADMIN_USERNAME).toBe('admin')
+    expect(mod!.TEST_ADMIN_PASSWORD).toBe('admin123')
+    expect(mod!.TEST_SUPERADMIN_USERNAME).toBe('superadmin')
+    expect(mod!.TEST_SUPERADMIN_PASSWORD).toBe('superadmin123')
+    expect(mod!.TEST_USER_USERNAME).toBe('testuser')
+    expect(mod!.TEST_USER_PASSWORD).toBe('testuser123')
+
+    // restore env vars
+    for (const key of ENV_KEYS) {
+      if (saved[key] !== undefined) {
+        process.env[key] = saved[key]
+      }
+    }
+  })
+
+  it('should use env var values when all env vars are explicitly set', () => {
+    // arrange — set all env vars to custom values
+    process.env.SEED_USER_ADMIN_USERNAME = 'env_admin'
+    process.env.SEED_USER_ADMIN_PASSWORD = 'env_adminpw'
+    process.env.SEED_USER_SUPERADMIN_USERNAME = 'env_superadmin'
+    process.env.SEED_USER_SUPERADMIN_PASSWORD = 'env_superadminpw'
+    process.env.SEED_USER_TEST_USERNAME = 'env_testuser'
+    process.env.SEED_USER_TEST_PASSWORD = 'env_testuserpw'
+
+    // act — reload module fresh with env vars set
+    let mod: typeof import('./test-user.consts')
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      mod = require('./test-user.consts')
+    })
+
+    // assert — left-hand side of ?? is taken
+    expect(mod!.TEST_ADMIN_USERNAME).toBe('env_admin')
+    expect(mod!.TEST_ADMIN_PASSWORD).toBe('env_adminpw')
+    expect(mod!.TEST_SUPERADMIN_USERNAME).toBe('env_superadmin')
+    expect(mod!.TEST_SUPERADMIN_PASSWORD).toBe('env_superadminpw')
+    expect(mod!.TEST_USER_USERNAME).toBe('env_testuser')
+    expect(mod!.TEST_USER_PASSWORD).toBe('env_testuserpw')
+
+    // cleanup
+    for (const key of ENV_KEYS) {
+      delete process.env[key]
+    }
   })
 })

@@ -3,6 +3,7 @@ import { pathsToModuleNameMapper } from 'ts-jest'
 import { compilerOptions } from '../../../tsconfig.base.json'
 
 export default {
+  collectCoverageFrom: ['src/lib/**/*.ts', '!src/lib/**/*.spec.ts'],
   coverageDirectory: '../../../coverage/shared/encryption',
   displayName: 'encryption',
   moduleFileExtensions: ['ts', 'js', 'html'],

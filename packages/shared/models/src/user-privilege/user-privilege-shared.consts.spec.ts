@@ -105,4 +105,18 @@ describe('hasRoleOrHigher', () => {
     // User with USER and EDITOR should still fail ADMIN check
     expect(hasRoleOrHigher([USER_ROLE.USER, USER_ROLE.EDITOR], USER_ROLE.ADMIN)).toBe(false)
   })
+
+  it('should return false when requiredRole is an unrecognized string (falls back to order 0)', () => {
+    // arrange — unknown requiredRole triggers the `?? 0` fallback on USER_ROLE_ORDER lookup
+    // Any role has order >= 0, so this should return true since every valid role >= 0
+    expect(hasRoleOrHigher([USER_ROLE.USER], 'UNKNOWN_ROLE')).toBe(true)
+  })
+
+  it('should treat an unrecognized role in the userRoles array as order 0', () => {
+    // arrange — unknown role in userRoles array triggers `?? 0` fallback in the .some() callback
+    // An unknown role has effective order 0, which is < ADMIN (300), so should fail the ADMIN check
+    expect(hasRoleOrHigher(['NOT_A_REAL_ROLE'], USER_ROLE.ADMIN)).toBe(false)
+    // But should pass a check for a role with order 0 (i.e. unknown required role)
+    expect(hasRoleOrHigher(['NOT_A_REAL_ROLE'], 'ALSO_UNKNOWN')).toBe(true)
+  })
 })

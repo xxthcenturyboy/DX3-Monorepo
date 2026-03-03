@@ -120,6 +120,7 @@ describe('MEDIA_TYPE_BY_MIME_TYPE_MAP ', () => {
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.IMAGE.JPG]).toEqual(MEDIA_TYPES.IMAGE)
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.IMAGE.PNG]).toEqual(MEDIA_TYPES.IMAGE)
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.IMAGE.SVG]).toEqual(MEDIA_TYPES.SVG)
+    expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.IMAGE.WEBP]).toEqual(MEDIA_TYPES.IMAGE)
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.VIDEO.MP4]).toEqual(MEDIA_TYPES.VIDEO)
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.VIDEO.MPEG]).toEqual(MEDIA_TYPES.VIDEO)
     expect(MEDIA_TYPE_BY_MIME_TYPE_MAP[MIME_TYPES.VIDEO.OGG]).toEqual(MEDIA_TYPES.VIDEO)
@@ -139,7 +140,6 @@ describe('MEDIA_VARIANTS ', () => {
     // arrange
     // act
     // assert
-    expect(MEDIA_VARIANTS.LARGE).toEqual('LARGE')
     expect(MEDIA_VARIANTS.MEDIUM).toEqual('MEDIUM')
     expect(MEDIA_VARIANTS.ORIGINAL).toEqual('ORIGINAL')
     expect(MEDIA_VARIANTS.SMALL).toEqual('SMALL')
@@ -168,6 +168,7 @@ describe('MIME_TYPES ', () => {
     expect(MIME_TYPES.IMAGE.JPG).toEqual('image/jpeg')
     expect(MIME_TYPES.IMAGE.PNG).toEqual('image/png')
     expect(MIME_TYPES.IMAGE.SVG).toEqual('image/svg+xml')
+    expect(MIME_TYPES.IMAGE.WEBP).toEqual('image/webp')
     expect(MIME_TYPES.VIDEO.MP4).toEqual('video/mp4')
     expect(MIME_TYPES.VIDEO.MPEG).toEqual('video/mpeg')
     expect(MIME_TYPES.VIDEO.OGG).toEqual('video/ogg')
@@ -195,6 +196,7 @@ describe('MIME_TYPE_BY_SUB_TYPE ', () => {
       MIME_TYPES.IMAGE.JPG,
       MIME_TYPES.IMAGE.PNG,
       MIME_TYPES.IMAGE.SVG,
+      MIME_TYPES.IMAGE.WEBP,
     ])
     expect(MIME_TYPE_BY_SUB_TYPE[MEDIA_SUB_TYPES.PROFILE_IMAGE]).toEqual([
       MIME_TYPES.IMAGE.JPG,

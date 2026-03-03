@@ -1,3 +1,5 @@
+import NodeRsa from 'node-rsa'
+
 import {
   dxRsaGenerateKeyPair,
   dxRsaSignPayload,
@@ -35,6 +37,23 @@ describe('dxRSAKeys', () => {
       expect(privateKey).toBeDefined()
       expect(publicKey).toBeDefined()
     })
+
+    it('should return null keys and log error when key generation throws', () => {
+      // arrange — spy on generateKeyPair to force the catch block (lines 19-21 in rsa.keys.ts)
+      const spy = jest
+        .spyOn(NodeRsa.prototype, 'generateKeyPair')
+        .mockImplementation(() => {
+          throw new Error('Simulated key generation failure')
+        })
+      // act
+      const result = dxRsaGenerateKeyPair()
+      // assert
+      expect(result.privateKey).toBeNull()
+      expect(result.publicKey).toBeNull()
+      expect(errorLogSpyMock).toHaveBeenCalled()
+      // cleanup
+      spy.mockRestore()
+    })
   })
 
   describe('dxRsaSignPayload', () => {
@@ -48,6 +67,15 @@ describe('dxRSAKeys', () => {
       signature = dxRsaSignPayload(privateKey, payload)
       // assert
       expect(signature).toBeDefined()
+    })
+
+    it('should return undefined and log an error when private key is invalid', () => {
+      // arrange — an invalid key triggers the catch block (lines 35-38 in rsa.keys.ts)
+      // act
+      const result = dxRsaSignPayload('not-a-valid-rsa-key', payload)
+      // assert
+      expect(result).toBeUndefined()
+      expect(errorLogSpyMock).toHaveBeenCalled()
     })
   })
 
