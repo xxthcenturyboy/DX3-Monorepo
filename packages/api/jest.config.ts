@@ -28,7 +28,7 @@ export default {
     '/libs/pg/migrations/',
     '/libs/pg/seed/',
   ],
-  displayName: 'api-libs',
+  displayName: process.env.JEST_DISPLAY_NAME ?? 'api-libs',
   // Force exit after tests complete to avoid hanging on open handles
   forceExit: true,
   moduleFileExtensions: ['ts', 'js', 'html'],

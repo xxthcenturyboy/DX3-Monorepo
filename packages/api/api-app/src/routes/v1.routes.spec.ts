@@ -1,7 +1,15 @@
 import { RoutesV1 } from './v1.routes'
 
-jest.mock('../rate-limiters/rate-limiters.dx.ts')
-// jest.mock('@dx/data-access-redis');
+jest.mock('../rate-limiters/rate-limiters.dx.ts', () => ({
+  DxRateLimiters: {
+    accountCreation: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    authLookup: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    login: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    standard: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    strict: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    veryStrict: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+  },
+}))
 
 describe('RoutesV1', () => {
   it('should exist when imported', () => {
