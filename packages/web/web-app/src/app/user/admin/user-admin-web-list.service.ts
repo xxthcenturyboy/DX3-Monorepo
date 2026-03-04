@@ -179,8 +179,7 @@ export class UserAdminWebListService {
       }
 
       if (cellData === undefined) {
-        // @ts-expect-error - error lame
-        cellData = user[meta.fieldName] || '-'
+        cellData = (user as Record<string, unknown>)[meta.fieldName] || '-'
       }
       row.columns.push({
         align: meta.align,

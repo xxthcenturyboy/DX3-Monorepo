@@ -7,7 +7,19 @@
 import { ERROR_CODES } from '@dx3/models-shared'
 
 import { DEFAULT_STRINGS } from '../../i18n'
-import { ErrorWebService } from './error-web.service'
+import { getErrorStringFromApiResponse, ErrorWebService } from './error-web.service'
+
+// Mock the store import used by getLocalizedMessageAsync to avoid initialising
+// the full Redux store in a unit test.
+jest.mock('../../store/store-web.redux', () => ({
+  store: {
+    getState: jest.fn().mockReturnValue({}),
+  },
+}))
+
+jest.mock('../../i18n/i18n.selectors', () => ({
+  selectTranslations: jest.fn().mockReturnValue({}),
+}))
 
 describe('ErrorWebService', () => {
   describe('getI18nKey', () => {
@@ -98,7 +110,7 @@ describe('ErrorWebService', () => {
       const result = ErrorWebService.getLocalizedMessage(null)
 
       // assert
-      expect(result).toBe('An error occurred. Please try again.')
+      expect(result).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
     })
 
     it('should return fallback for invalid code', () => {
@@ -118,7 +130,7 @@ describe('ErrorWebService', () => {
       )
 
       // assert
-      expect(result).toBe('File too large. Maximum size is 50 MB.')
+      expect(result).toBe('File too large. Maximum size is 50.')
     })
 
     it('should preserve placeholder if param not provided', () => {
@@ -130,7 +142,7 @@ describe('ErrorWebService', () => {
       )
 
       // assert
-      expect(result).toBe('File too large. Maximum size is {max} MB.')
+      expect(result).toBe('File too large. Maximum size is {max}.')
     })
 
     it('should handle string interpolation values', () => {
@@ -142,7 +154,7 @@ describe('ErrorWebService', () => {
       )
 
       // assert
-      expect(result).toBe('File too large. Maximum size is 100 MB.')
+      expect(result).toBe('File too large. Maximum size is 100.')
     })
   })
 
@@ -182,7 +194,7 @@ describe('ErrorWebService', () => {
 
       // assert
       expect(result.code).toBe('201')
-      expect(result.localizedMessage).toBe('File too large. Maximum size is 25 MB.')
+      expect(result.localizedMessage).toBe('File too large. Maximum size is 25.')
     })
 
     it('should return original message as fallback when code not mapped', () => {
@@ -209,7 +221,7 @@ describe('ErrorWebService', () => {
       // Empty message falls back to default error message
       expect(result.code).toBeNull()
       expect(result.originalMessage).toBe('')
-      expect(result.localizedMessage).toBe('An error occurred. Please try again.')
+      expect(result.localizedMessage).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
     })
 
     it('should parse user management error codes', () => {
@@ -243,5 +255,77 @@ describe('ErrorWebService', () => {
       expect(DEFAULT_STRINGS).toBeDefined()
       expect(DEFAULT_STRINGS.AUTH_FAILED).toBeDefined()
     })
+  })
+})
+
+describe('getErrorStringFromApiResponse', () => {
+  it('should return localizedMessage when present', () => {
+    const res = { localizedMessage: 'Localized error' }
+    expect(getErrorStringFromApiResponse(res)).toBe('Localized error')
+  })
+
+  it('should return error field when localizedMessage is absent', () => {
+    const res = { error: 'Raw error string' }
+    expect(getErrorStringFromApiResponse(res)).toBe('Raw error string')
+  })
+
+  it('should return default message when response is undefined', () => {
+    expect(getErrorStringFromApiResponse(undefined)).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
+  })
+
+  it('should return default message when response has no relevant fields', () => {
+    expect(getErrorStringFromApiResponse({} as never)).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
+  })
+
+  it('should prefer localizedMessage over error when both present', () => {
+    const res = { error: 'raw', localizedMessage: 'Localized' }
+    expect(getErrorStringFromApiResponse(res)).toBe('Localized')
+  })
+
+  it('should return default when localizedMessage is empty string', () => {
+    const res = { error: 'raw', localizedMessage: '' }
+    // empty string is falsy — falls through to 'error' field
+    expect(getErrorStringFromApiResponse(res)).toBe('raw')
+  })
+})
+
+describe('ErrorWebService.getLocalizedMessageAsync', () => {
+  it('should return fallback when code is null', async () => {
+    const result = await ErrorWebService.getLocalizedMessageAsync(null, 'My fallback')
+    expect(result).toBe('My fallback')
+  })
+
+  it('should return default error message when code is null and no fallback', async () => {
+    const result = await ErrorWebService.getLocalizedMessageAsync(null)
+    expect(result).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
+  })
+
+  it('should resolve message from DEFAULT_STRINGS when store translations are empty', async () => {
+    // selectTranslations mock returns {} so it falls back to DEFAULT_STRINGS
+    const result = await ErrorWebService.getLocalizedMessageAsync(ERROR_CODES.AUTH_FAILED)
+    expect(result).toBe(DEFAULT_STRINGS.AUTH_FAILED)
+  })
+
+  it('should apply interpolation params in async path', async () => {
+    const result = await ErrorWebService.getLocalizedMessageAsync(
+      ERROR_CODES.MEDIA_FILE_SIZE_EXCEEDED,
+      undefined,
+      { max: 99 },
+    )
+    expect(result).toBe('File too large. Maximum size is 99.')
+  })
+
+  it('should return fallback when store throws', async () => {
+    // Make the store import fail for this test
+    jest.resetModules()
+    const { ErrorWebService: Svc } = await import('./error-web.service')
+    // Patch the internal getStore by making the dynamic import reject
+    jest.doMock('../../store/store-web.redux', () => {
+      throw new Error('Store unavailable')
+    })
+    // The catch block falls back to DEFAULT_STRINGS
+    const result = await Svc.getLocalizedMessageAsync(ERROR_CODES.AUTH_FAILED)
+    expect(typeof result).toBe('string')
+    expect(result.length).toBeGreaterThan(0)
   })
 })

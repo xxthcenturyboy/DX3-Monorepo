@@ -139,8 +139,7 @@ export class UserSupportRequestListService {
       }
 
       if (cellData === undefined) {
-        // @ts-expect-error - error lame
-        cellData = data[meta.fieldName] || '-'
+        cellData = (data as Record<string, unknown>)[meta.fieldName] || '-'
       }
       row.columns.push({
         align: meta.align,

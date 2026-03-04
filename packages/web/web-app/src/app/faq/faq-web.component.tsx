@@ -43,11 +43,9 @@ export const FaqComponent: React.FC = () => {
         '@type': 'Question',
         acceptedAnswer: {
           '@type': 'Answer',
-          // @ts-expect-error - keys are fine here
-          text: strings[item.answerKey],
+          text: strings[item.answerKey as keyof typeof strings],
         },
-        // @ts-expect-error - keys are fine here
-        name: strings[item.questionKey],
+        name: strings[item.questionKey as keyof typeof strings],
       })),
     }),
     [faqItems, strings],

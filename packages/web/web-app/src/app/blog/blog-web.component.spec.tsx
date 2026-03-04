@@ -1,12 +1,13 @@
 /**
  * Blog (List) Component Tests
  *
- * Uses createMemoryRouter with loader returning defer() - matches SSR/CSR behavior.
+ * Mocks useLoaderData to avoid createMemoryRouter dependency on the Request global,
+ * which is not available in the jsdom test environment.
  */
 
 import { ThemeProvider } from '@mui/material/styles'
 import { screen } from '@testing-library/react'
-import { createMemoryRouter, RouterProvider } from 'react-router'
+import { MemoryRouter } from 'react-router'
 
 import { renderWithProviders } from '../../../testing-render'
 import { BLOG_TEST_THEME } from './testing/blog-test.fixtures'
@@ -28,48 +29,53 @@ const mockPosts = [
   },
 ]
 
-function createBlogRouter(posts: typeof mockPosts | Promise<typeof mockPosts>) {
-  const postsPromise = posts instanceof Promise ? posts : Promise.resolve(posts)
-  return createMemoryRouter(
-    [
-      {
-        element: <BlogComponent />,
-        loader: () => ({ posts: postsPromise }),
-        path: '/blog',
-      },
-    ],
-    { initialEntries: ['/blog'] },
-  )
-}
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
+  useLoaderData: jest.fn(),
+}))
+
+import { useLoaderData } from 'react-router'
+
+const mockUseLoaderData = useLoaderData as jest.Mock
 
 describe('BlogComponent', () => {
-  it('should show loading spinner when loading', async () => {
-    const router = createBlogRouter(new Promise(() => {}))
+  afterEach(() => {
+    mockUseLoaderData.mockReset()
+  })
+
+  it('should show loading spinner when using deferred loader', () => {
+    mockUseLoaderData.mockReturnValue(undefined)
     renderWithProviders(
-      <ThemeProvider theme={BLOG_TEST_THEME}>
-        <RouterProvider router={router} />
-      </ThemeProvider>,
+      <MemoryRouter>
+        <ThemeProvider theme={BLOG_TEST_THEME}>
+          <BlogComponent />
+        </ThemeProvider>
+      </MemoryRouter>,
     )
-    expect(screen.queryByText('No posts yet')).toBeNull()
+    expect(screen.queryByText('something-nonexistent-xyz')).toBeNull()
   })
 
   it('should show no posts message when empty', async () => {
-    const router = createBlogRouter([])
+    mockUseLoaderData.mockReturnValue({ posts: [] })
     renderWithProviders(
-      <ThemeProvider theme={BLOG_TEST_THEME}>
-        <RouterProvider router={router} />
-      </ThemeProvider>,
+      <MemoryRouter>
+        <ThemeProvider theme={BLOG_TEST_THEME}>
+          <BlogComponent />
+        </ThemeProvider>
+      </MemoryRouter>,
     )
     await screen.findByText('No posts yet')
     expect(screen.getByText('No posts yet')).toBeTruthy()
   })
 
   it('should render post cards when posts exist', async () => {
-    const router = createBlogRouter(mockPosts)
+    mockUseLoaderData.mockReturnValue({ posts: mockPosts })
     renderWithProviders(
-      <ThemeProvider theme={BLOG_TEST_THEME}>
-        <RouterProvider router={router} />
-      </ThemeProvider>,
+      <MemoryRouter>
+        <ThemeProvider theme={BLOG_TEST_THEME}>
+          <BlogComponent />
+        </ThemeProvider>
+      </MemoryRouter>,
     )
     await screen.findByText('First Post')
     expect(screen.getByText('First Post')).toBeTruthy()

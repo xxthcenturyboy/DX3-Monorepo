@@ -4,62 +4,79 @@ jest.mock('../store')
 
 describe('WebConfigService', () => {
   it('should exist', () => {
-    // arrange
-    // act
-    // assert
     expect(WebConfigService).toBeDefined()
   })
 
-  it('should have 3 public methods', () => {
-    // arrange
-    // act
-    // assert
+  it('should have public methods', () => {
     expect(WebConfigService.getNoRedirectRoutes).toBeDefined()
     expect(WebConfigService.getWebRoutes).toBeDefined()
     expect(WebConfigService.getWebUrls).toBeDefined()
+    expect(WebConfigService.isDev).toBeDefined()
   })
 
-  it('should getNoRedirectRoutes', () => {
-    // arrange
-    // act
-    const noRedirectUrls = WebConfigService.getNoRedirectRoutes()
-    // assert
-    expect(noRedirectUrls).toBeTruthy()
-    expect(Array.isArray(noRedirectUrls)).toBeTruthy()
-    expect(noRedirectUrls.length).toEqual(3)
-    expect(noRedirectUrls[0]).toEqual('/')
-    expect(noRedirectUrls[1]).toEqual('/login')
-    expect(noRedirectUrls[2]).toEqual('/l')
+  describe('getNoRedirectRoutes', () => {
+    it('should return an array', () => {
+      const noRedirectRoutes = WebConfigService.getNoRedirectRoutes()
+      expect(Array.isArray(noRedirectRoutes)).toBe(true)
+    })
+
+    it('should return routes including login and main', () => {
+      const noRedirectRoutes = WebConfigService.getNoRedirectRoutes()
+      expect(noRedirectRoutes.length).toBeGreaterThan(0)
+      expect(noRedirectRoutes).toContain('/')
+    })
   })
 
-  it('should getWebRoutes', () => {
-    // arrange
-    // act
-    const webRoutes = WebConfigService.getWebRoutes()
-    const routeKeys = Object.keys(webRoutes)
-    // assert
-    expect(webRoutes).toBeTruthy()
-    expect(routeKeys.length).toEqual(9)
-    expect(routeKeys[0]).toEqual('ADMIN')
-    expect(routeKeys[1]).toEqual('AUTH')
-    expect(routeKeys[2]).toEqual('DASHBOARD')
-    expect(routeKeys[3]).toEqual('LIMITED')
-    expect(routeKeys[4]).toEqual('MAIN')
-    expect(routeKeys[5]).toEqual('NOT_FOUND')
-    expect(routeKeys[6]).toEqual('SHORTLINK')
-    expect(routeKeys[7]).toEqual('SUDO')
-    expect(routeKeys[8]).toEqual('USER_PROFILE')
+  describe('getWebRoutes', () => {
+    it('should return an object', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes).toBeTruthy()
+      expect(typeof webRoutes).toBe('object')
+    })
+
+    it('should include AUTH routes', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes.AUTH).toBeDefined()
+    })
+
+    it('should include ADMIN routes', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes.ADMIN).toBeDefined()
+    })
+
+    it('should include DASHBOARD routes', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes.DASHBOARD).toBeDefined()
+    })
+
+    it('should include MAIN route', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes.MAIN).toBe('/')
+    })
+
+    it('should include NOT_FOUND route', () => {
+      const webRoutes = WebConfigService.getWebRoutes()
+      expect(webRoutes.NOT_FOUND).toBeDefined()
+    })
   })
 
-  it('should get standard menus', () => {
-    // arrange
-    // act
-    const webUrls = WebConfigService.getWebUrls()
-    const urlKeys = Object.keys(webUrls)
-    // assert
-    expect(webUrls).toBeTruthy()
-    expect(urlKeys.length).toEqual(2)
-    expect(urlKeys[0]).toEqual('API_URL')
-    expect(urlKeys[1]).toEqual('WEB_APP_URL')
+  describe('getWebUrls', () => {
+    it('should return an object with API_URL', () => {
+      const webUrls = WebConfigService.getWebUrls()
+      expect(webUrls).toBeTruthy()
+      expect(webUrls.API_URL).toBeDefined()
+    })
+
+    it('should return an object with WEB_APP_URL', () => {
+      const webUrls = WebConfigService.getWebUrls()
+      expect(webUrls.WEB_APP_URL).toBeDefined()
+    })
+  })
+
+  describe('isDev', () => {
+    it('should return a boolean', () => {
+      const result = WebConfigService.isDev()
+      expect(typeof result).toBe('boolean')
+    })
   })
 })

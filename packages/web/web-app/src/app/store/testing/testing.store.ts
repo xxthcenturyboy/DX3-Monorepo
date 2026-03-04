@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 
 import { adminLogsReducer } from '../../admin-logs/admin-logs-web.reducer'
+import { adminMetricsReducer } from '../../admin-metrics/admin-metrics-web.reducer'
 import { authReducer } from '../../auth/auth-web.reducer'
 import {
   blogEditorBodyReducer,
@@ -16,6 +17,8 @@ import { i18nReducer } from '../../i18n/i18n.reducer'
 import { mediaReducer } from '../../media/media-web.reducer'
 import { notificationReducer } from '../../notifications/notification-web.reducer'
 import { statsReducer } from '../../stats/stats-web.reducer'
+import { supportAdminReducer } from '../../support/store/support-admin-web.reducer'
+import { supportReducer } from '../../support/store/support-web.reducer'
 import { uiReducer } from '../../ui/store/ui-web.reducer'
 import { userAdminReducer } from '../../user/admin/user-admin-web.reducer'
 import { userProfileReducer } from '../../user/profile/user-profile-web.reducer'
@@ -24,6 +27,7 @@ import { privilegeSetReducer } from '../../user-privilege/user-privilege-web.red
 export const rootReducer = combineReducers({
   [apiWeb.reducerPath]: apiWeb.reducer,
   adminLogs: adminLogsReducer,
+  adminMetrics: adminMetricsReducer,
   auth: authReducer,
   blogEditorBody: blogEditorBodyReducer,
   blogEditorList: blogEditorListReducer,
@@ -37,6 +41,8 @@ export const rootReducer = combineReducers({
   notification: notificationReducer,
   privileges: privilegeSetReducer,
   stats: statsReducer,
+  support: supportReducer,
+  supportAdmin: supportAdminReducer,
   ui: uiReducer,
   userAdmin: userAdminReducer,
   userProfile: userProfileReducer,

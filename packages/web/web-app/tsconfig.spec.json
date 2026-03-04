@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
     "module": "commonjs",
     "moduleResolution": "node10",
@@ -19,6 +20,9 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "./types/mui.d.ts",
+    "./types/axios.d.ts",
+    "./types/fingerprintjs.d.ts"
   ]
 }

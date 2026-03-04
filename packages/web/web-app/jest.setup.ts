@@ -12,6 +12,7 @@ import { TextDecoder, TextEncoder } from 'node:util'
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
+
 // Polyfill DOMRect for jsdom (used by MUI Popper/BlogLinkEditDialog).
 if (typeof global.DOMRect === 'undefined') {
   global.DOMRect = class DOMRect {

@@ -9,6 +9,7 @@
  */
 
 import '@testing-library/jest-dom'
+import { setGlobalDevModeChecks } from 'reselect'
 
 // Standard jsdom stub for window.matchMedia.
 // MUI's useMediaQuery relies on this; without it the hook throws in tests.
@@ -72,6 +73,29 @@ global.fetch = jest.fn(() =>
   }),
 ) as jest.Mock
 
+// Disable reselect's dev-mode identity-function check globally for all tests.
+// The check fires whenever a createSelector result function returns its input
+// unmodified (e.g. `palette => palette || 'light'` when palette is already set)
+// and emits a verbose multi-line stack trace that adds no actionable value in the
+// test environment.  Type safety and selector correctness are verified by tsc and
+// dedicated selector specs — not by this runtime heuristic.
+setGlobalDevModeChecks({ identityFunctionCheck: 'never', inputStabilityCheck: 'never' })
+
+// Suppress console.warn noise that is expected and not actionable in tests.
+const originalConsoleWarn = console.warn
+console.warn = (...args: unknown[]) => {
+  const message = args[0]?.toString() ?? ''
+  if (
+    // React Router emits this when renderWithProviders uses a MemoryRouter whose
+    // initial path ('/') does not match the route being tested.  The component
+    // still renders correctly — the warning is a false positive in unit tests.
+    message.includes('No routes matched location')
+  ) {
+    return
+  }
+  originalConsoleWarn.apply(console, args)
+}
+
 // Suppress console.error noise that is expected and not actionable in tests.
 const originalConsoleError = console.error
 console.error = (...args: unknown[]) => {
@@ -82,9 +106,41 @@ console.error = (...args: unknown[]) => {
     message.includes('Failed to load Lottie animation') ||
     message.includes('fetch is not defined') ||
     message.includes('was not wrapped in act(...)') ||
-    message.includes('An update to LottieWrapper inside a test')
+    message.includes('An update to LottieWrapper inside a test') ||
+    // axiosBaseQuery logs this when the Redux auth token is absent in unit tests.
+    // The error path itself is covered by axios-web.api.spec.ts; the log is noise.
+    message.includes('Error in axiosBaseQuery') ||
+    message.includes("Cannot read properties of undefined (reading 'token')") ||
+    // Socket classes are not real constructors in the jsdom environment; the
+    // bootstrap module catches and logs these errors.  Covered by bootstrap specs.
+    message.includes('is not a constructor') ||
+    // i18n fetches translation JSON over HTTP which always fails in unit tests.
+    // Bootstrap specs verify the error-handling path; this log is noise.
+    message.includes('i18n initialization error')
   ) {
     return
   }
   originalConsoleError.apply(console, args)
+}
+
+// Suppress console.log output from SsrMetrics.logSummary().
+// The summary table is exercised by ssr/metrics.spec.ts; the raw log lines add
+// no value in the test console and obscure actual failures.
+const originalConsoleLog = console.log
+console.log = (...args: unknown[]) => {
+  const message = args[0]?.toString() ?? ''
+  if (
+    // Blank separator lines emitted between sections in SsrMetrics.logSummary().
+    message.trim() === '' ||
+    message.includes('SSR METRICS SUMMARY') ||
+    message.includes('============================================================') ||
+    message.startsWith('Uptime:') ||
+    message.startsWith('Memory:') ||
+    message.startsWith('Route:') ||
+    message.startsWith('Cache:') ||
+    message.startsWith('Errors:')
+  ) {
+    return
+  }
+  originalConsoleLog.apply(console, args)
 }

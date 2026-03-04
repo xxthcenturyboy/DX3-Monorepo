@@ -1,35 +1,46 @@
-import { apiWebAuth } from './auth-web.api'
+import {
+  useCheckPasswordStrengthMutation,
+  useCreateAccountMutation,
+  useLoginMutation,
+  useLogoutMutation,
+  useOtpRequestEmailMutation,
+  useOtpRequestIdMutation,
+  useOtpRequestPhoneMutation,
+} from './auth-web.api'
 
-jest.mock('../data/rtk-query')
-
-describe('apiWebAuth', () => {
-  it('should exist when imported', () => {
-    // arrange
-    // act
-    // assert
-    expect(apiWebAuth).toBeDefined()
+describe('auth-web.api exported hooks', () => {
+  it('should export useCheckPasswordStrengthMutation', () => {
+    expect(useCheckPasswordStrengthMutation).toBeDefined()
+    expect(typeof useCheckPasswordStrengthMutation).toBe('function')
   })
 
-  it('should should have added specific properties to the main api object when imported', () => {
-    // arrange
-    // act
-    // assert
-    expect(apiWebAuth.endpoints.checkPasswordStrength).toBeDefined()
-    expect(apiWebAuth.useCheckPasswordStrengthMutation).toBeDefined()
+  it('should export useCreateAccountMutation', () => {
+    expect(useCreateAccountMutation).toBeDefined()
+    expect(typeof useCreateAccountMutation).toBe('function')
+  })
 
-    expect(apiWebAuth.endpoints.login).toBeDefined()
-    expect(apiWebAuth.useLoginMutation).toBeDefined()
+  it('should export useLoginMutation', () => {
+    expect(useLoginMutation).toBeDefined()
+    expect(typeof useLoginMutation).toBe('function')
+  })
 
-    expect(apiWebAuth.endpoints.logout).toBeDefined()
-    expect(apiWebAuth.useLogoutMutation).toBeDefined()
+  it('should export useLogoutMutation', () => {
+    expect(useLogoutMutation).toBeDefined()
+    expect(typeof useLogoutMutation).toBe('function')
+  })
 
-    expect(apiWebAuth.endpoints.otpRequestEmail).toBeDefined()
-    expect(apiWebAuth.useOtpRequestEmailMutation).toBeDefined()
+  it('should export useOtpRequestEmailMutation', () => {
+    expect(useOtpRequestEmailMutation).toBeDefined()
+    expect(typeof useOtpRequestEmailMutation).toBe('function')
+  })
 
-    expect(apiWebAuth.endpoints.otpRequestId).toBeDefined()
-    expect(apiWebAuth.useOtpRequestIdMutation).toBeDefined()
+  it('should export useOtpRequestIdMutation', () => {
+    expect(useOtpRequestIdMutation).toBeDefined()
+    expect(typeof useOtpRequestIdMutation).toBe('function')
+  })
 
-    expect(apiWebAuth.endpoints.otpRequestPhone).toBeDefined()
-    expect(apiWebAuth.useOtpRequestPhoneMutation).toBeDefined()
+  it('should export useOtpRequestPhoneMutation', () => {
+    expect(useOtpRequestPhoneMutation).toBeDefined()
+    expect(typeof useOtpRequestPhoneMutation).toBe('function')
   })
 })

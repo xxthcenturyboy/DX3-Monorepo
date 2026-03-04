@@ -1,19 +1,36 @@
 /**
  * i18n Service Tests
+ *
+ * Jest runs in Node.js, so the service will use the 'node:fs/promises' path.
+ * We mock that module to avoid requiring real locale files on disk.
  */
 
-import { DEFAULT_LOCALE, DEFAULT_STRINGS, LOCALES_BASE_PATH } from './i18n.consts'
+jest.mock('node:fs/promises', () => ({
+  readFile: jest.fn(),
+}))
+
+jest.mock('node:path', () => ({
+  join: jest.fn((...args: string[]) => args.join('/')),
+}))
+
+import * as fsPromises from 'node:fs/promises'
+
+import { DEFAULT_LOCALE, DEFAULT_STRINGS } from './i18n.consts'
 import { I18nService, i18nService } from './i18n.service'
 
 describe('I18nService', () => {
   let service: I18nService
+  const mockReadFile = fsPromises.readFile as jest.Mock
 
   beforeEach(() => {
     // Get fresh instance for each test
     service = I18nService.getInstance()
     service.clearCache()
 
-    // Mock fetch globally
+    // Default mock: return valid JSON with all default strings
+    mockReadFile.mockResolvedValue(JSON.stringify(DEFAULT_STRINGS))
+
+    // Mock fetch globally for browser-path tests
     global.fetch = jest.fn()
   })
 
@@ -39,29 +56,23 @@ describe('I18nService', () => {
   })
 
   describe('loadLocale', () => {
-    it('should fetch translations from server', async () => {
-      // arrange
+    it('should load translations via filesystem in Node.js environment', async () => {
+      // arrange - Jest runs in Node.js so uses fs
       const mockTranslations = { ...DEFAULT_STRINGS, LOGIN: 'Server Login' }
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: () => Promise.resolve(mockTranslations),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValueOnce(JSON.stringify(mockTranslations))
 
       // act
       const translations = await service.loadLocale(DEFAULT_LOCALE)
 
       // assert
-      expect(global.fetch).toHaveBeenCalledWith(`${LOCALES_BASE_PATH}/${DEFAULT_LOCALE}.json`)
+      expect(mockReadFile).toHaveBeenCalled()
       expect(translations.LOGIN).toBe('Server Login')
     })
 
-    it('should merge fetched translations with defaults', async () => {
+    it('should merge loaded translations with defaults', async () => {
       // arrange
       const partialTranslations = { LOGIN: 'Custom Login' }
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: () => Promise.resolve(partialTranslations),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValueOnce(JSON.stringify(partialTranslations))
 
       // act
       const translations = await service.loadLocale(DEFAULT_LOCALE)
@@ -74,45 +85,21 @@ describe('I18nService', () => {
     it('should return cached translations on subsequent calls', async () => {
       // arrange
       const mockTranslations = { ...DEFAULT_STRINGS, LOGIN: 'Cached Login' }
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: () => Promise.resolve(mockTranslations),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValueOnce(JSON.stringify(mockTranslations))
 
       // act
       await service.loadLocale(DEFAULT_LOCALE)
-      ;(global.fetch as jest.Mock).mockClear()
+      mockReadFile.mockClear()
       const cachedResult = await service.loadLocale(DEFAULT_LOCALE)
 
       // assert
-      expect(global.fetch).not.toHaveBeenCalled()
+      expect(mockReadFile).not.toHaveBeenCalled()
       expect(cachedResult.LOGIN).toBe('Cached Login')
     })
 
-    it('should fallback to default strings on fetch error', async () => {
+    it('should fallback to default strings on read error', async () => {
       // arrange
-      ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
-
-      // Mock console.error to suppress output in tests
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
-
-      // act
-      const translations = await service.loadLocale(DEFAULT_LOCALE)
-
-      // assert
-      expect(translations).toEqual(DEFAULT_STRINGS)
-
-      consoleSpy.mockRestore()
-      warnSpy.mockRestore()
-    })
-
-    it('should handle non-ok response', async () => {
-      // arrange
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-      })
+      mockReadFile.mockRejectedValueOnce(new Error('File not found'))
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
@@ -129,20 +116,14 @@ describe('I18nService', () => {
   })
 
   describe('reloadLocale', () => {
-    it('should bypass cache and fetch fresh translations', async () => {
+    it('should bypass cache and load fresh translations', async () => {
       // arrange
       const initialTranslations = { ...DEFAULT_STRINGS, LOGIN: 'Initial' }
       const updatedTranslations = { ...DEFAULT_STRINGS, LOGIN: 'Updated' }
 
-      ;(global.fetch as jest.Mock)
-        .mockResolvedValueOnce({
-          json: () => Promise.resolve(initialTranslations),
-          ok: true,
-        })
-        .mockResolvedValueOnce({
-          json: () => Promise.resolve(updatedTranslations),
-          ok: true,
-        })
+      mockReadFile
+        .mockResolvedValueOnce(JSON.stringify(initialTranslations))
+        .mockResolvedValueOnce(JSON.stringify(updatedTranslations))
 
       // Load initial
       await service.loadLocale(DEFAULT_LOCALE)
@@ -153,33 +134,30 @@ describe('I18nService', () => {
 
       // assert
       expect(freshTranslations.LOGIN).toBe('Updated')
-      expect(global.fetch).toHaveBeenCalledTimes(2)
+      expect(mockReadFile).toHaveBeenCalledTimes(2)
     })
   })
 
   describe('loadManifest', () => {
-    it('should fetch manifest from server', async () => {
-      // arrange
+    it('should load manifest from filesystem in Node.js environment', async () => {
+      // arrange - uses second readFile call (first is for locale)
       const mockManifest = {
         availableLocales: [{ code: 'en', isRTL: false, name: 'English', nativeName: 'English' }],
         defaultLocale: 'en',
       }
-      ;(global.fetch as jest.Mock).mockResolvedValueOnce({
-        json: () => Promise.resolve(mockManifest),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValueOnce(JSON.stringify(mockManifest))
 
       // act
       const manifest = await service.loadManifest()
 
       // assert
-      expect(global.fetch).toHaveBeenCalledWith(`${LOCALES_BASE_PATH}/manifest.json`)
-      expect(manifest).toEqual(mockManifest)
+      expect(mockReadFile).toHaveBeenCalled()
+      expect(manifest.defaultLocale).toBe('en')
     })
 
     it('should return default manifest on error', async () => {
       // arrange
-      ;(global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
+      mockReadFile.mockRejectedValueOnce(new Error('File not found'))
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
 
       // act
@@ -195,23 +173,20 @@ describe('I18nService', () => {
   })
 
   describe('clearCache', () => {
-    it('should clear cache forcing next load to fetch from server', async () => {
+    it('should clear cache forcing next load to read from filesystem again', async () => {
       // arrange
       const mockTranslations = { ...DEFAULT_STRINGS, LOGIN: 'Cached' }
-      ;(global.fetch as jest.Mock).mockResolvedValue({
-        json: () => Promise.resolve(mockTranslations),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValue(JSON.stringify(mockTranslations))
 
       await service.loadLocale(DEFAULT_LOCALE)
-      ;(global.fetch as jest.Mock).mockClear()
+      mockReadFile.mockClear()
 
       // act
       service.clearCache()
       await service.loadLocale(DEFAULT_LOCALE)
 
-      // assert - should have fetched again after cache clear
-      expect(global.fetch).toHaveBeenCalledWith(`${LOCALES_BASE_PATH}/${DEFAULT_LOCALE}.json`)
+      // assert - should have read again after cache clear
+      expect(mockReadFile).toHaveBeenCalled()
     })
 
     it('should also clear manifest cache', async () => {
@@ -220,20 +195,17 @@ describe('I18nService', () => {
         availableLocales: [{ code: 'en', isRTL: false, name: 'English', nativeName: 'English' }],
         defaultLocale: 'en',
       }
-      ;(global.fetch as jest.Mock).mockResolvedValue({
-        json: () => Promise.resolve(mockManifest),
-        ok: true,
-      })
+      mockReadFile.mockResolvedValue(JSON.stringify(mockManifest))
 
       await service.loadManifest()
-      ;(global.fetch as jest.Mock).mockClear()
+      mockReadFile.mockClear()
 
       // act
       service.clearCache()
       await service.loadManifest()
 
-      // assert - should have fetched manifest again
-      expect(global.fetch).toHaveBeenCalledWith(`${LOCALES_BASE_PATH}/manifest.json`)
+      // assert - should have read manifest again
+      expect(mockReadFile).toHaveBeenCalled()
     })
   })
 
@@ -241,17 +213,14 @@ describe('I18nService', () => {
     const originalNavigator = global.navigator
 
     beforeEach(() => {
-      // Mock manifest fetch
-      ;(global.fetch as jest.Mock).mockResolvedValue({
-        json: () =>
-          Promise.resolve({
-            availableLocales: [
-              { code: 'en', isRTL: false, name: 'English', nativeName: 'English' },
-            ],
-            defaultLocale: 'en',
-          }),
-        ok: true,
-      })
+      // Mock manifest file read
+      const mockManifest = {
+        availableLocales: [
+          { code: 'en', isRTL: false, name: 'English', nativeName: 'English' },
+        ],
+        defaultLocale: 'en',
+      }
+      mockReadFile.mockResolvedValue(JSON.stringify(mockManifest))
     })
 
     afterEach(() => {
