@@ -1,8 +1,8 @@
 import { MemoryRouter, Route, Routes } from 'react-router'
 
-import { userAdminInitialState } from './user-admin-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
 import { UserAdminMain } from './user-admin-web.component'
+import { userAdminInitialState } from './user-admin-web.reducer'
 
 describe('UserAdminMain', () => {
   it('should render without crashing', () => {

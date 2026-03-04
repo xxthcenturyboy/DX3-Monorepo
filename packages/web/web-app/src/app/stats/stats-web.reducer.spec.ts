@@ -12,7 +12,7 @@ describe('statsReducer', () => {
 
   describe('setApiStats', () => {
     it('should set api stats', () => {
-      const stats = { uptime: 3600, status: 'ok' } as never
+      const stats = { status: 'ok', uptime: 3600 } as never
       const state = statsReducer(statsInitialState, statsActions.setApiStats(stats))
       expect(state.api).toEqual(stats)
     })

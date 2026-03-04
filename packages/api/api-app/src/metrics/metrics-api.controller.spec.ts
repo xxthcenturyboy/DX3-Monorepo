@@ -335,9 +335,7 @@ describe('MetricsController', () => {
       // assert
       const [startDate, endDate] = (mockMetricsService.getDailyActiveUsers as jest.Mock).mock
         .calls[0]
-      const diffDays = Math.round(
-        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-      )
+      const diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
       expect(diffDays).toBeGreaterThanOrEqual(29)
       expect(diffDays).toBeLessThanOrEqual(31)
     })

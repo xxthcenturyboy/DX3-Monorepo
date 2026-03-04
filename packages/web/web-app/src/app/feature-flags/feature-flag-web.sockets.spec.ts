@@ -17,7 +17,9 @@ jest.mock('../data/socket-io/socket-web.connection', () => ({
 
 jest.mock('../store/store-web.redux', () => ({
   store: {
-    dispatch: jest.fn().mockResolvedValue({ data: null, unwrap: jest.fn().mockResolvedValue({ flags: [] }) }),
+    dispatch: jest
+      .fn()
+      .mockResolvedValue({ data: null, unwrap: jest.fn().mockResolvedValue({ flags: [] }) }),
     getState: jest.fn().mockReturnValue({ auth: { token: null }, featureFlags: { flags: {} } }),
   },
 }))

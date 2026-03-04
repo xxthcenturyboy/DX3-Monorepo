@@ -38,9 +38,7 @@ describe('BlogImageWithPlaceholder', () => {
   })
 
   it('should render with default alt text when not provided', () => {
-    const { container } = render(
-      <BlogImageWithPlaceholder src="https://example.com/image.jpg" />,
-    )
+    const { container } = render(<BlogImageWithPlaceholder src="https://example.com/image.jpg" />)
     const img = container.querySelector('img')
     expect(img?.alt).toBe('')
   })

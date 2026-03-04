@@ -10,6 +10,7 @@ jest.mock('../admin/user-support-requests-list.service', () => ({
   })),
 }))
 
+import type { SupportAdminStateType } from '../support.types'
 import { supportAdminInitialState } from './support-admin-web.reducer'
 import {
   selectAllRowsSelected,
@@ -17,7 +18,6 @@ import {
   selectSupportRequestWithUserRowData,
   selectUserTabSupportRequestRowData,
 } from './support-admin-web.selector'
-import type { SupportAdminStateType } from '../support.types'
 
 type MockRootState = {
   supportAdmin: SupportAdminStateType
@@ -38,7 +38,7 @@ describe('support-admin selectors', () => {
 
   describe('selectAllRowsSelected', () => {
     it('should return false when count is 0', () => {
-      const state = createMockState({ supportRequestsWithUserCount: 0, selectedIds: [] })
+      const state = createMockState({ selectedIds: [], supportRequestsWithUserCount: 0 })
       expect(selectAllRowsSelected(state as never)).toBe(false)
     })
 

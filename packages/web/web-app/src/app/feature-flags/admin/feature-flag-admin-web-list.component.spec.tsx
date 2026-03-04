@@ -1,7 +1,13 @@
 jest.mock('./feature-flag-admin-web.api', () => ({
   useCreateFeatureFlagMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ id: 'ff1' }) }),
-    { data: undefined, error: undefined, isLoading: false, isUninitialized: true, reset: jest.fn() },
+    {
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isUninitialized: true,
+      reset: jest.fn(),
+    },
   ],
   useDeleteFeatureFlagMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) }),
@@ -13,14 +19,20 @@ jest.mock('./feature-flag-admin-web.api', () => ({
   ],
   useUpdateFeatureFlagMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ id: 'ff1' }) }),
-    { data: undefined, error: undefined, isLoading: false, isUninitialized: true, reset: jest.fn() },
+    {
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isUninitialized: true,
+      reset: jest.fn(),
+    },
   ],
 }))
 
 import { MemoryRouter } from 'react-router'
 
-import { featureFlagAdminInitialState } from './feature-flag-admin-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { featureFlagAdminInitialState } from './feature-flag-admin-web.reducer'
 import { FeatureFlagAdminList } from './feature-flag-admin-web-list.component'
 
 describe('FeatureFlagAdminListComponent', () => {

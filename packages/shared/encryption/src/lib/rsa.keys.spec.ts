@@ -40,11 +40,9 @@ describe('dxRSAKeys', () => {
 
     it('should return null keys and log error when key generation throws', () => {
       // arrange — spy on generateKeyPair to force the catch block (lines 19-21 in rsa.keys.ts)
-      const spy = jest
-        .spyOn(NodeRsa.prototype, 'generateKeyPair')
-        .mockImplementation(() => {
-          throw new Error('Simulated key generation failure')
-        })
+      const spy = jest.spyOn(NodeRsa.prototype, 'generateKeyPair').mockImplementation(() => {
+        throw new Error('Simulated key generation failure')
+      })
       // act
       const result = dxRsaGenerateKeyPair()
       // assert

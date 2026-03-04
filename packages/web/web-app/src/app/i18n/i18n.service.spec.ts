@@ -215,9 +215,7 @@ describe('I18nService', () => {
     beforeEach(() => {
       // Mock manifest file read
       const mockManifest = {
-        availableLocales: [
-          { code: 'en', isRTL: false, name: 'English', nativeName: 'English' },
-        ],
+        availableLocales: [{ code: 'en', isRTL: false, name: 'English', nativeName: 'English' }],
         defaultLocale: 'en',
       }
       mockReadFile.mockResolvedValue(JSON.stringify(mockManifest))

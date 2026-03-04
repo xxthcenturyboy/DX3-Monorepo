@@ -15,6 +15,7 @@
     "dev:ssr": "npm run build:ssr:server && npm run build:ssr:client && npm run start:ssr",
     "dev:ssr:watch": "nodemon --watch src --ext ts,tsx,js,jsx --exec 'npm run build:ssr:server && npm run start:ssr'",
     "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "start:ssr": "node ../web-app-dist/ssr/server.js",
     "test": "NODE_OPTIONS='--no-deprecation' jest --testPathIgnorePatterns='/libs/'",
     "test:coverage": "NODE_OPTIONS='--no-deprecation' jest --coverage --testPathIgnorePatterns='/libs/'",

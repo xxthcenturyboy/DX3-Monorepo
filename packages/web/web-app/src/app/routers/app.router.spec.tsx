@@ -39,7 +39,11 @@ describe('AppRouter', () => {
     if (routeChildren) {
       expect(routeChildren.some((r) => r.path === ROUTES.NOT_FOUND)).toBe(true)
       expect(routeChildren.some((r) => r.path === '*')).toBe(true)
-      expect(routeChildren.some((r) => r.path === ROUTES.FAQ || r.path === ROUTES.ABOUT || r.path === ROUTES.BLOG)).toBe(true)
+      expect(
+        routeChildren.some(
+          (r) => r.path === ROUTES.FAQ || r.path === ROUTES.ABOUT || r.path === ROUTES.BLOG,
+        ),
+      ).toBe(true)
     }
   })
 })

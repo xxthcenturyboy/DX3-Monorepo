@@ -1,10 +1,10 @@
+import type { SupportWebState } from '../support.types'
 import { supportInitialState } from './support-web.reducer'
 import {
   selectHasUnviewedSupport,
   selectSupportLastToast,
   selectSupportUnviewedCount,
 } from './support-web.selector'
-import type { SupportWebState } from '../support.types'
 
 type MockRootState = {
   support: SupportWebState

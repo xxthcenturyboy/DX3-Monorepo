@@ -20,7 +20,8 @@ jest.mock('../store/store-web.redux', () => ({
     getState: jest.fn().mockReturnValue({
       i18n: {
         translations: {
-          ADMIN_LOGS_ALERT_AUTH_FAILURE_CRITICAL: 'CRITICAL: {count} auth failures from {ipAddress}',
+          ADMIN_LOGS_ALERT_AUTH_FAILURE_CRITICAL:
+            'CRITICAL: {count} auth failures from {ipAddress}',
           ADMIN_LOGS_ALERT_AUTH_FAILURE_WARNING: 'Warning: {count} auth failures from {ipAddress}',
           ADMIN_LOGS_ALERT_RATE_LIMIT: 'Rate limit triggered from {ipAddress} on {endpoint}',
           ADMIN_LOGS_ALERT_SECURITY: 'Security Alert: {alertType}',

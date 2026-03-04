@@ -1,4 +1,8 @@
-import type { NextFunction as INextFunction, Request as IRequest, Response as IResponse } from 'express'
+import type {
+  NextFunction as INextFunction,
+  Request as IRequest,
+  Response as IResponse,
+} from 'express'
 import { Request } from 'jest-express/lib/request'
 import { Response } from 'jest-express/lib/response'
 
@@ -177,9 +181,7 @@ describe('DxRateLimiters', () => {
 
     it('should call sendTooManyRequests when not in dev and rate limit is exceeded', () => {
       // arrange
-      const { sendTooManyRequests } = jest.requireMock(
-        '@dx3/api-libs/http-response/http-responses',
-      )
+      const { sendTooManyRequests } = jest.requireMock('@dx3/api-libs/http-response/http-responses')
       const originalNodeEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'test'
       req.originalUrl = '/api/some-endpoint'

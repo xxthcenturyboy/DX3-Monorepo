@@ -29,9 +29,18 @@ jest.mock('../blog-web.api', () => ({
   useGetBlogCategoriesQuery: () => ({ data: [] }),
   useGetBlogTagsQuery: () => ({ data: [] }),
   usePublishBlogPostMutation: () => [mockPublishPost, { isLoading: false, isUninitialized: true }],
-  useScheduleBlogPostMutation: () => [mockSchedulePost, { isLoading: false, isUninitialized: true }],
-  useUnpublishBlogPostMutation: () => [mockUnpublishPost, { isLoading: false, isUninitialized: true }],
-  useUnscheduleBlogPostMutation: () => [mockUnschedulePost, { isLoading: false, isUninitialized: true }],
+  useScheduleBlogPostMutation: () => [
+    mockSchedulePost,
+    { isLoading: false, isUninitialized: true },
+  ],
+  useUnpublishBlogPostMutation: () => [
+    mockUnpublishPost,
+    { isLoading: false, isUninitialized: true },
+  ],
+  useUnscheduleBlogPostMutation: () => [
+    mockUnschedulePost,
+    { isLoading: false, isUninitialized: true },
+  ],
   useUpdateBlogPostMutation: () => [mockUpdatePost, { isLoading: false }],
   useUpdateBlogPostPassiveMutation: () => [jest.fn(), { isLoading: false, isUninitialized: true }],
 }))

@@ -1,6 +1,10 @@
 // Mock global fetch for SSR health endpoint
 global.fetch = jest.fn().mockResolvedValue({
-  json: jest.fn().mockResolvedValue({ memory: { heapTotal: 100, heapUsed: 50, rss: 200 }, metrics: {}, uptime: 300 }),
+  json: jest.fn().mockResolvedValue({
+    memory: { heapTotal: 100, heapUsed: 50, rss: 200 },
+    metrics: {},
+    uptime: 300,
+  }),
   ok: true,
 })
 

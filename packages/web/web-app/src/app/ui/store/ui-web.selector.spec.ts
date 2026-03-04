@@ -1,3 +1,4 @@
+import type { UiStateType } from '../ui-web.types'
 import { uiInitialState } from './ui-web.reducer'
 import {
   selectCurrentThemeMode,
@@ -6,7 +7,6 @@ import {
   selectWindowHeight,
   selectWindowWidth,
 } from './ui-web.selector'
-import type { UiStateType } from '../ui-web.types'
 
 type MockRootState = {
   ui: UiStateType

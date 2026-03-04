@@ -10,10 +10,11 @@ jest.mock('../../notifications/notifications.menu', () => ({
   NotificationsMenu: () => <div data-testid="notifications-menu">Notifications Menu</div>,
 }))
 
-import { authInitialState } from '../../auth/auth-web.reducer'
-import { renderWithProviders } from '../../../../testing-render'
-import { AppNavBar } from './app-nav-bar.menu'
 import { MemoryRouter } from 'react-router'
+
+import { renderWithProviders } from '../../../../testing-render'
+import { authInitialState } from '../../auth/auth-web.reducer'
+import { AppNavBar } from './app-nav-bar.menu'
 
 describe('AppNavBar', () => {
   it('should render without crashing', () => {

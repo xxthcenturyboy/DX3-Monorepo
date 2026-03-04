@@ -39,7 +39,14 @@ describe('adminMetricsReducer', () => {
 
   describe('growthSet', () => {
     it('should set growth data', () => {
-      const growthData = { dau: [], mau: [], signups30d: 0, signups7d: 0, totalSignups: 0, wau: [] } as never
+      const growthData = {
+        dau: [],
+        mau: [],
+        signups7d: 0,
+        signups30d: 0,
+        totalSignups: 0,
+        wau: [],
+      } as never
       const state = adminMetricsReducer(
         adminMetricsInitialState,
         adminMetricsActions.growthSet(growthData),

@@ -15,12 +15,12 @@ jest.mock('@dx3/web-libs/utils/fingerprint-web.service', () => ({
 
 jest.mock('../../config/config-web.service', () => ({
   WebConfigService: {
+    getWebRoutes: jest.fn().mockReturnValue({
+      AUTH: { LOGIN: '/login' },
+    }),
     getWebUrls: jest.fn().mockReturnValue({
       API_URL: 'http://localhost:4000',
       WEB_APP_URL: 'http://localhost:3000',
-    }),
-    getWebRoutes: jest.fn().mockReturnValue({
-      AUTH: { LOGIN: '/login' },
     }),
   },
 }))

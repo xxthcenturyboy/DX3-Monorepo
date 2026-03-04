@@ -4,6 +4,8 @@ jest.mock('../../config/config-web.service', () => ({
   },
 }))
 
+import type { UserProfileStateType } from '@dx3/models-shared'
+
 import { userProfileInitialState } from './user-profile-web.reducer'
 import {
   selectHasAdminRole,
@@ -13,7 +15,6 @@ import {
   selectUserEmails,
   selectUserPhones,
 } from './user-profile-web.selectors'
-import type { UserProfileStateType } from '@dx3/models-shared'
 
 type MockRootState = {
   userProfile: UserProfileStateType
@@ -67,7 +68,7 @@ describe('user-profile selectors', () => {
     })
 
     it('should return emails array', () => {
-      const emails = [{ id: 'e1', email: 'a@b.com' }] as never[]
+      const emails = [{ email: 'a@b.com', id: 'e1' }] as never[]
       const state = createMockState({ emails })
       expect(selectUserEmails(state as never)).toHaveLength(1)
     })

@@ -1,7 +1,7 @@
 import { MemoryRouter } from 'react-router'
 
-import { supportInitialState } from '../../support/store/support-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { supportInitialState } from '../../support/store/support-web.reducer'
 import { AppMenuItem } from './app-menu-item.component'
 
 const mockMenuItem = {

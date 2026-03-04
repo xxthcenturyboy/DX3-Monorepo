@@ -33,9 +33,7 @@ describe('ContentHeader', () => {
 
     it('should render headerTitle as a ReactNode (JSX element)', () => {
       renderWithTheme(
-        <ContentHeader
-          headerTitle={<span data-testid="custom-title">Custom Title</span>}
-        />,
+        <ContentHeader headerTitle={<span data-testid="custom-title">Custom Title</span>} />,
       )
 
       expect(screen.getByTestId('custom-title')).toBeInTheDocument()
@@ -175,9 +173,14 @@ describe('ContentHeader', () => {
   describe('Grid direction', () => {
     it('should use the explicitly provided gridDirection prop regardless of breakpoint', () => {
       window.matchMedia = jest.fn().mockImplementation((q: string) => ({
-        addEventListener: jest.fn(), addListener: jest.fn(), dispatchEvent: jest.fn(),
-        matches: true, media: q, onchange: null,
-        removeEventListener: jest.fn(), removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        addListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+        matches: true,
+        media: q,
+        onchange: null,
+        removeEventListener: jest.fn(),
+        removeListener: jest.fn(),
       })) // SM_BREAK = true (mobile)
       const { container } = renderWithTheme(
         <ContentHeader
@@ -192,9 +195,14 @@ describe('ContentHeader', () => {
 
     it('should force row direction on mobile when forceRowOnMobile is true', () => {
       window.matchMedia = jest.fn().mockImplementation((q: string) => ({
-        addEventListener: jest.fn(), addListener: jest.fn(), dispatchEvent: jest.fn(),
-        matches: true, media: q, onchange: null,
-        removeEventListener: jest.fn(), removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        addListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+        matches: true,
+        media: q,
+        onchange: null,
+        removeEventListener: jest.fn(),
+        removeListener: jest.fn(),
       })) // SM_BREAK = true
       const { container } = renderWithTheme(
         <ContentHeader
@@ -209,9 +217,14 @@ describe('ContentHeader', () => {
 
     it('should render column direction on mobile when forceRowOnMobile is not set', () => {
       window.matchMedia = jest.fn().mockImplementation((q: string) => ({
-        addEventListener: jest.fn(), addListener: jest.fn(), dispatchEvent: jest.fn(),
-        matches: true, media: q, onchange: null,
-        removeEventListener: jest.fn(), removeListener: jest.fn(),
+        addEventListener: jest.fn(),
+        addListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+        matches: true,
+        media: q,
+        onchange: null,
+        removeEventListener: jest.fn(),
+        removeListener: jest.fn(),
       })) // SM_BREAK = true
       const { container } = renderWithTheme(<ContentHeader {...defaultProps} />)
 

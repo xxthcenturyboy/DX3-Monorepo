@@ -11,6 +11,7 @@ jest.mock('../config/config-web.service', () => ({
 }))
 
 import { MemoryRouter, Route, Routes } from 'react-router'
+
 import { renderWithProviders } from '../../../testing-render'
 import { AuthenticatedRouter } from './authenticated.router'
 
@@ -34,9 +35,7 @@ describe('AuthenticatedRouter', () => {
       <MemoryRouter initialEntries={['/login']}>
         <Routes>
           <Route
-            element={
-              <AuthenticatedRouter />
-            }
+            element={<AuthenticatedRouter />}
             path="/login"
           >
             <Route

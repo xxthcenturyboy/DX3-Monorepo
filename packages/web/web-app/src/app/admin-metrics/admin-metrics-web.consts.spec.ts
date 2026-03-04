@@ -56,11 +56,11 @@ describe('admin-metrics-web.consts', () => {
     })
 
     it('should map email_sent feature', () => {
-      expect(METRIC_FEATURE_I18N_KEYS['email_sent']).toBe('ADMIN_METRICS_FEATURE_EMAIL_SENT')
+      expect(METRIC_FEATURE_I18N_KEYS.email_sent).toBe('ADMIN_METRICS_FEATURE_EMAIL_SENT')
     })
 
     it('should map media_upload feature', () => {
-      expect(METRIC_FEATURE_I18N_KEYS['media_upload']).toBe('ADMIN_METRICS_FEATURE_MEDIA_UPLOAD')
+      expect(METRIC_FEATURE_I18N_KEYS.media_upload).toBe('ADMIN_METRICS_FEATURE_MEDIA_UPLOAD')
     })
   })
 })

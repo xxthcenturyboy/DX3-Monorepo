@@ -97,7 +97,11 @@ describe('loginBootstrap', () => {
   })
 
   it('should handle admin user profile without throwing', () => {
-    const adminProfile = { ...(baseUserProfile as object), a: true, role: [USER_ROLE.ADMIN] } as never
+    const adminProfile = {
+      ...(baseUserProfile as object),
+      a: true,
+      role: [USER_ROLE.ADMIN],
+    } as never
     expect(() => loginBootstrap(adminProfile, false)).not.toThrow()
   })
 })

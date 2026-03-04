@@ -426,12 +426,12 @@ describe('Environment variable fallback branches (test-user.consts.ts lines 19-2
     })
 
     // assert — right-hand side of ?? is taken
-    expect(mod!.TEST_ADMIN_USERNAME).toBe('admin')
-    expect(mod!.TEST_ADMIN_PASSWORD).toBe('admin123')
-    expect(mod!.TEST_SUPERADMIN_USERNAME).toBe('superadmin')
-    expect(mod!.TEST_SUPERADMIN_PASSWORD).toBe('superadmin123')
-    expect(mod!.TEST_USER_USERNAME).toBe('testuser')
-    expect(mod!.TEST_USER_PASSWORD).toBe('testuser123')
+    expect(mod?.TEST_ADMIN_USERNAME).toBe('admin')
+    expect(mod?.TEST_ADMIN_PASSWORD).toBe('admin123')
+    expect(mod?.TEST_SUPERADMIN_USERNAME).toBe('superadmin')
+    expect(mod?.TEST_SUPERADMIN_PASSWORD).toBe('superadmin123')
+    expect(mod?.TEST_USER_USERNAME).toBe('testuser')
+    expect(mod?.TEST_USER_PASSWORD).toBe('testuser123')
 
     // restore env vars
     for (const key of ENV_KEYS) {
@@ -458,12 +458,12 @@ describe('Environment variable fallback branches (test-user.consts.ts lines 19-2
     })
 
     // assert — left-hand side of ?? is taken
-    expect(mod!.TEST_ADMIN_USERNAME).toBe('env_admin')
-    expect(mod!.TEST_ADMIN_PASSWORD).toBe('env_adminpw')
-    expect(mod!.TEST_SUPERADMIN_USERNAME).toBe('env_superadmin')
-    expect(mod!.TEST_SUPERADMIN_PASSWORD).toBe('env_superadminpw')
-    expect(mod!.TEST_USER_USERNAME).toBe('env_testuser')
-    expect(mod!.TEST_USER_PASSWORD).toBe('env_testuserpw')
+    expect(mod?.TEST_ADMIN_USERNAME).toBe('env_admin')
+    expect(mod?.TEST_ADMIN_PASSWORD).toBe('env_adminpw')
+    expect(mod?.TEST_SUPERADMIN_USERNAME).toBe('env_superadmin')
+    expect(mod?.TEST_SUPERADMIN_PASSWORD).toBe('env_superadminpw')
+    expect(mod?.TEST_USER_USERNAME).toBe('env_testuser')
+    expect(mod?.TEST_USER_PASSWORD).toBe('env_testuserpw')
 
     // cleanup
     for (const key of ENV_KEYS) {

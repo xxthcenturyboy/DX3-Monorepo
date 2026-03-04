@@ -10,7 +10,6 @@ import {
   useLazyGetAdminLogsStatusQuery,
 } from './admin-logs-web.api'
 
-
 describe('admin-logs-web.api', () => {
   describe('apiWebAdminLogs', () => {
     it('should exist when imported', () => {

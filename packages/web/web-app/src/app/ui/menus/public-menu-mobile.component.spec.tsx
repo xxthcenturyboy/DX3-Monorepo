@@ -4,8 +4,8 @@ jest.mock('./public-menu.component', () => ({
   ),
 }))
 
-import { uiInitialState } from '../store/ui-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { uiInitialState } from '../store/ui-web.reducer'
 import { PublicMenuMobile } from './public-menu-mobile.component'
 
 describe('PublicMenuMobile', () => {

@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },

@@ -10,7 +10,12 @@ jest.mock('./auth-web.api', () => ({
 }))
 
 jest.mock('../phone/phone-input/phone-web-input.component', () => ({
-  PhoneNumberInput: () => <input data-testid="phone-input" type="tel" />,
+  PhoneNumberInput: () => (
+    <input
+      data-testid="phone-input"
+      type="tel"
+    />
+  ),
 }))
 
 jest.mock('./auth-web-request-otp-entry.component', () => ({

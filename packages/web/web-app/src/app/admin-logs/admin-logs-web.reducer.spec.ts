@@ -1,8 +1,4 @@
-import {
-  adminLogsActions,
-  adminLogsInitialState,
-  adminLogsReducer,
-} from './admin-logs-web.reducer'
+import { adminLogsActions, adminLogsInitialState, adminLogsReducer } from './admin-logs-web.reducer'
 
 describe('adminLogsReducer', () => {
   it('should return initial state for unknown action', () => {
@@ -35,7 +31,10 @@ describe('adminLogsReducer', () => {
     })
 
     it('should clear eventTypeFilter to empty string', () => {
-      const loaded = { ...adminLogsInitialState, eventTypeFilter: 'AUTH_SUCCESS' } as typeof adminLogsInitialState
+      const loaded = {
+        ...adminLogsInitialState,
+        eventTypeFilter: 'AUTH_SUCCESS',
+      } as typeof adminLogsInitialState
       const state = adminLogsReducer(loaded, adminLogsActions.eventTypeFilterSet(''))
       expect(state.eventTypeFilter).toBe('')
     })
@@ -91,7 +90,10 @@ describe('adminLogsReducer', () => {
     })
 
     it('should replace existing logs', () => {
-      const withLogs = { ...adminLogsInitialState, logs: [{ id: '0' }] } as typeof adminLogsInitialState
+      const withLogs = {
+        ...adminLogsInitialState,
+        logs: [{ id: '0' }],
+      } as typeof adminLogsInitialState
       const state = adminLogsReducer(withLogs, adminLogsActions.logsSet([]))
       expect(state.logs).toHaveLength(0)
     })

@@ -1,10 +1,10 @@
 import { renderWithProviders } from '../../../testing-render'
-import { featureFlagsActions } from './feature-flag-web.reducer'
 import { FeatureFlag } from './feature-flag-web.component'
+import { featureFlagsActions } from './feature-flag-web.reducer'
 
 describe('FeatureFlag', () => {
   it('should render children when flag is enabled', () => {
-    const { getByText, store } = renderWithProviders(
+    const { store } = renderWithProviders(
       <FeatureFlag flagName={'test_flag' as never}>
         <span>Enabled Content</span>
       </FeatureFlag>,
@@ -13,7 +13,7 @@ describe('FeatureFlag', () => {
       featureFlagsActions.featureFlagsFetched([{ enabled: true, name: 'test_flag' }] as never),
     )
     // Re-render will show enabled content
-    expect(store.getState().featureFlags.flags['test_flag']).toBe(true)
+    expect(store.getState().featureFlags.flags.test_flag).toBe(true)
   })
 
   it('should render fallback when flag is disabled', () => {

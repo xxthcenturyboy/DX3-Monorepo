@@ -23,6 +23,7 @@ jest.mock('../../config/config-web.service', () => ({
 }))
 
 import { io } from 'socket.io-client'
+
 import { SocketWebConnection } from './socket-web.connection'
 
 describe('SocketWebConnection', () => {
@@ -43,10 +44,7 @@ describe('SocketWebConnection', () => {
 
     it('should call io with the correct URL including namespace', async () => {
       await SocketWebConnection.createSocket('/admin-logs')
-      expect(io).toHaveBeenCalledWith(
-        expect.stringContaining('/admin-logs'),
-        expect.any(Object),
-      )
+      expect(io).toHaveBeenCalledWith(expect.stringContaining('/admin-logs'), expect.any(Object))
     })
 
     it('should include withCredentials: true in socket options', async () => {

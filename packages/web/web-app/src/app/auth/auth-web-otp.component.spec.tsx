@@ -1,14 +1,8 @@
 jest.mock('mui-one-time-password-input', () => ({
-  MuiOtpInput: ({
-    onChange,
-    value,
-  }: {
-    onChange?: (value: string) => void
-    value?: string
-  }) => (
+  MuiOtpInput: ({ onChange, value }: { onChange?: (value: string) => void; value?: string }) => (
     <input
       data-testid="otp-input"
-      onChange={(e) => onChange && onChange(e.target.value)}
+      onChange={(e) => onChange?.(e.target.value)}
       type="text"
       value={value || ''}
     />

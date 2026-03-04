@@ -1,5 +1,8 @@
 jest.mock('../support-web.api', () => ({
-  useBulkUpdateSupportStatusMutation: () => [jest.fn(), { error: undefined, isLoading: false, isUninitialized: true }],
+  useBulkUpdateSupportStatusMutation: () => [
+    jest.fn(),
+    { error: undefined, isLoading: false, isUninitialized: true },
+  ],
   useGetSupportRequestListLazyQuery: () => [
     jest.fn().mockReturnValue(Promise.resolve()),
     { data: undefined, error: undefined, isFetching: false, isUninitialized: true },
@@ -12,7 +15,10 @@ jest.mock('../support-web.api', () => ({
     jest.fn().mockReturnValue(Promise.resolve()),
     { data: undefined, error: undefined, isFetching: false, isUninitialized: true },
   ],
-  useMarkAllSupportAsViewedMutation: () => [jest.fn(), { error: undefined, isLoading: false, isUninitialized: true }],
+  useMarkAllSupportAsViewedMutation: () => [
+    jest.fn(),
+    { error: undefined, isLoading: false, isUninitialized: true },
+  ],
 }))
 
 import { MemoryRouter } from 'react-router'

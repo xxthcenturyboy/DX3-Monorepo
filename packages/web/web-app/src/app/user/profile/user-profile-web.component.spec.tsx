@@ -1,6 +1,6 @@
-import { userProfileInitialState } from './user-profile-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
 import { UserProfile } from './user-profile-web.component'
+import { userProfileInitialState } from './user-profile-web.reducer'
 
 describe('UserProfile', () => {
   it('should render without crashing', () => {
@@ -13,7 +13,16 @@ describe('UserProfile', () => {
       preloadedState: {
         userProfile: {
           ...userProfileInitialState,
-          emails: [{ default: true, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }],
+          emails: [
+            {
+              default: true,
+              email: 'test@example.com',
+              id: 'e1',
+              isDeleted: false,
+              isVerified: true,
+              label: '',
+            },
+          ],
           firstName: 'John',
           hasSecuredAccount: true,
           id: 'u1',

@@ -137,7 +137,9 @@ describe('measureTime', () => {
 
   it('should record the metric even when function throws', () => {
     try {
-      measureTime('error.op', {}, () => { throw new Error('fail') })
+      measureTime('error.op', {}, () => {
+        throw new Error('fail')
+      })
     } catch {
       // expected
     }

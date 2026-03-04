@@ -48,9 +48,7 @@ describe('appBootstrap', () => {
 
   it('should dispatch setLoading(true) during initialization', async () => {
     await appBootstrap()
-    expect(mockDispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'i18n/setLoading' }),
-    )
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'i18n/setLoading' }))
   })
 
   it('should dispatch setTranslations after loading locale', async () => {
@@ -64,8 +62,6 @@ describe('appBootstrap', () => {
     const { i18nService } = await import('../../i18n')
     ;(i18nService.loadLocale as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
     await expect(appBootstrap()).resolves.not.toThrow()
-    expect(mockDispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'i18n/setError' }),
-    )
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'i18n/setError' }))
   })
 })

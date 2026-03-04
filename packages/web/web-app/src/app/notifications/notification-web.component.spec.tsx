@@ -52,28 +52,36 @@ describe('NotificationComponent', () => {
 
   it('should render with DANGER level', () => {
     const { baseElement } = renderWithProviders(
-      <NotificationComponent notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.DANGER }} />,
+      <NotificationComponent
+        notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.DANGER }}
+      />,
     )
     expect(baseElement).toBeTruthy()
   })
 
   it('should render with WARNING level', () => {
     const { baseElement } = renderWithProviders(
-      <NotificationComponent notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.WARNING }} />,
+      <NotificationComponent
+        notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.WARNING }}
+      />,
     )
     expect(baseElement).toBeTruthy()
   })
 
   it('should render with SUCCESS level', () => {
     const { baseElement } = renderWithProviders(
-      <NotificationComponent notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.SUCCESS }} />,
+      <NotificationComponent
+        notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.SUCCESS }}
+      />,
     )
     expect(baseElement).toBeTruthy()
   })
 
   it('should render with PRIMARY level', () => {
     const { baseElement } = renderWithProviders(
-      <NotificationComponent notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.PRIMARY }} />,
+      <NotificationComponent
+        notification={{ ...baseNotification, level: NOTIFICATION_LEVELS.PRIMARY }}
+      />,
     )
     expect(baseElement).toBeTruthy()
   })

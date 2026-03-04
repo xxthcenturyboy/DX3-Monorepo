@@ -32,9 +32,7 @@ describe('blogMarkdownComponents', () => {
     >
 
     it('should render a plain relative link without target', () => {
-      const { getByRole } = render(
-        <LinkComponent href="/about">About</LinkComponent>,
-      )
+      const { getByRole } = render(<LinkComponent href="/about">About</LinkComponent>)
       const link = getByRole('link')
       expect(link).toBeTruthy()
       expect(link.getAttribute('target')).toBeNull()
@@ -54,9 +52,7 @@ describe('blogMarkdownComponents', () => {
         <LinkComponent href="/api/media/pub/123/ORIGINAL">Download</LinkComponent>,
       )
       const link = getByRole('link')
-      expect(link.getAttribute('href')).toBe(
-        'http://localhost:4000/api/media/pub/123/ORIGINAL',
-      )
+      expect(link.getAttribute('href')).toBe('http://localhost:4000/api/media/pub/123/ORIGINAL')
     })
 
     it('should render PDF links with target="_blank"', () => {

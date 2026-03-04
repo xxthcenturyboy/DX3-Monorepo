@@ -2,8 +2,22 @@ import { renderWithProviders } from '../../../testing-render'
 import { EmailList } from './email-web-list.component'
 
 const mockEmails = [
-  { default: true, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' },
-  { default: false, email: 'other@example.com', id: 'e2', isDeleted: false, isVerified: false, label: '' },
+  {
+    default: true,
+    email: 'test@example.com',
+    id: 'e1',
+    isDeleted: false,
+    isVerified: true,
+    label: '',
+  },
+  {
+    default: false,
+    email: 'other@example.com',
+    id: 'e2',
+    isDeleted: false,
+    isVerified: false,
+    label: '',
+  },
 ]
 
 describe('EmailList', () => {

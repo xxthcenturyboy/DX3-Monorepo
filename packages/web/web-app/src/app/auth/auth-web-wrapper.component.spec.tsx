@@ -7,7 +7,12 @@ jest.mock('./auth-web-signup.component', () => ({
 }))
 
 jest.mock('./auth-web-login.ui', () => ({
-  Logo: ({ src }: { src: string }) => <img alt="logo" src={src} />,
+  Logo: ({ src }: { src: string }) => (
+    <img
+      alt="logo"
+      src={src}
+    />
+  ),
 }))
 
 import { renderWithProviders } from '../../../testing-render'

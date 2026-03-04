@@ -16,7 +16,10 @@ describe('privilegeSetReducer', () => {
 
   describe('setPrivileges', () => {
     it('should set privilege sets', () => {
-      const sets = [{ id: '1', name: 'ADMIN' }, { id: '2', name: 'USER' }] as never[]
+      const sets = [
+        { id: '1', name: 'ADMIN' },
+        { id: '2', name: 'USER' },
+      ] as never[]
       const state = privilegeSetReducer(
         privilegeSetInitialState,
         privilegeSetActions.setPrivileges(sets),

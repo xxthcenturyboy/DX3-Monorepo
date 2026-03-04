@@ -591,7 +591,12 @@ describe('LottieWrapper', () => {
     })
 
     it('should call setSpeed with the provided speed value', async () => {
-      render(<LottieWrapper animationData={mockAnimationData} speed={2} />)
+      render(
+        <LottieWrapper
+          animationData={mockAnimationData}
+          speed={2}
+        />,
+      )
 
       await waitFor(() => expect(mockLottieInstance.setSpeed).toHaveBeenCalledWith(2))
     })
@@ -607,7 +612,12 @@ describe('LottieWrapper', () => {
     it('should use lottieDuration from getDuration when it is non-zero', async () => {
       // getDuration returns 1 by default — covers the lottieDuration !== 500 branch
       const mockComplete = jest.fn()
-      render(<LottieWrapper animationData={mockAnimationData} complete={mockComplete} />)
+      render(
+        <LottieWrapper
+          animationData={mockAnimationData}
+          complete={mockComplete}
+        />,
+      )
 
       await waitFor(() => expect(mockComplete).toHaveBeenCalledTimes(1))
       expect(mockLottieInstance.getDuration).toHaveBeenCalled()
@@ -617,7 +627,12 @@ describe('LottieWrapper', () => {
       // getDuration() = 0 → 0 || 500 = 500 → covers lottieDuration === 500 true branch
       mockLottieInstance.getDuration.mockReturnValueOnce(0)
       const mockComplete = jest.fn()
-      render(<LottieWrapper animationData={mockAnimationData} complete={mockComplete} />)
+      render(
+        <LottieWrapper
+          animationData={mockAnimationData}
+          complete={mockComplete}
+        />,
+      )
 
       await waitFor(() => expect(mockComplete).toHaveBeenCalledTimes(1))
     })
@@ -629,7 +644,10 @@ describe('LottieWrapper', () => {
   describe('restart prop', () => {
     it('should call goToAndPlay when restart becomes true after initial load', async () => {
       const { rerender } = render(
-        <LottieWrapper animationData={mockAnimationData} restart={false} />,
+        <LottieWrapper
+          animationData={mockAnimationData}
+          restart={false}
+        />,
       )
 
       // Wait for the Lottie instance ref to be set (second render with data)
@@ -637,13 +655,23 @@ describe('LottieWrapper', () => {
       mockLottieInstance.goToAndPlay.mockClear()
 
       // Rerender with restart=true; lottieRef.current is already populated
-      rerender(<LottieWrapper animationData={mockAnimationData} restart={true} />)
+      rerender(
+        <LottieWrapper
+          animationData={mockAnimationData}
+          restart={true}
+        />,
+      )
 
       expect(mockLottieInstance.goToAndPlay).toHaveBeenCalledWith(0, true)
     })
 
     it('should not call goToAndPlay when restart is false', async () => {
-      render(<LottieWrapper animationData={mockAnimationData} restart={false} />)
+      render(
+        <LottieWrapper
+          animationData={mockAnimationData}
+          restart={false}
+        />,
+      )
 
       await waitFor(() => expect(screen.getByTestId('lottie')).toBeInTheDocument())
 

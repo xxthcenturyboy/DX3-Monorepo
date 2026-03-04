@@ -21,8 +21,8 @@ jest.mock('./admin-logs-web.api', () => ({
   ],
 }))
 
-import { adminLogsInitialState } from './admin-logs-web.reducer'
 import { renderWithProviders } from '../../../testing-render'
+import { adminLogsInitialState } from './admin-logs-web.reducer'
 import { AdminLogsListComponent } from './admin-logs-web-list.component'
 
 describe('AdminLogsListComponent', () => {

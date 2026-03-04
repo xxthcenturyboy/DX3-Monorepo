@@ -2,8 +2,8 @@ jest.mock('./app-menu.component', () => ({
   AppMenu: () => <div data-testid="app-menu">App Menu</div>,
 }))
 
-import { uiInitialState } from '../store/ui-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { uiInitialState } from '../store/ui-web.reducer'
 import { AppMenuDesktop } from './app-menu-desktop.component'
 
 describe('AppMenuDesktop', () => {

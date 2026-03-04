@@ -9,8 +9,8 @@ jest.mock('./auth-web-request-otp-entry.component', () => ({
   AuthWebRequestOtpEntry: () => <div data-testid="otp-entry">OTP Entry</div>,
 }))
 
-import { userProfileInitialState } from '../user/profile/user-profile-web.reducer'
 import { renderWithProviders } from '../../../testing-render'
+import { userProfileInitialState } from '../user/profile/user-profile-web.reducer'
 import { AuthWebRequestOtpLoggedIn } from './auth-web-request-otp-logged-in.component'
 
 describe('AuthWebRequestOtpLoggedIn', () => {
@@ -34,7 +34,16 @@ describe('AuthWebRequestOtpLoggedIn', () => {
         preloadedState: {
           userProfile: {
             ...userProfileInitialState,
-            emails: [{ default: true, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }],
+            emails: [
+              {
+                default: true,
+                email: 'test@example.com',
+                id: 'e1',
+                isDeleted: false,
+                isVerified: true,
+                label: '',
+              },
+            ],
             id: 'u1',
             phones: [],
           },

@@ -54,7 +54,7 @@ describe('PrivateWebRouterConfig', () => {
     expect(router[0].element).toBeTruthy()
     expect(router[0].errorElement).toBeTruthy()
     expect(Array.isArray(router[0].children)).toBe(true)
-    expect((router[0].children?.length ?? 0)).toBeGreaterThanOrEqual(3)
+    expect(router[0].children?.length ?? 0).toBeGreaterThanOrEqual(3)
 
     if (routes) {
       expect(routes[0].path).toEqual(ROUTES.DASHBOARD.MAIN)

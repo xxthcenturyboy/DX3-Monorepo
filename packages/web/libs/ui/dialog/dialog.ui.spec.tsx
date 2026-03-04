@@ -17,11 +17,7 @@ const childElement = <div>{childText}</div>
 
 describe('GrowTransition', () => {
   it('should render children when in=true', () => {
-    renderWithTheme(
-      <GrowTransition in>
-        {childElement}
-      </GrowTransition>,
-    )
+    renderWithTheme(<GrowTransition in>{childElement}</GrowTransition>)
 
     expect(screen.getByText(childText)).toBeInTheDocument()
   })
@@ -34,11 +30,7 @@ describe('GrowTransition', () => {
 
   it('should render without crashing when in=false', () => {
     expect(() =>
-      renderWithTheme(
-        <GrowTransition in={false}>
-          {childElement}
-        </GrowTransition>,
-      ),
+      renderWithTheme(<GrowTransition in={false}>{childElement}</GrowTransition>),
     ).not.toThrow()
   })
 
@@ -59,11 +51,7 @@ describe('GrowTransition', () => {
 
 describe('SlideTransition', () => {
   it('should render children when in=true', () => {
-    renderWithTheme(
-      <SlideTransition in>
-        {childElement}
-      </SlideTransition>,
-    )
+    renderWithTheme(<SlideTransition in>{childElement}</SlideTransition>)
 
     expect(screen.getByText(childText)).toBeInTheDocument()
   })
@@ -75,11 +63,7 @@ describe('SlideTransition', () => {
 
   it('should render without crashing when in=false', () => {
     expect(() =>
-      renderWithTheme(
-        <SlideTransition in={false}>
-          {childElement}
-        </SlideTransition>,
-      ),
+      renderWithTheme(<SlideTransition in={false}>{childElement}</SlideTransition>),
     ).not.toThrow()
   })
 
@@ -98,11 +82,7 @@ describe('SlideTransition', () => {
 
 describe('ZoomTransition', () => {
   it('should render children when in=true', () => {
-    renderWithTheme(
-      <ZoomTransition in>
-        {childElement}
-      </ZoomTransition>,
-    )
+    renderWithTheme(<ZoomTransition in>{childElement}</ZoomTransition>)
 
     expect(screen.getByText(childText)).toBeInTheDocument()
   })
@@ -114,11 +94,7 @@ describe('ZoomTransition', () => {
 
   it('should render without crashing when in=false', () => {
     expect(() =>
-      renderWithTheme(
-        <ZoomTransition in={false}>
-          {childElement}
-        </ZoomTransition>,
-      ),
+      renderWithTheme(<ZoomTransition in={false}>{childElement}</ZoomTransition>),
     ).not.toThrow()
   })
 

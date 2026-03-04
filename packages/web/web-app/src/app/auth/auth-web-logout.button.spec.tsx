@@ -1,5 +1,7 @@
 jest.mock('./auth-web.api', () => ({
-  useLogoutMutation: () => [jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ loggedOut: true }) })],
+  useLogoutMutation: () => [
+    jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ loggedOut: true }) }),
+  ],
 }))
 
 jest.mock('../admin-logs/admin-logs-web.sockets', () => ({
@@ -16,6 +18,7 @@ jest.mock('react-router', () => ({
 }))
 
 import { MemoryRouter } from 'react-router'
+
 import { renderWithProviders } from '../../../testing-render'
 import { LogoutButton } from './auth-web-logout.button'
 

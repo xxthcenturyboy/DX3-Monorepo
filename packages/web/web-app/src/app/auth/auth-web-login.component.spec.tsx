@@ -10,15 +10,11 @@ jest.mock('../config/bootstrap/login-bootstrap', () => ({
 }))
 
 jest.mock('./auth-web-login-user-pass.component', () => ({
-  WebLoginUserPass: React.forwardRef(() => (
-    <div data-testid="user-pass-form">User Pass Form</div>
-  )),
+  WebLoginUserPass: React.forwardRef(() => <div data-testid="user-pass-form">User Pass Form</div>),
 }))
 
 jest.mock('./auth-web-request-otp.component', () => ({
-  AuthWebRequestOtp: React.forwardRef(() => (
-    <div data-testid="request-otp">Request OTP</div>
-  )),
+  AuthWebRequestOtp: React.forwardRef(() => <div data-testid="request-otp">Request OTP</div>),
 }))
 
 import React from 'react'

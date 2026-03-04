@@ -62,10 +62,7 @@ describe('userAdminReducer', () => {
 
   describe('orderBySet', () => {
     it('should set orderBy', () => {
-      const state = userAdminReducer(
-        userAdminInitialState,
-        userAdminActions.orderBySet('fullName'),
-      )
+      const state = userAdminReducer(userAdminInitialState, userAdminActions.orderBySet('fullName'))
       expect(state.orderBy).toBe('fullName')
     })
   })

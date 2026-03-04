@@ -1,11 +1,11 @@
 import type { Server } from 'node:http'
 
-import { AdminLogsSocketService } from '@dx3/api-libs/timescale/timescale.logging.socket'
 import { FeatureFlagSocketApiService } from '@dx3/api-libs/feature-flags/feature-flag-api.socket'
 import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { NotificationSocketApiService } from '@dx3/api-libs/notifications/notification-api.socket'
 import { SocketApiConnection } from '@dx3/api-libs/socket-io-api'
 import { SupportSocketApiService } from '@dx3/api-libs/support/support-api.socket'
+import { AdminLogsSocketService } from '@dx3/api-libs/timescale/timescale.logging.socket'
 
 import { DxSocketClass } from './dx-socket.class'
 
@@ -114,9 +114,9 @@ describe('DxSocketClass', () => {
     it('should log an error and return false when socket.io is falsy after construction', () => {
       // arrange — constructor returns object WITHOUT io property for this call only.
       // Cast bypasses the strict SocketApiConnection return type to simulate a failed init.
-      jest.mocked(SocketApiConnection).mockImplementationOnce(
-        () => ({}) as unknown as SocketApiConnection,
-      )
+      jest
+        .mocked(SocketApiConnection)
+        .mockImplementationOnce(() => ({}) as unknown as SocketApiConnection)
       // SocketApiConnection.instance must be truthy so we reach the socket.io check
       setServiceInstances({ adminLogs: null, featureFlag: null, notification: null, support: null })
       // act

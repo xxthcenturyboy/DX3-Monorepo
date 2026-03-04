@@ -198,7 +198,8 @@ describe('MediaUploadModal', () => {
 
   it('should handle drag over and drag leave events', () => {
     const { container } = renderWithProviders(<MediaUploadModal {...defaultProps} />)
-    const dropZone = (container.querySelector('[style*="dashed"]') ?? container.firstChild) as Element
+    const dropZone = (container.querySelector('[style*="dashed"]') ??
+      container.firstChild) as Element
     fireEvent.dragOver(dropZone, { preventDefault: jest.fn() })
     fireEvent.dragLeave(dropZone, { preventDefault: jest.fn() })
     expect(container.firstChild).toBeTruthy()
@@ -206,7 +207,8 @@ describe('MediaUploadModal', () => {
 
   it('should handle file drop on drop zone', () => {
     const { container } = renderWithProviders(<MediaUploadModal {...defaultProps} />)
-    const dropZone = (container.querySelector('[style*="dashed"]') ?? container.firstChild) as Element
+    const dropZone = (container.querySelector('[style*="dashed"]') ??
+      container.firstChild) as Element
     const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
     fireEvent.drop(dropZone, {
       dataTransfer: { files: [file] },
@@ -266,8 +268,8 @@ describe('MediaUploadModal', () => {
     const textInput = container.querySelector('input:not([type="file"])') as HTMLInputElement
     fireEvent.change(textInput, { target: { value: 'not-a-valid-url' } })
 
-    const insertBtn = Array.from(container.querySelectorAll('button')).find(
-      (b) => b.textContent?.toLowerCase().includes('insert'),
+    const insertBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.toLowerCase().includes('insert'),
     )
     if (insertBtn) {
       fireEvent.click(insertBtn)

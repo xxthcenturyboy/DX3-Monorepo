@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
 
 import { setupStore } from '../store/testing/testing.store'
-import { featureFlagsActions } from './feature-flag-web.reducer'
 import { useFeatureFlag, useFeatureFlags } from './feature-flag-web.hooks'
+import { featureFlagsActions } from './feature-flag-web.reducer'
 
 function createWrapper(initialState = {}) {
   const store = setupStore(initialState)

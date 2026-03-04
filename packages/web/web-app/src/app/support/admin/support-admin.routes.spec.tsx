@@ -10,12 +10,12 @@ describe('supportAdminRoutes', () => {
   })
 
   it('should have a list route', () => {
-    const listRoute = supportAdminRoutes.find((r) => r.path && r.path.includes('list'))
+    const listRoute = supportAdminRoutes.find((r) => r.path?.includes('list'))
     expect(listRoute).toBeDefined()
   })
 
   it('should have a detail route', () => {
-    const detailRoute = supportAdminRoutes.find((r) => r.path && r.path.includes(':id'))
+    const detailRoute = supportAdminRoutes.find((r) => r.path?.includes(':id'))
     expect(detailRoute).toBeDefined()
   })
 

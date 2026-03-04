@@ -4,8 +4,8 @@ jest.mock('./app-menu.component', () => ({
   ),
 }))
 
-import { uiInitialState } from '../store/ui-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { uiInitialState } from '../store/ui-web.reducer'
 import { AppMenuMobile } from './app-menu-mobile.component'
 
 describe('AppMenuMobile', () => {

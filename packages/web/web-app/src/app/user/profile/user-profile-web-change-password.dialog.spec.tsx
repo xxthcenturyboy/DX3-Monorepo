@@ -30,14 +30,16 @@ jest.mock('../../auth/auth-web.api', () => ({
 
 import { fireEvent } from '@testing-library/react'
 
-import { userProfileInitialState } from './user-profile-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
+import { userProfileInitialState } from './user-profile-web.reducer'
 import { UserProfileChangePasswordDialog } from './user-profile-web-change-password.dialog'
 
 const baseState = {
   userProfile: {
     ...userProfileInitialState,
-    emails: [{ default: true, email: 'a@b.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }],
+    emails: [
+      { default: true, email: 'a@b.com', id: 'e1', isDeleted: false, isVerified: true, label: '' },
+    ],
     id: 'u1',
     phones: [],
   },
@@ -142,8 +144,8 @@ describe('UserProfileChangePasswordDialog', () => {
       />,
       { preloadedState: baseState },
     )
-    const cancelButton = getAllByRole('button').find(
-      (b) => b.textContent?.toLowerCase().includes('cancel'),
+    const cancelButton = getAllByRole('button').find((b) =>
+      b.textContent?.toLowerCase().includes('cancel'),
     )
     fireEvent.click(cancelButton as HTMLButtonElement)
     expect(closeDialog).toHaveBeenCalled()
@@ -157,8 +159,8 @@ describe('UserProfileChangePasswordDialog', () => {
       />,
       { preloadedState: baseState },
     )
-    const updateButton = getAllByRole('button').find(
-      (b) => b.textContent?.toLowerCase().includes('update'),
+    const updateButton = getAllByRole('button').find((b) =>
+      b.textContent?.toLowerCase().includes('update'),
     )
     expect(updateButton).toBeDisabled()
   })
@@ -175,8 +177,8 @@ describe('UserProfileChangePasswordDialog', () => {
     fireEvent.change(passInput, { target: { value: 'Password1!' } })
     fireEvent.change(confirmInput, { target: { value: 'DifferentPass!' } })
 
-    const updateButton = getAllByRole('button').find(
-      (b) => b.textContent?.toLowerCase().includes('update'),
+    const updateButton = getAllByRole('button').find((b) =>
+      b.textContent?.toLowerCase().includes('update'),
     )
     expect(updateButton).toBeDisabled()
   })

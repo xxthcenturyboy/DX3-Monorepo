@@ -7,7 +7,7 @@
 import { ERROR_CODES } from '@dx3/models-shared'
 
 import { DEFAULT_STRINGS } from '../../i18n'
-import { getErrorStringFromApiResponse, ErrorWebService } from './error-web.service'
+import { ErrorWebService, getErrorStringFromApiResponse } from './error-web.service'
 
 // Mock the store import used by getLocalizedMessageAsync to avoid initialising
 // the full Redux store in a unit test.
@@ -274,7 +274,9 @@ describe('getErrorStringFromApiResponse', () => {
   })
 
   it('should return default message when response has no relevant fields', () => {
-    expect(getErrorStringFromApiResponse({} as never)).toBe(DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG)
+    expect(getErrorStringFromApiResponse({} as never)).toBe(
+      DEFAULT_STRINGS.OOPS_SOMETHING_WENT_WRONG,
+    )
   })
 
   it('should prefer localizedMessage over error when both present', () => {

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test": "NODE_OPTIONS='--no-deprecation' jest",
     "test:libs": "NODE_OPTIONS='--no-deprecation' jest --testPathPattern=\"libs\"",
     "test:libs:coverage": "NODE_OPTIONS='--no-deprecation' jest --testPathPattern=\"libs\" --coverage",

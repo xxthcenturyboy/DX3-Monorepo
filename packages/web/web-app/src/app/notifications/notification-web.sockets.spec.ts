@@ -54,10 +54,7 @@ describe('NotificationWebSockets', () => {
     it('should register socket event handlers', async () => {
       const instance = new NotificationWebSockets()
       await instance.setupSocket()
-      expect(mockSocketOn).toHaveBeenCalledWith(
-        'sendAppUpdateNotification',
-        expect.any(Function),
-      )
+      expect(mockSocketOn).toHaveBeenCalledWith('sendAppUpdateNotification', expect.any(Function))
       expect(mockSocketOn).toHaveBeenCalledWith('sendNotification', expect.any(Function))
       expect(mockSocketOn).toHaveBeenCalledWith('sendSystemNotification', expect.any(Function))
     })

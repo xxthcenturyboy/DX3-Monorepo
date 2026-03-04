@@ -6,8 +6,8 @@ jest.mock('./notification-mobile.component', () => ({
   NotificationsMobile: () => <div data-testid="notifications-mobile">Mobile</div>,
 }))
 
-import { uiInitialState } from '../ui/store/ui-web.reducer'
 import { renderWithProviders } from '../../../testing-render'
+import { uiInitialState } from '../ui/store/ui-web.reducer'
 import { NotificationsMenu } from './notifications.menu'
 
 describe('NotificationsMenu', () => {

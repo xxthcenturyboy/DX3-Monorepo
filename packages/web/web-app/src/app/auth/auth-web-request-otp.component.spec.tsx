@@ -6,9 +6,9 @@ jest.mock('./auth-web-request-otp-logged-out.component', () => ({
   AuthWebRequestOtpLoggedOut: () => <div data-testid="otp-logged-out">OTP Logged Out</div>,
 }))
 
-import { authInitialState } from './auth-web.reducer'
-import { userProfileInitialState } from '../user/profile/user-profile-web.reducer'
 import { renderWithProviders } from '../../../testing-render'
+import { userProfileInitialState } from '../user/profile/user-profile-web.reducer'
+import { authInitialState } from './auth-web.reducer'
 import { AuthWebRequestOtp } from './auth-web-request-otp.component'
 
 describe('AuthWebRequestOtp', () => {
@@ -36,7 +36,16 @@ describe('AuthWebRequestOtp', () => {
           },
           userProfile: {
             ...userProfileInitialState,
-            emails: [{ default: true, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }],
+            emails: [
+              {
+                default: true,
+                email: 'test@example.com',
+                id: 'e1',
+                isDeleted: false,
+                isVerified: true,
+                label: '',
+              },
+            ],
             id: 'u1',
           },
         },

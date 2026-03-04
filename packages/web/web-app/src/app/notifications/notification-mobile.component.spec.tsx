@@ -11,9 +11,7 @@ import { NotificationsMobile } from './notification-mobile.component'
 
 describe('NotificationsMobile', () => {
   it('should render without crashing', () => {
-    const { baseElement } = renderWithProviders(
-      <NotificationsMobile clickCloseMenu={jest.fn()} />,
-    )
+    const { baseElement } = renderWithProviders(<NotificationsMobile clickCloseMenu={jest.fn()} />)
     expect(baseElement).toBeTruthy()
   })
 

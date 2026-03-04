@@ -1,14 +1,12 @@
 jest.mock('react-avatar-editor', () => {
   const React = require('react')
-  const MockAvatarEditor = React.forwardRef(
-    (_props: Record<string, unknown>, _ref: unknown) => (
-      <canvas
-        data-testid="avatar-editor"
-        height="200"
-        width="200"
-      />
-    ),
-  )
+  const MockAvatarEditor = React.forwardRef((_props: Record<string, unknown>, _ref: unknown) => (
+    <canvas
+      data-testid="avatar-editor"
+      height="200"
+      width="200"
+    />
+  ))
   MockAvatarEditor.displayName = 'MockAvatarEditor'
   return MockAvatarEditor
 })

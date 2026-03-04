@@ -1,4 +1,4 @@
-import { WebLoggingClass, logger } from './logger-web-main.class'
+import { logger, WebLoggingClass } from './logger-web-main.class'
 
 describe('logger singleton', () => {
   it('should exist when imported', () => {

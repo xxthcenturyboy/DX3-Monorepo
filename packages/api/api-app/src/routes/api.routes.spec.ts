@@ -1,13 +1,11 @@
-import type { NextFunction, Request, Response, Router } from 'express'
-import type { Express as IExpress } from 'express'
+import type { Express as IExpress, NextFunction, Request, Response, Router } from 'express'
 import { Express } from 'jest-express/lib/express'
-
 import type { CityResponse } from 'maxmind'
 
-import { ApiLoggingClass } from '@dx3/api-libs/logger'
 import { GeoIpService } from '@dx3/api-libs/geoip/geoip-api.service'
 import { HeaderService } from '@dx3/api-libs/headers/header.service'
 import { sendBadRequest } from '@dx3/api-libs/http-response/http-responses'
+import { ApiLoggingClass } from '@dx3/api-libs/logger'
 
 import { ApiRoutes } from './api.routes'
 

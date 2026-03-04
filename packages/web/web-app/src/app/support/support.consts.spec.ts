@@ -12,11 +12,11 @@ describe('support.consts', () => {
     })
 
     it('should map ISSUE category', () => {
-      expect(CATEGORY_LABEL_KEYS['issue']).toBe('SUPPORT_CATEGORY_ISSUE')
+      expect(CATEGORY_LABEL_KEYS.issue).toBe('SUPPORT_CATEGORY_ISSUE')
     })
 
     it('should map OTHER category', () => {
-      expect(CATEGORY_LABEL_KEYS['other']).toBe('SUPPORT_CATEGORY_OTHER')
+      expect(CATEGORY_LABEL_KEYS.other).toBe('SUPPORT_CATEGORY_OTHER')
     })
 
     it('should have all values as string keys', () => {
@@ -32,11 +32,11 @@ describe('support.consts', () => {
     })
 
     it('should map open status', () => {
-      expect(STATUS_LABEL_KEYS['open']).toBe('SUPPORT_STATUS_OPEN')
+      expect(STATUS_LABEL_KEYS.open).toBe('SUPPORT_STATUS_OPEN')
     })
 
     it('should map closed status', () => {
-      expect(STATUS_LABEL_KEYS['closed']).toBe('SUPPORT_STATUS_CLOSED')
+      expect(STATUS_LABEL_KEYS.closed).toBe('SUPPORT_STATUS_CLOSED')
     })
   })
 

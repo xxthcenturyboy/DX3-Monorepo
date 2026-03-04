@@ -1,18 +1,36 @@
 jest.mock('../auth/auth-web.api', () => ({
   useOtpRequestEmailMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) }),
-    { data: undefined, error: undefined, isLoading: false, isUninitialized: true, reset: jest.fn() },
+    {
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isUninitialized: true,
+      reset: jest.fn(),
+    },
   ],
 }))
 
 jest.mock('./email-web.api', () => ({
   useAddEmailMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ id: 'e1' }) }),
-    { data: undefined, error: undefined, isLoading: false, isUninitialized: true, reset: jest.fn() },
+    {
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isUninitialized: true,
+      reset: jest.fn(),
+    },
   ],
   useCheckEmailAvailabilityMutation: () => [
     jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({ available: true }) }),
-    { data: undefined, error: undefined, isLoading: false, isUninitialized: true, reset: jest.fn() },
+    {
+      data: undefined,
+      error: undefined,
+      isLoading: false,
+      isUninitialized: true,
+      reset: jest.fn(),
+    },
   ],
 }))
 

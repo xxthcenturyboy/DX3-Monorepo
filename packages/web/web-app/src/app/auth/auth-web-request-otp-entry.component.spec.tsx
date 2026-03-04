@@ -2,7 +2,9 @@ jest.mock('./auth-web-otp.component', () => ({
   AuthWebOtpEntry: ({ onCompleteCallback }: { onCompleteCallback?: (value: string) => void }) => (
     <input
       data-testid="otp-entry-input"
-      onChange={(e) => e.target.value.length === 6 && onCompleteCallback && onCompleteCallback(e.target.value)}
+      onChange={(e) =>
+        e.target.value.length === 6 && onCompleteCallback && onCompleteCallback(e.target.value)
+      }
       type="text"
     />
   ),

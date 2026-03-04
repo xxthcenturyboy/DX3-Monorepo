@@ -13,9 +13,9 @@ jest.mock('../../auth/auth-web-request-otp.component', () => ({
   AuthWebRequestOtp: () => <div data-testid="otp-component">OTP</div>,
 }))
 
-import { userProfileInitialState } from './user-profile-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
 import { UserProfileEditUsername } from './user-profile-usernname-edit.component'
+import { userProfileInitialState } from './user-profile-web.reducer'
 
 describe('UserProfileEditUsername', () => {
   it('should render without crashing', () => {

@@ -14,9 +14,9 @@ jest.mock('./user-profile-web.api', () => ({
 
 import { fireEvent, waitFor } from '@testing-library/react'
 
-import { userProfileInitialState } from './user-profile-web.reducer'
 import { renderWithProviders } from '../../../../testing-render'
 import { UserProfileEditNames } from './user-profile-names-edit.component'
+import { userProfileInitialState } from './user-profile-web.reducer'
 
 const baseState = {
   userProfile: {
@@ -83,7 +83,9 @@ describe('UserProfileEditNames', () => {
     })
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
 
-    await waitFor(() => expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2))
+    await waitFor(() =>
+      expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2),
+    )
 
     const [firstInput] = container.querySelectorAll<HTMLInputElement>('input')
     fireEvent.change(firstInput, { target: { value: 'NewFirst' } })
@@ -96,11 +98,15 @@ describe('UserProfileEditNames', () => {
     })
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
 
-    await waitFor(() => expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2))
+    await waitFor(() =>
+      expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2),
+    )
 
     // Inputs are populated with existing values — Save should still be disabled
     const buttons = container.querySelectorAll('button')
-    const saveButton = Array.from(buttons).find((b) => b.textContent?.toLowerCase().includes('save'))
+    const saveButton = Array.from(buttons).find((b) =>
+      b.textContent?.toLowerCase().includes('save'),
+    )
     expect(saveButton).toBeDisabled()
   })
 
@@ -110,7 +116,9 @@ describe('UserProfileEditNames', () => {
     })
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
 
-    await waitFor(() => expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2))
+    await waitFor(() =>
+      expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2),
+    )
 
     const inputs = container.querySelectorAll<HTMLInputElement>('input')
     fireEvent.change(inputs[0], { target: { value: 'Updated' } })
@@ -128,7 +136,9 @@ describe('UserProfileEditNames', () => {
     })
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
 
-    await waitFor(() => expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2))
+    await waitFor(() =>
+      expect(container.querySelectorAll('input').length).toBeGreaterThanOrEqual(2),
+    )
 
     const cancelButton = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.toLowerCase().includes('cancel'),

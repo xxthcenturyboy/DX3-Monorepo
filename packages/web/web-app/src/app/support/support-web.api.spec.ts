@@ -16,7 +16,6 @@ import {
   useUpdateSupportRequestStatusMutation,
 } from './support-web.api'
 
-
 describe('support-web.api', () => {
   describe('apiWebSupport', () => {
     it('should exist when imported', () => {

@@ -1,4 +1,8 @@
-import type { NextFunction as INextFunction, Request as IRequest, Response as IResponse } from 'express'
+import type {
+  NextFunction as INextFunction,
+  Request as IRequest,
+  Response as IResponse,
+} from 'express'
 import type { File as FormidableFile } from 'formidable'
 import { StatusCodes } from 'http-status-codes'
 import { Request } from 'jest-express/lib/request'
@@ -177,7 +181,14 @@ describe('MediaApiController', () => {
       req.uploads = {
         err: null,
         fields: {},
-        files: [{ filepath: '/tmp/file', newFilename: 'abc', originalFilename: 'img.jpg', size: 0 } as FormidableFile],
+        files: [
+          {
+            filepath: '/tmp/file',
+            newFilename: 'abc',
+            originalFilename: 'img.jpg',
+            size: 0,
+          } as FormidableFile,
+        ],
         uploadId: 'upload-1',
       }
       // act
@@ -195,7 +206,14 @@ describe('MediaApiController', () => {
       req.uploads = {
         err: null,
         fields: {},
-        files: [{ filepath: '', newFilename: 'abc', originalFilename: 'img.jpg', size: 100 } as FormidableFile],
+        files: [
+          {
+            filepath: '',
+            newFilename: 'abc',
+            originalFilename: 'img.jpg',
+            size: 100,
+          } as FormidableFile,
+        ],
         uploadId: 'upload-1',
       }
       // act

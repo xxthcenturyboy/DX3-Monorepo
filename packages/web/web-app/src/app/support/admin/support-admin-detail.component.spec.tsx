@@ -5,8 +5,14 @@ jest.mock('../support-web.api', () => ({
     isLoading: false,
     refetch: jest.fn(),
   }),
-  useMarkSupportAsViewedMutation: () => [jest.fn(), { data: undefined, error: undefined, isLoading: false, isUninitialized: true }],
-  useUpdateSupportRequestStatusMutation: () => [jest.fn(), { data: undefined, error: undefined, isLoading: false, isUninitialized: true }],
+  useMarkSupportAsViewedMutation: () => [
+    jest.fn(),
+    { data: undefined, error: undefined, isLoading: false, isUninitialized: true },
+  ],
+  useUpdateSupportRequestStatusMutation: () => [
+    jest.fn(),
+    { data: undefined, error: undefined, isLoading: false, isUninitialized: true },
+  ],
 }))
 
 import { MemoryRouter, Route, Routes } from 'react-router'

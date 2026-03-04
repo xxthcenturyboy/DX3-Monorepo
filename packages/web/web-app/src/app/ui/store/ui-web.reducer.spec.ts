@@ -23,7 +23,7 @@ describe('uiReducer', () => {
     })
 
     it('should close dialog when empty string', () => {
-      const withDialog = { ...uiInitialState, apiDialogOpen: true, apiDialogError: 'error' }
+      const withDialog = { ...uiInitialState, apiDialogError: 'error', apiDialogOpen: true }
       const state = uiReducer(withDialog, uiActions.apiDialogSet(''))
       expect(state.apiDialogOpen).toBe(false)
     })

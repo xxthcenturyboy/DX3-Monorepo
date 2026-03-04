@@ -14,7 +14,14 @@ describe('DeleteEmailDialog', () => {
       <DeleteEmailDialog
         closeDialog={jest.fn()}
         emailDataCallback={jest.fn()}
-        emailItem={{ default: false, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }}
+        emailItem={{
+          default: false,
+          email: 'test@example.com',
+          id: 'e1',
+          isDeleted: false,
+          isVerified: true,
+          label: '',
+        }}
       />,
     )
     expect(baseElement).toBeTruthy()
@@ -25,7 +32,14 @@ describe('DeleteEmailDialog', () => {
       <DeleteEmailDialog
         closeDialog={jest.fn()}
         emailDataCallback={jest.fn()}
-        emailItem={{ default: false, email: 'test@example.com', id: 'e1', isDeleted: false, isVerified: true, label: '' }}
+        emailItem={{
+          default: false,
+          email: 'test@example.com',
+          id: 'e1',
+          isDeleted: false,
+          isVerified: true,
+          label: '',
+        }}
       />,
     )
     expect(container.querySelector('button')).toBeTruthy()

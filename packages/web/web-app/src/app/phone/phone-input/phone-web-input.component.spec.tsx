@@ -8,7 +8,7 @@ jest.mock('react-phone-input-2', () => {
   }) => (
     <input
       data-testid="phone-input"
-      onChange={(e) => onChange && onChange(e.target.value)}
+      onChange={(e) => onChange?.(e.target.value)}
       type="tel"
       value={value || ''}
     />
@@ -32,16 +32,12 @@ const defaultProps = {
 
 describe('PhoneNumberInput', () => {
   it('should render without crashing', () => {
-    const { baseElement } = renderWithProviders(
-      <PhoneNumberInput {...defaultProps} />,
-    )
+    const { baseElement } = renderWithProviders(<PhoneNumberInput {...defaultProps} />)
     expect(baseElement).toBeTruthy()
   })
 
   it('should render the phone input field', () => {
-    const { getByTestId } = renderWithProviders(
-      <PhoneNumberInput {...defaultProps} />,
-    )
+    const { getByTestId } = renderWithProviders(<PhoneNumberInput {...defaultProps} />)
     expect(getByTestId('phone-input')).toBeTruthy()
   })
 

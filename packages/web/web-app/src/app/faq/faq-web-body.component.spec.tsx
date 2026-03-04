@@ -14,7 +14,10 @@ describe('FaqWebBodyComponent', () => {
 
   it('should render public FAQ items', () => {
     const { container } = renderWithProviders(
-      <FaqWebBodyComponent subtitle="" title="" />,
+      <FaqWebBodyComponent
+        subtitle=""
+        title=""
+      />,
     )
     expect(container.firstChild).toBeTruthy()
   })

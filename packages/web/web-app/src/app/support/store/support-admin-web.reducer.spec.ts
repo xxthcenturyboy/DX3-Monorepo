@@ -49,20 +49,14 @@ describe('supportAdminReducer', () => {
 
   describe('limitSet', () => {
     it('should set limit', () => {
-      const state = supportAdminReducer(
-        supportAdminInitialState,
-        supportAdminActions.limitSet(50),
-      )
+      const state = supportAdminReducer(supportAdminInitialState, supportAdminActions.limitSet(50))
       expect(state.limit).toBe(50)
     })
   })
 
   describe('offsetSet', () => {
     it('should set offset', () => {
-      const state = supportAdminReducer(
-        supportAdminInitialState,
-        supportAdminActions.offsetSet(25),
-      )
+      const state = supportAdminReducer(supportAdminInitialState, supportAdminActions.offsetSet(25))
       expect(state.offset).toBe(25)
     })
   })
@@ -174,7 +168,7 @@ describe('supportAdminReducer', () => {
     it('should reset userTab to initial values', () => {
       const modified = {
         ...supportAdminInitialState,
-        userTab: { ...supportAdminUserTabInitialState, userId: 'user-123', limit: 99 },
+        userTab: { ...supportAdminUserTabInitialState, limit: 99, userId: 'user-123' },
       }
       const state = supportAdminReducer(modified, supportAdminActions.userTabReset())
       expect(state.userTab).toEqual(supportAdminUserTabInitialState)

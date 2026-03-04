@@ -1,9 +1,4 @@
-import {
-  dxGenerateHashWithSalt,
-  dxGetSaltFromHash,
-  dxHashString,
-  dxVerifyHash,
-} from './hashing'
+import { dxGenerateHashWithSalt, dxGetSaltFromHash, dxHashString, dxVerifyHash } from './hashing'
 
 describe('dxHashString', () => {
   test('hashing a string', async () => {

@@ -2,7 +2,9 @@ import { DevicesRoutes } from './devices-api.routes'
 
 jest.mock('../rate-limiters/rate-limiters.dx', () => ({
   DxRateLimiters: {
-    accountCreation: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    accountCreation: jest.fn(() =>
+      jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
+    ),
     authLookup: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
     login: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
     standard: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),

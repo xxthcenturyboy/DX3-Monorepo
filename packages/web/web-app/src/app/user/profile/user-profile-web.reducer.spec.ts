@@ -1,4 +1,8 @@
-import { userProfileActions, userProfileInitialState, userProfileReducer } from './user-profile-web.reducer'
+import {
+  userProfileActions,
+  userProfileInitialState,
+  userProfileReducer,
+} from './user-profile-web.reducer'
 
 describe('userProfileReducer', () => {
   it('should return initial state for unknown action', () => {
@@ -28,7 +32,10 @@ describe('userProfileReducer', () => {
       const existingEmail = { default: true, id: 'e1' } as never
       const newDefault = { default: true, id: 'e2' } as never
       const withEmail = { ...userProfileInitialState, emails: [existingEmail] }
-      const state = userProfileReducer(withEmail, userProfileActions.emailAddedToProfile(newDefault))
+      const state = userProfileReducer(
+        withEmail,
+        userProfileActions.emailAddedToProfile(newDefault),
+      )
       expect(state.emails[0].default).toBe(false)
       expect(state.emails[1].default).toBe(true)
     })

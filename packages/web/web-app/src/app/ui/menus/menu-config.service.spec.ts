@@ -12,8 +12,8 @@ jest.mock('../../store/store-web.redux', () => ({
           FEATURE_FLAGS: 'Feature Flags',
           PROFILE: 'Profile',
           PUBLIC_PAGES: 'Public Pages',
-          SUPPORT: 'Support',
           SSR_HEALTH: 'SSR Health',
+          SUPPORT: 'Support',
           USER_STATS: 'User Stats',
         },
       },
@@ -32,6 +32,7 @@ jest.mock('../../config/config-web.service', () => ({
 }))
 
 import { USER_ROLE } from '@dx3/models-shared'
+
 import { MenuConfigService } from './menu-config.service'
 
 describe('MenuConfigService', () => {

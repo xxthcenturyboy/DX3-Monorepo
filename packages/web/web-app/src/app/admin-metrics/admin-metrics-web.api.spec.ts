@@ -16,7 +16,6 @@ import {
   useLazyGetMetricsWAUQuery,
 } from './admin-metrics-web.api'
 
-
 describe('admin-metrics-web.api', () => {
   describe('apiWebAdminMetrics', () => {
     it('should exist when imported', () => {

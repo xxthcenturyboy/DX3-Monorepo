@@ -4,7 +4,9 @@ jest.mock('@dx3/api-libs/auth/middleware/ensure-logged-in.middleware')
 jest.mock('@dx3/api-libs/auth/middleware/ensure-role.middleware')
 jest.mock('../rate-limiters/rate-limiters.dx', () => ({
   DxRateLimiters: {
-    accountCreation: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
+    accountCreation: jest.fn(() =>
+      jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
+    ),
     authLookup: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
     login: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
     standard: jest.fn(() => jest.fn((_req: unknown, _res: unknown, next: () => void) => next())),
