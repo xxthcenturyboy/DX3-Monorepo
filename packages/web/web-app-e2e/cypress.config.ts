@@ -7,6 +7,7 @@ export default defineConfig({
     baseUrl: 'http://localhost:3000',
     specPattern: 'src/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'src/support/e2e.ts',
+    // @ts-expect-error -- webServer is a valid Cypress 13+ runtime option but absent from the bundled type definitions
     webServer: {
       command: 'pnpm --filter @dx3/web-app dev',
       reuseExistingServer: !process.env.CI,

@@ -96,7 +96,7 @@ export type MockUserDataType = {
 export const MOCK_USERS: Record<string, MockUserDataType> = {
   [TEST_EXISTING_USER_ID]: {
     accountLocked: false,
-    biomAuthKey: TEST_BIOMETRIC_PUBLIC_KEY,
+    biomAuthKey: TEST_BIOMETRIC_PUBLIC_KEY ?? undefined,
     defaultEmail: {
       email: TEST_EMAIL,
       verified: true,

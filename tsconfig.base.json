@@ -23,6 +23,7 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": true,
+    "strictNullChecks": true,
     "target": "es2015"
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,5 +1,5 @@
 type AppleWellKnownComponent = {
-  [key: string]: string | boolean
+  [key: string]: string | boolean | undefined
   comment: string
   exclude?: boolean
 }

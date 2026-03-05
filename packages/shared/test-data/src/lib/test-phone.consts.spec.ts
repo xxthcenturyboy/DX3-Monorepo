@@ -149,7 +149,7 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
     it('should have TEST_BIOMETRIC_PUBLIC_KEY as valid base64', () => {
       // The RSA key is stored as raw base64 (not PEM format)
       expect(TEST_BIOMETRIC_PUBLIC_KEY).toMatch(/^[A-Za-z0-9+/=]+$/)
-      expect(TEST_BIOMETRIC_PUBLIC_KEY.length).toBeGreaterThan(100)
+      expect(TEST_BIOMETRIC_PUBLIC_KEY!.length).toBeGreaterThan(100)
     })
 
     it('should export TEST_BIOMETRIC_PRIVATE_KEY', () => {
@@ -160,7 +160,7 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
     it('should have TEST_BIOMETRIC_PRIVATE_KEY as valid base64', () => {
       // The RSA key is stored as raw base64 (not PEM format)
       expect(TEST_BIOMETRIC_PRIVATE_KEY).toMatch(/^[A-Za-z0-9+/=]+$/)
-      expect(TEST_BIOMETRIC_PRIVATE_KEY.length).toBeGreaterThan(100)
+      expect(TEST_BIOMETRIC_PRIVATE_KEY!.length).toBeGreaterThan(100)
     })
 
     it('should have different public and private keys', () => {
@@ -168,7 +168,7 @@ describe('Test Phone Constants (test-phone.consts.ts)', () => {
     })
 
     it('should have private key longer than public key (RSA)', () => {
-      expect(TEST_BIOMETRIC_PRIVATE_KEY.length).toBeGreaterThan(TEST_BIOMETRIC_PUBLIC_KEY.length)
+      expect(TEST_BIOMETRIC_PRIVATE_KEY!.length).toBeGreaterThan(TEST_BIOMETRIC_PUBLIC_KEY!.length)
     })
   })
 

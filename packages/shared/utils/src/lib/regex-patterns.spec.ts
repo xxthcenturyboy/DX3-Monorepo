@@ -109,7 +109,8 @@ describe('regexPostgresUrl', () => {
   // arrange
   const validUrl = 'postgres://pguser:password@postgres:5432/app'
   // act
-  const matching = validUrl.match(regexPostgresUrl)
+  // String.match() returns RegExpMatchArray | null; the subsequent tests assert it matched
+  const matching = validUrl.match(regexPostgresUrl)!
   // assert
   it('should exist when imported', () => {
     expect(regexEmail).toBeDefined()

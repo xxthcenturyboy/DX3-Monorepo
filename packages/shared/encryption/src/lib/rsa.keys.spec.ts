@@ -31,8 +31,9 @@ describe('dxRSAKeys', () => {
       // arrange
       // act
       const result = dxRsaGenerateKeyPair()
-      privateKey = result.privateKey
-      publicKey = result.publicKey
+      // dxRsaGenerateKeyPair returns string | null; the expect() calls below assert they're defined
+      privateKey = result.privateKey!
+      publicKey = result.publicKey!
       // assert
       expect(privateKey).toBeDefined()
       expect(publicKey).toBeDefined()
@@ -62,7 +63,8 @@ describe('dxRSAKeys', () => {
     it('should sign a string payload', () => {
       // arrange
       // act
-      signature = dxRsaSignPayload(privateKey, payload)
+      // dxRsaSignPayload returns string | undefined; the expect() call below asserts it's defined
+      signature = dxRsaSignPayload(privateKey, payload)!
       // assert
       expect(signature).toBeDefined()
     })

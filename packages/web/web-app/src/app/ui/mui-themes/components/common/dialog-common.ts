@@ -1,6 +1,6 @@
 import type { Components } from '@mui/material/styles'
 
-export const dialogOverridesCommon: Components['MuiDialog'] = {
+export const dialogOverridesCommon: NonNullable<Components['MuiDialog']> = {
   defaultProps: {},
   styleOverrides: {
     paper: {

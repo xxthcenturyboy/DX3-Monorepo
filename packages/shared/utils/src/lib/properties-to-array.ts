@@ -9,7 +9,7 @@ export function propertiesToArray(obj: object): string[] {
   const addDelimiter = (a: string, b: string) => (a ? `${a}.${b}` : b)
 
   const paths = (obj = {}, head = '') => {
-    return Object.entries(obj).reduce((product, [key, value]) => {
+    return Object.entries(obj).reduce<string[]>((product, [key, value]) => {
       const fullPath = addDelimiter(head, key)
       return isObject(value)
         ? product.concat(paths(value as object, fullPath))

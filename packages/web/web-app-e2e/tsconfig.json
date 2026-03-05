@@ -4,6 +4,7 @@
     "module": "commonjs",
     "outDir": "./dist",
     "sourceMap": false,
+    "strictNullChecks": false,
     "types": ["cypress", "node"]
   },
   "extends": "../../../tsconfig.base.json",

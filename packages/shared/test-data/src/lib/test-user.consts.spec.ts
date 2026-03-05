@@ -419,7 +419,8 @@ describe('Environment variable fallback branches (test-user.consts.ts lines 19-2
     }
 
     // act — reload module fresh without env vars
-    let mod: typeof import('./test-user.consts')
+    // Definite assignment assertion: jest.isolateModules is synchronous, so mod is always set
+    let mod!: typeof import('./test-user.consts')
     jest.isolateModules(() => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       mod = require('./test-user.consts')
@@ -451,7 +452,8 @@ describe('Environment variable fallback branches (test-user.consts.ts lines 19-2
     process.env.SEED_USER_TEST_PASSWORD = 'env_testuserpw'
 
     // act — reload module fresh with env vars set
-    let mod: typeof import('./test-user.consts')
+    // Definite assignment assertion: jest.isolateModules is synchronous, so mod is always set
+    let mod!: typeof import('./test-user.consts')
     jest.isolateModules(() => {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       mod = require('./test-user.consts')

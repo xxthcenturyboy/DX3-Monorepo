@@ -331,7 +331,7 @@ describe('icons', () => {
       })
 
       it('should handle rapid successive calls', () => {
-        const icons = []
+        const icons: (React.ReactElement | null)[] = []
         for (let i = 0; i < 100; i++) {
           icons.push(getIcon(IconNames.CHECK))
         }
