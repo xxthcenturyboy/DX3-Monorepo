@@ -8,8 +8,64 @@
  * Add any stub here that must exist in ALL jsdom Jest workers under packages/web.
  */
 
+// react-router v7 uses TextEncoder/TextDecoder at module-load time via
+// @remix-run/router. jsdom does not polyfill these globals, so they must be
+// injected before any test file imports react-router.
+import { TextDecoder, TextEncoder } from 'util'
+Object.defineProperty(globalThis, 'TextDecoder', { value: TextDecoder, writable: true })
+Object.defineProperty(globalThis, 'TextEncoder', { value: TextEncoder, writable: true })
+
+// jsdom does not implement DOMRect. Components that delegate getBoundingClientRect
+// to Popper.js (e.g. MUI Tooltip, Popover, rich-text link dialogs) call new DOMRect()
+// during passive-effect commit. This lightweight polyfill satisfies those call sites.
+class DOMRectPolyfill implements DOMRect {
+  readonly bottom: number
+  readonly height: number
+  readonly left: number
+  readonly right: number
+  readonly top: number
+  readonly width: number
+  readonly x: number
+  readonly y: number
+
+  constructor(x = 0, y = 0, width = 0, height = 0) {
+    this.x = x
+    this.y = y
+    this.width = width
+    this.height = height
+    this.top = y
+    this.left = x
+    this.bottom = y + height
+    this.right = x + width
+  }
+
+  static fromRect(other?: DOMRectInit): DOMRectPolyfill {
+    return new DOMRectPolyfill(other?.x, other?.y, other?.width, other?.height)
+  }
+
+  toJSON() {
+    const { bottom, height, left, right, top, width, x, y } = this
+    return { bottom, height, left, right, top, width, x, y }
+  }
+}
+
+if (typeof globalThis.DOMRect === 'undefined') {
+  globalThis.DOMRect = DOMRectPolyfill as unknown as typeof DOMRect
+}
+
 import '@testing-library/jest-dom'
 import { setGlobalDevModeChecks } from 'reselect'
+
+// Components that render modals via createPortal target document.getElementById('modal-root').
+// jsdom starts with an empty document, so the element must be created before each test file runs.
+// Using beforeEach ensures it survives any afterEach cleanup that empties document.body.
+beforeEach(() => {
+  if (!document.getElementById('modal-root')) {
+    const modalRoot = document.createElement('div')
+    modalRoot.id = 'modal-root'
+    document.body.appendChild(modalRoot)
+  }
+})
 
 // Standard jsdom stub for window.matchMedia.
 // MUI's useMediaQuery relies on this; without it the hook throws in tests.

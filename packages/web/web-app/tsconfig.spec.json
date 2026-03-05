@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "es2022"],
     "module": "commonjs",
     "moduleResolution": "node10",
     "outDir": "./dist",

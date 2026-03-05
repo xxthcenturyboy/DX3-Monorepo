@@ -42,7 +42,7 @@ export default {
       statements: 80,
     },
   },
-  displayName: 'web-libs',
+  displayName: process.env.JEST_DISPLAY_NAME ?? 'web',
   // Force exit after tests complete to avoid hanging on open handles
   forceExit: true,
   // Suppress duplicate manual mock warnings from jest-haste-map

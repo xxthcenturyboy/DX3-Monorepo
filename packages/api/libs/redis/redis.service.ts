@@ -18,9 +18,15 @@ export class RedisService {
     RedisService.#instance = this
 
     if (params.isDev) {
-      // Local development - no TLS required
-      const url = `${params.redis.url}:${params.redis.port}/0`
-      this.cacheHandle = new Redis(url, {
+      // Local development - no TLS required.
+      // Construct the final URL carefully: only append the port when the URL
+      // does not already include one, then always force DB index 0.
+      const parsed = new URL(params.redis.url)
+      if (!parsed.port) {
+        parsed.port = String(params.redis.port)
+      }
+      parsed.pathname = '/0'
+      this.cacheHandle = new Redis(parsed.toString(), {
         keyPrefix: `${params.redis.prefix}${REDIS_DELIMITER}`,
       })
       return

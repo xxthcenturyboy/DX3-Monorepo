@@ -260,12 +260,12 @@ describe('ErrorWebService', () => {
 
 describe('getErrorStringFromApiResponse', () => {
   it('should return localizedMessage when present', () => {
-    const res = { localizedMessage: 'Localized error' }
+    const res = { localizedMessage: 'Localized error' } as never
     expect(getErrorStringFromApiResponse(res)).toBe('Localized error')
   })
 
   it('should return error field when localizedMessage is absent', () => {
-    const res = { error: 'Raw error string' }
+    const res = { error: 'Raw error string' } as never
     expect(getErrorStringFromApiResponse(res)).toBe('Raw error string')
   })
 
@@ -280,12 +280,12 @@ describe('getErrorStringFromApiResponse', () => {
   })
 
   it('should prefer localizedMessage over error when both present', () => {
-    const res = { error: 'raw', localizedMessage: 'Localized' }
+    const res = { error: 'raw', localizedMessage: 'Localized' } as never
     expect(getErrorStringFromApiResponse(res)).toBe('Localized')
   })
 
   it('should return default when localizedMessage is empty string', () => {
-    const res = { error: 'raw', localizedMessage: '' }
+    const res = { error: 'raw', localizedMessage: '' } as never
     // empty string is falsy — falls through to 'error' field
     expect(getErrorStringFromApiResponse(res)).toBe('raw')
   })

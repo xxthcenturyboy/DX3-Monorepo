@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "es2022"],
     "module": "commonjs",
     "moduleResolution": "node10",
     "resolveJsonModule": true,
@@ -10,14 +11,17 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "jest.config.ts",
-    "libs/**/*.test.ts",
+    "libs/**/*.d.ts",
+    "libs/**/*.spec.js",
+    "libs/**/*.spec.jsx",
     "libs/**/*.spec.ts",
-    "libs/**/*.test.tsx",
     "libs/**/*.spec.tsx",
     "libs/**/*.test.js",
-    "libs/**/*.spec.js",
     "libs/**/*.test.jsx",
-    "libs/**/*.spec.jsx",
-    "libs/**/*.d.ts"
-, "web-app/src/app/ui/mui-themes/components/common/dialog-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/inputs-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/list-common.spec.ts", "web-app/src/app/ui/mui-themes/components/common/menus-common.spec.ts"  ]
+    "libs/**/*.test.ts",
+    "libs/**/*.test.tsx",
+    "web-app/src/**/*.spec.ts",
+    "web-app/src/**/*.spec.tsx",
+    "web-app/types/mui.d.ts"
+  ]
 }
