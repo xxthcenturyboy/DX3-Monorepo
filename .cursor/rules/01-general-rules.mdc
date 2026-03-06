@@ -10,3 +10,15 @@ alwaysApply: true
 - Reserve index files only for barrel files
 - Use dayjs for dates over Javascript's Date constructor
 - Use types instead of interfaces for TypeScript types
+
+## Testing Requirements
+
+- Every testable source file MUST have a co-located `*.spec.ts` (or `*.spec.tsx`) unit test file
+- Minimum coverage threshold is **80%** for branches, functions, lines, and statements across all packages
+- Test files must be named `<source-file>.spec.ts` and live alongside the source file they test
+- Use `describe` / `it` blocks with clear, human-readable descriptions that express intent, not implementation
+- Mock all external I/O (database, Redis, S3, HTTP calls, sockets) — unit tests must not require live services
+- Do not test implementation details; test observable behaviour and public contracts
+- Files excluded from coverage requirements: `*.types.ts`, `*.type.ts`, `*.d.ts`, `*.mock.ts`, `*.postgres-model.ts`, migration files, seeder files, barrel `index.ts` files, application entry points (`main.ts`), and files explicitly flagged as UI-only wrappers
+- When adding a new service, utility, validator, controller, selector, or reducer, a corresponding spec file is mandatory — it is not optional
+- Coverage must be collected and verified with `--coverage` on every CI run; failing thresholds block merge

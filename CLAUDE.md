@@ -53,27 +53,36 @@ pnpm build:mobile         # Build mobile app only
 # Run all tests
 pnpm test
 
+# Run all tests with coverage (required before merge)
+pnpm test --coverage
+
 # Shared packages tests
 pnpm test:shared
 pnpm test:shared:coverage
 
 # API tests
 pnpm --filter @dx3/api test --verbose --runInBand
+pnpm --filter @dx3/api test --coverage --runInBand   # with coverage report
+
+# API app tests
 pnpm --filter @dx3/api-app test
+pnpm --filter @dx3/api-app test --coverage
 
 # API E2E tests
 make api-e2e
 
 # Web tests
 pnpm --filter @dx3/web-app test
+pnpm --filter @dx3/web-app test --coverage           # enforces 80% threshold
 
 # Mobile tests
 pnpm --filter @dx3/mobile test
 
 # Jest flags
-# --runInBand: runs in serial instead of worker pool
+# --runInBand: runs in serial instead of worker pool (required for API due to shared state)
 # --verbose: shows individual test results
 # --detectOpenHandles: ensures proper cleanup
+# --coverage: generates lcov report and enforces coverageThreshold
 ```
 
 ### Linting & Formatting
@@ -243,6 +252,109 @@ packages/
 - `@dx3/encryption`: Encryption/decryption utilities
 - `@dx3/test-data`: Test fixtures and mock data
 
+## Testing Standards
+
+### Philosophy
+
+Every piece of testable application logic must have a corresponding unit test. Tests are not optional — they are part of the definition of done for any new file, feature, or bug fix. Unit tests must run without any live external services (no real database, Redis, S3, sockets, or HTTP calls).
+
+### Coverage Thresholds (enforced in CI)
+
+| Package | Branches | Functions | Lines | Statements |
+|---------|----------|-----------|-------|------------|
+| `@dx3/web-app` | 80% | 80% | 80% | 80% |
+| `@dx3/web` libs | 80% | 80% | 80% | 80% |
+| `@dx3/api` libs | 80% | 80% | 80% | 80% |
+| `@dx3/api-app` | 80% | 80% | 80% | 80% |
+| `@dx3/models-shared` | 80% | 80% | 80% | 80% |
+| `@dx3/utils-shared` | 80% | 80% | 80% | 80% |
+| `@dx3/encryption` | 80% | 80% | 80% | 80% |
+
+Failing a coverage threshold blocks the CI pipeline. Thresholds are configured via `coverageThreshold` in each package's `jest.config.ts`.
+
+### Test File Conventions
+
+- **Location**: Co-located alongside the source file (`foo.service.ts` → `foo.service.spec.ts`)
+- **Naming**: `<source-file-name>.spec.ts` (or `.spec.tsx` for React components)
+- **Structure**: Use `describe` / `it` blocks with human-readable descriptions that express intent:
+  ```ts
+  describe('FooService', () => {
+    describe('doSomething', () => {
+      it('returns the expected value when input is valid', () => { ... })
+      it('throws when input is missing', () => { ... })
+    })
+  })
+  ```
+- **Assertions**: Use Jest's `expect` API. Prefer specific matchers (`toEqual`, `toThrow`, `toHaveBeenCalledWith`) over generic ones (`toBeTruthy`)
+
+### What Requires a Test File
+
+Every new file in the following categories **must** have a corresponding `.spec.ts`:
+
+| Category | Example |
+|----------|---------|
+| Services | `*.service.ts` |
+| Controllers | `*.controller.ts` |
+| Validators / Middleware | `*.validation.ts`, `*.middleware.ts` |
+| Utility functions | `*.util.ts`, `*.utils.ts` |
+| Selectors | `*.selectors.ts` |
+| Reducers | `*.reducer.ts` |
+| Constants with logic | `*.consts.ts` |
+| List services | `*-list.service.ts` |
+| Socket handlers | `*.socket.ts` |
+| Config loaders | `*.config.ts`, `config-*.ts` |
+
+### What is Excluded from Coverage
+
+The following file types are **excluded from `collectCoverageFrom`** and do not require spec files:
+
+- `*.types.ts`, `*.type.ts`, `*.d.ts` — pure type declarations
+- `*.mock.ts` — test mock helpers
+- `*.postgres-model.ts` — Sequelize model definitions (covered by integration/E2E tests)
+- `libs/pg/migrations/**` — database migrations
+- `libs/pg/seed/**` — database seeders
+- `**/index.ts` — barrel files
+- Application entry points: `main.ts`, `esbuild.config.js`, `jest.config.ts`
+- Test infrastructure: `**/testing/**`, `**/test-setup.ts`, `**/__mocks__/**`
+- UI-only wrappers with no testable logic (explicitly excluded per `jest.config.ts`)
+
+### Mocking Strategy
+
+- **Database / Sequelize**: Use `jest.spyOn` on model static methods or inject a mock repository
+- **Redis**: Use the `ioredis-mock` package (automatically mapped in `jest.config.ts` module name mapper)
+- **S3 / AWS SDK**: Mock with `jest.mock` at the module level
+- **HTTP / axios**: Use `jest.mock('axios')` or intercept with `nock`
+- **Socket.IO**: Mock the socket instance with a plain object using `jest.fn()` callbacks
+- **Timers / dayjs**: Use `jest.useFakeTimers()` or mock `dayjs` as needed
+- **Environment variables**: Set in `beforeEach` via `process.env` and restore in `afterEach`
+
+### Running Coverage Locally
+
+```bash
+# Full monorepo coverage (slow — use targeted runs during development)
+pnpm test --coverage
+
+# Per-package targeted runs
+pnpm --filter @dx3/api test --coverage --runInBand
+pnpm --filter @dx3/api-app test --coverage
+pnpm --filter @dx3/web-app test --coverage
+pnpm test:shared:coverage
+
+# View HTML report after running
+open coverage/web/web-app/lcov-report/index.html
+open coverage/api/api/lcov-report/index.html
+open coverage/api/api-app/lcov-report/index.html
+```
+
+### Coverage Report Locations
+
+| Package | Report Path |
+|---------|-------------|
+| `@dx3/api` libs | `coverage/api/api/` |
+| `@dx3/api-app` | `coverage/api/api-app/` |
+| `@dx3/web-app` | `coverage/web/web-app/` |
+| `@dx3/utils-shared` | `coverage/shared/utils-shared/` |
+
 ## Code Style Conventions
 
 ### Critical Rules (Always Applied)
@@ -256,6 +368,7 @@ packages/
 7. **Redux File Naming**: Use `*.reducer.ts` for reducers and `*.selectors.ts` for selectors (not `*.slice.ts`)
 8. **Date Handling**: Use dayjs for date operations over JavaScript's Date constructor
 9. **Bash Only**: All terminal commands in documentation must use bash (Mac OS/Linux only, no Windows-specific commands)
+10. **Unit Tests Mandatory**: Every testable source file must have a co-located `*.spec.ts` file; minimum 80% coverage across all packages
 
 ### Feature Implementation
 
@@ -269,6 +382,7 @@ packages/
 7. Use `sendOK`, `sendBadRequest` patterns for responses
 8. Add Socket.IO handlers if real-time updates needed
 9. Apply auth/role middleware for protected routes
+10. **Write unit tests**: create `*.spec.ts` for controller, service, validation, and any socket handler — mock all I/O; verify ≥80% coverage
 
 **Adding New Web Feature:**
 1. Define scope and routes in `packages/web/web-app/src/app/routers/`
@@ -281,6 +395,7 @@ packages/
 8. Add i18n strings to `assets/locales/en.json`
 9. Connect to Socket.IO if real-time updates needed
 10. No barrel exports
+11. **Write unit tests**: create `*.spec.ts` for reducer, selectors, list service, and utilities; React components may use `@testing-library/react`; verify ≥80% coverage via `pnpm --filter @dx3/web-app test --coverage`
 
 **Table/List View Pattern:**
 - Create `*-list.service.ts` for table headers and row formatting
@@ -293,7 +408,8 @@ packages/
 - Centralize feature flag names/constants in shared models
 - Implement cache invalidation paths
 - Ensure socket notifications trigger client re-fetch
-- Add tests where coverage exists
+- **Tests are mandatory, not optional**: every new service, utility, validator, controller, selector, and reducer requires a co-located `*.spec.ts`
+- Verify coverage with `--coverage` before opening a PR; failing thresholds (80% branches/functions/lines/statements) block merge
 - Wire error codes and i18n keys correctly
 
 ## Tech Stack Details
