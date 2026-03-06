@@ -26,7 +26,7 @@ export class ApiRoutes {
 
   public loadRoutes() {
     const geoIpMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
-      const geo = await GeoIpService.lookup(req.ip)
+      const geo = await GeoIpService.lookup(req.ip ?? '')
       if (geo) {
         req.geo = geo
       }

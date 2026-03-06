@@ -58,11 +58,11 @@ export const UploadMiddleware = {
             let filesArray: File[] = []
 
             if (Object.hasOwn(files, 'file')) {
-              filesArray = files.file
+              filesArray = files.file as File[]
             }
 
             if (Object.hasOwn(files, 'files')) {
-              filesArray = files.files
+              filesArray = files.files as File[]
             }
 
             if (!formidableError) {
@@ -100,11 +100,11 @@ export const UploadMiddleware = {
       if (fileName && contentType) {
         try {
           const s3Client = S3Service.getS3Client({
-            accessKeyId: env.S3_ACCESS_KEY_ID,
-            endpoint: env.S3_ENDPOINT,
-            provider: env.S3_PROVIDER,
-            region: env.S3_REGION,
-            secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+            accessKeyId: env.S3_ACCESS_KEY_ID as string,
+            endpoint: env.S3_ENDPOINT as string,
+            provider: env.S3_PROVIDER as string,
+            region: env.S3_REGION as string,
+            secretAccessKey: env.S3_SECRET_ACCESS_KEY as string,
           })
 
           const upload = new Upload({

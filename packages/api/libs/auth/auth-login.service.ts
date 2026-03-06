@@ -196,7 +196,7 @@ export class AuthLoginService {
     emailUtil: EmailUtilType
     password?: string
     phoneUtil: PhoneUtilType
-  }): Promise<'biometric' | 'email' | 'phone' | 'usernamepass'> {
+  }): Promise<'biometric' | 'email' | 'phone' | 'usernamepass' | undefined> {
     const { biometric, emailUtil, password, phoneUtil } = data
 
     if (biometric?.userId && biometric?.signature) {
@@ -239,8 +239,9 @@ export class AuthLoginService {
     switch (loginType) {
       case 'biometric': {
         user = await this.biometricLogin({
-          ...biometric,
+          ...biometric!,
           payload: value,
+          signature: biometric!.signature!,
         })
         break
       }
@@ -251,15 +252,15 @@ export class AuthLoginService {
       }
       case 'phone': {
         user = await this.phoneNumberLogin({
-          code,
+          code: code ?? '',
           countryCode: phoneUtil.countryCode,
           nationalNumber: phoneUtil.nationalNumber,
-          region,
+          region: region ?? '',
         })
         break
       }
       case 'usernamepass': {
-        user = await this.usernamePasswordLogin({ password, username: value })
+        user = await this.usernamePasswordLogin({ password: password!, username: value })
         break
       }
       default: {

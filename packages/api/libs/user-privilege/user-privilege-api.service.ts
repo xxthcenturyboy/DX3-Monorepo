@@ -26,10 +26,10 @@ export class UserPrivilegeService {
 
   private async setAllToCache(data: UserPrivilegeSetModel[]) {
     try {
-      const promises: Promise<void>[] = []
+      const promises: Promise<unknown>[] = []
       const cache = new UserPrivilegeSetCache()
       for (const privilege of data) {
-        promises.push(void cache.setCache(privilege.name, privilege.toJSON()))
+        promises.push(cache.setCache(privilege.name, privilege.toJSON()))
       }
       await Promise.all(promises)
     } catch (err) {

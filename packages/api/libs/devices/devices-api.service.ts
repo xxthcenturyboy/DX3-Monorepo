@@ -135,7 +135,7 @@ export class DevicesService {
           userId: user.id,
           verificationToken: randomUUID(),
           verifiedAt: new Date(),
-        })
+        } as unknown as DeviceModel)
       }
 
       // Unused device, user has another connected
@@ -162,7 +162,7 @@ export class DevicesService {
           facialAuthState,
           userId: user.id,
           verificationToken: randomUUID(),
-        })
+        } as unknown as DeviceModel)
         if (bypass) {
           addedDevice.verifiedAt = new Date()
           addedDevice.facialAuthState = FACIAL_AUTH_STATE.NOT_APPLICABLE
@@ -202,7 +202,7 @@ export class DevicesService {
           userId: user.id,
           verificationToken: randomUUID(),
           verifiedAt: new Date(),
-        })
+        } as unknown as DeviceModel)
 
         await SecurityAlertSerivice.newDeviceNotification(
           user,

@@ -67,7 +67,8 @@ export const UserController = {
       const authToken = HeaderService.getTokenFromRequest(req)
       const loggedInUserId = TokenService.getUserIdFromToken(authToken)
       const service = new UserService()
-      const result = await service.getUser(id, loggedInUserId)
+      // Non-null assertion: id is guaranteed by the route parameter definition
+      const result = await service.getUser(id!, loggedInUserId)
       return sendOK(req, res, result)
     } catch (err) {
       logRequest({ message: (err as Error)?.message, req, type: 'Failed getUser' })
@@ -148,7 +149,8 @@ export const UserController = {
           (role: string) => privilegedRoles.includes(role) && !currentRoles.includes(role),
         )
         const isRemovingPrivilegedRole = currentRoles.some(
-          (role: string) => privilegedRoles.includes(role) && !payload.roles.includes(role),
+          // Non-null assertion: payload.roles is guarded by the outer if (payload.roles) check
+          (role: string) => privilegedRoles.includes(role) && !payload.roles!.includes(role),
         )
 
         if (isAddingPrivilegedRole || isRemovingPrivilegedRole) {

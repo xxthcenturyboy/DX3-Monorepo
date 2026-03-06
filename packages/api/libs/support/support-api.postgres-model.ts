@@ -147,7 +147,7 @@ export class SupportRequestModel extends Model<SupportRequestModel> {
       userId: params.userId,
       userTimezone: params.userTimezone || DEFAULT_TIMEZONE,
       viewedByAdmin: false,
-    })
+    } as unknown as SupportRequestModel)
   }
 
   /**

@@ -143,7 +143,7 @@ export class BlogService {
       slug,
       status: BLOG_POST_STATUS.DRAFT,
       title: title.trim(),
-    })
+    } as unknown as BlogPostModel)
 
     await (
       post as BlogPostModel & { setCategories: (ids: string[]) => Promise<void> }

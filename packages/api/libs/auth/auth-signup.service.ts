@@ -211,20 +211,20 @@ export class AuthSignupService {
       }
 
       user = await this.phoneSignup({
-        code,
+        code: code ?? '',
         countryCode: phoneUtil.countryCode,
         nationalNumber: phoneUtil.nationalNumber,
-        region,
+        region: region ?? '',
         timezone,
-      })
+      }) ?? undefined
     }
 
     if (signupType === 'emailcode') {
-      user = await this.emailCodeSignup({ code, email: emailUtil.formattedEmail(), timezone })
+      user = await this.emailCodeSignup({ code: code ?? '', email: emailUtil.formattedEmail(), timezone }) ?? undefined
     }
 
     if (signupType === 'emailmagiclink') {
-      user = await this.emailMagicLinkSignup({ email: emailUtil.formattedEmail(), timezone })
+      user = await this.emailMagicLinkSignup({ email: emailUtil.formattedEmail(), timezone }) ?? undefined
     }
 
     if (!user) {
@@ -253,7 +253,7 @@ export class AuthSignupService {
           userId: user.id,
           verificationToken: randomUUID(),
           verifiedAt: new Date(),
-        })
+        } as unknown as DeviceModel)
       } catch (err) {
         const msg = (err as Error).message
         this.logger.logError(msg)

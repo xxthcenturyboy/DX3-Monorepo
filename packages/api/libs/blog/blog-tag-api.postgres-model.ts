@@ -57,7 +57,7 @@ export class BlogTagModel extends Model<BlogTagModel> {
   static async findOrCreateBySlug(slug: string, name: string): Promise<BlogTagModel> {
     let model = await BlogTagModel.findOne({ where: { slug } })
     if (!model) {
-      model = await BlogTagModel.create({ name, slug })
+      model = await BlogTagModel.create({ name, slug } as unknown as BlogTagModel)
     }
     return model
   }

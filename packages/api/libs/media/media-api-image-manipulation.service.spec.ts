@@ -98,22 +98,22 @@ describe('MediaApiImageManipulationService', () => {
     // @ts-expect-error - not typed for test
     expect(result[0].asset.data.toString()).toEqual('mocked-image-data')
     expect(result[0].id).toEqual(testFileName)
-    expect(result[0].metaData.format).toEqual('jpeg')
+    expect(result[0]!.metaData!.format).toEqual('jpeg')
     expect(result[0].variant).toEqual(MEDIA_VARIANTS.ORIGINAL)
 
     expect(result[1].asset.toString()).toEqual('mocked-image-data')
     expect(result[1].id).toEqual(`${testFileName}_${MEDIA_VARIANTS.MEDIUM}`)
-    expect(result[1].metaData.format).toEqual('jpeg')
+    expect(result[1]!.metaData!.format).toEqual('jpeg')
     expect(result[1].variant).toEqual(MEDIA_VARIANTS.MEDIUM)
 
     expect(result[2].asset.toString()).toEqual('mocked-image-data')
     expect(result[2].id).toEqual(`${testFileName}_${MEDIA_VARIANTS.SMALL}`)
-    expect(result[2].metaData.format).toEqual('jpeg')
+    expect(result[2]!.metaData!.format).toEqual('jpeg')
     expect(result[2].variant).toEqual(MEDIA_VARIANTS.SMALL)
 
     expect(result[3].asset.toString()).toEqual('mocked-image-data')
     expect(result[3].id).toEqual(`${testFileName}_${MEDIA_VARIANTS.THUMB}`)
-    expect(result[3].metaData.format).toEqual('jpeg')
+    expect(result[3]!.metaData!.format).toEqual('jpeg')
     expect(result[3].variant).toEqual(MEDIA_VARIANTS.THUMB)
   })
 })

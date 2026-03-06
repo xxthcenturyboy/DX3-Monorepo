@@ -54,7 +54,7 @@ export class ShortLinkModel extends Model<ShortLinkModel> {
       // Create a new short link
       const shortlink = await ShortLinkModel.create({
         target: url,
-      })
+      } as unknown as ShortLinkModel)
 
       return `${webUrl()}/l/${shortlink.id}`
     } catch (err) {

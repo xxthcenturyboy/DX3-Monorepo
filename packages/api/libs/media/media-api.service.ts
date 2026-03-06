@@ -182,7 +182,7 @@ export class MediaApiService {
     }
     const id = uuidv4()
     const assetSubType = data.mediaSubType.toLowerCase()
-    const { bucket, key } = this.getBucketAndKey(data.ownerId, assetSubType, id, data.public)
+    const { bucket, key } = this.getBucketAndKey(data.ownerId, assetSubType, id, data.public ?? false)
     const tagging = data.ownerId === TEST_EXISTING_USER_ID ? 'test-user=true' : undefined
 
     const moved = await this.s3Service.moveObject(
@@ -259,7 +259,7 @@ export class MediaApiService {
           await existingPrimary.save()
         }
       }
-      const saveResult = await MediaModel.create(mediaRecord)
+      const saveResult = await MediaModel.create(mediaRecord as unknown as MediaModel)
       return {
         body: this._transformData(saveResult),
         status: 200,

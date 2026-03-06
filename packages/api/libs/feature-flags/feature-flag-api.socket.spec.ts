@@ -98,7 +98,7 @@ describe('FeatureFlagSocketApiService', () => {
       new FeatureFlagSocketApiService()
       const svc = FeatureFlagSocketApiService.instance
 
-      let capturedMiddleware: ((socket: unknown, next: (err?: Error) => void) => void) | null = null
+      let capturedMiddleware: ((socket: unknown, next: (err?: Error) => void) => void) | undefined
       jest.spyOn(svc.ns, 'use').mockImplementation((fn) => {
         capturedMiddleware = fn as typeof capturedMiddleware
         return svc.ns
@@ -118,7 +118,7 @@ describe('FeatureFlagSocketApiService', () => {
       new FeatureFlagSocketApiService()
       const svc = FeatureFlagSocketApiService.instance
 
-      let capturedMiddleware: ((socket: unknown, next: (err?: Error) => void) => void) | null = null
+      let capturedMiddleware: ((socket: unknown, next: (err?: Error) => void) => void) | undefined
       jest.spyOn(svc.ns, 'use').mockImplementation((fn) => {
         capturedMiddleware = fn as typeof capturedMiddleware
         return svc.ns

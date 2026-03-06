@@ -25,7 +25,7 @@ export const userPrivilegeSetSeeder: Seeder = {
           description: privilegeSet.description,
           name: privilegeSet.name,
           order: privilegeSet.order,
-        },
+        } as unknown as UserPrivilegeSetModel,
         where: { name: privilegeSet.name },
       })
 

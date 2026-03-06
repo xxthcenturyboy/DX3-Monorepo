@@ -15,7 +15,7 @@ export function getRedisConfig(): RedisConfigType {
   return {
     port: Number(env.REDIS_PORT) || 6379,
     prefix: `${APP_PREFIX}`,
-    url: env.REDIS_URL,
+    url: env.REDIS_URL ?? '',
   }
 }
 
@@ -31,7 +31,7 @@ export function getApiConfig(
   return {
     appName: API_APP_NAME,
     debug: isDebug(),
-    host: isDev() ? '0.0.0.0' : env.API_URL,
+    host: isDev() ? '0.0.0.0' : (env.API_URL ?? ''),
     isDev: nodeEnv === DEV_ENV_NAME,
     logger: logger,
     nodeEnv: nodeEnv,

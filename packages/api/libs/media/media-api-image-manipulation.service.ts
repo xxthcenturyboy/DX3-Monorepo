@@ -103,7 +103,7 @@ export class MediaApiImageManipulationService {
         const width =
           originalImageMeta.width && originalImageMeta.width > fileSize.width
             ? fileSize.width
-            : originalImageMeta.width
+            : (originalImageMeta.width ?? fileSize.width)
         const resizedImage = await this.resizeByFileContent(originalBuffer, width)
         // this.logSizes(originalImageMeta.size, resizedImage);
         const resizedImageMeta = await this.getMetaFromBuffer(resizedImage)

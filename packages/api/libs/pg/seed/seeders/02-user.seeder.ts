@@ -22,12 +22,12 @@ export const userSeeder: Seeder = {
       if (!existingUser) {
         await UserModel.create({
           firstName: userData.firstName,
-          hashword: userData.hashword,
+          hashword: userData.hashword ?? '',
           id: userData.id,
           lastName: userData.lastName,
           roles: userData.roles,
           username: userData.username,
-        })
+        } as unknown as UserModel)
         count++
         if (options.verbose) {
           console.log(`  ✓ Created user: ${userData.username}`)

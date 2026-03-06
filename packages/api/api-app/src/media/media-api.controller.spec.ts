@@ -179,7 +179,7 @@ describe('MediaApiController', () => {
     it('should push a zero-size error result when a file has size 0', async () => {
       // arrange
       req.uploads = {
-        err: null,
+        err: undefined,
         fields: {},
         files: [
           {
@@ -204,7 +204,7 @@ describe('MediaApiController', () => {
     it('should push a missing-filepath error result when file has no filepath', async () => {
       // arrange
       req.uploads = {
-        err: null,
+        err: undefined,
         fields: {},
         files: [
           {
@@ -233,7 +233,7 @@ describe('MediaApiController', () => {
         status: 200,
       })
       req.uploads = {
-        err: null,
+        err: undefined,
         fields: { mediaSubType: ['profile_image'] },
         files: [
           {
@@ -264,7 +264,7 @@ describe('MediaApiController', () => {
         status: 400,
       })
       req.uploads = {
-        err: null,
+        err: undefined,
         fields: {},
         files: [
           {

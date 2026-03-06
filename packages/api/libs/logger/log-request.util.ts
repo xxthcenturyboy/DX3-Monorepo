@@ -28,7 +28,7 @@ function _getGeoSummary(req: Request) {
     return null
   }
 
-  const segments = []
+  const segments: string[] = []
   if (country) {
     segments.push(`country=${country}`)
   }

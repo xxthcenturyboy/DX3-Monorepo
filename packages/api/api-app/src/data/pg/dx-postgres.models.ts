@@ -41,7 +41,7 @@ export function logLoadedPostgresModels(pgModels: { [key: string]: ModelCtor<Mod
   const MODEL_PROP_NAME = 'Model Name'
   const TABLE_PROP_NAME = 'Table Name'
   const tableNames = Object.keys(pgModels)
-  const models = []
+  const models: Record<string, string>[] = []
   for (const tableName of tableNames) {
     models.push({
       [MODEL_PROP_NAME]: pgModels[tableName].name,

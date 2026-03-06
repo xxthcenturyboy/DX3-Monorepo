@@ -54,7 +54,8 @@ export const MediaApiController = {
   },
 
   uploadContent: async (req: Request, res: Response, _next: NextFunction) => {
-    const { err: uploadErr, fields, files, uploadId } = req.uploads
+    // Non-null assertion: upload middleware guarantees req.uploads is set before this handler
+    const { err: uploadErr, fields, files, uploadId } = req.uploads!
     logRequest({ req, type: 'uploadContent' })
     const service = new MediaApiService()
 
@@ -79,9 +80,10 @@ export const MediaApiController = {
       uploadId: req.uploads?.uploadId,
     }
 
-    const fieldKeys = Object.keys(fields)
+    // fields and files are optional on the uploads type; default to empty to satisfy TypeScript
+    const fieldKeys = Object.keys(fields ?? {})
     for (const key of fieldKeys) {
-      const value = fields[key][0]
+      const value = (fields ?? {})[key]?.[0]
       if (key === 'altText') {
         fileMeta.altText = value
         continue
@@ -109,7 +111,7 @@ export const MediaApiController = {
       status: number
     }>[] = []
 
-    for (const file of files) {
+    for (const file of (files ?? [])) {
       if (!file || typeof file !== 'object') {
         continue
       }

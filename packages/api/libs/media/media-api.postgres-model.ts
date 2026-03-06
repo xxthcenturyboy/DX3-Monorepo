@@ -114,7 +114,7 @@ export class MediaModel extends Model<MediaModel> {
     if (this.files) {
       this.files = parseJson<{
         [variant: string]: MediaFileType
-      }>(this.files as unknown as string)
+      }>(this.files as unknown as string) ?? this.files
     }
   }
 
@@ -127,7 +127,7 @@ export class MediaModel extends Model<MediaModel> {
     })
   }
 
-  static async findPrimaryProfile(ownerId: string): Promise<MediaModelType> {
+  static async findPrimaryProfile(ownerId: string): Promise<MediaModelType | null> {
     return await MediaModel.findOne({
       where: {
         deletedAt: null,

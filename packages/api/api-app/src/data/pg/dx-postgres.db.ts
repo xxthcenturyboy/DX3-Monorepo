@@ -18,14 +18,15 @@ export class DxPostgresDb {
 
       await postgres.initialize()
 
+      // Non-null assertion: dbHandle is guaranteed non-null after initialize() succeeds
       logLoadedPostgresModels(
-        PostgresDbConnection.dbHandle.models as {
+        PostgresDbConnection.dbHandle!.models as {
           [key: string]: ModelCtor<Model>
         },
       )
 
       logger.logInfo('Successfully Connected to Postgres')
-      const sequelize = PostgresDbConnection.dbHandle
+      const sequelize = PostgresDbConnection.dbHandle!
       const runner = new MigrationRunner(sequelize)
 
       // Check status

@@ -57,7 +57,7 @@ export class UserPrivilegeSetCache {
     return null
   }
 
-  public async getAllPrivilegeSets(): Promise<UserPrivilegeSetModel[]> {
+  public async getAllPrivilegeSets(): Promise<UserPrivilegeSetModel[] | null> {
     const key = this.getFormattedKeyName()
     try {
       const data = await this.cache.getAllNamespace<UserPrivilegeSetModel>(key)

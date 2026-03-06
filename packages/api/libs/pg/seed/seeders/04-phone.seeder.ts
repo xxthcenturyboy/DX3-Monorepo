@@ -34,7 +34,7 @@ export const phoneSeeder: Seeder = {
           regionCode: phoneData.regionCode,
           userId: phoneData.userId,
           verifiedAt: phoneData.verifiedAt,
-        })
+        } as unknown as PhoneModel)
         count++
         if (options.verbose) {
           console.log(`  ✓ Created phone: +${phoneData.countryCode} ${phoneData.phone}`)

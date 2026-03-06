@@ -31,7 +31,7 @@ export const emailSeeder: Seeder = {
           label: emailData.label,
           userId: emailData.userId,
           verifiedAt: emailData.verifiedAt,
-        })
+        } as unknown as EmailModel)
         count++
         if (options.verbose) {
           console.log(`  ✓ Created email: ${emailData.email}`)

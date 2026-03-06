@@ -78,7 +78,7 @@ describe('UserPrivilegeSetCache', () => {
     test('should return false no data is passed', async () => {
       // arrange
       // act
-      const result = await cache.setCache('ADMIN', null)
+      const result = await cache.setCache('ADMIN', null as unknown as Parameters<typeof cache.setCache>[1])
       // assert
       expect(result).toBeFalsy()
     })
@@ -109,7 +109,7 @@ describe('UserPrivilegeSetCache', () => {
     test('return null when privilege set name not passed', async () => {
       // arrange
       // act
-      const result = await cache.getCache(null)
+      const result = await cache.getCache(null as unknown as Parameters<typeof cache.getCache>[0])
       // assert
       expect(result).toBeFalsy()
     })
@@ -129,7 +129,8 @@ describe('UserPrivilegeSetCache', () => {
       const result = await cache.getAllPrivilegeSets()
       // assert
       expect(result).toHaveLength(3)
-      expect(result.sort((a, b) => a.order - b.order)).toEqual([data0, data1, data2])
+      // Non-null assertion: the expect above asserts result is defined and has 3 items
+      expect(result!.sort((a, b) => a.order - b.order)).toEqual([data0, data1, data2])
     })
 
     test('should return null and log error when getAllNamespace throws', async () => {

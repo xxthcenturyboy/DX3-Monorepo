@@ -61,15 +61,15 @@ export class PhoneUtil {
   }
 
   get countryCode(): string {
-    return this.phoneParsed?.getCountryCode().toString() || ''
+    return this.phoneParsed?.getCountryCode()?.toString() ?? ''
   }
 
   get nationalNumber(): string {
     const zeros =
       this.phoneParsed?.numberOfLeadingZerosCount() || this.phoneParsed?.italianLeadingZeroCount()
-    const number = this.phoneParsed?.getNationalNumber().toString()
+    const number = this.phoneParsed?.getNationalNumber()?.toString()
     if (!zeros) {
-      return number
+      return number ?? ''
     }
 
     let paddedNumber = ''

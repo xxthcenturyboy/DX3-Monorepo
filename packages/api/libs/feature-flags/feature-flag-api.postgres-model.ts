@@ -136,7 +136,7 @@ export class FeatureFlagModel extends Model<FeatureFlagModel> {
       percentage: percentage ?? null,
       status,
       target,
-    })
+    } as unknown as FeatureFlagModel)
   }
 
   static async updateFlag(

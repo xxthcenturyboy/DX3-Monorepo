@@ -52,8 +52,8 @@ export const NotificationController = {
       const { level, message, route, suppressPush, title } =
         req.body as Partial<NotificationCreationParamTypes>
       const result = await service.createAndSendToAll(
-        message,
-        level,
+        message ?? '',
+        level ?? '',
         title,
         route,
         suppressPush || false,
@@ -118,7 +118,8 @@ export const NotificationController = {
     try {
       const service = new NotificationService()
       const { userId } = req.params as { userId: string }
-      if (userId === NIL_UUID && userHasRole(req.user.id, USER_ROLE.SUPER_ADMIN)) {
+      // userHasRole is async; req.user is guaranteed by auth middleware
+      if (userId === NIL_UUID && (await userHasRole(req.user?.id ?? '', USER_ROLE.SUPER_ADMIN))) {
         await service.markAllDismissed(NIL_UUID)
       }
       if (userId !== NIL_UUID) {
@@ -140,8 +141,9 @@ export const NotificationController = {
     try {
       const service = new NotificationService()
       const { id, userId } = req.params as { id: string; userId: string }
+      // userHasRole is async; req.user is guaranteed by auth middleware
       if (
-        (userId === NIL_UUID && userHasRole(req.user.id, USER_ROLE.SUPER_ADMIN)) ||
+        (userId === NIL_UUID && (await userHasRole(req.user?.id ?? '', USER_ROLE.SUPER_ADMIN))) ||
         userId !== NIL_UUID
       ) {
         await service.markAsDismissed(id)

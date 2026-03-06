@@ -185,8 +185,8 @@ export class UserService {
     // will throw if email is invalid
     await emailService.isEmailAvailableAndValid(email)
 
-    let phoneValue: string
-    let countryCodeValue: string = countryCode
+    let phoneValue: string | undefined
+    let countryCodeValue: string = countryCode ?? ''
     if (phone) {
       const phoneUtil = new PhoneUtil(phone, regionCode || PHONE_DEFAULT_REGION_CODE)
       if (!phoneUtil.isValid) {
@@ -507,7 +507,7 @@ export class UserService {
 
     try {
       const code = await OtpService.generateOptCode(userId)
-      return isProd() ? { code: '' } : { code }
+      return isProd() ? { code: '' } : { code: code ?? '' }
     } catch (err) {
       const msg = (err as Error).message
       this.logger.logError(msg)
@@ -532,7 +532,7 @@ export class UserService {
 
     let validated = false
 
-    if (otp.id) {
+    if (otp?.id) {
       let isCodeValid = false
 
       if (otp.method === 'PHONE') {
@@ -568,7 +568,7 @@ export class UserService {
       const isSignatureValid = dxRsaValidateBiometricKey(
         signature,
         password,
-        biometricAuthPublicKey,
+        biometricAuthPublicKey ?? '',
       )
       if (!isSignatureValid) {
         throw new Error(
@@ -729,7 +729,7 @@ export class UserService {
       const isSignatureValid = dxRsaValidateBiometricKey(
         signature,
         username,
-        biometricAuthPublicKey,
+        biometricAuthPublicKey ?? '',
       )
       if (!isSignatureValid) {
         throw new Error(

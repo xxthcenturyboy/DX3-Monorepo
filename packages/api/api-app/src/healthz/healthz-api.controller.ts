@@ -41,6 +41,9 @@ const PostgresHealth = {
   getHealth: async (): Promise<HealthzPostgresType> => {
     const dbh = PostgresDbConnection.dbHandle
     try {
+      if (!dbh) {
+        throw new Error('Database connection not initialized')
+      }
       dbh.authenticate()
       return {
         status: HEALTHZ_STATUS_OK,

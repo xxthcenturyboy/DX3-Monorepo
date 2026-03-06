@@ -53,14 +53,10 @@ describe('SocketApiConnection', () => {
   })
 
   beforeEach(() => {
-    if (ApiLoggingClass.instance?.logError) {
+    if (ApiLoggingClass.instance) {
       logErrorSpy = jest.spyOn(ApiLoggingClass.instance, 'logError').mockImplementation(() => {})
     } else {
-      // Create a mock logError if it doesn't exist
       logErrorSpy = jest.fn()
-      if (ApiLoggingClass.instance) {
-        ;(ApiLoggingClass.instance.logError as any) = logErrorSpy
-      }
     }
   })
 

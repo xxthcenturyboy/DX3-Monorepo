@@ -20,7 +20,7 @@ export class DxSocketClass {
     try {
       const socket = new SocketApiConnection({
         httpServer,
-        webUrl: webUrl(),
+        webUrl: webUrl() ?? '',
       })
       if (!SocketApiConnection.instance || !socket.io) {
         logger.logError('Sockets did not instantiate correctly. Sockets unavailable')

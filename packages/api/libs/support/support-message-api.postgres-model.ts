@@ -96,7 +96,7 @@ export class SupportMessageModel extends Model<SupportMessageModel> {
       message: params.message,
       supportRequestId: params.supportRequestId,
       userId: params.userId,
-    })
+    } as unknown as SupportMessageModel)
   }
 
   /**

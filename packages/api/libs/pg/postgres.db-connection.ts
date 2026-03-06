@@ -33,7 +33,7 @@ export class PostgresDbConnection {
 
   constructor(params: PostgresConnectionParamsType) {
     this.logger = ApiLoggingClass.instance
-    this.config = parsePostgresConnectionUrl(params.postgresUri)
+    this.config = parsePostgresConnectionUrl(params.postgresUri) as PostgresUrlObject
     if (!this.config) {
       this.logger.logError('Postgres URL could not be parsed successfully.', this.config)
     }
@@ -85,8 +85,8 @@ export class PostgresDbConnection {
         this.logger.logInfo(
           `
   Postgres:
-    DB Name:   ${PostgresDbConnection.dbHandle.getDatabaseName()}
-    version:   ${await PostgresDbConnection.dbHandle.databaseVersion()}
+    DB Name:   ${PostgresDbConnection.dbHandle!.getDatabaseName()}
+    version:   ${await PostgresDbConnection.dbHandle!.databaseVersion()}
         `,
         )
         this.logger.logInfo('Loading Sequelize models.')

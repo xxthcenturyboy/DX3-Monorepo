@@ -34,7 +34,7 @@ describe('PostgresDbConnection', () => {
         models: [TestingEntityModel],
         postgresUri,
       })
-      postgres = PostgresDbConnection.dbHandle
+      postgres = PostgresDbConnection.dbHandle!
     } catch (err) {
       console.log(err)
     }

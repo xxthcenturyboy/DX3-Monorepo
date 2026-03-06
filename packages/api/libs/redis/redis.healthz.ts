@@ -82,7 +82,7 @@ export class RedisHealthzService {
     const read = await this.testRead()
     return {
       ping,
-      read: read.test,
+      read: read?.test ?? false,
       write,
     }
   }

@@ -24,7 +24,8 @@ describe('getApiConfig', () => {
       postgresUri: POSTGRES_URI,
     })
     await connection.initialize()
-    db = PostgresDbConnection.dbHandle
+    // Non-null assertion: dbHandle is guaranteed after initialize() in beforeAll
+    db = PostgresDbConnection.dbHandle!
     redis = new RedisService({
       isDev: true,
       redis: {

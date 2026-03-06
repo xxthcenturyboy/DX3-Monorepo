@@ -100,7 +100,7 @@ export class NotificationModel extends Model<NotificationModel> {
   lastReadDate: Date
 
   @Column({ field: 'dismissed_at', type: DataType.DATE })
-  dismissedAt: Date
+  dismissedAt: Date | null
 
   //////////////// Methods //////////////////
 
@@ -108,10 +108,10 @@ export class NotificationModel extends Model<NotificationModel> {
     return NotificationModel.create({
       level: params.level,
       message: params.message,
-      route: params.route,
-      title: params.title,
+      route: params.route ?? '',
+      title: params.title ?? '',
       userId: params.userId,
-    })
+    } as unknown as NotificationModel)
   }
 
   static async getByUserId(userId: string): Promise<NotificationModel[]> {
@@ -166,7 +166,7 @@ export class NotificationModel extends Model<NotificationModel> {
           userId,
         },
       },
-    )
+    ) as unknown as Promise<[number]>
   }
 
   static async markAsRead(id: string): Promise<[number]> {

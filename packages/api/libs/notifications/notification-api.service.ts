@@ -131,7 +131,7 @@ export class NotificationService {
         userId,
       })
 
-      NotificationSocketApiService.instance.sendNotificationToUser(notification)
+      NotificationSocketApiService.instance.sendNotificationToUser(notification as never)
 
       if (!suppressPush) {
         this.sendDeviceNotification(userId, message, title, route)
@@ -166,7 +166,7 @@ export class NotificationService {
         userId: this.systemId,
       })
 
-      NotificationSocketApiService.instance.sendNotificationToAll(notification)
+      NotificationSocketApiService.instance.sendNotificationToAll(notification as never)
 
       if (!suppressPush) {
         this.sendDeviceNotification(this.systemId, message, title, route)

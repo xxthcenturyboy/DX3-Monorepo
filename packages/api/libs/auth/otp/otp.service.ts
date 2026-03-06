@@ -6,7 +6,7 @@ export class OtpService {
   public static async generateOptCode(userId: string): Promise<string | undefined> {
     const codeCache = new OtpCodeCache()
     const logger = ApiLoggingClass.instance
-    let otpCode: string
+    let otpCode: string | undefined
 
     try {
       const user = await UserModel.findByPk(userId)

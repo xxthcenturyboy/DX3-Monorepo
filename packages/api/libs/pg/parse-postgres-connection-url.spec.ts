@@ -12,7 +12,7 @@ describe('parsePostgresConnectionUrl', () => {
   describe('Valid URL Parsing', () => {
     it('should parse a complete connection string', () => {
       const urlToParse = 'postgres://pguser:password@postgres:5432/app'
-      const response = parsePostgresConnectionUrl(urlToParse)
+      const response = parsePostgresConnectionUrl(urlToParse)!
 
       expect(response).toBeDefined()
       expect(response.host).toEqual('postgres:5432')
@@ -26,7 +26,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with postgresql protocol', () => {
-      const response = parsePostgresConnectionUrl('postgresql://user:pass@localhost:5432/database')
+      const response = parsePostgresConnectionUrl('postgresql://user:pass@localhost:5432/database')!
 
       expect(response).toBeDefined()
       expect(response.protocol).toEqual('postgresql')
@@ -40,7 +40,7 @@ describe('parsePostgresConnectionUrl', () => {
     it('should parse URL with query parameters', () => {
       const response = parsePostgresConnectionUrl(
         'postgres://user:pass@host:5432/db?ssl=true&poolSize=10',
-      )
+      )!
 
       expect(response).toBeDefined()
       expect(response.params).toEqual({
@@ -50,14 +50,14 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with single query parameter', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db?ssl=true')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db?ssl=true')!
 
       expect(response).toBeDefined()
       expect(response.params).toEqual({ ssl: 'true' })
     })
 
     it('should parse URL without password', () => {
-      const response = parsePostgresConnectionUrl('postgres://user@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(response.user).toEqual('user')
@@ -65,7 +65,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with different port', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:9999/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:9999/db')!
 
       expect(response).toBeDefined()
       expect(response.port).toEqual(9999)
@@ -73,7 +73,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with IP address as hostname', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@192.168.1.100:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@192.168.1.100:5432/db')!
 
       expect(response).toBeDefined()
       expect(response.hostname).toEqual('192.168.1.100')
@@ -81,7 +81,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with localhost', () => {
-      const response = parsePostgresConnectionUrl('postgres://admin:secret@localhost:5432/testdb')
+      const response = parsePostgresConnectionUrl('postgres://admin:secret@localhost:5432/testdb')!
 
       expect(response).toBeDefined()
       expect(response.hostname).toEqual('localhost')
@@ -91,14 +91,14 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse URL with multiple path segments', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db/schema')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db/schema')!
 
       expect(response).toBeDefined()
       expect(response.segments).toEqual(['db', 'schema'])
     })
 
     it('should parse URL with special characters in password', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:p@ssw0rd!@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:p@ssw0rd!@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(response.user).toEqual('user')
@@ -106,7 +106,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should have empty params object when no query string', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(response.params).toEqual({})
@@ -168,7 +168,7 @@ describe('parsePostgresConnectionUrl', () => {
     it('should handle query parameters with empty values', () => {
       const response = parsePostgresConnectionUrl(
         'postgres://user:pass@host:5432/db?param1=&param2=value',
-      )
+      )!
 
       expect(response).toBeDefined()
       expect(response.params).toEqual({
@@ -178,7 +178,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should parse params correctly when multiple exist', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db?a=1&b=2&c=3')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db?a=1&b=2&c=3')!
 
       expect(response).toBeDefined()
       expect(response.params).toEqual({
@@ -191,7 +191,7 @@ describe('parsePostgresConnectionUrl', () => {
 
   describe('Return Value Structure', () => {
     it('should return object with all expected properties', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(response).toHaveProperty('params')
@@ -205,7 +205,7 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should return port as a number', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(typeof response.port).toBe('number')
@@ -213,14 +213,14 @@ describe('parsePostgresConnectionUrl', () => {
     })
 
     it('should return segments as an array', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(Array.isArray(response.segments)).toBe(true)
     })
 
     it('should return params as an object', () => {
-      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')
+      const response = parsePostgresConnectionUrl('postgres://user:pass@host:5432/db')!
 
       expect(response).toBeDefined()
       expect(typeof response.params).toBe('object')

@@ -110,7 +110,7 @@ describe('postgres.types', () => {
         segments: ['db1', 'db2'],
       }
       expect(Array.isArray(urlObject.segments)).toBe(true)
-      expect(urlObject.segments.every((s) => typeof s === 'string')).toBe(true)
+      expect(urlObject.segments!.every((s) => typeof s === 'string')).toBe(true)
     })
 
     it('should allow empty params object', () => {
