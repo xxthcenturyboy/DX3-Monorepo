@@ -1,12 +1,15 @@
-import { BrowserRouter } from 'react-router'
+import { BrowserRouter, MemoryRouter } from 'react-router'
 
 import { renderWithProviders } from '../../testing-render'
 import { Root } from './root-web.component'
 
 jest.mock('./data/rtk-query')
 
+// Expose the mock so individual tests can assert call counts.
+const mockFetchProfile = jest.fn()
+
 jest.mock('./user/profile/user-profile-web.api', () => ({
-  useLazyGetProfileQuery: () => [jest.fn(), { data: undefined, isSuccess: false }],
+  useLazyGetProfileQuery: () => [mockFetchProfile, { data: undefined, isSuccess: false }],
 }))
 
 jest.mock('./config/bootstrap/app-bootstrap', () => ({
@@ -22,6 +25,10 @@ jest.mock('./ui/menus/menu-nav', () => ({
 }))
 
 describe('Root', () => {
+  beforeEach(() => {
+    mockFetchProfile.mockClear()
+  })
+
   it('should render successfully', () => {
     const { baseElement } = renderWithProviders(
       <BrowserRouter>
@@ -58,5 +65,25 @@ describe('Root', () => {
       },
     )
     expect(queryByTestId('menu-nav')).toBeNull()
+  })
+
+  it('should not call fetchProfile when on a blog detail page (public sub-path)', () => {
+    // /blog/my-post must be treated as a no-redirect route so that unauthenticated
+    // visitors are never accidentally re-authenticated or redirected to Dashboard.
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/blog/my-post']}>
+        <Root />
+      </MemoryRouter>,
+    )
+    expect(mockFetchProfile).not.toHaveBeenCalled()
+  })
+
+  it('should not call fetchProfile when on the blog list page', () => {
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/blog']}>
+        <Root />
+      </MemoryRouter>,
+    )
+    expect(mockFetchProfile).not.toHaveBeenCalled()
   })
 })

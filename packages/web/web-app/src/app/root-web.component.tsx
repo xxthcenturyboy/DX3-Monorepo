@@ -56,7 +56,11 @@ export const Root: React.FC = () => {
   const navigate = useNavigate()
   const ROUTES = WebConfigService.getWebRoutes()
   const NO_REDICRET_ROUTES = WebConfigService.getNoRedirectRoutes()
-  const canRedirect = !NO_REDICRET_ROUTES.some((route) => pathname === route)
+  // Use prefix matching so that sub-paths (e.g. /blog/my-post) are treated
+  // the same as their parent public route (/blog) and never trigger fetchProfile.
+  const canRedirect = !NO_REDICRET_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  )
   const [fetchProfile, { data: profileResponse, isSuccess: fetchProfileSuccess }] =
     useLazyGetProfileQuery()
   const theme = React.useMemo(() => {
