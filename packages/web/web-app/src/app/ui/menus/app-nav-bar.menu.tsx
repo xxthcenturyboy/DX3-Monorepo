@@ -73,6 +73,12 @@ export const AppNavBar: React.FC = () => {
   }, [isAuthenticated, userProfile])
 
   React.useEffect(() => {
+    if (!isAuthenticated) {
+      setDidCallBootstrap(false)
+    }
+  }, [isAuthenticated])
+
+  React.useEffect(() => {
     setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
   }, [windowWidth])
 
