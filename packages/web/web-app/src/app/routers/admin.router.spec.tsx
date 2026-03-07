@@ -4,7 +4,7 @@ import { renderWithProviders } from '../../../testing-render'
 import { WebConfigService } from '../config/config-web.service'
 import { AdminRouter, AdminWebRouterConfig } from './admin.router'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 describe('AdminRouter', () => {
   it('should exist', () => {

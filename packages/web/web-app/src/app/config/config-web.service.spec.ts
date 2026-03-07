@@ -1,6 +1,6 @@
 import { WebConfigService } from './config-web.service'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 describe('WebConfigService', () => {
   it('should exist', () => {

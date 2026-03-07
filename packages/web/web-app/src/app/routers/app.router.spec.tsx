@@ -3,7 +3,7 @@ import type { RouteObject } from 'react-router'
 import { WebConfigService } from '../config/config-web.service'
 import { AppRouter } from './app.router'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 describe('AppRouter', () => {
   it('should exist', () => {

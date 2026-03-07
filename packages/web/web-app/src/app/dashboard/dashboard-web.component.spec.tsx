@@ -8,7 +8,7 @@ import { setupStore } from '../store/testing/testing.store'
 import { Dashboard } from './dashboard-web.component'
 
 // Mock the production store module
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 // Mock RTK Query to prevent middleware from keeping event loop alive
 jest.mock('../data/rtk-query')

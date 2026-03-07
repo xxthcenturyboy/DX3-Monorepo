@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { renderWithProviders } from '../../../testing-render'
 import { ShortlinkComponent } from './shortlink-web.component'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 const mockUseNavigate = jest.fn()
 jest.mock('react-router', () => ({

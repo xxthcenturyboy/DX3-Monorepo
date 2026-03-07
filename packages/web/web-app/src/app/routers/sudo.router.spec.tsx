@@ -4,7 +4,7 @@ import { renderWithProviders } from '../../../testing-render'
 import { WebConfigService } from '../config/config-web.service'
 import { SudoRouter, SudoWebRouterConfig } from './sudo.router'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 describe('SudoRouter', () => {
   it('should exist', () => {

@@ -5,7 +5,7 @@ import { APP_DESCRIPTION, APP_NAME } from '@dx3/models-shared'
 import { renderWithProviders } from '../../../testing-render'
 import { HomeComponent } from './home-web.component'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 const mockUseNavigate = jest.fn()
 jest.mock('react-router', () => ({

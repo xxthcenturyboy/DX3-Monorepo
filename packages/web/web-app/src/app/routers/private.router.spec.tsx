@@ -4,7 +4,7 @@ import { renderWithProviders } from '../../../testing-render'
 import { WebConfigService } from '../config/config-web.service'
 import { PrivateRouter, PrivateWebRouterConfig } from './private.router'
 
-jest.mock('../store')
+jest.mock('../store/store-web.redux')
 
 describe('PrivateRouter', () => {
   it('should exist', () => {
