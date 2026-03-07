@@ -12,7 +12,10 @@ import { sendForbiddenWithCode } from '../../http-response/http-responses'
 import { ApiLoggingClass } from '../../logger'
 import { UserModel } from '../../user/user-api.postgres-model'
 import { TokenService } from '../tokens/token.service'
-import { ensureLoggedIn, ensureLoggedInMedia } from './ensure-logged-in.middleware'
+import {
+  ensureLoggedIn,
+  ensureLoggedInMedia,
+} from './ensure-logged-in.middleware'
 
 jest.mock('../../logger', () => require('../../testing/mocks/internal/logger.mock'))
 jest.mock('../../cookies/cookie.service.ts')

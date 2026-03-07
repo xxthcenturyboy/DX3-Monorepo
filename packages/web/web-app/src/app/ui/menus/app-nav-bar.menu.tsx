@@ -148,8 +148,12 @@ export const AppNavBar: React.FC = () => {
   }
 
   const getPublicNavButtonColor = (route: string): ButtonProps['color'] => {
+    // Blog has child routes (/blog/:slug) — highlight the Blog button on any blog sub-path
+    const isActive =
+      pathname === route || (route === ROUTES.BLOG && pathname.startsWith(`${ROUTES.BLOG}/`))
+
     if (theme.palette.mode === 'dark') {
-      if (pathname === route) {
+      if (isActive) {
         return 'primary'
       }
 
@@ -158,7 +162,7 @@ export const AppNavBar: React.FC = () => {
     }
 
     if (theme.palette.mode === 'light') {
-      if (pathname === route) {
+      if (isActive) {
         return 'secondary'
       }
 

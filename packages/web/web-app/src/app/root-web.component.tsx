@@ -155,7 +155,6 @@ export const Root: React.FC = () => {
       dispatch(userProfileActions.profileUpdated(profileResponse.profile))
     }
   }, [fetchProfileSuccess, profileResponse?.profile])
-
   React.useEffect(() => {
     if (bootstrapped) {
       updateContentWrapperStyles()

@@ -16,7 +16,11 @@ import { validateRequest } from '@dx3/api-libs/validation/validate-request.middl
 import { BlogController } from './blog-api.controller'
 
 /**
- * Public blog routes (no auth required)
+ * Public blog routes (no auth required).
+ * The BLOG feature flag gates visibility at the web-UI layer via <FeatureFlag> and the
+ * SSR loader, not at the API level. Blog post data must remain accessible so that:
+ *  - SSR loaders (which fetch without credentials) can render blog pages.
+ *  - Authenticated EDITOR users can still manage content regardless of flag target.
  */
 function configurePublicRoutes(): Router {
   const router = Router()
