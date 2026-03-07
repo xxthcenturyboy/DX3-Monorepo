@@ -18,9 +18,12 @@ import { supportActions } from './store/support-web.reducer'
  */
 export class SupportWebSockets {
   static #instance: SupportWebSocketsType | null = null
+  static #initializing = false
+
   socket: Socket<SupportSocketServerToClientEvents, SupportSocketClientToServerEvents> | null = null
 
   constructor() {
+    SupportWebSockets.#initializing = true
     void this.setupSocket()
   }
 
@@ -30,6 +33,7 @@ export class SupportWebSockets {
       SupportSocketServerToClientEvents
     >(SUPPORT_WEB_SOCKET_NS)
     SupportWebSockets.#instance = this
+    SupportWebSockets.#initializing = false
 
     // Listen for new support requests
     this.socket.on('newSupportRequest', (request) => {
@@ -74,20 +78,25 @@ export class SupportWebSockets {
     this.socket.emit('joinAdminRoom')
   }
 
-  public disconnect() {
+  public disconnect(): void {
     if (this.socket) {
       this.socket.disconnect()
       this.socket = null
     }
     SupportWebSockets.#instance = null
+    SupportWebSockets.#initializing = false
   }
 
-  public static get instance() {
+  public static get instance(): SupportWebSocketsType | null {
     return SupportWebSockets.#instance
   }
 
-  public static connect() {
-    if (!SupportWebSockets.#instance) {
+  public static get isInitializing(): boolean {
+    return SupportWebSockets.#initializing
+  }
+
+  public static connect(): SupportWebSocketsType | null {
+    if (!SupportWebSockets.#instance && !SupportWebSockets.#initializing) {
       new SupportWebSockets()
     }
     return SupportWebSockets.#instance

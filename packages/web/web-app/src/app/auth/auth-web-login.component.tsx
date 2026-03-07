@@ -6,13 +6,12 @@ import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
 
 import type { LoginPayloadType } from '@dx3/models-shared'
-import { FADE_TIMEOUT_DUR, MEDIA_BREAK } from '@dx3/web-libs/ui/ui.consts'
+import { FADE_TIMEOUT_DUR } from '@dx3/web-libs/ui/ui.consts'
 
-import { loginBootstrap } from '../config/bootstrap/login-bootstrap'
 import { WebConfigService } from '../config/config-web.service'
 import { getErrorStringFromApiResponse } from '../data/errors/error-web.service'
 import { useString, useStrings } from '../i18n'
-import { useAppDispatch, useAppSelector } from '../store/store-web-redux.hooks'
+import { useAppDispatch } from '../store/store-web-redux.hooks'
 import { setDocumentTitle } from '../ui/ui-web-set-document-title'
 import { userProfileActions } from '../user/profile/user-profile-web.reducer'
 import { useLoginMutation } from './auth-web.api'
@@ -21,10 +20,8 @@ import { WebLoginUserPass } from './auth-web-login-user-pass.component'
 import { AuthWebRequestOtp } from './auth-web-request-otp.component'
 
 export const WebLogin: React.FC = () => {
-  const [mobileBreak, setMobileBreak] = React.useState(false)
   const [loginType, setLoginType] = React.useState<'USER_PASS' | 'OTP'>('USER_PASS')
   const [hideTypeSwitch, setHideTypeSwitch] = React.useState(false)
-  const windowWidth = useAppSelector((state) => state.ui.windowWidth) || 0
   const stringLogin = useString('LOGIN')
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -50,10 +47,6 @@ export const WebLogin: React.FC = () => {
   }, [stringLogin])
 
   React.useEffect(() => {
-    setMobileBreak(windowWidth < MEDIA_BREAK.MOBILE)
-  }, [windowWidth])
-
-  React.useEffect(() => {
     if (loginError) {
       if (loginError.code && loginError.code === '429') {
         navigate(ROUTES.LIMITED)
@@ -74,7 +67,8 @@ export const WebLogin: React.FC = () => {
         dispatch(authActions.passwordUpdated(''))
         dispatch(authActions.tokenAdded(accessToken))
         dispatch(userProfileActions.profileUpdated(profile))
-        loginBootstrap(profile, mobileBreak)
+        // loginBootstrap is called by AppNavBar when isAuthenticated becomes true,
+        // which prevents a race condition that would create duplicate socket connections.
         navigate(ROUTES.DASHBOARD.MAIN)
         dispatch(authActions.setLogoutResponse(false))
       }

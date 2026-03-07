@@ -68,20 +68,20 @@ async function connectToSockets(isAdmin: boolean, isLoggingAdmin: boolean) {
     ])
 
     // Connect to notification sockets
-    if (!NotificationWebSockets.instance) {
+    if (!NotificationWebSockets.instance && !NotificationWebSockets.isInitializing) {
       new NotificationWebSockets()
     } else if (
-      NotificationWebSockets.instance.socket &&
+      NotificationWebSockets.instance?.socket &&
       !NotificationWebSockets.instance.socket.connected
     ) {
       NotificationWebSockets.instance.socket.connect()
     }
 
     // Connect to feature flag sockets for real-time updates
-    if (!FeatureFlagWebSockets.instance) {
+    if (!FeatureFlagWebSockets.instance && !FeatureFlagWebSockets.isInitializing) {
       new FeatureFlagWebSockets()
     } else if (
-      FeatureFlagWebSockets.instance.socket &&
+      FeatureFlagWebSockets.instance?.socket &&
       !FeatureFlagWebSockets.instance.socket.connected
     ) {
       FeatureFlagWebSockets.instance.socket.connect()
@@ -90,10 +90,10 @@ async function connectToSockets(isAdmin: boolean, isLoggingAdmin: boolean) {
     // Connect to support sockets for admin notifications
     if (isAdmin) {
       const { SupportWebSockets } = await import('../../support/support-web.sockets')
-      if (!SupportWebSockets.instance) {
+      if (!SupportWebSockets.instance && !SupportWebSockets.isInitializing) {
         SupportWebSockets.connect()
       } else if (
-        SupportWebSockets.instance.socket &&
+        SupportWebSockets.instance?.socket &&
         !SupportWebSockets.instance.socket.connected
       ) {
         SupportWebSockets.instance.socket.connect()
@@ -103,10 +103,10 @@ async function connectToSockets(isAdmin: boolean, isLoggingAdmin: boolean) {
     // Connect to admin logs sockets for security alerts (LOGGING_ADMIN+ only)
     if (isLoggingAdmin) {
       const { AdminLogsWebSockets } = await import('../../admin-logs/admin-logs-web.sockets')
-      if (!AdminLogsWebSockets.instance) {
+      if (!AdminLogsWebSockets.instance && !AdminLogsWebSockets.isInitializing) {
         AdminLogsWebSockets.connect()
       } else if (
-        AdminLogsWebSockets.instance.socket &&
+        AdminLogsWebSockets.instance?.socket &&
         !AdminLogsWebSockets.instance.socket.connected
       ) {
         AdminLogsWebSockets.instance.socket.connect()

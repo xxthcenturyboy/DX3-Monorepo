@@ -12,13 +12,16 @@ import { store } from '../store/store-web.redux'
 import { notificationActions } from './notification-web.reducer'
 
 export class NotificationWebSockets {
-  static #instance: NotificationWebSocketsType
+  static #instance: NotificationWebSocketsType | null = null
+  static #initializing = false
+
   socket: Socket<
     NotificationSocketServerToClientEvents,
     NotificationSocketClientToServerEvents
   > | null = null
 
   constructor() {
+    NotificationWebSockets.#initializing = true
     void this.setupSocket()
   }
 
@@ -28,6 +31,7 @@ export class NotificationWebSockets {
       NotificationSocketServerToClientEvents
     >(NOTIFICATION_WEB_SOCKET_NS)
     NotificationWebSockets.#instance = this
+    NotificationWebSockets.#initializing = false
 
     this.socket.on('sendAppUpdateNotification', (message) => {
       toast.info(message, {
@@ -51,8 +55,21 @@ export class NotificationWebSockets {
     })
   }
 
-  public static get instance() {
+  public disconnect(): void {
+    if (this.socket) {
+      this.socket.disconnect()
+      this.socket = null
+    }
+    NotificationWebSockets.#instance = null
+    NotificationWebSockets.#initializing = false
+  }
+
+  public static get instance(): NotificationWebSocketsType | null {
     return NotificationWebSockets.#instance
+  }
+
+  public static get isInitializing(): boolean {
+    return NotificationWebSockets.#initializing
   }
 }
 

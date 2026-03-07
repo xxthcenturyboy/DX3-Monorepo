@@ -9,9 +9,11 @@ const mockSocket = {
   on: mockSocketOn,
 }
 
+const mockCreateSocket = jest.fn().mockResolvedValue(mockSocket)
+
 jest.mock('../data/socket-io/socket-web.connection', () => ({
   SocketWebConnection: {
-    createSocket: jest.fn().mockResolvedValue(mockSocket),
+    createSocket: mockCreateSocket,
   },
 }))
 
@@ -44,6 +46,7 @@ describe('AdminLogsWebSockets', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     ;(mockSocket.connected as boolean) = false
+    AdminLogsWebSockets.instance?.disconnect()
   })
 
   it('should be a class', () => {
@@ -62,10 +65,27 @@ describe('AdminLogsWebSockets', () => {
     expect('instance' in AdminLogsWebSockets).toBe(true)
   })
 
+  it('should have a static isInitializing getter', () => {
+    expect('isInitializing' in AdminLogsWebSockets).toBe(true)
+  })
+
   describe('instance creation', () => {
     it('should create a new instance', () => {
       const instance = new AdminLogsWebSockets()
       expect(instance).toBeDefined()
+    })
+
+    it('should set isInitializing to true synchronously in the constructor', () => {
+      mockCreateSocket.mockReturnValueOnce(new Promise(() => undefined))
+      new AdminLogsWebSockets()
+      expect(AdminLogsWebSockets.isInitializing).toBe(true)
+    })
+
+    it('should clear isInitializing and set instance after setupSocket resolves', async () => {
+      const instance = new AdminLogsWebSockets()
+      await instance.setupSocket()
+      expect(AdminLogsWebSockets.isInitializing).toBe(false)
+      expect(AdminLogsWebSockets.instance).toBe(instance)
     })
 
     it('should have an isConnected method', () => {
@@ -87,10 +107,73 @@ describe('AdminLogsWebSockets', () => {
   describe('disconnect', () => {
     it('should call disconnect on socket', async () => {
       const instance = new AdminLogsWebSockets()
-      // Wait for setupSocket to complete
       await new Promise((resolve) => setTimeout(resolve, 50))
       instance.disconnect()
       expect(mockSocketDisconnect).toHaveBeenCalled()
+    })
+
+    it('should null socket after disconnect', async () => {
+      const instance = new AdminLogsWebSockets()
+      await instance.setupSocket()
+      instance.disconnect()
+      expect(instance.socket).toBeNull()
+    })
+
+    it('should null the static instance after disconnect', async () => {
+      const instance = new AdminLogsWebSockets()
+      await instance.setupSocket()
+      instance.disconnect()
+      expect(AdminLogsWebSockets.instance).toBeNull()
+    })
+
+    it('should reset isInitializing to false after disconnect', async () => {
+      const instance = new AdminLogsWebSockets()
+      await instance.setupSocket()
+      instance.disconnect()
+      expect(AdminLogsWebSockets.isInitializing).toBe(false)
+    })
+
+    it('should not throw when socket is already null', () => {
+      const instance = new AdminLogsWebSockets()
+      expect(() => instance.disconnect()).not.toThrow()
+    })
+  })
+
+  describe('static connect()', () => {
+    it('should not create a new instance when isInitializing is true', () => {
+      mockCreateSocket.mockReturnValueOnce(new Promise(() => undefined))
+      new AdminLogsWebSockets()
+      expect(AdminLogsWebSockets.isInitializing).toBe(true)
+
+      AdminLogsWebSockets.connect()
+      // createSocket was only called once (from the first new AdminLogsWebSockets())
+      expect(mockCreateSocket).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('static cleanup()', () => {
+    it('should disconnect the instance when one exists', async () => {
+      const instance = new AdminLogsWebSockets()
+      await instance.setupSocket()
+      AdminLogsWebSockets.cleanup()
+      expect(mockSocketDisconnect).toHaveBeenCalled()
+      expect(AdminLogsWebSockets.instance).toBeNull()
+    })
+
+    it('should not throw when no instance exists', () => {
+      expect(() => AdminLogsWebSockets.cleanup()).not.toThrow()
+    })
+  })
+
+  describe('duplicate connection guard', () => {
+    it('should not create a second socket when isInitializing is true', () => {
+      mockCreateSocket.mockReturnValueOnce(new Promise(() => undefined))
+      new AdminLogsWebSockets()
+      expect(AdminLogsWebSockets.isInitializing).toBe(true)
+
+      const wouldCreateDuplicate =
+        !AdminLogsWebSockets.instance && !AdminLogsWebSockets.isInitializing
+      expect(wouldCreateDuplicate).toBe(false)
     })
   })
 })

@@ -29,11 +29,13 @@ import { store } from '../store/store-web.redux'
  */
 export class AdminLogsWebSockets {
   static #instance: AdminLogsWebSocketsType | null = null
+  static #initializing = false
 
   socket: Socket<AdminLogsSocketServerToClientEvents, AdminLogsSocketClientToServerEvents> | null =
     null
 
   constructor() {
+    AdminLogsWebSockets.#initializing = true
     void this.setupSocket()
   }
 
@@ -46,10 +48,12 @@ export class AdminLogsWebSockets {
 
       if (!this.socket) {
         logger.warn('AdminLogsWebSockets: Could not create socket connection')
+        AdminLogsWebSockets.#initializing = false
         return
       }
 
       AdminLogsWebSockets.#instance = this
+      AdminLogsWebSockets.#initializing = false
 
       // Listen for threshold-based alert events
       this.socket.on('auth_failure_warning', (payload) => {
@@ -127,6 +131,7 @@ export class AdminLogsWebSockets {
       })
     } catch (error) {
       logger.error('AdminLogsWebSockets: Failed to setup socket', error)
+      AdminLogsWebSockets.#initializing = false
     }
   }
 
@@ -146,17 +151,22 @@ export class AdminLogsWebSockets {
       this.socket = null
     }
     AdminLogsWebSockets.#instance = null
+    AdminLogsWebSockets.#initializing = false
   }
 
   public static get instance(): AdminLogsWebSocketsType | null {
     return AdminLogsWebSockets.#instance
   }
 
+  public static get isInitializing(): boolean {
+    return AdminLogsWebSockets.#initializing
+  }
+
   /**
    * Connect to admin logs socket (creates instance if needed)
    */
   public static connect(): AdminLogsWebSocketsType | null {
-    if (!AdminLogsWebSockets.#instance) {
+    if (!AdminLogsWebSockets.#instance && !AdminLogsWebSockets.#initializing) {
       new AdminLogsWebSockets()
     }
     return AdminLogsWebSockets.#instance

@@ -12,13 +12,16 @@ import { featureFlagsApi } from './feature-flag-web.api'
 import { featureFlagsActions } from './feature-flag-web.reducer'
 
 export class FeatureFlagWebSockets {
-  static #instance: FeatureFlagWebSocketsType
+  static #instance: FeatureFlagWebSocketsType | null = null
+  static #initializing = false
+
   socket: Socket<
     FeatureFlagSocketServerToClientEvents,
     FeatureFlagSocketClientToServerEvents
   > | null = null
 
   constructor() {
+    FeatureFlagWebSockets.#initializing = true
     void this.setupSocket()
   }
 
@@ -28,6 +31,7 @@ export class FeatureFlagWebSockets {
       FeatureFlagSocketServerToClientEvents
     >(FEATURE_FLAG_SOCKET_NS)
     FeatureFlagWebSockets.#instance = this
+    FeatureFlagWebSockets.#initializing = false
 
     // Subscribe to feature flag updates
     this.socket.emit('subscribeToFeatureFlags')
@@ -51,15 +55,22 @@ export class FeatureFlagWebSockets {
     })
   }
 
-  disconnect() {
+  public disconnect(): void {
     if (this.socket) {
       this.socket.emit('unsubscribeFromFeatureFlags')
       this.socket.disconnect()
+      this.socket = null
     }
+    FeatureFlagWebSockets.#instance = null
+    FeatureFlagWebSockets.#initializing = false
   }
 
-  public static get instance() {
+  public static get instance(): FeatureFlagWebSocketsType | null {
     return FeatureFlagWebSockets.#instance
+  }
+
+  public static get isInitializing(): boolean {
+    return FeatureFlagWebSockets.#initializing
   }
 }
 
