@@ -12,7 +12,7 @@ import { getGlobalAuthHeaders, getGlobalAuthResponse } from '../../support/test-
 describe('v1 Email Routes', () => {
   let idToUpdate: string
 
-  describe('POST /api/v1/email/validate', () => {
+  describe('POST /api/email/validate', () => {
     test('should return an error when email is not valid', async () => {
       const request: AxiosRequestConfig = {
         data: {
@@ -20,7 +20,7 @@ describe('v1 Email Routes', () => {
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/email/validate',
+        url: '/api/email/validate',
         withCredentials: true,
       }
 
@@ -29,9 +29,9 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('402 The email you provided is not valid.')
+        expect(typedError.response.data.message).toEqual('904 Invalid request: email: Invalid email')
       }
     })
 
@@ -44,7 +44,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/email/validate`,
+        url: `/api/email/validate`,
         withCredentials: true,
       }
 
@@ -53,9 +53,9 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('No email sent.')
+        expect(typedError.response.data.message).toEqual('904 Invalid request: email: Required')
       }
     })
 
@@ -68,7 +68,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/email/validate`,
+        url: `/api/email/validate`,
         withCredentials: true,
       }
 
@@ -77,19 +77,19 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(`400 ${TEST_EMAIL_ADMIN} already exists.`)
       }
     })
   })
 
-  describe('POST /api/v1/email', () => {
+  describe('POST /api/email', () => {
     test('should return an error when no payload sent', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/email',
+        url: '/api/email',
         withCredentials: true,
       }
 
@@ -98,11 +98,9 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          'Not enough information to create an email.',
-        )
+        expect(typedError.response.data.message).toEqual('904 Invalid request: def: Required')
       }
     })
 
@@ -119,7 +117,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/email/`,
+        url: `/api/email/`,
         withCredentials: true,
       }
 
@@ -128,7 +126,7 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(`400 ${TEST_EMAIL_ADMIN} already exists.`)
       }
@@ -147,7 +145,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/email/`,
+        url: `/api/email/`,
         withCredentials: true,
       }
 
@@ -156,7 +154,7 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
           '402 The email you provided is not valid. Disposable emails are not allowed.',
@@ -177,7 +175,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/email/`,
+        url: `/api/email/`,
         withCredentials: true,
       }
 
@@ -186,9 +184,9 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('402 The email you provided is not valid.')
+        expect(typedError.response.data.message).toEqual('904 Create Email: Could not validate: test@mail.invalidtld')
       }
     })
 
@@ -199,7 +197,7 @@ describe('v1 Email Routes', () => {
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/auth/otp-code/send/email`,
+        url: `/api/auth/otp-code/send/email`,
         withCredentials: true,
       })
       const payload: CreateEmailPayloadType = {
@@ -214,7 +212,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/email',
+        url: '/api/email',
         withCredentials: true,
       }
 
@@ -228,12 +226,12 @@ describe('v1 Email Routes', () => {
     })
   })
 
-  describe('PUT /api/v1/email/:id', () => {
+  describe('PUT /api/email/:id', () => {
     test('should return an error when no email exists with the id', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'PUT',
-        url: `/api/v1/email/${TEST_UUID}`,
+        url: `/api/email/${TEST_UUID}`,
         withCredentials: true,
       }
 
@@ -242,7 +240,7 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('403 Email could not be found.')
       }
@@ -259,7 +257,7 @@ describe('v1 Email Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'PUT',
-        url: `/api/v1/email/${idToUpdate}`,
+        url: `/api/email/${idToUpdate}`,
         withCredentials: true,
       }
 
@@ -271,12 +269,12 @@ describe('v1 Email Routes', () => {
     })
   })
 
-  describe('DELETE /api/v1/email/:id', () => {
+  describe('DELETE /api/email/:id', () => {
     test('should return an error when no email exists with the id', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'DELETE',
-        url: `/api/v1/email/${TEST_UUID}`,
+        url: `/api/email/${TEST_UUID}`,
         withCredentials: true,
       }
 
@@ -285,7 +283,7 @@ describe('v1 Email Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('403 Email could not be found.')
       }
@@ -295,7 +293,7 @@ describe('v1 Email Routes', () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'DELETE',
-        url: `/api/v1/email/${idToUpdate}`,
+        url: `/api/email/${idToUpdate}`,
         withCredentials: true,
       }
 

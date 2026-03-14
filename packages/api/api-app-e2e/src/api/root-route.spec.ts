@@ -6,6 +6,10 @@ import type {
   HealthzStatusType,
 } from '@dx3/models-shared'
 
+// These routes live on the base router (version-agnostic).
+// Explicitly clear X-API-Version so the versioned router does not intercept them.
+const BASE_ROUTER_HEADERS = { 'X-API-Version': undefined }
+
 describe('Root Routes', () => {
   describe('GET /api/healthz/h', () => {
     it('should return healthz info when queried', async () => {
@@ -13,7 +17,7 @@ describe('Root Routes', () => {
       const STATUS_OK = 'OK'
       let res: AxiosResponse<HealthzStatusType>
       // act
-      res = await axios.get(`/api/healthz/h`)
+      res = await axios.get(`/api/healthz/h`, { headers: BASE_ROUTER_HEADERS })
       // assert
       expect(res.status).toBe(200)
       expect(res.data).toBeDefined()
@@ -30,7 +34,7 @@ describe('Root Routes', () => {
       // arrange
       let res: AxiosResponse<unknown>
       // act
-      res = await axios.get(`/api/livez`)
+      res = await axios.get(`/api/livez`, { headers: BASE_ROUTER_HEADERS })
       // assert
       expect(res.status).toBe(200)
       expect(res.data).toBeDefined()
@@ -43,7 +47,7 @@ describe('Root Routes', () => {
       // arrange
       let res: AxiosResponse<AndroiodWellKnownData>
       // act
-      res = await axios.get(`/api/.well-known/assetlinks.json`)
+      res = await axios.get(`/api/.well-known/assetlinks.json`, { headers: BASE_ROUTER_HEADERS })
       // assert
       expect(res.status).toBe(200)
       expect(res.data).toBeDefined()
@@ -56,7 +60,7 @@ describe('Root Routes', () => {
       // arrange
       let res: AxiosResponse<AppleWellKnownData>
       // act
-      res = await axios.get(`/api/.well-known/apple-app-site-association`)
+      res = await axios.get(`/api/.well-known/apple-app-site-association`, { headers: BASE_ROUTER_HEADERS })
       // assert
       expect(res.status).toBe(200)
       expect(res.data).toBeDefined()

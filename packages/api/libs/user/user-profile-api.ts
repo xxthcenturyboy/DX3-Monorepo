@@ -10,6 +10,8 @@ export async function getUserProfileState(
 ): Promise<UserProfileStateType> {
   try {
     // common items
+    await user.getEmails()
+    await user.getPhones()
     const id = user.id
     const defaultEmail = user.emails.find((e) => e.default)
     const defaultPhone = user.phones.find((e) => e.default)

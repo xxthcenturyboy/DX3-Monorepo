@@ -23,7 +23,7 @@ describe('v1 Phone Routes', () => {
   let idToUpdate: string
   let _idToUpdateItaly: string
 
-  describe('POST /api/v1/phone/validate', () => {
+  describe('POST /api/phone/validate', () => {
     test('should return an error when phone is not valid', async () => {
       const request: AxiosRequestConfig = {
         data: {
@@ -32,7 +32,7 @@ describe('v1 Phone Routes', () => {
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/phone/validate',
+        url: '/api/phone/validate',
         withCredentials: true,
       }
 
@@ -41,7 +41,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
@@ -57,7 +57,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/phone/validate`,
+        url: `/api/phone/validate`,
         withCredentials: true,
       }
 
@@ -66,9 +66,9 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual('502 Missing phone or region code.')
+        expect(typedError.response.data.message).toEqual('904 Invalid request: regionCode: Required')
       }
     })
 
@@ -82,7 +82,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/phone/validate`,
+        url: `/api/phone/validate`,
         withCredentials: true,
       }
 
@@ -91,19 +91,19 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('500 (858) 484-6800 is already in use.')
       }
     })
   })
 
-  describe('POST /api/v1/phone', () => {
+  describe('POST /api/phone', () => {
     test('should return an error when no payload sent', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/phone',
+        url: '/api/phone',
         withCredentials: true,
       }
 
@@ -112,11 +112,9 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
-        expect(typedError.response.data.message).toEqual(
-          'Not enough information to create a phone.',
-        )
+        expect(typedError.response.data.message).toEqual('904 Invalid request: def: Required')
       }
     })
 
@@ -135,7 +133,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/phone/`,
+        url: `/api/phone/`,
         withCredentials: true,
       }
 
@@ -144,7 +142,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('500 (858) 484-6800 is already in use.')
       }
@@ -165,7 +163,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/phone/`,
+        url: `/api/phone/`,
         withCredentials: true,
       }
 
@@ -174,7 +172,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
@@ -195,7 +193,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/phone/`,
+        url: `/api/phone/`,
         withCredentials: true,
       }
 
@@ -204,7 +202,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('502 This phone cannot be used.')
       }
@@ -218,7 +216,7 @@ describe('v1 Phone Routes', () => {
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/auth/otp-code/send/phone`,
+        url: `/api/auth/otp-code/send/phone`,
         withCredentials: true,
       })
       const payload: CreatePhonePayloadType = {
@@ -235,7 +233,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/phone',
+        url: '/api/phone',
         withCredentials: true,
       }
 
@@ -256,7 +254,7 @@ describe('v1 Phone Routes', () => {
         },
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: `/api/v1/auth/otp-code/send/phone`,
+        url: `/api/auth/otp-code/send/phone`,
         withCredentials: true,
       })
       const payload: CreatePhonePayloadType = {
@@ -273,7 +271,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'POST',
-        url: '/api/v1/phone',
+        url: '/api/phone',
         withCredentials: true,
       }
 
@@ -287,12 +285,12 @@ describe('v1 Phone Routes', () => {
     })
   })
 
-  describe('PUT /api/v1/phone/:id', () => {
+  describe('PUT /api/phone/:id', () => {
     test('should return an error when no phone exists with the id', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'PUT',
-        url: `/api/v1/phone/${TEST_UUID}`,
+        url: `/api/phone/${TEST_UUID}`,
         withCredentials: true,
       }
 
@@ -301,7 +299,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('503 Phone could not be found.')
       }
@@ -318,7 +316,7 @@ describe('v1 Phone Routes', () => {
         data: payload,
         headers: getGlobalAuthHeaders(),
         method: 'PUT',
-        url: `/api/v1/phone/${idToUpdate}`,
+        url: `/api/phone/${idToUpdate}`,
         withCredentials: true,
       }
 
@@ -330,12 +328,12 @@ describe('v1 Phone Routes', () => {
     })
   })
 
-  describe('DELETE /api/v1/phone/:id', () => {
+  describe('DELETE /api/phone/:id', () => {
     test('should return an error when no phone exists with the id', async () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'DELETE',
-        url: `/api/v1/phone/${TEST_UUID}`,
+        url: `/api/phone/${TEST_UUID}`,
         withCredentials: true,
       }
 
@@ -344,7 +342,7 @@ describe('v1 Phone Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('503 Phone could not be found.')
       }
@@ -354,7 +352,7 @@ describe('v1 Phone Routes', () => {
       const request: AxiosRequestConfig = {
         headers: getGlobalAuthHeaders(),
         method: 'DELETE',
-        url: `/api/v1/phone/${idToUpdate}`,
+        url: `/api/phone/${idToUpdate}`,
         withCredentials: true,
       }
 

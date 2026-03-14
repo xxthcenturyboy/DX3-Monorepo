@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "test": "jest",
-    "test:verbose": "jest --verbose",
-    "test:runInBand": "jest --runInBand",
-    "test:verbose:runInBand": "jest --verbose --runInBand",
+    "test": "jest --runInBand",
+    "test:verbose": "jest --verbose --runInBand",
     "test:ci": "jest --runInBand --coverage --watchAll=false",
     "test:debug": "jest --verbose --runInBand --detectOpenHandles",
     "lint": "biome check ."

@@ -116,13 +116,13 @@ export class NotificationService {
     route?: string,
     suppressPush?: boolean,
   ): Promise<NotificationModel> {
-    try {
-      if (!userId && !message) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
-        )
-      }
+    if (!userId && !message) {
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
+    }
 
+    try {
       const notification = await NotificationModel.createNew({
         level,
         message,
@@ -151,13 +151,13 @@ export class NotificationService {
     route?: string,
     suppressPush?: boolean,
   ): Promise<NotificationModel> {
-    try {
-      if (!message) {
-        throw new Error(
-          createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
-        )
-      }
+    if (!message) {
+      throw new Error(
+        createApiErrorMessage(ERROR_CODES.GENERIC_VALIDATION_FAILED, 'Missing params'),
+      )
+    }
 
+    try {
       const notification = await NotificationModel.createNew({
         level,
         message,

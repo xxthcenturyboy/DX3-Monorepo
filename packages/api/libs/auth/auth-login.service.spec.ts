@@ -203,6 +203,8 @@ describe('AuthLoginService', () => {
       const mockUser = {
         accountLocked: false,
         deletedAt: null,
+        getEmails: jest.fn().mockResolvedValue([]),
+        getPhones: jest.fn().mockResolvedValue([]),
         id: 'user-1',
       }
       ;(UserModel.getBiomAuthKey as jest.Mock).mockResolvedValue('mock-public-key')

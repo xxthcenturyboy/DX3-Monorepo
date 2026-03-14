@@ -16,25 +16,31 @@ function createMockUser(
     emails: Array<{ default: boolean; verifiedAt: Date | null }>
     fetchConnectedDevice: () => Promise<{ hasBiometricSetup: boolean; id: string } | null>
     getEmailData: () => Promise<unknown[]>
+    getEmails: () => Promise<unknown[]>
     getPhoneData: () => Promise<unknown[]>
+    getPhones: () => Promise<unknown[]>
     hasSecuredAccount: () => Promise<boolean>
     phones: Array<{ default: boolean; verifiedAt: Date | null }>
   }>,
 ) {
+  const emails = overrides?.emails ?? [{ default: true, verifiedAt: new Date() }]
+  const phones = overrides?.phones ?? [{ default: true, verifiedAt: new Date() }]
   return {
-    emails: [{ default: true, verifiedAt: new Date() }],
+    emails,
     fetchConnectedDevice: jest.fn().mockResolvedValue(null),
     firstName: 'Test',
     fullName: 'Test User',
     getEmailData: jest.fn().mockResolvedValue([]),
+    getEmails: jest.fn().mockResolvedValue(emails),
     getPhoneData: jest.fn().mockResolvedValue([]),
+    getPhones: jest.fn().mockResolvedValue(phones),
     hasSecuredAccount: jest.fn().mockResolvedValue(false),
     id: 'user-123',
     isAdmin: false,
     isSuperAdmin: false,
     lastName: 'User',
     optInBeta: false,
-    phones: [{ default: true, verifiedAt: new Date() }],
+    phones,
     restrictions: [],
     roles: ['USER'],
     timezone: DEFAULT_TIMEZONE,
@@ -87,7 +93,9 @@ describe('getUserProfileState', () => {
 
     expect(mockUser.fetchConnectedDevice).toHaveBeenCalled()
     expect(mockUser.getEmailData).toHaveBeenCalled()
+    expect(mockUser.getEmails).toHaveBeenCalled()
     expect(mockUser.getPhoneData).toHaveBeenCalled()
+    expect(mockUser.getPhones).toHaveBeenCalled()
     expect(mockUser.hasSecuredAccount).toHaveBeenCalled()
   })
 

@@ -43,7 +43,7 @@ export const userLookupQuerySchema = z.object({
 })
 
 export const sendOtpToEmailBodySchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1),
   strict: z.boolean().optional(),
 })
 

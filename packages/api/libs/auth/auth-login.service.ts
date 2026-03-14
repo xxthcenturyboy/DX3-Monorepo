@@ -67,6 +67,9 @@ export class AuthLoginService {
         throw new Error(`BiometricLogin: No user with that id: ${userId}`)
       }
 
+      await user.getEmails()
+      await user.getPhones()
+
       if (device) {
         const deviceService = new DevicesService()
         await deviceService.handleDevice(device, user)
@@ -143,7 +146,7 @@ export class AuthLoginService {
       const otpCache = new OtpCodeCache()
       const isCodeValid = await otpCache.validateEmailOtp(code, email)
       if (!isCodeValid) {
-        throw new Error(createApiErrorMessage(ERROR_CODES.AUTH_OTP_INVALID, 'Invalid code.'))
+        throw new Error(createApiErrorMessage(ERROR_CODES.AUTH_FAILED, 'Could not log you in.'))
       }
 
       try {

@@ -14,11 +14,11 @@ register({
 
 // Load environment variables from multiple .env files with variable expansion
 // Root .env is loaded first (base config), then api-app/.env (overrides/extends)
+// quiet: true suppresses dotenv's console.log "injecting env" messages
 const dotenv = require('dotenv')
 const dotenvExpand = require('dotenv-expand')
 
 // Load root .env first (shared config: APP_DOMAIN, etc.)
-// quiet: true suppresses dotenv's console.log "injecting env" messages
 const rootEnvPath = nodePath.resolve(__dirname, '../../.env')
 const rootEnv = dotenv.config({ path: rootEnvPath, quiet: true })
 dotenvExpand.expand(rootEnv)
@@ -38,9 +38,12 @@ const { TEST_USER_DATA } = require('@dx3/test-data')
  * Global Setup for API E2E Tests
  *
  * This runs ONCE before all test files in a separate process.
- * It ensures the API is ready and performs global authentication.
+ * It ensures the API is ready and performs authentication for all 3 in-scope roles:
+ * - superadmin (USER + ADMIN + SUPER_ADMIN)
+ * - admin (USER + ADMIN)
+ * - user (USER)
  *
- * Auth credentials are stored in a temp file to share with test files.
+ * All role sessions are stored in .auth-cache.json for test files to read.
  */
 
 // Configure axios for setup
@@ -54,11 +57,18 @@ axios.defaults.timeout = 10000
 // Path to store auth credentials for sharing between processes
 const AUTH_CACHE_PATH = path.join(__dirname, '.auth-cache.json')
 
-interface AuthCache {
+interface RoleSession {
   accessToken: string
   cookies: Record<string, string>
   cookiesRaw: string[]
   profile: any
+}
+
+interface AuthCache {
+  superadmin?: RoleSession
+  admin?: RoleSession
+  user?: RoleSession
+  error?: string
 }
 
 async function sleep(ms: number): Promise<void> {
@@ -88,22 +98,17 @@ async function waitForApi(): Promise<void> {
   throw new Error(`❌ API failed to start within ${maxRetries}s timeout period`)
 }
 
-async function performGlobalLogin(): Promise<AuthCache | null> {
-  // Test credentials for global auth (from libs/test-data)
-  const TEST_EXISTING_USERNAME = TEST_USER_DATA.SUPERADMIN.username
-  const TEST_EXISTING_PASSWORD = TEST_USER_DATA.SUPERADMIN.password
-
+async function loginAs(email: string, password: string): Promise<RoleSession | null> {
   const maxRetries = 5
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await axios.post('/api/auth/login', {
-        password: TEST_EXISTING_PASSWORD,
-        value: TEST_EXISTING_USERNAME,
+        password,
+        value: email,
       })
 
       if (response.data?.accessToken) {
-        // Parse cookies from response
         const cookiesRaw = response.headers['set-cookie'] || []
         const cookies: Record<string, string> = {}
 
@@ -123,7 +128,6 @@ async function performGlobalLogin(): Promise<AuthCache | null> {
         }
       }
 
-      // No token returned - retry
       if (attempt < maxRetries) {
         const delay = attempt * 2000
         console.log(
@@ -152,20 +156,48 @@ async function performGlobalLogin(): Promise<AuthCache | null> {
 module.exports = async () => {
   console.log('\n🚀 Setting up API E2E environment...\n')
 
-  // Wait for API to be ready
   await waitForApi()
 
-  // Perform global login
-  console.log('🔐 Performing global authentication...')
-  const authCache = await performGlobalLogin()
+  // Set version header after health check — /api/livez is on baseRouter (no version header needed)
+  axios.defaults.headers.common['X-API-Version'] = '1'
 
-  if (authCache) {
-    // Store auth credentials to file for test files to read
-    fs.writeFileSync(AUTH_CACHE_PATH, JSON.stringify(authCache, null, 2))
-    console.log('✅ Global authentication successful\n')
+  console.log('🔐 Authenticating all role sessions...')
+
+  const authCache: AuthCache = {}
+
+  const superadminSession = await loginAs(
+    TEST_USER_DATA.SUPERADMIN.email,
+    TEST_USER_DATA.SUPERADMIN.password,
+  )
+  if (superadminSession) {
+    authCache.superadmin = superadminSession
+    console.log('  ✅ SUPER_ADMIN authenticated')
   } else {
-    // Write empty cache to indicate auth failed
-    fs.writeFileSync(AUTH_CACHE_PATH, JSON.stringify({ error: 'Authentication failed' }))
-    console.error('❌ Global authentication failed\n')
+    console.error('  ❌ SUPER_ADMIN authentication failed')
   }
+
+  const adminSession = await loginAs(TEST_USER_DATA.ADMIN.email, TEST_USER_DATA.ADMIN.password)
+  if (adminSession) {
+    authCache.admin = adminSession
+    console.log('  ✅ ADMIN authenticated')
+  } else {
+    console.error('  ❌ ADMIN authentication failed')
+  }
+
+  const userSession = await loginAs(TEST_USER_DATA.USER.email, TEST_USER_DATA.USER.password)
+  if (userSession) {
+    authCache.user = userSession
+    console.log('  ✅ USER authenticated')
+  } else {
+    console.error('  ❌ USER authentication failed')
+  }
+
+  if (!authCache.superadmin && !authCache.admin && !authCache.user) {
+    authCache.error = 'All authentications failed'
+    console.error('❌ All role authentications failed\n')
+  } else {
+    console.log('✅ Role authentication complete\n')
+  }
+
+  fs.writeFileSync(AUTH_CACHE_PATH, JSON.stringify(authCache, null, 2))
 }

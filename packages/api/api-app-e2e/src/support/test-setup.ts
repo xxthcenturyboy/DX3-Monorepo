@@ -19,24 +19,29 @@ const apiAppEnvPath = path.resolve(__dirname, '../../../api-app/.env')
 const apiEnv = dotenv.config({ path: apiAppEnvPath, quiet: true })
 dotenvExpand.expand(apiEnv)
 
+export type AuthRole = 'superadmin' | 'admin' | 'user'
+
+interface RoleSession {
+  accessToken: string
+  cookies: Record<string, string>
+  cookiesRaw: string[]
+  profile: any
+}
+
 /**
  * Global type declarations for test authentication state
  * These are populated from the global-setup.ts auth cache
  */
 declare global {
-  var globalAuthAccessToken: string | undefined
-  var globalAuthCookies: Record<string, string> | undefined
-  var globalAuthCookiesRaw: string[] | undefined
-  var globalAuthProfile: any
+  var globalAuthSessions: Record<AuthRole, RoleSession | undefined>
   var globalAuthError: string | undefined
   var isAuthTestFile: boolean
 }
 
 interface AuthCache {
-  accessToken?: string
-  cookies?: Record<string, string>
-  cookiesRaw?: string[]
-  profile?: any
+  superadmin?: RoleSession
+  admin?: RoleSession
+  user?: RoleSession
   error?: string
 }
 
@@ -51,6 +56,7 @@ const baseURL = `${schema}://${host}:${port}`
 
 axios.defaults.baseURL = baseURL
 axios.defaults.timeout = 10000 // 10 second timeout for E2E tests
+axios.defaults.headers.common['X-API-Version'] = '1'
 
 // Add request/response interceptors for better debugging
 axios.interceptors.request.use(
@@ -76,13 +82,12 @@ axios.interceptors.response.use(
 )
 
 /**
- * Determines if the current test file is an auth test that should
- * skip global login (since it tests auth functionality itself)
+ * Auth test files (auth/auth-*.spec.ts) manage their own authentication.
+ * They create AuthUtil instances directly and do not rely on the global cache.
  */
-function isAuthFlowTest(): boolean {
-  // Jest sets expect.getState().testPath with the current test file path
+function detectAuthTestFile(): boolean {
   const testPath = (expect as any).getState?.()?.testPath || ''
-  return testPath.includes('auth-flow') || testPath.includes('auth/auth-flow')
+  return testPath.includes('/auth/auth-')
 }
 
 /**
@@ -105,88 +110,94 @@ function loadAuthCache(): AuthCache | null {
  * Loads cached auth credentials from global-setup.ts
  */
 beforeAll(async () => {
-  // Determine if this is an auth test file that should handle its own auth
-  global.isAuthTestFile = isAuthFlowTest()
+  global.isAuthTestFile = detectAuthTestFile()
+
+  // Warm-up request to ensure connection is established before any test logic runs.
+  // This applies to ALL test files (including auth files that manage their own sessions).
+  try {
+    await axios.get('/api/livez', { timeout: 2000 })
+  } catch (_e) {
+    // Ignore warm-up errors
+  }
 
   if (global.isAuthTestFile) {
-    // Auth test files handle their own authentication
-    global.globalAuthAccessToken = undefined
-    global.globalAuthCookies = undefined
-    global.globalAuthCookiesRaw = undefined
-    global.globalAuthProfile = undefined
+    global.globalAuthSessions = { admin: undefined, superadmin: undefined, user: undefined }
     global.globalAuthError = undefined
     return
   }
 
-  // Load auth from cache (created by global-setup.ts)
   const authCache = loadAuthCache()
 
   if (authCache?.error) {
     global.globalAuthError = authCache.error
-    global.globalAuthAccessToken = undefined
-    global.globalAuthCookies = undefined
-    global.globalAuthCookiesRaw = undefined
-    global.globalAuthProfile = undefined
+    global.globalAuthSessions = { admin: undefined, superadmin: undefined, user: undefined }
     return
   }
 
-  if (authCache?.accessToken) {
-    global.globalAuthAccessToken = authCache.accessToken
-    global.globalAuthCookies = authCache.cookies
-    global.globalAuthCookiesRaw = authCache.cookiesRaw
-    global.globalAuthProfile = authCache.profile
-    global.globalAuthError = undefined
-
-    // Warm-up request to ensure connection is established
-    // This prevents the first actual test request from failing
-    try {
-      await axios.get('/api/livez', { timeout: 2000 })
-    } catch (_e) {
-      // Ignore warm-up errors
-    }
-  } else {
-    global.globalAuthError = 'No auth cache found - global-setup may have failed'
-    global.globalAuthAccessToken = undefined
-    global.globalAuthCookies = undefined
-    global.globalAuthCookiesRaw = undefined
-    global.globalAuthProfile = undefined
+  global.globalAuthSessions = {
+    admin: authCache?.admin ?? undefined,
+    superadmin: authCache?.superadmin ?? undefined,
+    user: authCache?.user ?? undefined,
   }
+  global.globalAuthError = undefined
 })
 
 /**
- * Helper function to get auth headers from global auth state
- * Use this in tests instead of creating new AuthUtil instances
+ * Get auth headers for the given role.
  *
  * @example
- * const request = { url: '/ap/user/list', headers: getGlobalAuthHeaders(), ... };
+ * const headers = getAuthHeaders('admin')
+ * const headers = getAuthHeaders('user')
  */
-export function getGlobalAuthHeaders(): Record<string, string | string[]> {
-  if (global.globalAuthError) {
-    throw new Error(`Cannot get auth headers: ${global.globalAuthError}`)
-  }
-  if (!global.globalAuthAccessToken) {
+export function getAuthHeaders(role: AuthRole): Record<string, string | string[]> {
+  const session = global.globalAuthSessions?.[role]
+
+  if (!session) {
+    if (global.globalAuthError) {
+      throw new Error(`Cannot get auth headers for ${role}: ${global.globalAuthError}`)
+    }
     throw new Error(
-      'Global auth not initialized - ensure test file is not excluded from global login',
+      `No session found for role "${role}" — ensure global-setup authenticated this role`,
     )
   }
+
   return {
-    Authorization: `Bearer ${global.globalAuthAccessToken}`,
-    cookie: global.globalAuthCookiesRaw || [],
+    Authorization: `Bearer ${session.accessToken}`,
+    cookie: session.cookiesRaw || [],
   }
 }
 
 /**
- * Get the global auth response (includes profile, accessToken)
+ * Get auth response (accessToken + profile) for the given role.
+ */
+export function getAuthResponse(role: AuthRole): AuthSuccessResponseType {
+  const session = global.globalAuthSessions?.[role]
+
+  if (!session) {
+    if (global.globalAuthError) {
+      throw new Error(`Cannot get auth response for ${role}: ${global.globalAuthError}`)
+    }
+    throw new Error(`No session found for role "${role}"`)
+  }
+
+  return {
+    accessToken: session.accessToken,
+    profile: session.profile,
+  }
+}
+
+/**
+ * Backward-compatible alias for SUPER_ADMIN auth headers.
+ * Prefer getAuthHeaders('superadmin') in new tests.
+ */
+export function getGlobalAuthHeaders(): Record<string, string | string[]> {
+  return getAuthHeaders('superadmin')
+}
+
+/**
+ * Backward-compatible alias for SUPER_ADMIN auth response.
+ * Prefer getAuthResponse('superadmin') in new tests.
  */
 export function getGlobalAuthResponse(): AuthSuccessResponseType {
-  if (global.globalAuthError) {
-    throw new Error(`Cannot get auth response: ${global.globalAuthError}`)
-  }
-  if (!global.globalAuthAccessToken || !global.globalAuthProfile) {
-    throw new Error('Global auth response not available - authentication may have failed')
-  }
-  return {
-    accessToken: global.globalAuthAccessToken,
-    profile: global.globalAuthProfile,
-  }
+  return getAuthResponse('superadmin')
 }

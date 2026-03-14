@@ -23,7 +23,6 @@ export class DxRateLimiters {
     next: NextFunction,
     options: { message: string },
   ) {
-    console.log('handleLimitCommon', isDev(), process.env.DISABLE_RATE_LIMIT)
     // Only bypass rate limiting if EXPLICITLY disabled in local development
     // This prevents accidental bypass in production if NODE_ENV is misconfigured
     if (isDev() && process.env.DISABLE_RATE_LIMIT === 'true') {

@@ -9,11 +9,11 @@ import { MEDIA_SUB_TYPES, MEDIA_VARIANTS } from '@dx3/models-shared'
 import { getGlobalAuthHeaders } from '../../support/test-setup'
 
 describe('v1 Media Routes', () => {
-  let mediaId = ''
-  let mediaId2 = ''
-  let profileImageId = ''
+  let mediaId: string | undefined
+  let mediaId2: string | undefined
+  let profileImageId: string | undefined
 
-  describe('POST /api/v1/media/upload-profile-image', () => {
+  describe('POST /api/media/upload-profile-image', () => {
     test('should return an error when no file is sent', async () => {
       //arrange
       const bodyFormData = new FormData()
@@ -25,7 +25,7 @@ describe('v1 Media Routes', () => {
           // 'Content-Type': 'multipart/form-data',
         },
         method: 'POST',
-        url: '/api/v1/media/upload-profile-image',
+        url: '/api/media/upload-profile-image',
         withCredentials: true,
       }
       // act
@@ -34,7 +34,7 @@ describe('v1 Media Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
           'options.allowEmptyFiles is false, file size should be greater than 0',
@@ -58,7 +58,7 @@ describe('v1 Media Routes', () => {
           // 'Content-Type': 'multipart/form-data',
         },
         method: 'POST',
-        url: '/api/v1/media/upload-profile-image',
+        url: '/api/media/upload-profile-image',
         withCredentials: true,
       }
       // act
@@ -67,7 +67,7 @@ describe('v1 Media Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(413)
+        expect(typedError.response?.status).toBe(413)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual('200 File upload count exceeded.')
       }
@@ -87,7 +87,7 @@ describe('v1 Media Routes', () => {
           //  'Content-Type': 'multipart/form-data'
         },
         method: 'POST',
-        url: '/api/v1/media/upload-profile-image',
+        url: '/api/media/upload-profile-image',
         withCredentials: true,
       }
 
@@ -104,18 +104,18 @@ describe('v1 Media Routes', () => {
       expect(data.data.id).toBeDefined()
       expect(data.data.mediaSubType).toEqual(MEDIA_SUB_TYPES.PROFILE_IMAGE)
       expect(data.data.files).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.SMALL]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.THUMB]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.SMALL]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.THUMB]).toBeDefined()
     })
 
     test('should retrieve the profile image', async () => {
       //arrange
       const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
+        headers: { ...getGlobalAuthHeaders(), 'X-API-Version': '0' },
         method: 'GET',
-        url: `/api/v1/media/${profileImageId}/${MEDIA_VARIANTS.THUMB}`,
+        url: `/api/media/${profileImageId}/${MEDIA_VARIANTS.THUMB}`,
         withCredentials: true,
       }
 
@@ -128,7 +128,7 @@ describe('v1 Media Routes', () => {
     })
   })
 
-  describe('POST /api/v1/media/upload-user-content', () => {
+  describe('POST /api/media/upload-content', () => {
     test('should return an error when no file is sent', async () => {
       //arrange
       const bodyFormData = new FormData()
@@ -140,7 +140,7 @@ describe('v1 Media Routes', () => {
           // 'Content-Type': 'multipart/form-data',
         },
         method: 'POST',
-        url: '/api/v1/media/upload-user-content',
+        url: '/api/media/upload-content',
         withCredentials: true,
       }
       // act
@@ -149,7 +149,7 @@ describe('v1 Media Routes', () => {
       } catch (err) {
         const typedError = err as AxiosError
         // assert
-        expect(typedError.response.status).toBe(400)
+        expect(typedError.response?.status).toBe(400)
         // @ts-expect-error - type is bad
         expect(typedError.response.data.message).toEqual(
           'options.allowEmptyFiles is false, file size should be greater than 0',
@@ -171,7 +171,7 @@ describe('v1 Media Routes', () => {
           //  'Content-Type': 'multipart/form-data'
         },
         method: 'POST',
-        url: '/api/v1/media/upload-user-content',
+        url: '/api/media/upload-content',
         withCredentials: true,
       }
 
@@ -188,18 +188,18 @@ describe('v1 Media Routes', () => {
       expect(data.data.id).toBeDefined()
       expect(data.data.mediaSubType).toEqual(MEDIA_SUB_TYPES.IMAGE)
       expect(data.data.files).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.SMALL]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
-      expect(data.data.files[MEDIA_VARIANTS.THUMB]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.SMALL]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
+      expect(data.data.files?.[MEDIA_VARIANTS.THUMB]).toBeDefined()
     })
 
     test('should return status 200 and the uploaded file when successful', async () => {
       //arrange
       const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
+        headers: { ...getGlobalAuthHeaders(), 'X-API-Version': '0' },
         method: 'GET',
-        url: `/api/v1/media/${mediaId}/${MEDIA_VARIANTS.THUMB}`,
+        url: `/api/media/${mediaId}/${MEDIA_VARIANTS.THUMB}`,
         withCredentials: true,
       }
 
@@ -228,7 +228,7 @@ describe('v1 Media Routes', () => {
           //  'Content-Type': 'multipart/form-data'
         },
         method: 'POST',
-        url: '/api/v1/media/upload-user-content',
+        url: '/api/media/upload-content',
         withCredentials: true,
       }
 
@@ -247,10 +247,10 @@ describe('v1 Media Routes', () => {
       expect(data0.data.id).toBeDefined()
       expect(data0.data.mediaSubType).toEqual(MEDIA_SUB_TYPES.IMAGE)
       expect(data0.data.files).toBeDefined()
-      expect(data0.data.files[MEDIA_VARIANTS.SMALL]).toBeDefined()
-      expect(data0.data.files[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
-      expect(data0.data.files[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
-      expect(data0.data.files[MEDIA_VARIANTS.THUMB]).toBeDefined()
+      expect(data0.data.files?.[MEDIA_VARIANTS.SMALL]).toBeDefined()
+      expect(data0.data.files?.[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
+      expect(data0.data.files?.[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
+      expect(data0.data.files?.[MEDIA_VARIANTS.THUMB]).toBeDefined()
 
       expect(data1).toBeDefined()
       expect(data1.ok).toBe(true)
@@ -258,18 +258,18 @@ describe('v1 Media Routes', () => {
       expect(data1.data.id).toBeDefined()
       expect(data1.data.mediaSubType).toEqual(MEDIA_SUB_TYPES.IMAGE)
       expect(data1.data.files).toBeDefined()
-      expect(data1.data.files[MEDIA_VARIANTS.SMALL]).toBeDefined()
-      expect(data1.data.files[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
-      expect(data1.data.files[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
-      expect(data1.data.files[MEDIA_VARIANTS.THUMB]).toBeDefined()
+      expect(data1.data.files?.[MEDIA_VARIANTS.SMALL]).toBeDefined()
+      expect(data1.data.files?.[MEDIA_VARIANTS.MEDIUM]).toBeDefined()
+      expect(data1.data.files?.[MEDIA_VARIANTS.ORIGINAL]).toBeDefined()
+      expect(data1.data.files?.[MEDIA_VARIANTS.THUMB]).toBeDefined()
     })
 
     test('should return status 200 and the uploaded file1 when successful', async () => {
       //arrange
       const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
+        headers: { ...getGlobalAuthHeaders(), 'X-API-Version': '0' },
         method: 'GET',
-        url: `/api/v1/media/${mediaId}/${MEDIA_VARIANTS.THUMB}`,
+        url: `/api/media/${mediaId}/${MEDIA_VARIANTS.THUMB}`,
         withCredentials: true,
       }
 
@@ -284,9 +284,9 @@ describe('v1 Media Routes', () => {
     test('should return status 200 and the uploaded file2 when successful', async () => {
       //arrange
       const request: AxiosRequestConfig = {
-        headers: getGlobalAuthHeaders(),
+        headers: { ...getGlobalAuthHeaders(), 'X-API-Version': '0' },
         method: 'GET',
-        url: `/api/v1/media/${mediaId2}/${MEDIA_VARIANTS.THUMB}`,
+        url: `/api/media/${mediaId2}/${MEDIA_VARIANTS.THUMB}`,
         withCredentials: true,
       }
 

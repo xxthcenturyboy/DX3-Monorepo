@@ -139,8 +139,13 @@ describe('auth-api.validation', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should reject invalid email', () => {
+    it('should accept non-email strings (service handles validation)', () => {
       const result = sendOtpToEmailBodySchema.safeParse({ email: 'not-an-email' })
+      expect(result.success).toBe(true)
+    })
+
+    it('should reject empty email', () => {
+      const result = sendOtpToEmailBodySchema.safeParse({ email: '' })
       expect(result.success).toBe(false)
     })
   })

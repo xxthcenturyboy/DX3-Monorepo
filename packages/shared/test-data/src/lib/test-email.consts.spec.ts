@@ -3,6 +3,7 @@ import { APP_DOMAIN } from '@dx3/models-shared'
 import {
   TEST_EMAIL,
   TEST_EMAIL_ADMIN,
+  TEST_EMAIL_BIOMETRIC,
   TEST_EMAIL_NEW,
   TEST_EMAIL_NEW_2,
   TEST_EMAIL_SUPERADMIN,
@@ -23,6 +24,21 @@ describe('Test Email Constants (test-email.consts.ts)', () => {
 
     it('should use APP_DOMAIN', () => {
       expect(TEST_EMAIL).toBe(`test@${APP_DOMAIN}`)
+    })
+  })
+
+  describe('TEST_EMAIL_BIOMETRIC', () => {
+    it('should be defined', () => {
+      expect(TEST_EMAIL_BIOMETRIC).toBeDefined()
+      expect(typeof TEST_EMAIL_BIOMETRIC).toBe('string')
+    })
+
+    it('should be in valid email format', () => {
+      expect(TEST_EMAIL_BIOMETRIC).toMatch(emailRegex)
+    })
+
+    it('should use APP_DOMAIN', () => {
+      expect(TEST_EMAIL_BIOMETRIC).toBe(`biometric-test@${APP_DOMAIN}`)
     })
   })
 
@@ -89,8 +105,11 @@ describe('Test Email Constants (test-email.consts.ts)', () => {
   describe('Email Uniqueness', () => {
     it('should have unique email values', () => {
       expect(TEST_EMAIL).not.toBe(TEST_EMAIL_ADMIN)
+      expect(TEST_EMAIL).not.toBe(TEST_EMAIL_BIOMETRIC)
       expect(TEST_EMAIL).not.toBe(TEST_EMAIL_SUPERADMIN)
+      expect(TEST_EMAIL_ADMIN).not.toBe(TEST_EMAIL_BIOMETRIC)
       expect(TEST_EMAIL_ADMIN).not.toBe(TEST_EMAIL_SUPERADMIN)
+      expect(TEST_EMAIL_BIOMETRIC).not.toBe(TEST_EMAIL_SUPERADMIN)
     })
 
     it('should all use the same domain', () => {

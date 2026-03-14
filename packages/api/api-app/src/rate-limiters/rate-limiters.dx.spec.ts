@@ -198,8 +198,8 @@ describe('DxRateLimiters', () => {
       const { sendOK } = jest.requireMock('@dx3/api-libs/http-response/http-responses')
       const originalNodeEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'test'
-      // AUTH_ROUTES_V1_RATE_LIMIT entries have no leading slash (e.g. 'api/auth/login')
-      req.originalUrl = 'api/auth/login'
+      // AUTH_ROUTES_V1_RATE_LIMIT entries include leading slash (e.g. '/api/auth/login')
+      req.originalUrl = '/api/auth/login'
       // act
       DxRateLimiters.handleLimitCommon(req, res, next, { message: 'Rate limited' })
       // assert
